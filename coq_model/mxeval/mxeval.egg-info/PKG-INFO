@@ -1,0 +1,11 @@
+Metadata-Version: 2.2
+Name: mxeval
+Version: 1.0
+Author: AWS AI Labs
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: tqdm
+Requires-Dist: fire
+Requires-Dist: numpy
+Dynamic: author
+Dynamic: requires-dist

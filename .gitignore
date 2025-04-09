@@ -1,0 +1,11 @@
+wandb/
+tmp/*.pkl
+tmp/*.txt
+coq_model/coq_code/mbjp/*
+coq_model/datas/mbjp_coqview/*
+coq_model/datas/mbjp/*
+Utils/output/*
+Utils/models/*
+Utils/data/*/
+Utils/score_output/forjava/*
+**/__pycache__/

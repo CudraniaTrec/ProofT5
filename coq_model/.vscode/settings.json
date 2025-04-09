@@ -1,0 +1,20 @@
+{
+    "files.exclude": {
+        "**/*.vo": true,
+        "**/*.vok": true,
+        "**/*.vos": true,
+        "**/*.aux": true,
+        "**/*.glob": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "Makefile.coq": true,
+        ".Makefile.coq.d": true,
+        "Makefile.coq.conf": true
+    },
+    "coq-lsp.path": "/home/hzc/.opam/coq819/bin/coq-lsp",
+    "coq-lsp.check_only_on_request": false
+}

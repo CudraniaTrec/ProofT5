@@ -1,0 +1,7 @@
+class PerimeterPolygon
+  [public static]
+  perimeterPolygon(s: int, p: int): int
+    p: int := (s + 1) * (s + 1)) / 2;
+    return (int) (Math.sqrt(p))
+  end method
+end class

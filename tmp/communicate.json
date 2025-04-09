@@ -1,0 +1,1 @@
+{"train_data_len": [46, 46, 46, 47, 47, 47, 47, 47], "valid_data_len": [5, 5, 6, 6, 6, 6, 6, 6], "test_data_len": [5, 5, 6, 6, 6, 6, 6, 6], "reload": true, "exit": true}
