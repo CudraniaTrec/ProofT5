@@ -35,6 +35,7 @@ class ExNodeTypes(Enum):
     StatementList = 1
     TermList = 2
     ClassComponentList = 3
+    SwitchStatementList = 4
 
 # print a javalang node in json format
 def print_node(node):
@@ -59,6 +60,9 @@ java_type_map = {
     "List": "List",
     "Set": "Set",
     "Map": "Map",
+    "StringBuilder": "StringBuilder",
+    "Collections": "Collections",
+    "Optional": "Optional"
 }
 
 def visit(node, node_type=ExNodeTypes.Default):
@@ -346,6 +350,15 @@ def visit(node, node_type=ExNodeTypes.Default):
         ty = visit(node.type)
         exp = visit(node.expression)
         return TmConversion(ty, exp)
+    elif isinstance(node, SwitchStatement):
+        exp = visit(node.expression)
+        cases = visit(node.cases, ExNodeTypes.StatementList)
+        return StSwitch(exp, cases)
+    elif isinstance(node, SwitchStatementCase):
+        assert len(node.case) == 1, "SwitchStatementCase should have exactly one case"
+        exp = visit(node.case[0])
+        body = visit(node.statements, ExNodeTypes.SwitchStatementList)
+        return StSwitchCase(exp, body)
     elif isinstance(node, Primary) and node.prefix_operators:
         assert len(node.prefix_operators) == 1, "Primary should have exactly one prefix operator"
         op = node.prefix_operators[0]
@@ -376,6 +389,22 @@ def visit(node, node_type=ExNodeTypes.Default):
             return TmPostDec(visit(tmp_node))
         else:
             assert False, f"Unknown suffix operator: {op}"
+    elif isinstance(node, Primary) and node.selectors:
+        selectors = node.selectors
+        tmp_node = deepcopy(node)
+        tmp_node.selectors = None
+        ret = visit(tmp_node)
+        for n in selectors:
+            if isinstance(n, MethodInvocation):
+                method_name = n.member
+                args = visit(n.arguments, ExNodeTypes.TermList)
+                ret = TmMethodInvocation(method_name, ret, args)
+            elif isinstance(n, ArraySelector):
+                index = visit(n.index)
+                ret = TmArrayAccess(ret, index)
+            else:
+                assert False, f"Unknown selector: {n}"
+        return ret
     elif isinstance(node, MemberReference):
         qualifier = node.qualifier
         if qualifier == "":
@@ -393,44 +422,43 @@ def visit(node, node_type=ExNodeTypes.Default):
             ret = TmVar(member)
         else:
             ret = TmFieldAccess(member, base)
-        for n in node.selectors:
-            ret = TmArrayAccess(ret, visit(n))
+        if node.selectors:
+            for n in node.selectors:
+                ret = TmArrayAccess(ret, visit(n))
         return ret
     elif isinstance(node, Literal):
         val = node.value
         if val == "null":
-            return TmNull()
+            ret = TmNull()
         elif val == "true":
-            return TmTrue()
+            ret = TmTrue()
         elif val == "false":
-            return TmFalse()
+            ret = TmFalse()
         else:
             try:
                 num = int(val)
-                return TmInteger(str(num))
+                ret = TmInteger(str(num))
             except ValueError:
                 try:
                     num = float(val)
-                    return TmFloat(str(num))
+                    ret = TmFloat(str(num))
                 except ValueError:
                     if val[0] == '"':
-                        return TmString(val[1:-1])
+                        ret = TmString(val[1:-1])
                     elif val[0] == "'":
-                        return TmChar(val[1])
+                        ret = TmChar(val[1])
                     else:
                         assert False, f"Unknown literal: {val}"
+        return ret
     elif isinstance(node, This):
         return TmVar("this")
     elif isinstance(node, MethodInvocation):
         qualifier = node.qualifier
         if qualifier == "":
             base = None
-        elif qualifier[0].isupper():
-            if qualifier in ["Math", "Integer", "Arrays"]:
+        elif qualifier[0].isupper() and qualifier in ["Math", "Integer", "Arrays", "List", "Collections", "String", "Character", "Optional", "Objects"]:
                 q = qualifier + '.' + node.member
                 base = TmType(TyClass(qualifier))
-            else:
-                assert False, f"Unknown qualifier: {qualifier}"
         else:
             base = TmVar(qualifier)
         method_name = node.member
@@ -439,13 +467,6 @@ def visit(node, node_type=ExNodeTypes.Default):
             ret = TmMethodInvocationNoObj(method_name, args)
         else:
             ret = TmMethodInvocation(method_name, base, args)
-        for n in node.selectors:
-            if isinstance(n, MethodInvocation):
-                method_name = n.member
-                args = visit(n.arguments, ExNodeTypes.TermList)
-                ret = TmMethodInvocation(method_name, ret, args)
-            else:
-                assert False, f"Unknown selector: {n}"
         return ret
     elif isinstance(node, ClassCreator):
         assert node.body == None or len(node.body) == 0, "ClassCreator should not have body"
@@ -474,6 +495,17 @@ def visit(node, node_type=ExNodeTypes.Default):
         for n in node[-1::-1]:
             ret = StConcat(visit(n), ret)
         return ret
+    elif node_type == ExNodeTypes.SwitchStatementList:
+        assert isinstance(node, list), "StatementList should be a list"
+        if len(node)==0 or \
+            isinstance(node[-1], BreakStatement) or \
+            isinstance(node[-1], ReturnStatement):
+            ret = StSkip()
+        else:
+            ret = StBreak()
+        for n in node[-1::-1]:
+            ret = StConcat(visit(n), ret)
+        return ret
     elif node_type == ExNodeTypes.TermList:
         assert isinstance(node, list), "TermList should be a list"
         ret = TmList0()
@@ -481,7 +513,7 @@ def visit(node, node_type=ExNodeTypes.Default):
             ret = TmList1(visit(n), ret)
         return ret
     else:
-        assert False, f"\nUnknown node {type(node)}:"
+        assert False, f"\nUnknown node {type(node)}:{node}"
 
 # Section 2: translate and validate single java file
 
@@ -489,6 +521,7 @@ def visit(node, node_type=ExNodeTypes.Default):
 def parse_java_file(file_path="datas/mbjp/MBJP_1.java", java_code="", verbose=False):
     # load java code
     file_num = int(file_path.split("/")[-1].split(".")[0][5:])
+    dataset_type = file_path.split("/")[1] # humaneval or mbjp
     with open(file_path, "r") as f:
         code = f.read()
     if java_code:
@@ -506,8 +539,6 @@ def parse_java_file(file_path="datas/mbjp/MBJP_1.java", java_code="", verbose=Fa
         javaCode = program.to_java()
         for package in java_default_packages:
             javaCode = f"import {package};\n" + javaCode
-        if verbose:
-            print(program.to_code())
     except Exception as e:
         if verbose:
             print(f"Error in parsing {file_path}: {e}")
@@ -517,10 +548,11 @@ def parse_java_file(file_path="datas/mbjp/MBJP_1.java", java_code="", verbose=Fa
     
     # validate impp code(java)
     from mxeval.execution import check_correctness_java as check
-    with open("datas/mbjp.json", "r") as file:
-        mbjp_datas = json.load(file)
-    mbjp_data=[data for data in mbjp_datas if data['task_id']==f"MBJP/{file_num}"][0]
-    result=check(mbjp_data,javaCode,solution_complete=True)
+    with open(f"datas/{dataset_type}.json", "r") as file:
+        all_datas = json.load(file)
+    single_data=[data for data in all_datas if data['task_id'][5:]==str(file_num)][0]
+    result=check(single_data,javaCode,solution_complete=True)
+
     if not result['passed']:
         if verbose:
             print(f"\nError in validating java version of: {file_path}")
@@ -529,7 +561,7 @@ def parse_java_file(file_path="datas/mbjp/MBJP_1.java", java_code="", verbose=Fa
         return {'res': "toJava_error", 'file_num': file_num}
     
     # validate impp code(coq)
-    coq_file_path = f"coq_code/mbjp/{file_num}/t0.v"
+    coq_file_path = f"coq_code/{dataset_type}/{file_num}/t0.v"
     os.makedirs(os.path.dirname(coq_file_path), exist_ok=True)
     with open(coq_file_path, "w") as f:
         f.write(str(program.to_coq()))
@@ -555,9 +587,9 @@ def parse_java_file(file_path="datas/mbjp/MBJP_1.java", java_code="", verbose=Fa
             f.write(str(program.to_coq()))
     return {'res': "correct", 'file_num': file_num}
 
-# translate all mbjp programs
-def trans_all_mbjp_programs():
-    dir_path = "datas/mbjp/"
+# translate all java programs
+def trans_all_java_programs(dataset_type="mbjp"):
+    dir_path = f"datas/{dataset_type}/"
     files = [f for f in os.listdir(dir_path) if f.endswith(".java")]
     global info
     info["total"] = len(files)
@@ -577,10 +609,9 @@ def trans_all_mbjp_programs():
     tbar.close()
 
     from beeprint import pp
-    info["correct_cnt"] = len(info["correct_list"])
-    info["parse_error_cnt"] = len(info["parse_error_list"])
-    info["toJava_error_cnt"] = len(info["toJava_error_list"])
-    info["toCoq_error_cnt"] = len(info["toCoq_error_list"])
+    for name in ["correct", "parse_error", "toJava_error", "toCoq_error"]:
+        info[f"{name}_cnt"] = len(info[f"{name}_list"])
+        info[f"{name}_list"].sort()
     pp(info)
 
 # Section 3: (de)tokenize and validate java files
@@ -589,6 +620,7 @@ rrule_dict = {v: k for k, v in rule_dict.items()}
 # detokenize and validate single java file
 def tokenize_java_file(file_path="datas/mbjp/MBJP_1.java"):
     file_num = int(file_path.split("/")[-1].split(".")[0][5:])
+    dataset_type = file_path.split("/")[1] # humaneval or mbjp
     with open(file_path, "r") as f:
         java_code = f.read()
     tree = javalang.parse.parse(java_code)
@@ -609,7 +641,7 @@ def tokenize_java_file(file_path="datas/mbjp/MBJP_1.java"):
         if not rprogram:
             print(f"Error in detokenizing tokens: {file_path}")
             return {'res': "detokenize_error", 'file_num': file_num}
-        coq_file_path = f"coq_code/mbjp/{file_num}/t{i+1}.v"
+        coq_file_path = f"coq_code/{dataset_type}/{file_num}/t{i+1}.v"
         os.makedirs(os.path.dirname(coq_file_path), exist_ok=True)
         with open(coq_file_path, "w") as f:
             f.write(str(rprogram.to_coq()))
@@ -630,7 +662,7 @@ def tokenize_java_file(file_path="datas/mbjp/MBJP_1.java"):
             return {'res': "detokenize_error", 'file_num': file_num}
         else:
             view = res.stdout.decode('utf-8')
-            coqview_folder = f"datas/mbjp_coqview/{file_num}/"
+            coqview_folder = f"datas/{dataset_type}_coqview/{file_num}/"
             os.makedirs(coqview_folder, exist_ok=True)
             with open(coqview_folder + f"step{i+1}.txt", "w") as f:
                 f.write(view)
@@ -643,8 +675,8 @@ def tokenize_java_file(file_path="datas/mbjp/MBJP_1.java"):
     return res
 
 # (de)tokenize and validate all java files
-def tokenize_all_java_files():
-    dir_path = "datas/mbjp/"
+def tokenize_all_java_files(dataset_type="mbjp"):
+    dir_path = f"datas/{dataset_type}/"
     files = [f for f in os.listdir(dir_path) 
              if f.endswith(".java") and os.path.exists(dir_path + f.replace(".java", ".v"))]
     global info
@@ -681,21 +713,16 @@ def tokenize_all_java_files():
     plt.savefig('proof_length_distribution.png')
     print(f"Average tokenized proof length: {sum(len_cnt)/len(len_cnt)}")
 
-# remove all .v .pkl files in mbjp folder
+# remove all .v .pkl files in mbjp/humaneval folder
 def clean_folder(dir_path):
     files = [f for f in os.listdir(dir_path) if not f.endswith(".java")]
     for file in files:
         os.remove(dir_path + file)
 
 if __name__ == "__main__":
-    # profiler = Profiler()
-    # profiler.start()
-    clean_folder("datas/mbjp/")
-    # parse_java_file("datas/mbjp/MBJP_430.java")
-    trans_all_mbjp_programs()
-    # print(tokenize_java_file("datas/mbjp/MBJP_430.java"))
-    tokenize_all_java_files()
-    # profiler.stop()
-    # profiler.print()
+    # clean_folder("datas/mbjp/")
+    # print(parse_java_file("datas/mbjp/MBJP_11.java",verbose=True))
+    trans_all_java_programs("mbjp")
+    # print(tokenize_java_file("datas/humaneval/Java_0.java"))
+    # tokenize_all_java_files()
    
-    

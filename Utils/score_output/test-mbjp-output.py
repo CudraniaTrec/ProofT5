@@ -95,7 +95,9 @@ import java.math.*;
                     timeout=10,
                 )
                 error_message = res.stderr.decode("unicode_escape")
-                if ("missing return statement" in error_message or res.returncode == 0 or '?' in partial_code):#compiled w/o test codes
+                if ("missing return statement" in error_message or \
+                    "unreachable statement" in error_message or \
+                    res.returncode == 0 or '?' in partial_code): #compiled w/o test codes
                     # if output_mode:
                     #     print(f"Problem {id} CE at time {i}")
                     #     print(full_code)

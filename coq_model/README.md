@@ -101,3 +101,16 @@ Program ::=
     | class x {p}                     (* Class Declaration *)
     | p p                             (* Concat *)
 ```
+
+## TODO
+1. forjava/tmp3/Main.java:9: error: incompatible types: boolean cannot be converted to int
+    int even = true;
+2. forjava/tmp14/Main.java:17: error: incompatible types: int cannot be converted to Boolean
+    return result;
+3. forjava/tmp13/Main.java:9: error: ';' expected
+    int 1 = 0;
+4. forjava/tmp42/Main.java:17: error: break outside switch or loop
+    break;
+5. forjava/tmp1/Main.java:15: error: incompatible types: ArrayList<Object> cannot be converted to ArrayList<List<Object>>
+      return newTup;
+6. 

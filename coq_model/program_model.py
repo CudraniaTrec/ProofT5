@@ -612,7 +612,7 @@ class TmFloat(Term):
         assert isinstance(self.float_literal, str), f"invalid TmFloat type: {self.to_coq()}"
     
     def to_coq(self):
-        return CoqProof("T_Float", params={"f": self.float_literal})
+        return CoqProof("T_Float", params={"f": f"{self.float_literal}%float"})
     
     def to_code(self):
         return self.float_literal
@@ -633,10 +633,10 @@ class TmChar(Term):
         return CoqProof("T_Char", params={"c": f"{self.char_literal}"})
     
     def to_code(self):
-        return f"'{chr(self.char_literal)}'"
+        return f"'{chr(int(self.char_literal))}'"
     
     def to_java(self, context={}):
-        return f"'{chr(self.char_literal)}'"
+        return f"'{chr(int(self.char_literal))}'"
 
 class TmString(Term):
     terms_need = ["StringOrEnd"]
@@ -766,7 +766,9 @@ class TmInstanceOf(Term):
         return f"{self.term.to_code()} hasType {self.ty.to_code()}"
     
     def to_java(self, context={}):
-        return f"{self.term.to_java(context)} instanceof {self.ty.to_java(context)}"
+        typed_context = deepcopy(context)
+        typed_context["wrapper"] = True
+        return f"{self.term.to_java(context)} instanceof {self.ty.to_java(typed_context)}"
 
 class TmChoose(Term):
     terms_need = ["Term", "Term", "Term"]
@@ -1686,7 +1688,7 @@ class StDeclNoInit(Statement):
         return f"{self.string}: {self.ty.to_code()}"
     def to_java(self, context={}):
         typed_context = deepcopy(context)
-        typed_context["concrete"] = True
+        typed_context["concrete"] = False
         if "comma" in context and context["comma"]:
             # no typed_context here for parameters
             return f"{self.ty.to_java(context)} {self.string}"
@@ -1717,7 +1719,7 @@ class StDeclInit(Statement):
         return f"{self.string}: {self.ty.to_code()} := {self.term.to_code()}"
     def to_java(self, context={}):
         typed_context = deepcopy(context)
-        typed_context["concrete"] = True
+        typed_context["concrete"] = False
         if "comma" in context and context["comma"]:
             # no typed_context here for parameters
             return f"{self.ty.to_java(context)} {self.string} = {self.term.to_java(context)}"
@@ -1972,6 +1974,57 @@ class StExpression(Statement):
             return self.term.to_java(context)
         return self.term.to_java(context)+";"
 
+class StSwitch(Statement):
+    terms_need = ["Term", "Statement"]
+    def __init__(self, *args):
+        self.term = TmUnk()
+        self.statement = StUnk()
+        if len(args) >= 1:
+            self.term = args[0]
+        if len(args) >= 2:
+            self.statement = args[1]
+            self.complete = True
+        assert isinstance(self.term, Term) and \
+                isinstance(self.statement, Statement), f"invalid StSwitch type: {self.to_coq()}"
+    
+    def to_coq(self):
+        return CoqProof("T_Switch", children=[self.term.to_coq(), self.statement.to_coq()])
+    
+    def to_code(self):
+        body = self.statement.to_code()
+        body = addIndentation(body)
+        return f"switch ({self.term.to_code()})\n{body}\nend switch"
+    
+    def to_java(self, context={}):
+        body = self.statement.to_java(context)
+        body = addIndentation(body)
+        return f"switch ({self.term.to_java(context)}){{\n{body}\n}}"
+
+class StSwitchCase(Statement):
+    terms_need = ["Term", "Statement"]
+    def __init__(self, *args):
+        self.term = TmUnk()
+        self.statement = StUnk()
+        if len(args) >= 1:
+            self.term = args[0]
+        if len(args) >= 2:
+            self.statement = args[1]
+            self.complete = True
+        assert isinstance(self.term, Term) and \
+               isinstance(self.statement, Statement), f"invalid StSwitchCase type: {self.to_coq()}"
+    def to_coq(self):
+        return CoqProof("T_SwitchCase", children=[self.term.to_coq(), proof_refl , self.statement.to_coq()])
+
+    def to_code(self):
+        body = self.statement.to_code()
+        body = addIndentation(body)
+        return f"case {self.term.to_code()}:\n{body}\nend case"
+    
+    def to_java(self, context={}):
+        body = self.statement.to_java(context)
+        body = addIndentation(body)
+        return f"case {self.term.to_java(context)} :{{\n{body}\n}}"
+
 class StConcat(Statement):
     terms_need = ["Statement", "Statement"]
     def __init__(self, *args):
@@ -2039,7 +2092,7 @@ class PgFieldDeclNoInit(Program):
     
     def to_java(self, context={}):
         typed_context = deepcopy(context)
-        typed_context["concrete"] = True
+        typed_context["concrete"] = False
         return f"{self.modif} {self.ty.to_java(typed_context)} {self.string};"
 
 class PgFieldDeclInit(Program):
@@ -2073,7 +2126,7 @@ class PgFieldDeclInit(Program):
     
     def to_java(self, context={}):
         typed_context = deepcopy(context)
-        typed_context["concrete"] = True
+        typed_context["concrete"] = False
         return f"{self.modif} {self.ty.to_java(typed_context)} {self.string} = {self.term.to_java(context)};"
 
 class PgMethodDecl(Program):
@@ -2118,8 +2171,8 @@ class PgMethodDecl(Program):
         comma_context = deepcopy(context)
         comma_context["comma"] = True
         typed_context = deepcopy(context)
-        typed_context["wrapper"] = True
-        typed_context["concrete"] = True
+        typed_context["wrapper"] = False
+        typed_context["concrete"] = False
         param = self.param.to_java(comma_context).replace("\n", "")
         return f"{self.modif} {self.ty.to_java(typed_context)} {self.string}({param}){{\n{body}\n}}"
 

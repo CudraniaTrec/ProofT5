@@ -2,10 +2,14 @@ wandb/
 tmp/*.pkl
 tmp/*.txt
 coq_model/coq_code/mbjp/*
+coq_model/coq_code/humaneval/*
 coq_model/datas/mbjp_coqview/*
+coq_model/datas/humaneval_coqview/*
 coq_model/datas/mbjp/*
+coq_model/datas/humaneval/*
 Utils/output/*
 Utils/models/*
 Utils/data/*/
 Utils/score_output/forjava/*
+SuFu/SuFu
 **/__pycache__/

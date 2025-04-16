@@ -8,6 +8,7 @@ Require Export FMapAVL.
 (* reserved keywords *)
 Definition this : string := "this".
 Definition return' : string := "return".
+Definition guard' : string := "guard".
 Definition constructor : string := "Constructor".
 
 (* Program Types *)
@@ -19,6 +20,7 @@ Inductive Ty : Type :=
     | TyChar : Ty
     | TyString : Ty
     (* advanced types *)
+    | TyAny : Ty                      (* any type *)
     | TyArray : Ty->Ty                (* T[] *)
     | TyGeneric0 : string->Ty         (* s<> *)
     | TyGeneric1 : string->Ty->Ty     (* s<T> *)
@@ -65,29 +67,33 @@ Definition CMath : ClassType := (
     "min" |--> <([Int; Int] -> Int)>;
     "PI" |--> <(Float)>;
     "E" |--> <(Float)>;
-    "abs" |--> <([Int] -> Int)>;
-    "sqrt" |--> <([Float] -> Float)>;
-    "pow" |--> <([Float; Float] -> Float)>;
-    "exp" |--> <([Float] -> Float)>;
+    "abs" |--> <([[Int] -> Int; [Float] -> Float])>;
+    "sqrt" |--> <([[Int] -> Int; [Float] -> Float])>;
+    "pow" |--> <([[Int; Int] -> Int; [Float; Float] -> Float])>;
+    "exp" |--> <([[Int] -> Int; [Float] -> Float])>;
     "log" |--> <([Float] -> Float)>;
     "log10" |--> <([Float] -> Float)>;
-    "ceil" |--> <([Float] -> Float)>;
-    "floor" |--> <([Float] -> Float)>;
+    "ceil" |--> <([[Float] -> Int])>;
+    "floor" |--> <([Float] -> Int)>;
     "round" |--> <([Float] -> Int)>;
     "tan" |--> <([Float] -> Float)>;
     empty_map
 ).
 Definition CArrays : ClassType := (
-    "asList" |--> <([Object[]] -> (TyGeneric1 "List" <(Object)>) )>;
+    "asList" |--> <([[(TyArray TyAny)] -> (TyGeneric1 "List" TyAny);
+                    [TyAny;TyAny] -> (TyGeneric1 "List" TyAny);
+                    [TyAny;TyAny;TyAny] -> (TyGeneric1 "List" TyAny)] )>;
     "equals" |--> <([Object[]; Object[]] -> Bool)>;
     "fill" |--> <([Object[];Object] -> [])>;
     "sort" |--> <([Object []] -> [])>;
+    "length" |--> <(Int)>;
     empty_map
 ).
 Definition CInteger : ClassType := (
     "MAX_VALUE" |--> <(Int)>;
     "MIN_VALUE" |--> <(Int)>;
     "parseInt" |--> <([String] -> Int)>;
+    "compare" |--> <([Int; Int] -> Int)>;
     "valueOf" |--> <([Object] -> Int)>;
     "toString" |--> <([Int] -> String)>;
     "toBinaryString" |--> <([Int] -> String)>;
@@ -98,21 +104,30 @@ Definition CString : ClassType := (
     "length" |--> <([] -> Int)>;
     "charAt" |--> <([Int] -> Char)>;
     "equals" |--> <([String] -> Bool)>;
-    "indexOf" |--> <([String] -> Int)>;
+    "indexOf" |--> <([[String] -> Int; [Char]->Int])>;
     "lastIndexOf" |--> <([String] -> Int)>;
-    "substring" |--> <([Int; Int] -> String)>;
+    "substring" |--> <([[Int; Int] -> String; [Int] -> String])>;
+    "subSequence" |--> <([[Int; Int] -> String; [Int] -> String])>;
     "replace" |--> <([Char; Char] -> String)>;
-    "split" |--> <([Char] -> (TyGeneric1 "List" <(String)>) )>;
+    "join" |--> <([[TyString; (TyGeneric1 "List" TyString)] -> String;[TyString; (TyArray TyString)] -> String])>;
+    "split" |--> <([[Char] -> (TyArray TyString); [String] -> (TyArray TyString)] )>;
     "trim" |--> <([] -> String)>;
     "toLowerCase" |--> <([] -> String)>;
     "toUpperCase" |--> <([] -> String)>;
+    "copyValueOf" |--> <([(TyArray TyChar)] -> String)>;
     "startsWith" |--> <([String] -> Bool)>;
     "endsWith" |--> <([String] -> Bool)>;
     "contains" |--> <([String] -> Bool)>;
     "isEmpty" |--> <([] -> Bool)>;
     "concat" |--> <([String] -> String)>;
-    "valueOf" |--> <([Object] -> String)>;
+    "repeat" |--> <([Int] -> String)>;
+    "valueOf" |--> <([TyAny] -> String)>;
     "toCharArray" |--> <([] -> Char[])>;
+    "toString" |--> <([] -> String)>;
+    empty_map
+).
+Definition CObjects: ClassType := (
+    "equals" |--> <([TyAny;TyAny] -> Bool)>;
     "toString" |--> <([] -> String)>;
     empty_map
 ).
@@ -121,13 +136,18 @@ Definition CList(T:Ty) : ClassType := (
     "isEmpty" |--> <([] -> Bool)>;
     "contains" |--> <([T] -> Bool)>;
     "indexOf" |--> <([T] -> Int)>;
+    "subList" |--> <([[Int; Int] -> (TyGeneric0 "List"); [Int] -> (TyGeneric0 "List")])>;
+    "of" |--> <([[] -> (TyGeneric0 "List"); [TyAny]-> (TyGeneric1 "List" TyAny)])>;
     "get" |--> <([Int] -> T)>;
     "set" |--> <([Int; T] -> T)>;
     "add" |--> <([T] -> [])>;
-    "remove" |--> <([T] -> [])>;
+    "sort" |--> <([[] -> []; [(TyGeneric1 "Comparator" TyAny)]->[]])>;
+    "remove" |--> <([[T] -> []; [Int]->[]])>;
     "clear" |--> <([] -> [])>;
+    "addAll" |--> <([[(TyGeneric0 "List")] -> []; [(TyGeneric1 "List" TyAny)] -> []; [(TyGeneric1 "Set" TyAny)] -> []; [(TyGeneric0 "Set")] -> []])>;
+    "equals" |--> <([[(TyGeneric0 "List")] -> Bool; [(TyGeneric1 "List" T)] -> Bool])>;
     "toString" |--> <([] -> String)>;
-    constructor |--> <([] -> [])>;
+    constructor |--> <([[] -> []; [(TyGeneric0 "List")] -> []; [(TyGeneric0 "Set")] -> []; [(TyGeneric1 "List" T)] -> []; [(TyGeneric1 "Set" T)] -> []])>;
     empty_map
 ).
 Definition CSet(T:Ty) : ClassType := (
@@ -136,9 +156,12 @@ Definition CSet(T:Ty) : ClassType := (
     "contains" |--> <([T] -> Bool)>;
     "add" |--> <([T] -> Bool)>;
     "remove" |--> <([T] -> [])>;
+    "retainAll" |--> <([[(TyGeneric1 "Set" T)] -> Bool; [(TyGeneric0 "Set")] -> Bool])>;
     "clear" |--> <([] -> [])>;
     "toString" |--> <([] -> String)>;
-    constructor |--> <([] -> [])>;
+    "toCharArray" |--> <([] -> Char[])>;
+    "equals" |--> <([[(TyGeneric1 "Set" T)] -> Bool; [(TyGeneric0 "Set")] -> Bool])>;
+    constructor |--> <([[] -> []; [(TyGeneric0 "List")] -> []; [(TyGeneric0 "Set")] -> []; [(TyGeneric1 "List" T)] -> []; [(TyGeneric1 "Set" T)] -> []])>;
     empty_map
 ).
 Definition CMap(K V:Ty) : ClassType := (
@@ -148,12 +171,48 @@ Definition CMap(K V:Ty) : ClassType := (
     "containsValue" |--> <([V] -> Bool)>;
     "get" |--> <([K] -> V)>;
     "put" |--> <([K; V] -> [])>;
+    "getOrDefault" |--> <([K; V] -> V)>;
     "remove" |--> <([K] -> V)>;
     "clear" |--> <([] -> [])>;
     "keySet" |--> <([] -> (TyGeneric1 "Set" K))>;
     "values" |--> <([] -> (TyGeneric1 "List" V))>;
     "toString" |--> <([] -> String)>;
     constructor |--> <([] -> [])>;
+    empty_map
+).
+Definition CStringBuilder : ClassType := (
+    "append" |--> <([TyAny] -> (TyClass "StringBuilder"))>;
+    "toString" |--> <([] -> String)>;
+    "setLength" |--> <([Int] -> [])>;
+    "reverse" |--> <([] -> (TyClass "StringBuilder"))>;
+    constructor |--> <([[] -> []; [String] -> []])>;
+    empty_map
+).
+Definition CCharacter : ClassType := (
+    "toString" |--> <([] -> String)>;
+    "isUpperCase" |--> <([TyChar] -> Bool)>;
+    "isLowerCase" |--> <([TyChar] -> Bool)>;
+    "isDigit" |--> <([TyChar] -> Bool)>;
+    "isLetter" |--> <([TyChar] -> Bool)>;
+    "toLowerCase" |--> <([TyChar] -> Char)>;
+    "toUpperCase" |--> <([TyChar] -> Char)>;
+    constructor |--> <([TyChar] -> [])>;
+    empty_map
+).
+Definition CCollections : ClassType := (
+    "sort" |--> <([[(TyArray TyAny)] -> []; [(TyGeneric1 "List" TyAny)] -> []; [(TyGeneric0 "List")]])>;
+    "reverse" |--> <([[(TyArray TyAny)] -> []; [(TyGeneric1 "List" TyAny)] -> []; [(TyGeneric0 "List")]])>;
+    "max" |--> <([[(TyGeneric1 "List" TyInt)] -> TyInt; [(TyGeneric1 "List" TyFloat)] -> TyFloat])>;
+    "min" |--> <([[(TyGeneric1 "List" TyInt)] -> TyInt; [(TyGeneric1 "List" TyFloat)] -> TyFloat])>;
+    "reverseOrder" |--> <([]-> (TyGeneric1 "Comparator" TyAny))>;
+    "frequency" |--> <([[(TyGeneric1 "List" TyAny); TyAny] -> TyInt])>;
+    empty_map
+).
+Definition COptional(T:Ty) : ClassType := (
+    "of" |--> <([TyAny] -> (TyGeneric1 "Optional" TyAny))>;
+    "get" |--> <([] -> T)>;
+    "empty" |--> <([] -> (TyGeneric1 "Optional" T))>;
+    "isPresent" |--> <([] -> Bool)>;
     empty_map
 ).
 Close Scope string_scope.
@@ -231,6 +290,8 @@ Inductive Statement : Type :=
     | StContinue : Statement                                (* continue *)
     | StBreak : Statement                                   (* break *)
     | StExpression : Term->Statement                        (* tm *)
+    | StSwitch : Term -> Statement -> Statement             (* switch (tm) {s} *)
+    | StSwitchCase : Term->Statement->Statement             (* case tm: s *)
     | StConcat : Statement->Statement->Statement.
 
 Inductive Program : Type :=
@@ -250,16 +311,26 @@ Definition findVarType (Gamma:Context)(x:string) : option Ty :=
 Definition findClassType (Gamma:Context)(t:Ty) : option ClassType :=
     match t with
     | TyString => Some CString
+    | TyChar => Some CCharacter
     | TyInt => Some CInteger
+    | TyArray ty => Some (CArrays)
     | TyClass "Math" => Some CMath
     | TyClass "Arrays" => Some CArrays
+    | TyClass "String" => Some CString
     | TyClass "Integer" => Some CInteger
+    | TyClass "Optional" => Some (COptional TyAny)
+    | TyClass "StringBuilder" => Some CStringBuilder
+    | TyClass "Collections" => Some CCollections
+    | TyClass "Character" => Some CCharacter
+    | TyClass "List" => Some (CList TyAny)
+    | TyClass "Objects" => Some CObjects
     | TyClass name =>  class_type Gamma !! name 
-    | TyGeneric0 "List" => Some (CList TyVoid)
-    | TyGeneric0 "Set" => Some (CSet TyVoid)
-    | TyGeneric0 "Map" => Some (CMap TyVoid TyVoid)
+    | TyGeneric0 "List" => Some (CList TyAny)
+    | TyGeneric0 "Set" => Some (CSet TyAny)
+    | TyGeneric0 "Map" => Some (CMap TyAny TyAny)
     | TyGeneric1 "List" T => Some (CList T)
     | TyGeneric1 "Set" T => Some (CSet T)
+    | TyGeneric1 "Optional" T => Some (COptional T)
     | TyGeneric2 "Map" K V => Some (CMap K V)
     | _ => None
     end.
@@ -272,15 +343,18 @@ Fixpoint convertible (ty1 ty2: Ty) : bool :=
     | TyBool, TyBool => true
     | TyChar, TyChar => true
     | TyString, TyString => true
-    | TyInt, TyFloat => true
+    (* | TyInt, TyFloat => true *)
     | TyFloat, TyInt => true
     | TyInt, TyChar => true
-    | TyChar, TyInt => true
-    | TyInt, TyBool => true
-    | TyBool, TyInt => true
+    (* | TyChar, TyInt => true *)
+    (* | TyInt, TyBool => true *)
+    (* | TyBool, TyInt => true *)
     | TyClass "Object", _ => true
-    | _, TyClass "Object" => true
+    | _, TyAny => true
+    | TyAny, _ => true 
+    (* | _, TyClass "Object" => true *)
     | TyClass m, TyClass n => String.eqb m n
+    | TyGeneric0 m, TyGeneric0 n => String.eqb m n
     | TyGeneric1 m ty, TyGeneric0 n => String.eqb m n
     | TyGeneric1 m t1, TyGeneric1 n t2 => String.eqb m n && convertible t1 t2
     | TyGeneric2 m t1 t2, TyGeneric0 n => String.eqb m n
@@ -290,7 +364,18 @@ Fixpoint convertible (ty1 ty2: Ty) : bool :=
     | TyConcat t1 l1, TyConcat t2 l2 => convertible t1 t2 && convertible l1 l2
     | _, _ => false
     end.
-
+Fixpoint castable(ty1 ty2: Ty) : bool :=
+    match ty1, ty2 with
+    | TyInt, TyFloat => true
+    | TyChar, TyInt => true
+    | _, TyClass "Object" => true
+    | TyClass m, TyClass n => String.eqb m n
+    | TyGeneric1 m ty1, TyGeneric1 n ty2 => String.eqb m n && castable ty1 ty2
+    | TyGeneric2 m t1 t2, TyGeneric2 n t3 t4 => String.eqb m n && castable t1 t3 && castable t2 t4
+    | TyArray t1, TyArray t2 => castable t1 t2
+    | TyConcat t1 l1, TyConcat t2 l2 => castable t1 t2 && castable l1 l2
+    | _, _ => convertible ty1 ty2
+    end.
 (* check if type t2 is a collection of t1*)
 Definition iterable (ty1 ty2: Ty) : bool :=
     match ty1, ty2 with
@@ -306,7 +391,10 @@ Definition binary_term_type (tm: Term)(ty1 ty2 : Ty): option Ty :=
                     | TyInt, TyFloat => Some TyFloat
                     | TyFloat, TyInt => Some TyFloat
                     | TyFloat, TyFloat => Some TyFloat
-                    | TyString, TyString => Some TyString
+                    | TyInt, TyChar => Some TyInt
+                    | TyChar, TyInt => Some TyInt
+                    | TyChar, TyChar => Some TyInt
+                    | TyString, _ => Some TyString
                     | _, _ => None
                     end
     | TmSub _ _ => match ty1, ty2 with
@@ -314,6 +402,9 @@ Definition binary_term_type (tm: Term)(ty1 ty2 : Ty): option Ty :=
                     | TyInt, TyFloat => Some TyFloat
                     | TyFloat, TyInt => Some TyFloat
                     | TyFloat, TyFloat => Some TyFloat
+                    | TyChar, TyChar => Some TyInt
+                    | TyChar, TyInt => Some TyInt
+                    | TyInt, TyChar => Some TyInt
                     | _, _ => None
                     end
     | TmMul _ _ => match ty1, ty2 with
@@ -332,6 +423,9 @@ Definition binary_term_type (tm: Term)(ty1 ty2 : Ty): option Ty :=
                     end
     | TmMod _ _ => match ty1, ty2 with
                     | TyInt, TyInt => Some TyInt
+                    | TyInt, TyFloat => Some TyFloat
+                    | TyFloat, TyInt => Some TyFloat
+                    | TyFloat, TyFloat => Some TyFloat
                     | _, _ => None
                     end
     | TmBitAnd _ _ => match ty1, ty2 with
@@ -427,7 +521,54 @@ Definition unary_term_type (tm: Term)(ty: Ty): option Ty :=
                     end
     | _ => None
     end.
-
+(*calculate result type for method invocation*)
+Fixpoint cal_result_type(rty: Ty)(tyany: Ty) :=
+    match rty with
+    | TyAny => tyany
+    | TyArray T1 => TyArray (cal_result_type T1 tyany)
+    | TyGeneric1 n T1 => TyGeneric1 n (cal_result_type T1 tyany)
+    | TyGeneric2 n T1 T2 => TyGeneric2 n (cal_result_type T1 tyany) (cal_result_type T2 tyany)
+    | _ => rty
+    end.
+Fixpoint poly_result_type (pty: Ty)(rty: Ty)(aty: Ty)(tyany: Ty):=
+    match pty with
+    | TyConcat TyAny T2 => match aty with
+                        | TyConcat T1 T2' => poly_result_type T2 rty T2' T1
+                        | _ => None
+                        end
+    | TyConcat (TyArray TyAny) T2 => match aty with
+                        | TyConcat (TyArray T1) T2' => poly_result_type T2 rty T2' T1
+                        | _ => None
+                        end
+    | TyConcat (TyGeneric1 n TyAny) T2 => match aty with
+                        | TyConcat (TyGeneric1 n' T1) T2' => if String.eqb n n' then
+                                                                poly_result_type T2 rty T2' T1
+                                                              else
+                                                                None
+                        | _ => None
+                        end
+    | TyConcat T1 T2 => match aty with
+                        | TyConcat T1' T2' => if convertible T1 T1' then
+                                                poly_result_type T2 rty T2' tyany
+                                              else
+                                                None
+                        | _ => None
+                        end
+    | TyVoid => match aty with
+                | TyVoid => Some (cal_result_type rty tyany)
+                | _ => None
+                end
+    | _ => None
+    end.
+Fixpoint has_result_type (ty: Ty)(pty: Ty) :=
+    match ty with
+    | TyArrow T1 T2 => poly_result_type T1 T2 pty TyAny
+    | TyConcat T1 T2 => match has_result_type T1 pty with
+                        | Some RT => Some RT 
+                        | None => has_result_type T2 pty
+                        end
+    | _ => None
+    end.
 
 (*extract all the declaration types in the formal arguments*)
 Fixpoint DeclsInStatement (s:Statement) : Ty :=
@@ -436,7 +577,6 @@ Fixpoint DeclsInStatement (s:Statement) : Ty :=
     | StDeclNoInit T x => T 
     | StConcat s1 s2 => match DeclsInStatement s1 , DeclsInStatement s2 with
                         | TyVoid, t => t
-                        | t, TyVoid => t
                         | t1, t2 => TyConcat t1 t2
                         end
     | _ => TyVoid
@@ -485,8 +625,8 @@ Inductive has_type : Context->Term->Ty->Prop :=
         Gamma |-- TmTrue \in TyBool
     | T_False : forall Gamma,
         Gamma |-- TmFalse \in TyBool
-    | T_Null : forall Gamma T,
-        Gamma |-- TmNull \in T (*null can have any type*)
+    | T_Null : forall Gamma,
+        Gamma |-- TmNull \in TyAny (*null can have any type*)
     (*advanced data structure*)
     | T_Assign : forall Gamma x T t,
         (* x = t *)
@@ -496,10 +636,11 @@ Inductive has_type : Context->Term->Ty->Prop :=
     | T_Conversion : forall Gamma T t T', 
         (* (T)t *)
         Gamma |-- t \in T' ->
-        convertible T T' = true ->
+        castable T T' = true ->
         Gamma |-- (TmConversion T t) \in T
-    | T_InstanceOf : forall Gamma tm T,
+    | T_InstanceOf : forall Gamma tm T T',
         (* tm instanceof T *)
+        Gamma |-- tm \in T' ->
         Gamma |-- (TmInstanceOf tm T) \in TyBool
     | T_Choose : forall Gamma tm1 tm2 tm3 T,
         (* tm1 ? tm2 : tm3 *)
@@ -518,12 +659,12 @@ Inductive has_type : Context->Term->Ty->Prop :=
         Gamma |-- tm1 \in ( TyArray T ) ->
         Gamma |-- tm2 \in TyInt ->
         Gamma |-- TmArrayAccess tm1 tm2 \in T
-    | T_New : forall Gamma T param PT PT' CT,
+    | T_New : forall Gamma T param PT T' CT,
         (* new T(param) *)
         findClassType Gamma T = Some CT ->
-        CT !! constructor = Some (TyArrow PT TyVoid) ->
-        Gamma |-- param \in PT' ->
-        convertible PT PT' = true ->
+        CT !! constructor = Some T' ->
+        Gamma |-- param \in PT ->
+        has_result_type T' PT = Some TyVoid ->
         Gamma |-- TmNew T param \in T
     | T_NewArray0 : forall Gamma T,
         (* new T *)
@@ -533,13 +674,13 @@ Inductive has_type : Context->Term->Ty->Prop :=
         Gamma |-- tm2 \in TyInt ->
         Gamma |-- tm1 \in T ->
         Gamma |-- TmNewArray1 tm1 tm2 \in (TyArray T)
-    | T_MethodInvocation : forall Gamma tm m param CT PT PT' RT T,
+    | T_MethodInvocation : forall Gamma tm m param CT T' PT RT T,
         (* tm.m(param) *)
         Gamma |-- tm \in T ->
         findClassType Gamma T = Some CT ->
-        CT !! m = Some ( TyArrow PT RT ) ->
-        Gamma |-- param \in PT' ->
-        convertible PT PT' = true ->
+        CT !! m = Some ( T' ) ->
+        Gamma |-- param \in PT ->
+        has_result_type T' PT = Some RT ->
         Gamma |-- TmMethodInvocation tm m param \in RT
     | T_MethodInvocationNoObj : forall Gamma m param PT PT' RT,
         (* m(param) *)
@@ -774,6 +915,17 @@ Inductive well_type_statement : Context->Statement->Context->Prop :=
     | T_Expression : forall Gamma tm T,
         Gamma |-- tm \in T ->
         Gamma -- StExpression tm --> Gamma
+    | T_Switch : forall Gamma1 s T tm Gamma2,
+        (* switch (tm) {s1} *)
+        Gamma1 |-- tm \in T ->
+        (guard'|->T;Gamma1) -- s --> Gamma2 ->
+        Gamma1 -- StSwitch tm s --> Gamma1
+    | T_SwitchCase : forall Gamma1 s T tm Gamma2,
+        (* case (tm) {s} *)
+        Gamma1 |-- tm \in T ->
+        findVarType Gamma1 guard' = Some T ->
+        Gamma1 -- s --> Gamma2 ->
+        Gamma1 -- (StSwitchCase tm s) --> Gamma1
     | T_Concat : forall Gamma1 s1 Gamma2 s2 Gamma3,
         Gamma1 -- s1 --> Gamma2 ->
         Gamma2 -- s2 --> Gamma3 ->
