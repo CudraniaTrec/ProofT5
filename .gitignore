@@ -12,4 +12,12 @@ Utils/models/*
 Utils/data/*/
 Utils/score_output/forjava/*
 SuFu/SuFu
+SuFu/SuFu_origin
 **/__pycache__/
+**/instruct_java.jsonl
+**/hemp_java_shuffle.json
+**/opencoder-sft-java.json
+**/apiKey.json
+t5_llm/models/
+t5_llm/outputs/
+t5_llm/evaluator/

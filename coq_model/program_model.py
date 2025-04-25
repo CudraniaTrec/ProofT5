@@ -8,11 +8,14 @@ term_name_vocab = [] # all term names
 statement_name_vocab = [] # all statement names
 program_name_vocab = []   # all program names
 class_name_vocab = [
-    "Object",
+    "Objects",
     "Arrays",
     "Integer",
     "Math",
     "String",
+    "StringBuilder",
+    "Collections",
+    "Optional",
     "Character",
     "Long",
     "Double",
@@ -608,6 +611,8 @@ class TmFloat(Term):
         self.float_literal = "StrUnk"
         if len(args) >= 1:
             self.float_literal = args[0]
+            if self.float_literal.endswith("%float"):
+                self.float_literal = self.float_literal[:-6]
             self.complete = True
         assert isinstance(self.float_literal, str), f"invalid TmFloat type: {self.to_coq()}"
     
@@ -625,7 +630,7 @@ class TmChar(Term):
     def __init__(self, *args):
         self.char_literal = "StrUnk"
         if len(args) >= 1:
-            self.char_literal = str(ord(args[0]))
+            self.char_literal = args[0]
             self.complete = True
         assert isinstance(self.char_literal, str), f"invalid TmChar type: {self.to_coq()}"
     
@@ -2442,13 +2447,9 @@ def extract_context(coqview):
         vartype_start = coqview.find("var_type :=")+len("var_type :=")
         vartype_end = coqview.find("empty_map")
         vartype_content = coqview[vartype_start:vartype_end].strip()
-        vartype_items = [item.strip() for item in vartype_content.split(";") if item.strip()]
-        context = "\n Context: "
-        for item in vartype_items:
-            name, type = item.split("|-->")
-            name = name.replace('"', "").replace("'", "").strip()
-            type = type.replace("<(", "").replace(")>", "").strip()
-            context += f"{name.strip()} : {type.strip()}\n"
+        modified_content = vartype_content.replace("<(", "").replace(")>", "").replace("|-->", ":")
+        modified_content = modified_content.replace("'", "").replace("'", "")
+        context = f"\n Context: {modified_content}"
     return context
 
 

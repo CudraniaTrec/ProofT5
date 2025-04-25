@@ -1,0 +1,850 @@
+[
+  {
+    "type": "command",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "definition_command",
+        "named": true
+      },
+      {
+        "type": "inductive_command",
+        "named": true
+      },
+      {
+        "type": "type_abbreviation_command",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "pattern",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "pattern_constructor",
+        "named": true
+      },
+      {
+        "type": "pattern_default",
+        "named": true
+      },
+      {
+        "type": "pattern_tuple",
+        "named": true
+      },
+      {
+        "type": "pattern_var",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "term",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "term_app",
+        "named": true
+      },
+      {
+        "type": "term_binop",
+        "named": true
+      },
+      {
+        "type": "term_bool",
+        "named": true
+      },
+      {
+        "type": "term_fix",
+        "named": true
+      },
+      {
+        "type": "term_if",
+        "named": true
+      },
+      {
+        "type": "term_integer",
+        "named": true
+      },
+      {
+        "type": "term_label",
+        "named": true
+      },
+      {
+        "type": "term_lambda",
+        "named": true
+      },
+      {
+        "type": "term_let",
+        "named": true
+      },
+      {
+        "type": "term_match",
+        "named": true
+      },
+      {
+        "type": "term_parenthesized",
+        "named": true
+      },
+      {
+        "type": "term_proj",
+        "named": true
+      },
+      {
+        "type": "term_rewrite",
+        "named": true
+      },
+      {
+        "type": "term_tuple",
+        "named": true
+      },
+      {
+        "type": "term_unit",
+        "named": true
+      },
+      {
+        "type": "term_unlabel",
+        "named": true
+      },
+      {
+        "type": "term_unop",
+        "named": true
+      },
+      {
+        "type": "term_var",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "type",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "type_arrow",
+        "named": true
+      },
+      {
+        "type": "type_bool",
+        "named": true
+      },
+      {
+        "type": "type_inductive",
+        "named": true
+      },
+      {
+        "type": "type_int",
+        "named": true
+      },
+      {
+        "type": "type_product",
+        "named": true
+      },
+      {
+        "type": "type_reframe",
+        "named": true
+      },
+      {
+        "type": "type_unit",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "typedef",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "typedef_cons",
+        "named": true
+      },
+      {
+        "type": "typedef_single",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "definition_command",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "inductive_command",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Identifier",
+          "named": true
+        },
+        {
+          "type": "typedef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "match_case",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "match_case_single",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "match_case_single",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pattern",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pattern_constructor",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pattern_tuple",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pattern_var",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "command",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_app",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_binop",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "term_bool",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "term_fix",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "term_parenthesized",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_if",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_label",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_lambda",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_let",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_match",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "match_case",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_parenthesized",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_proj",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_rewrite",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_tuple",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_unit",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "term_unlabel",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "term_unop",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "term_var",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_abbreviation_command",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_arrow",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_inductive",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_product",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_reframe",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_unit",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "typedef_cons",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "typedef_single",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "typedef_single",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": "*",
+    "named": false
+  },
+  {
+    "type": "+",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": "-",
+    "named": false
+  },
+  {
+    "type": "->",
+    "named": false
+  },
+  {
+    "type": ".",
+    "named": false
+  },
+  {
+    "type": "/",
+    "named": false
+  },
+  {
+    "type": ":",
+    "named": false
+  },
+  {
+    "type": ";",
+    "named": false
+  },
+  {
+    "type": "<",
+    "named": false
+  },
+  {
+    "type": "<=",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "==",
+    "named": false
+  },
+  {
+    "type": ">",
+    "named": false
+  },
+  {
+    "type": ">=",
+    "named": false
+  },
+  {
+    "type": "Compress",
+    "named": false
+  },
+  {
+    "type": "Identifier",
+    "named": true
+  },
+  {
+    "type": "Inductive",
+    "named": false
+  },
+  {
+    "type": "Reframe",
+    "named": false
+  },
+  {
+    "type": "Unit",
+    "named": false
+  },
+  {
+    "type": "\\",
+    "named": false
+  },
+  {
+    "type": "align",
+    "named": false
+  },
+  {
+    "type": "and",
+    "named": false
+  },
+  {
+    "type": "else",
+    "named": false
+  },
+  {
+    "type": "end",
+    "named": false
+  },
+  {
+    "type": "false",
+    "named": false
+  },
+  {
+    "type": "fix",
+    "named": false
+  },
+  {
+    "type": "identifier",
+    "named": true
+  },
+  {
+    "type": "if",
+    "named": false
+  },
+  {
+    "type": "in",
+    "named": false
+  },
+  {
+    "type": "label",
+    "named": false
+  },
+  {
+    "type": "let",
+    "named": false
+  },
+  {
+    "type": "match",
+    "named": false
+  },
+  {
+    "type": "not",
+    "named": false
+  },
+  {
+    "type": "or",
+    "named": false
+  },
+  {
+    "type": "pattern_default",
+    "named": true
+  },
+  {
+    "type": "rewrite",
+    "named": false
+  },
+  {
+    "type": "term_integer",
+    "named": true
+  },
+  {
+    "type": "then",
+    "named": false
+  },
+  {
+    "type": "true",
+    "named": false
+  },
+  {
+    "type": "type_bool",
+    "named": true
+  },
+  {
+    "type": "type_int",
+    "named": true
+  },
+  {
+    "type": "unlabel",
+    "named": false
+  },
+  {
+    "type": "with",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "|",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
+  }
+]

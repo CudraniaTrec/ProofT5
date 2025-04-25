@@ -48,35 +48,43 @@
 #         f.write(code + "\n")
 # f.close()
 
-from beamsearch_naive import BeamSearch, SearchNode, identifiers, strfy
-import pickle, torch, json
-from run import args, load_model, split_data
-from Dataset import SumDataset, rs_collate_fn
+# from beamsearch_naive import BeamSearch, SearchNode, identifiers, strfy
+# import pickle, torch, json
+# from run import args, load_model, split_data
+# from Dataset import SumDataset, rs_collate_fn
 
-with open("Utils/data/mbjp_dsl/train.pkl", "rb") as f:
-    train_data = pickle.load(f)
-with open("Utils/data/mbjp_dsl/valid.pkl", "rb") as f:
-    valid_data = pickle.load(f)
-with open("Utils/data/mbjp_dsl/test.pkl", "rb") as f:
-    test_data = pickle.load(f)
-with open("Utils/data/mbjp_dsl/rules.pkl", "rb") as f:
-    ruledict = pickle.load(f)
+# with open("Utils/data/mbjp_dsl/train.pkl", "rb") as f:
+#     train_data = pickle.load(f)
+# with open("Utils/data/mbjp_dsl/valid.pkl", "rb") as f:
+#     valid_data = pickle.load(f)
+# with open("Utils/data/mbjp_dsl/test.pkl", "rb") as f:
+#     test_data = pickle.load(f)
+# with open("Utils/data/mbjp_dsl/rules.pkl", "rb") as f:
+#     ruledict = pickle.load(f)
 
-expandedname = []  # node name to be expanded
-for rule in ruledict:
-    tmpname = rule.strip().split()[0]
-    # x could be a rule or a terminal
-    # rule: "start -> java"
-    # terminal: "maxcount"
-    if len(rule.strip().split()) < 3:
-        continue
-    expandedname.append(tmpname)
-expandedname.extend(identifiers)
+# expandedname = []  # node name to be expanded
+# for rule in ruledict:
+#     tmpname = rule.strip().split()[0]
+#     # x could be a rule or a terminal
+#     # rule: "start -> java"
+#     # terminal: "maxcount"
+#     if len(rule.strip().split()) < 3:
+#         continue
+#     expandedname.append(tmpname)
+# expandedname.extend(identifiers)
 
-for entry in train_data:
-    rulelist = entry["rulelist"][1:-1]
-    node = SearchNode(ruledict, expandedname)
-    for rule in rulelist:
-        node.apply(rule, 0.1)
-    print(strfy(node.root.getTreestr()))
-    break
+# for entry in train_data:
+#     rulelist = entry["rulelist"][1:-1]
+#     node = SearchNode(ruledict, expandedname)
+#     for rule in rulelist:
+#         node.apply(rule, 0.1)
+#     print(strfy(node.root.getTreestr()))
+#     break
+
+import json
+dataset = []
+with open("instruct_java.jsonl", 'r') as f:
+    for line in f:
+        dataset.append(json.loads(line))
+print(len(dataset))
+print(json.dumps(dataset[1],indent=2))

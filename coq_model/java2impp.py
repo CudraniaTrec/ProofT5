@@ -1,4 +1,4 @@
-import os, subprocess, json, pickle
+import os, subprocess, json, pickle, shutil
 from copy import deepcopy
 import myjavalang as javalang
 from myjavalang.tree import *
@@ -146,8 +146,11 @@ def visit(node, node_type=ExNodeTypes.Default):
                 case "Long":
                     return TyInt()
                 case _:
-                    assert node.name in java_type_map, f"Unknown reference type: {node.name}"
-                    name = java_type_map[node.name]
+                    if node.name in java_type_map:
+                        name = java_type_map[node.name]
+                    else:
+                        # name = node.name
+                        assert False, f"Unknown type: {node.name}"
                     if node.arguments == None:
                         return TyClass(name)
                     elif len(node.arguments) == 0:
@@ -164,7 +167,7 @@ def visit(node, node_type=ExNodeTypes.Default):
         assert node.pattern_type == None, "pattern_type not supported"
         return visit(node.type)
     elif isinstance(node, ConstructorDeclaration):
-        print(f"ConstructorDeclaration: {node.name}")
+        # print(f"ConstructorDeclaration: {node.name}")
         # ignore documentation, annotations
         # unsupport type_parameters, throws
         assert node.type_parameters == None, "type parameters not supported"
@@ -173,7 +176,7 @@ def visit(node, node_type=ExNodeTypes.Default):
         body = visit(node.body, ExNodeTypes.StatementList)
         return PgConstructorDecl(param, body)
     elif isinstance(node, FieldDeclaration):
-        print(f"FieldDeclaration: {node.name}")
+        # print(f"FieldDeclaration: {node.name}")
         # ignore documentation, annotations
         assert len(node.declarators) == 1, "FieldDeclaration should have exactly one declarator"
         modifiers = list(node.modifiers)
@@ -446,7 +449,7 @@ def visit(node, node_type=ExNodeTypes.Default):
                     if val[0] == '"':
                         ret = TmString(val[1:-1])
                     elif val[0] == "'":
-                        ret = TmChar(val[1])
+                        ret = TmChar(str(ord(val[1])))
                     else:
                         assert False, f"Unknown literal: {val}"
         return ret
@@ -497,12 +500,7 @@ def visit(node, node_type=ExNodeTypes.Default):
         return ret
     elif node_type == ExNodeTypes.SwitchStatementList:
         assert isinstance(node, list), "StatementList should be a list"
-        if len(node)==0 or \
-            isinstance(node[-1], BreakStatement) or \
-            isinstance(node[-1], ReturnStatement):
-            ret = StSkip()
-        else:
-            ret = StBreak()
+        ret = StSkip()
         for n in node[-1::-1]:
             ret = StConcat(visit(n), ret)
         return ret
@@ -714,15 +712,24 @@ def tokenize_all_java_files(dataset_type="mbjp"):
     print(f"Average tokenized proof length: {sum(len_cnt)/len(len_cnt)}")
 
 # remove all .v .pkl files in mbjp/humaneval folder
-def clean_folder(dir_path):
+def clean_folder(dir_path=""):
+    if not dir_path:
+        clean_folder("datas/mbjp/")
+        clean_folder("datas/humaneval/")
+        clean_folder("datas/mbjp_coqview/")
+        clean_folder("datas/humaneval_coqview/")
+        return
     files = [f for f in os.listdir(dir_path) if not f.endswith(".java")]
     for file in files:
-        os.remove(dir_path + file)
+        if os.path.isdir(dir_path + file):
+            clean_folder(dir_path + file + "/")
+        else:
+            os.remove(dir_path + file)
 
 if __name__ == "__main__":
-    # clean_folder("datas/mbjp/")
-    # print(parse_java_file("datas/mbjp/MBJP_11.java",verbose=True))
-    trans_all_java_programs("mbjp")
-    # print(tokenize_java_file("datas/humaneval/Java_0.java"))
-    # tokenize_all_java_files()
+    # clean_folder()
+    # print(parse_java_file("datas/mbjp/MBJP_0.java",verbose=True))
+    # trans_all_java_programs("humaneval")
+    # print(tokenize_java_file("datas/humaneval/Java_17.java"))
+    tokenize_all_java_files("humaneval")
    

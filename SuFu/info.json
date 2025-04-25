@@ -1,0 +1,213 @@
+{
+    "inductive": {
+        "List": [
+            "Inductive List = cons {Int, List} | nil Unit;",
+            "Inductive List = nil Unit | cons {Int, List};",
+            "Inductive List = elt Int | cons {Int, List};",
+            "Inductive List = two {Int, Int} | cons {Int, List};",
+            "Inductive List = elt {Int, Int} | cons {Int, Int, List};",
+            "Inductive List = nil Unit | cons {Int, Int, List};",
+            "Inductive List = elt Bool | cons {Bool, List};",
+            "Inductive List = nil Unit | cons {{Int, Int}, List};",
+            "Inductive List = single Int | cons {Int, List};"
+        ],
+        "SegTree": [
+            "Inductive SegTree = empty Unit | node {NodeInfo, SegTree, SegTree};"
+        ],
+        "Operation": [
+            "Inductive Operation = update {Int, Int, Tag} | query {Int, Int};"
+        ],
+        "OpList": [
+            "Inductive OpList = onil Unit | ocons {Operation, OpList};"
+        ],
+        "CartTree": [
+            "Inductive CartTree = node {CartTree, Int, CartTree} | leaf Unit;"
+        ],
+        "CartPath": [
+            "Inductive CartPath = consNode {CartTree, CartPath} | nilNode Unit;"
+        ],
+        "NList": [
+            "Inductive NList = nnil Unit | ncons {List, NList};",
+            "Inductive NList = single List | ncons {List, NList};",
+            "Inductive NList = line List | ncons {List, NList};"
+        ],
+        "List2D": [
+            "Inductive List2D = nil2D Unit | cons2D {List, List2D};"
+        ],
+        "List3D": [
+            "Inductive List3D = nil3D Unit | cons3D {List2D, List3D};"
+        ],
+        "Tree": [
+            "Inductive Tree = leaf Int | branch {Tree, Tree};",
+            "Inductive Tree = tip Int | bin {Tree, Tree};",
+            "Inductive Tree = leaf Int | node {Tree, Tree};",
+            "Inductive Tree = empty Unit | node {Int, Tree, Tree};",
+            "Inductive Tree = nil Unit | leaf Int | node {Int, Tree, Tree};",
+            "Inductive Tree = nil Unit | node {Int, Tree, Tree};",
+            "Inductive Tree = elt Int | node {Int, Tree, Tree};",
+            "Inductive Tree = leaf Int | node {Int, Tree, Tree};",
+            "Inductive Tree = leaf {Int, Int} | node {Int, Int, Tree, Tree};",
+            "Inductive Tree =\n  leaf Int | node {Int, Int, Int, Int, Int, Tree, Tree};",
+            "Inductive Tree = nil Unit | single Int | node {Int, Tree, Tree};",
+            "Inductive Tree = leaf Unit | node {Int, Tree, Tree};",
+            "Inductive Tree = telt Int | tnode {Int, Tree, Tree};"
+        ],
+        "PList": [
+            "Inductive PList = pnil Unit | pcons {Int, Int, PList};"
+        ],
+        "PTree": [
+            "Inductive PTree = ptip {Int, Int} | pbin {PTree, PTree};",
+            "Inductive PTree = pleaf Unit | pnode {Int, PList}\n     with PList = pnil Unit | pcons {PTree, PList};",
+            "Inductive PTree = pelt Int | pnode {Int, List}\n    with List = elt PTree | cons {PTree, List};"
+        ],
+        "Nat": [
+            "Inductive Nat = zero Unit | succ Nat;",
+            "Inductive Nat = z Unit | s Nat;"
+        ],
+        "BoolList": [
+            "Inductive BoolList = bnil Unit | bcons {Bool, BoolList};"
+        ],
+        "CList": [
+            "Inductive CList = empty Unit | elt Int | concat {CList, CList};",
+            "Inductive CList = sglt List | cat {CList, Int, CList};",
+            "Inductive CList = single Int | concat {CList, CList};",
+            "Inductive CList = ctwo {Int, Int} | concat {CList, CList};",
+            "Inductive CList = single {Int, Int} | concat {CList, CList};",
+            "Inductive CList = single Int | concat {Int, CList, CList};",
+            "Inductive CList = cnil Unit | single Int | concat {CList, CList};",
+            "Inductive CList = cnil Unit | ccons {Nat, Int, CList};",
+            "Inductive CList = single Bool | concat {CList, CList};",
+            "Inductive CList = emp Unit | single Bool | concat {CList, CList};",
+            "Inductive CList = cnil Unit | single {Int, Int} | concat {CList, CList};",
+            "Inductive CList = elt Int | cat {CList, CList};"
+        ],
+        "SList": [
+            "Inductive SList = snil Unit | scons {Int, SList};",
+            "Inductive SList = elt Int | cons {Int, SList};"
+        ],
+        "IDList": [
+            "Inductive IDList = ielt Int | icons {Int, Int, IDList};",
+            "Inductive IDList = inil Unit | icons {Int, Int, IDList};"
+        ],
+        "Pos": [
+            "Inductive Pos = one Unit | s Pos;"
+        ],
+        "Map": [
+            "Inductive Map = value {Int, Pos} | node {Int, Map, Map};",
+            "Inductive Map = value {Int, Int} | node {Int, Map, Map};"
+        ],
+        "MTree": [
+            "Inductive MTree = mleaf Int | mnode {Int, Int, MTree, MTree};"
+        ],
+        "CNList": [
+            "Inductive CNList = sglt List | cat {CNList, CNList};"
+        ],
+        "AList": [
+            "Inductive AList = aelt {Int, Pos} | acons {Int, Pos, AList};",
+            "Inductive AList = anil Unit | acons {Int, Nat, AList};"
+        ],
+        "UList": [
+            "Inductive UList = uelt Int | usplit {UList, Int, Int, UList};",
+            "Inductive UList = unil Unit | uelt Int | usplit {UList, Int, Int, UList};"
+        ],
+        "TreeMemo": [
+            "Inductive TreeMemo = mleaf Int | mnode {Int, Int, TreeMemo, TreeMemo};",
+            "Inductive TreeMemo = mleaf {Int, Int} | mnode {Int, Int, TreeMemo, TreeMemo};"
+        ],
+        "MList": [
+            "Inductive MList = ielt Int | icons {Int, Int, MList};"
+        ],
+        "AExpr": [
+            "Inductive AExpr = int Int | plus {AExpr, AExpr} | minus {AExpr, AExpr};"
+        ],
+        "NExpr": [
+            "Inductive NExpr = nint Int | nplus {Int, NExpr, NExpr} | nminus {Int, NExpr, NExpr};"
+        ],
+        "INat": [
+            "Inductive INat = positive Nat | negative Nat;"
+        ],
+        "EInt": [
+            "Inductive EInt = zero Unit | sub1 EInt | add1 EInt;"
+        ],
+        "TwoInats": [
+            "Inductive TwoInats = twoinats {INat, INat};"
+        ],
+        "TwoInts": [
+            "Inductive TwoInts = twoints {EInt, EInt};"
+        ],
+        "ArithExpr": [
+            "Inductive ArithExpr = int Int | plus {ArithExpr, ArithExpr} | minus {ArithExpr, ArithExpr};"
+        ],
+        "NormExpr": [
+            "Inductive NormExpr = nint Int | nplus {NormExpr, NormExpr};"
+        ],
+        "PsumExpr": [
+            "Inductive PsumExpr = nint Int | nplus {PsumExpr, PsumExpr} | nminus {PsumExpr, PsumExpr};"
+        ],
+        "Zipper": [
+            "Inductive Zipper = zip {List, List};",
+            "Inductive Zipper = top Unit | left {Int, BTree, Zipper} | right {Int, BTree, Zipper};"
+        ],
+        "BTree": [
+            "Inductive BTree = empty Unit | node {Int, BTree, BTree};"
+        ],
+        "BList": [
+            "Inductive BList = nil Unit | cons {Bool, BList};"
+        ],
+        "CnList": [
+            "Inductive CnList = sglt Int | cat {CnList, Int, CnList};"
+        ],
+        "ZipCList": [
+            "Inductive ZipCList = cnil Unit| single {Int, Int} | concat {ZipCList, ZipCList};"
+        ],
+        "ZipList": [
+            "Inductive ZipList = nil Unit | cons {Int, Int, ZipList};"
+        ],
+        "ArithOp": [
+            "Inductive ArithOp = aPlus Unit | aMinus Unit | aGt Unit;"
+        ],
+        "BoolOp": [
+            "Inductive BoolOp = bNot Unit | bAnd Unit | bOr Unit | bEq Unit;"
+        ],
+        "Term": [
+            "Inductive Term =\n  tArithBin {ArithOp, Term, Term}\n| tBoolBin {BoolOp, Term, Term}\n| tArithUn {ArithOp, Term}\n| tBoolUn {BoolOp, Term}\n| tVar Int | tCInt Int | tCBool Bool;"
+        ],
+        "Op": [
+            "Inductive Op = opPlus Unit | opMinus Unit | opNot Unit | opAnd Unit | opOr Unit | opGt Unit | opEq Unit;"
+        ],
+        "Term2": [
+            "Inductive Term2 =\n  bin {Op, Term2, Term2}\n| un {Op, Term2}\n| var Int | cInt Int | cBool Bool;"
+        ],
+        "Formula": [
+            "Inductive Formula = flit Bool | fand {Formula, Formula} | forr {Formula, Formula} | fnot Formula;"
+        ],
+        "NnfFormula": [
+            "Inductive NnfFormula = nfneglit Bool | nflit Bool | nfand {NnfFormula, NnfFormula} | nfor {NnfFormula, NnfFormula};"
+        ],
+        "IndexedList": [
+            "Inductive IndexedList = inil Unit | icons {Int, Int, IndexedList};"
+        ],
+        "IdxList": [
+            "Inductive IdxList = ielt Int | icons {Int, Int, IdxList};"
+        ]
+    },
+    "prompts": {
+        "template": "File_name = <file_name>, code = <code>, inputs = <inputs>, outputs = <outputs>",
+        "examples": [
+            {
+                "file_name": "incre-tests-autolifter-single-pass-mas",
+                "code": "\nInductive List = cons {Int, List} | nil Unit;\n\nsingle_pass = \\v: List -> Int. \n    let run = (fix (\n    \\f: List -> Compress List. \\xs: List. \n    match xs with\n      nil _ -> \n        align (label xs ) \n    | cons {h, t} -> \n        let tmp1 = (f t) in \n            align (label (cons {h, unlabel tmp1 }) ) \n    end\n)) in \n        \\xs: List. \n        let tmp2 = (run xs) in \n            align (v (unlabel tmp2 )) ;\n\nmax = \\a: Int. \\b: Int. \n    if (< a b) then b\n    else a;\n\nmas = fix (\n    \\f: Int -> Int -> List -> Int. \\p: Int. \\np: Int. \\xs: List. \n    match xs with\n      nil _ -> max p np\n    | cons {h, t} -> max (max p np) (f (+ (max np 0) h) (- (max p 0) h) t)\n    end\n) 0 0;\n\nexpected = \\xs: List. \n    let res = (fix (\n    \\f: Int -> Int -> List -> {Int, Int}. \\p: Int. \\np: Int. \\xs: List. \n    match xs with\n      nil _ -> {max p 0, max np 0}\n    | cons {h, t} -> f (+ (max np 0) h) (- (max p 0) h) t\n    end\n) 0 0 xs) in \n        max res.1 res.2;\n\nmain = single_pass mas;\n\n",
+                "inputs": "main (cons {(-3), (cons {(-1), (cons {(3), (cons {(1), (cons {(3), (nil unit)})})})})});\nmain (cons {(5), (cons {(-1), (cons {(2), (cons {(5), (cons {(4), (cons {(-2), (cons {(-1), (cons {(0), (nil unit)})})})})})})})});\nmain (cons {(-4), (cons {(-1), (cons {(4), (cons {(3), (cons {(-3), (cons {(3), (nil unit)})})})})})});\nmain (cons {(-2), (cons {(-1), (cons {(5), (cons {(-4), (cons {(-2), (nil unit)})})})})});\nmain (nil unit);\nmain (cons {(2), (cons {(-5), (cons {(-1), (cons {(-4), (nil unit)})})})});\nmain (nil unit);\nmain (cons {(-3), (cons {(1), (cons {(-3), (cons {(-3), (cons {(-4), (nil unit)})})})})});\nmain (nil unit);\nmain (cons {(3), (cons {(0), (cons {(-3), (cons {(1), (nil unit)})})})});\n",
+                "outputs": "\nList :: List. <cons {Int,List} | nil Unit>\n cons : {Int,List} -> List'. <cons {Int,List'} | nil Unit>\n nil : Unit -> List'. <cons {Int,List'} | nil Unit>\n single_pass : (List->Int) -> List -> Int\nmax : Int -> Int -> Int\nmas : List -> Int\nexpected : List -> Int\nmain : List -> Int\n6 : Int\n9 : Int\n9 : Int\n10 : Int\n0 : Int\n10 : Int\n0 : Int\n8 : Int\n0 : Int\n4 : Int\n",
+                "prompt": "```nl\nWrite a sufu program that compute the maximum of subarrays of a list.\n```"
+            },
+            {
+                "file_name": "incre-tests-fusion-algprog-page58",
+                "code": "\nInductive List = nil Unit | cons {Int, List};\n\ntri = \\op: Int -> Int. \n    fix (\n    \\f: List -> Compress List. \\xs: List. \n    match xs with\n      nil _ -> \n        let tmp1 = (nil unit) in \n            align (label tmp1 ) \n    | cons {h, t} -> \n        let tail = (let tmp2 = (fix (\n        \\g: List -> List. \\ys: List. \n        match ys with\n          nil _ -> nil unit\n        | cons {h, t} -> cons {op h, g t}\n        end\n    )) in \n            let tmp3 = (f t) in \n                align (label (tmp2 (unlabel tmp3 )) ) ) in \n            align (label (cons {h, unlabel tail }) ) \n    end\n);\n\nw = 100;\n\nop = \\x: Int. \n    * x w;\n\nsum = fix (\n    \\f: List -> Int. \\xs: List. \n    match xs with\n      nil _ -> 0\n    | cons {h, t} -> + h (f t)\n    end\n);\n\nmain = \\xs: List. \n    let tmp4 = (tri op xs) in \n        align (sum (unlabel tmp4 )) ;\n\n",
+                "inputs": "main (cons {(-3), (cons {(-1), (cons {(3), (cons {(1), (cons {(3), (nil unit)})})})})});\nmain (cons {(5), (cons {(-1), (cons {(2), (cons {(5), (cons {(4), (cons {(-2), (cons {(-1), (cons {(0), (nil unit)})})})})})})})});\nmain (cons {(-4), (cons {(-1), (cons {(4), (cons {(3), (cons {(-3), (cons {(3), (nil unit)})})})})})});\nmain (cons {(-2), (cons {(-1), (cons {(5), (cons {(-4), (cons {(-2), (nil unit)})})})})});\nmain (nil unit);\nmain (cons {(2), (cons {(-5), (cons {(-1), (cons {(-4), (nil unit)})})})});\nmain (nil unit);\nmain (cons {(-3), (cons {(1), (cons {(-3), (cons {(-3), (cons {(-4), (nil unit)})})})})});\nmain (nil unit);\nmain (cons {(3), (cons {(0), (cons {(-3), (cons {(1), (nil unit)})})})});\n",
+                "outputs": "\nList :: List. <nil Unit | cons {Int,List}>\n nil : Unit -> List'. <nil Unit | cons {Int,List'}>\n cons : {Int,List} -> List'. <nil Unit | cons {Int,List'}>\n tri : (Int->Int) ->\n      List -> Compress List'. <nil Unit | cons {Int,List'}>\nw : Int\nop : Int -> Int\nsum : List -> Int\nmain : List -> Int\n301029897 : Int\n-1019594980095 : Int\n29703039896 : Int\n-203950102 : Int\n0 : Int\n-4010498 : Int\n0 : Int\n-403029903 : Int\n0 : Int\n970003 : Int\n",
+                "prompt": "```nl\nWrite a sufu program that multiply every element of a list by w, and compute the sum of the list\n```"
+            }
+        ]
+    }
+}

@@ -21,6 +21,7 @@ Inductive Ty : Type :=
     | TyString : Ty
     (* advanced types *)
     | TyAny : Ty                      (* any type *)
+    | TyNull : Ty                     (* null *)
     | TyArray : Ty->Ty                (* T[] *)
     | TyGeneric0 : string->Ty         (* s<> *)
     | TyGeneric1 : string->Ty->Ty     (* s<T> *)
@@ -343,15 +344,16 @@ Fixpoint convertible (ty1 ty2: Ty) : bool :=
     | TyBool, TyBool => true
     | TyChar, TyChar => true
     | TyString, TyString => true
-    (* | TyInt, TyFloat => true *)
     | TyFloat, TyInt => true
     | TyInt, TyChar => true
-    (* | TyChar, TyInt => true *)
-    (* | TyInt, TyBool => true *)
-    (* | TyBool, TyInt => true *)
     | TyClass "Object", _ => true
     | _, TyAny => true
     | TyAny, _ => true 
+    | TyString, TyNull => true
+    | TyClass _, TyNull => true
+    | TyGeneric0 _, TyNull => true
+    | TyGeneric1 _ _, TyNull => true
+    | TyGeneric2 _ _ _, TyNull => true
     (* | _, TyClass "Object" => true *)
     | TyClass m, TyClass n => String.eqb m n
     | TyGeneric0 m, TyGeneric0 n => String.eqb m n
@@ -626,7 +628,7 @@ Inductive has_type : Context->Term->Ty->Prop :=
     | T_False : forall Gamma,
         Gamma |-- TmFalse \in TyBool
     | T_Null : forall Gamma,
-        Gamma |-- TmNull \in TyAny (*null can have any type*)
+        Gamma |-- TmNull \in TyNull (*null can have any type*)
     (*advanced data structure*)
     | T_Assign : forall Gamma x T t,
         (* x = t *)
