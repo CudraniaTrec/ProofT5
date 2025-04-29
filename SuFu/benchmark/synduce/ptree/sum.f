@@ -1,6 +1,6 @@
 Inductive Tree = leaf Unit | node {Int, Tree, Tree};
-Inductive PTree = pleaf Unit | pnode {Int, PList}
-     with PList = pnil Unit | pcons {PTree, PList};
+Inductive PTree = pleaf Unit | pnode {Int, PList};
+Inductive PList = pnil Unit | pcons {PTree, PList};
 
 repr = fix (
   \f: PTree -> Compress Tree. \pt: PTree.

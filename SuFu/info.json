@@ -9,7 +9,8 @@
             "Inductive List = nil Unit | cons {Int, Int, List};",
             "Inductive List = elt Bool | cons {Bool, List};",
             "Inductive List = nil Unit | cons {{Int, Int}, List};",
-            "Inductive List = single Int | cons {Int, List};"
+            "Inductive List = single Int | cons {Int, List};",
+            "Inductive List = elt PTree | cons {PTree, List};"
         ],
         "SegTree": [
             "Inductive SegTree = empty Unit | node {NodeInfo, SegTree, SegTree};"
@@ -53,12 +54,13 @@
             "Inductive Tree = telt Int | tnode {Int, Tree, Tree};"
         ],
         "PList": [
-            "Inductive PList = pnil Unit | pcons {Int, Int, PList};"
+            "Inductive PList = pnil Unit | pcons {Int, Int, PList};",
+            "Inductive PList = pnil Unit | pcons {PTree, PList};"
         ],
         "PTree": [
             "Inductive PTree = ptip {Int, Int} | pbin {PTree, PTree};",
-            "Inductive PTree = pleaf Unit | pnode {Int, PList}\n     with PList = pnil Unit | pcons {PTree, PList};",
-            "Inductive PTree = pelt Int | pnode {Int, List}\n    with List = elt PTree | cons {PTree, List};"
+            "Inductive PTree = pleaf Unit | pnode {Int, PList};",
+            "Inductive PTree = pelt Int | pnode {Int, List};"
         ],
         "Nat": [
             "Inductive Nat = zero Unit | succ Nat;",

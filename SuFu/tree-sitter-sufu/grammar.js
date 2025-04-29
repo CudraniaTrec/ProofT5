@@ -29,16 +29,17 @@
 //           |  <name> <pattern>                                  /* Matching constructors */
 //           |  {<pattern>, ..., <pattern>}                       /* Matching for tuples*/
 const PREC = {
-  "TERM_APP": 10,
-  "TERM_LAMBDA": 0,
+  "TERM_APP": 0,
+  "TERM_LAMBDA": -2,
   "TERM_FIX": 0,
-  "TERM_LET": 0,
-  "TERM_IF": 0,
-  "TERM_MATCH": 0,
-  "TERM_PROJECTION": 5,
-  "TERM_REWRITTEN": 1,
-  "TERM_LABEL": 1,
-  "TERM_UNLABEL": 1,
+  "TERM_LET": -4,
+  "TERM_IF": -3,
+  "TERM_MATCH": 5,
+  "TERM_PROJECTION": 7,
+  "TERM_REWRITTEN": -1,
+  "TERM_LABEL": -1,
+  "TERM_UNLABEL": -1,
+  "PAREN": 10,
   "TYPE_REFRAME": 1,
   "TYPE_ARROW": 0,
 }
@@ -57,6 +58,8 @@ module.exports = grammar({
     /\s/,
   ],
 
+  word: $ => $.identifier,
+
   conflicts: $ => [
   ],
 
@@ -72,9 +75,8 @@ module.exports = grammar({
     inductive_command: $ => seq(
       'Inductive',
       $.Identifier,
-      optional(
-        seq('=',$.typedef,)
-      ),
+      '=',
+      $.typedef,
       ';'
     ),
 
@@ -117,6 +119,7 @@ module.exports = grammar({
       $.type_int,
       $.type_bool,
       $.type_unit,
+      $.type_parenthesized,
     ),
 
     type_product: $ => seq(
@@ -147,6 +150,12 @@ module.exports = grammar({
 
     type_unit: $ => 'Unit',
 
+    type_parenthesized: $ => prec(PREC.PAREN, seq(
+      '(',
+      $.type,
+      ')',
+    )),
+
     term: $ => choice(
       $.term_unit,
       $.term_integer,
@@ -163,13 +172,12 @@ module.exports = grammar({
       $.term_rewrite,
       $.term_label,
       $.term_unlabel,
-      $.term_binop,
-      $.term_unop,
+      $.term_op,
       $.term_parenthesized,
     ),
 
-    term_unit: $ => 'Unit',
-    term_integer: $ => /[0-9]+/,
+    term_unit: $ => 'unit',
+    term_integer: $ => /[-+]?\d+/,
     term_bool: $ => choice('true', 'false'),
     term_var: $ => $.identifier,
     term_app: $ => prec.left(PREC.TERM_APP, seq(
@@ -231,7 +239,7 @@ module.exports = grammar({
 
     match_case: $ => seq(
       $.match_case_single,
-      repeat1(seq(
+      repeat(seq(
         '|',
         $.match_case_single,
       )),
@@ -259,7 +267,7 @@ module.exports = grammar({
       $.term,
     )),
 
-    term_binop: $ => choice(
+    term_op: $ => choice(
       '+',
       '-',
       '*',
@@ -271,17 +279,14 @@ module.exports = grammar({
       '==',
       'and',
       'or',
+      'not'
     ),
 
-    term_unop: $ => choice(
-      'not',
-    ),
-
-    term_parenthesized: $ => seq(
+    term_parenthesized: $ => prec(PREC.PAREN, seq(
       '(',
       $.term,
       ')',
-    ),
+    )),
 
     pattern: $ => choice(
       $.pattern_default,
@@ -306,7 +311,7 @@ module.exports = grammar({
       '}',
     ),
 
-    identifier: $ => /[a-z][a-zA-Z0-9_]*/,
-    Identifier: $ => /[A-Z][a-zA-Z0-9_]*/,
+    identifier: $ => /[a-z][a-zA-Z0-9_']*/,
+    Identifier: $ => /[A-Z][a-zA-Z0-9_']*/,
   },
 });

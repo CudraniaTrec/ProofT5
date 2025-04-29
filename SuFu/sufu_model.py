@@ -35,15 +35,122 @@ name2cls = {}
 class_w_type = {
     "program": ["ProgramCons", "ProgramNil", "ProgramUnk"], # 3
     "command": ["CommandInductive", "CommandType", "CommandTerm", "CommandUnk"], # 4
-    "tydef": ["TypeDefCons", "TypeDef", "TypeDefNull", "TypeDefUnk"], # 4
+    "tydef": ["TypeDefCons", "TypeDef", "TypeDefUnk"], # 3
     "type": ["TypeUser", "TypeUnit", "TypeInt", "TypeBool", "TypeArrow", "TypeReframe", "TypeProd", "TypeUnk"], # 8
-    "term": ["TermUnit", "TermInt", "TermTrue", "TermFalse", "TermVar", "TermBinary", "TermUnary", "TermApp", "TermLambda", "TermFix", "TermLet", "TermIf", "TermTuple", "TermProj", "TermMatch", "TermRewrite", "TermLabel", "TermUnlabel", "TermParenthesis", "TermUnk"], # 20
+    "term": ["TermUnit", "TermInt", "TermTrue", "TermFalse", "TermVar", "TermOp", "TermApp", "TermLambda", "TermFix", "TermLet", "TermIf", "TermTuple", "TermProj", "TermMatch", "TermRewrite", "TermLabel", "TermUnlabel", "TermParenthesis", "TermUnk"], # 20
     "matchcase": ["MatchCaseCons", "MatchCaseNil", "MatchCaseUnk"], # 3
     "pattern": ["PatternDefault", "PatternVar", "PatternConstructor", "PatternTuple", "PatternUnk"], # 5
 }
 
-from copy import copy
+from copy import copy, deepcopy
+from tqdm import tqdm
+import json, os, subprocess, re, traceback
+from transformers import AutoTokenizer
 
+tokenizer = AutoTokenizer.from_pretrained(
+    "Salesforce/codet5-small", local_files_only=True)
+
+# internal class for type checking
+class TypeCtx:
+    def __init__(self):
+        self.ctx = {} # map from term name to SufuType
+        self.ty_ctx = {} # map from type name to list of SufuType
+        self.labelable = False # whether we can (un)label a term
+        self.subject = None # match subject type
+        self.constructors = {} # map from constructor name to args type and return type
+
+class SufuType:
+    def __init__(self, ty, *args):
+        self.ty = ty # string
+        self.args = args # list of SufuType
+    
+    def __eq__(self, other):
+        if not isinstance(other, SufuType):
+            return False
+        if self.ty == "Unk" or other.ty == "Unk":
+            return True 
+        if self.ty != other.ty:
+            return False
+        if len(self.args) != len(other.args):
+            return False
+        for i in range(len(self.args)):
+            if self.args[i] != other.args[i]:
+                return False
+        return True
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def __repr__(self):
+        if self.ty == "Arrow":
+            return f"{self.args[0]} -> {self.args[1]}"
+        elif self.ty == "Reframe":
+            return f"Reframe {self.args[0]}"
+        elif self.ty == "Prod":
+            return f"{{{self.args[0]},{self.args[1]}}}"
+        else:
+            return f"{self.ty}"
+        
+    def apply(self, arg):
+        assert self.ty == "Arrow", f"{self.ty} can't be applied"
+        assert self.args[0] == arg, f"Apply error {self.args[0]} != {arg.ty}"
+        return self.args[1]
+    
+    def apply_fix(self):
+        assert self.ty == "Arrow", f"fixpoint arg {self.ty} not a function type"
+        assert self.args[0] == self.args[1], f"fixpoint type mismatch: {self.args[0]} != {self.args[1]}"
+        return self.args[0]
+    
+    def size(self):
+        if self.ty == "Prod":
+            return self.args[0].size() + self.args[1].size()
+        else:
+            return 1
+    
+    def proj(self, index):
+        if index == 1:
+            if self.ty == "Prod":
+                return self.args[0]
+            else:
+                return self
+        else:
+            assert self.ty == "Prod", f"{self.ty} can't be projected"
+            return self.args[1].proj(index-1)
+    
+    def is_scalar(self):
+        if self.ty in ["Unit", "Int", "Bool"]:
+            return True
+        elif self.ty == "Prod":
+            return self.args[0].is_scalar() and self.args[1].is_scalar()
+        elif self.ty == "Reframe":
+            return self.args[0].is_base()
+        else:
+            return False
+    
+    def is_base(self):
+        if self.ty == "Prod":
+            return self.args[0].is_base() and self.args[1].is_base()
+        elif self.ty == "Reframe":
+            return self.args[0].is_base()
+        else:
+            return self.ty != "Arrow"
+    
+    def unlabel(self):
+        assert self.ty == "Reframe", f"{self.ty} can't be unlabeled"
+        return self.args[0]
+    
+    def label(self):
+        assert self.is_base(), f"{self.ty} can't be labeled"
+        return SufuType("Reframe", self)
+
+    def rewrite(self):
+        assert self.is_scalar(), f"{self.ty} can't be rewritten"
+        return self
+    
+    def is_tuple(self):
+        return self.ty == "Prod"
+
+# sufu ast node
 class AstNode(type):
     def __init__(cls, name, bases, dct):
         super().__init__(name, bases, dct)
@@ -57,15 +164,49 @@ class AstNode(type):
         origin_init = cls.__init__
         def new_init(self, *args, **kwargs):
             assert len(terms_need)>=len(args), f"args length too long for {tname}: {[class_type(arg) for arg in args]}"
+            self.incomplete_field_id = 0
             for i in range(len(terms_need)):
                 if i >= len(args):
                     setattr(self, args_name[i], findUnk[terms_need[i]])
                 else:
                     assert class_type(args[i]) == terms_need[i], f"actual type: {class_type(args[i])} != target type: {terms_need[i]}, args[i]({type(args[i])}):{args[i].to_str({})}"
                     setattr(self, args_name[i], args[i])
+                    if value_complete(args[i]):
+                        self.incomplete_field_id +=1
             origin_init(self)
         cls.__init__ = new_init
-    
+
+        def get_incomplete_field(self):
+            return getattr(self, args_name[self.incomplete_field_id])
+        cls.get_incomplete_field = get_incomplete_field
+
+        def set_incomplete_field(self, value):
+            if value_complete(value):
+                self.incomplete_field_id += 1
+            if isinstance(value, str):
+                value = value.replace('Ġ', '')
+            setattr(self, args_name[self.incomplete_field_id], value)
+        cls.set_incomplete_field = set_incomplete_field
+
+        def incomplete(self):
+            return self.incomplete_field_id < len(args_name)
+        cls.incomplete = incomplete
+
+        def tokenize(self):
+            tokens = [tname]
+            for i in range(len(args_name)):
+                f = getattr(self, args_name[i])
+                if isinstance(f, str):
+                    ftokens = tokenizer.tokenize(' '+f)[::-1] #encounter Ġ means end
+                else:
+                    ftokens = f.tokenize()
+                tokens+=ftokens
+            return tokens
+        # if cls doesn't have tokenize, add it
+        if not hasattr(cls, "tokenize"):
+            cls.tokenize = tokenize
+
+# type_check returns tctx
 class ProgramCons(metaclass=AstNode):
     # command | program
     ty = "program"
@@ -76,7 +217,8 @@ class ProgramCons(metaclass=AstNode):
         return f"{self.cmd.to_str(ctx)}\n{self.prog.to_str(ctx)}"
 
     def type_check(self, tctx):
-        
+        new_tctx = self.cmd.type_check(tctx)
+        return self.prog.type_check(new_tctx)
 
 class ProgramNil(metaclass=AstNode):
     # ;
@@ -87,6 +229,9 @@ class ProgramNil(metaclass=AstNode):
     def to_str(self, ctx):
         return ""
 
+    def type_check(self, tctx):
+        return tctx
+
 class ProgramUnk(metaclass=AstNode):
     # ??
     ty = "program"
@@ -96,6 +241,10 @@ class ProgramUnk(metaclass=AstNode):
     def to_str(self, ctx):
         return "??"
 
+    def type_check(self, tctx):
+        return tctx
+
+# type_check returns tctx
 class CommandInductive(metaclass=AstNode):
     # Inductive name = tydef
     ty = "command"
@@ -103,7 +252,15 @@ class CommandInductive(metaclass=AstNode):
     args_name = ["name", "tydef"]
 
     def to_str(self, ctx):
-        return f"Inductive {self.name} = {self.tydef.to_str(ctx)}"
+        return f"Inductive {self.name} = {self.tydef.to_str(ctx)};"
+
+    def type_check(self, tctx):
+        tctx.ty_ctx[self.name] = SufuType(self.name)
+        tydef = self.tydef.type_check(tctx)
+        for constructor in tydef:
+            tctx.constructors[constructor] = (tydef[constructor], SufuType(self.name))
+            tctx.ctx[constructor] = SufuType("Arrow", tydef[constructor], SufuType(self.name))
+        return tctx
 
 class CommandType(metaclass=AstNode):
     # name = ty
@@ -112,7 +269,12 @@ class CommandType(metaclass=AstNode):
     args_name = ["name", "ty_"]
 
     def to_str(self, ctx):
-        return f"{self.name} = {self.ty_.to_str(ctx)}"
+        return f"{self.name} = {self.ty_.to_str(ctx)};"
+    
+    def type_check(self, tctx):
+        tydef = self.ty_.type_check(tctx)
+        tctx.ty_ctx[self.name] = tydef
+        return tctx
 
 class CommandTerm(metaclass=AstNode):
     # name = term
@@ -121,7 +283,12 @@ class CommandTerm(metaclass=AstNode):
     args_name = ["name", "term"]
 
     def to_str(self, ctx):
-        return f"{self.name} = {self.term.to_str(ctx)}"
+        return f"{self.name} = {self.term.to_str(ctx)};"
+    
+    def type_check(self, tctx):
+        term_ty = self.term.type_check(tctx)
+        tctx.ctx[self.name] = term_ty
+        return tctx
 
 class CommandUnk(metaclass=AstNode):
     # ??
@@ -131,7 +298,11 @@ class CommandUnk(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "??"
+    
+    def type_check(self, tctx):
+        return tctx
 
+# type_check returns {name1: sufuty1, name2: sufuty2, ...}
 class TypeDef(metaclass=AstNode):
     # name ty
     ty = "tydef"
@@ -141,14 +312,8 @@ class TypeDef(metaclass=AstNode):
     def to_str(self, ctx):
         return f"{self.name} {self.ty_.to_str(ctx)}"
 
-class TypeDefNull(metaclass=AstNode):
-    # 
-    ty = "tydef"
-    terms_need = []
-    args_name = []
-
-    def to_str(self, ctx):
-        return ""
+    def type_check(self, tctx):
+        return {self.name: self.ty_.type_check(tctx)}
 
 class TypeDefCons(metaclass=AstNode):
     # tydef | tydef
@@ -158,6 +323,11 @@ class TypeDefCons(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"{self.tydef1.to_str(ctx)} | {self.tydef2.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        tydef1 = self.tydef1.type_check(tctx)
+        tydef2 = self.tydef2.type_check(tctx)
+        return {**tydef1, **tydef2}
 
 class TypeDefUnk(metaclass=AstNode):
     # ??
@@ -167,7 +337,11 @@ class TypeDefUnk(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "??"
+    
+    def type_check(self, tctx):
+        return {}
 
+# type_check returns SufuType   
 class TypeUser(metaclass=AstNode):
     # name
     ty = "type"
@@ -176,7 +350,14 @@ class TypeUser(metaclass=AstNode):
 
     def to_str(self, ctx):
         return self.name
-
+    
+    def type_check(self, tctx):
+        assert self.name in tctx.ty_ctx, f"{self.name} not in ty_ctx"
+        return tctx.ty_ctx[self.name]
+    
+    def tokenize(self):
+        return [self.name]
+    
 class TypeUnit(metaclass=AstNode):
     # Unit
     ty = "type"
@@ -185,6 +366,9 @@ class TypeUnit(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "Unit"
+    
+    def type_check(self, tctx):
+        return SufuType("Unit")
 
 class TypeInt(metaclass=AstNode):
     # Int
@@ -195,6 +379,9 @@ class TypeInt(metaclass=AstNode):
     def to_str(self, ctx):
         return "Int"
 
+    def type_check(self, tctx):
+        return SufuType("Int")
+
 class TypeBool(metaclass=AstNode):
     # Bool
     ty = "type"
@@ -203,6 +390,9 @@ class TypeBool(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "Bool"
+    
+    def type_check(self, tctx):
+        return SufuType("Bool")
 
 class TypeArrow(metaclass=AstNode):
     # ty -> ty
@@ -212,6 +402,11 @@ class TypeArrow(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"{self.ty1.to_str(ctx)} -> {self.ty2.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty1 = self.ty1.type_check(tctx)
+        ty2 = self.ty2.type_check(tctx)
+        return SufuType("Arrow", ty1, ty2)
 
 class TypeReframe(metaclass=AstNode):
     # Reframe ty
@@ -220,7 +415,10 @@ class TypeReframe(metaclass=AstNode):
     args_name = ["ty_"]
 
     def to_str(self, ctx):
-        return f"Reframe {self.ty_.to_str(ctx)}"
+        return f"Compress {self.ty_.to_str(ctx)}"
+
+    def type_check(self, tctx):
+        return SufuType("Reframe", self.ty_.type_check(tctx))
 
 class TypeProd(metaclass=AstNode):
     # {ty, ..., ty}
@@ -230,12 +428,20 @@ class TypeProd(metaclass=AstNode):
 
     def to_str(self, ctx):
         new_ctx = copy(ctx)
-        new_ctx["curly_brackets"] = False
-        ty1, ty2 = self.ty1.to_str(new_ctx), self.ty2.to_str(new_ctx)
+        new_ctx["curly_brackets"] = True
+        ty1 = self.ty1.to_str(new_ctx)
+        if isinstance(self.ty2, TypeProd):
+            new_ctx["curly_brackets"] = False
+        ty2 = self.ty2.to_str(new_ctx)
         if "curly_brackets" in ctx and ctx["curly_brackets"]==False:
             return f"{ty1}, {ty2}"
         else:
             return f"{{{ty1}, {ty2}}}"
+    
+    def type_check(self, tctx):
+        ty1 = self.ty1.type_check(tctx)
+        ty2 = self.ty2.type_check(tctx)
+        return SufuType("Prod", ty1, ty2)
 
 class TypeUnk(metaclass=AstNode):
     # ??
@@ -245,7 +451,11 @@ class TypeUnk(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "??"
+    
+    def type_check(self, tctx):
+        return SufuType("Unk")
 
+# type_check returns SufuType
 class TermUnit(metaclass=AstNode):
     # unit
     ty = "term"
@@ -254,6 +464,9 @@ class TermUnit(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "unit"
+    
+    def type_check(self, tctx):
+        return SufuType("Unit")
 
 class TermInt(metaclass=AstNode):
     # integer
@@ -263,6 +476,9 @@ class TermInt(metaclass=AstNode):
 
     def to_str(self, ctx):
         return self.int
+    
+    def type_check(self, tctx):
+        return SufuType("Int")
 
 class TermTrue(metaclass=AstNode):
     # true
@@ -272,6 +488,9 @@ class TermTrue(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "true"
+    
+    def type_check(self, tctx):
+        return SufuType("Bool")
 
 class TermFalse(metaclass=AstNode):
     # false
@@ -281,6 +500,9 @@ class TermFalse(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "false"
+    
+    def type_check(self, tctx):
+        return SufuType("Bool")
 
 class TermVar(metaclass=AstNode):
     # name
@@ -290,22 +512,30 @@ class TermVar(metaclass=AstNode):
 
     def to_str(self, ctx):
         return self.name
+    
+    def type_check(self, tctx):
+        assert self.name in tctx.ctx, f"{self.name} not in ctx"
+        return tctx.ctx[self.name]
 
-class TermBinary(metaclass=AstNode):
-    # + | - | * | / | < | <= | > | >= | == | and | or 
+class TermOp(metaclass=AstNode):
+    # + | - | * | / | < | <= | > | >= | == | and | or | not
     ty = "term"
     terms_need = ["string"]
     args_name = ["op"]
     def to_str(self, ctx):
         return self.op
-
-class TermUnary(metaclass=AstNode):
-    # - | not
-    ty = "term"
-    terms_need = ["string"]
-    args_name = ["op"]
-    def to_str(self, ctx):
-        return self.op
+    
+    def type_check(self, tctx):
+        if self.op in ["+", "-", "*", "/"]:
+            return SufuType("Arrow", SufuType("Int"), SufuType("Arrow", SufuType("Int"), SufuType("Int")))
+        elif self.op in ["<", "<=", ">", ">=", "=="]:
+            return SufuType("Arrow", SufuType("Int"), SufuType("Arrow", SufuType("Int"), SufuType("Bool")))
+        elif self.op in ["and", "or"]:
+            return SufuType("Arrow", SufuType("Bool"), SufuType("Arrow", SufuType("Bool"), SufuType("Bool")))
+        elif self.op == "not":
+            return SufuType("Arrow", SufuType("Bool"), SufuType("Bool"))
+        else:
+            assert False, f"{self.op} not in + - * / < <= > >= == and or not" 
 
 class TermApp(metaclass=AstNode):
     # term term
@@ -315,6 +545,11 @@ class TermApp(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"{self.term1.to_str(ctx)} {self.term2.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        func_ty = self.term1.type_check(tctx)
+        arg_ty = self.term2.type_check(tctx)
+        return func_ty.apply(arg_ty)
 
 class TermLambda(metaclass=AstNode):
     # \name:ty. term
@@ -324,6 +559,13 @@ class TermLambda(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"\\{self.name}:{self.ty_.to_str(ctx)}. {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty_binder = self.ty_.type_check(tctx)
+        new_tctx = deepcopy(tctx)
+        new_tctx.ctx[self.name] = ty_binder
+        ty_val = self.term.type_check(new_tctx)
+        return SufuType("Arrow", ty_binder, ty_val)
 
 class TermFix(metaclass=AstNode):
     # fix term
@@ -333,6 +575,10 @@ class TermFix(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"fix {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty_fix = self.term.type_check(tctx)
+        return ty_fix.apply_fix()
 
 class TermLet(metaclass=AstNode):
     # let name = term in term
@@ -342,6 +588,12 @@ class TermLet(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"let {self.name} = {self.val.to_str(ctx)} in {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty_val = self.val.type_check(tctx)
+        new_tctx = deepcopy(tctx)
+        new_tctx.ctx[self.name] = ty_val
+        return self.term.type_check(new_tctx)
 
 class TermIf(metaclass=AstNode):
     # if term then term else term
@@ -351,6 +603,14 @@ class TermIf(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"if {self.cond.to_str(ctx)} then {self.then_.to_str(ctx)} else {self.else_.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty_cond = self.cond.type_check(tctx)
+        ty_then = self.then_.type_check(tctx)
+        ty_else = self.else_.type_check(tctx)
+        assert ty_cond == SufuType("Bool"), f"If condition {ty_cond} is not Bool"
+        assert ty_then == ty_else, f"If branch {ty_then} and {ty_else} are not same"
+        return ty_then
 
 class TermTuple(metaclass=AstNode):
     # {term, ..., term}
@@ -360,12 +620,20 @@ class TermTuple(metaclass=AstNode):
 
     def to_str(self, ctx):
         new_ctx = copy(ctx)
-        new_ctx["curly_brackets"] = False
-        term1, term2 = self.term1.to_str(new_ctx), self.term2.to_str(new_ctx)
+        new_ctx["curly_brackets"] = True
+        term1 = self.term1.to_str(new_ctx)
+        if isinstance(self.term2, TermTuple):
+            new_ctx["curly_brackets"] = False
+        term2 = self.term2.to_str(new_ctx)
         if "curly_brackets" in ctx and ctx["curly_brackets"]==False:
             return f"{term1}, {term2}"
         else:
             return f"{{{term1}, {term2}}}"
+    
+    def type_check(self, tctx):
+        ty_term1 = self.term1.type_check(tctx)
+        ty_term2 = self.term2.type_check(tctx)
+        return SufuType("Prod", ty_term1, ty_term2)
 
 class TermProj(metaclass=AstNode):
     # term.integer
@@ -376,6 +644,11 @@ class TermProj(metaclass=AstNode):
     def to_str(self, ctx):
         return f"{self.term.to_str(ctx)}.{self.int}"
 
+    def type_check(self, tctx):
+        index = int(self.int)
+        ty_term = self.term.type_check(tctx)
+        return ty_term.proj(index)
+
 class TermMatch(metaclass=AstNode):
     # match term with matchcase
     ty = "term"
@@ -383,7 +656,14 @@ class TermMatch(metaclass=AstNode):
     args_name = ["term", "matchcase"]
 
     def to_str(self, ctx):
-        return f"match {self.term.to_str(ctx)} with {self.matchcase.to_str(ctx)}"
+        return f"match {self.term.to_str(ctx)} with {self.matchcase.to_str(ctx)} end"
+
+    def type_check(self, tctx):
+        ty_term = self.term.type_check(tctx)
+        new_tctx = deepcopy(tctx)
+        new_tctx.subject = ty_term
+        ty_matchcase = self.matchcase.type_check(new_tctx)
+        return ty_matchcase
 
 class TermRewrite(metaclass=AstNode):
     # rewrite term
@@ -392,7 +672,12 @@ class TermRewrite(metaclass=AstNode):
     args_name = ["term"]
 
     def to_str(self, ctx):
-        return f"rewrite {self.term.to_str(ctx)}"
+        return f"align {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        new_tctx = deepcopy(tctx)
+        new_tctx.labelable = True
+        return self.term.type_check(new_tctx).rewrite()
 
 class TermLabel(metaclass=AstNode):
     # label term
@@ -402,6 +687,10 @@ class TermLabel(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"label {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        assert tctx.labelable, "Label is not allowed here"
+        return self.term.type_check(tctx).label()
 
 class TermUnlabel(metaclass=AstNode):
     # unlabel term
@@ -411,6 +700,10 @@ class TermUnlabel(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"unlabel {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        assert tctx.labelable, "Unlabel is not allowed here"
+        return self.term.type_check(tctx).unlabel()
 
 class TermParenthesis(metaclass=AstNode):
     # (term)
@@ -421,6 +714,9 @@ class TermParenthesis(metaclass=AstNode):
     def to_str(self, ctx):
         return f"({self.term.to_str(ctx)})"
 
+    def type_check(self, tctx):
+        return self.term.type_check(tctx)
+
 class TermUnk(metaclass=AstNode):
     # ??
     ty = "term"
@@ -430,6 +726,10 @@ class TermUnk(metaclass=AstNode):
     def to_str(self, ctx):
         return "??"
 
+    def type_check(self, tctx):
+        return SufuType("Unk")
+
+# type_check returns SufuType
 class MatchCase(metaclass=AstNode):
     # pattern -> term
     ty = "matchcase"
@@ -438,6 +738,10 @@ class MatchCase(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"{self.pattern.to_str(ctx)} -> {self.term.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        new_tctx = self.pattern.type_check(tctx)
+        return self.term.type_check(new_tctx)
 
 class MatchCaseCons(metaclass=AstNode):
     # matchcase | matchcase
@@ -447,6 +751,12 @@ class MatchCaseCons(metaclass=AstNode):
 
     def to_str(self, ctx):
         return f"{self.matchcase1.to_str(ctx)} | {self.matchcase2.to_str(ctx)}"
+    
+    def type_check(self, tctx):
+        ty_matchcase1 = self.matchcase1.type_check(tctx)
+        ty_matchcase2 = self.matchcase2.type_check(tctx)
+        assert ty_matchcase1 == ty_matchcase2, f"Matchcase {ty_matchcase1} and {ty_matchcase2} are not same"
+        return ty_matchcase1 
 
 class MatchCaseUnk(metaclass=AstNode):
     # ??
@@ -456,6 +766,9 @@ class MatchCaseUnk(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "??"
+    
+    def type_check(self, tctx):
+        return SufuType("Unk")
 
 class PatternDefault(metaclass=AstNode):
     # _
@@ -465,6 +778,9 @@ class PatternDefault(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "_"
+    
+    def type_check(self, tctx):
+        return tctx
 
 class PatternVar(metaclass=AstNode):
     # name
@@ -474,6 +790,11 @@ class PatternVar(metaclass=AstNode):
 
     def to_str(self, ctx):
         return self.name
+    
+    def type_check(self, tctx):
+        new_tctx = deepcopy(tctx)
+        new_tctx.ctx[self.name] = tctx.subject
+        return new_tctx
 
 class PatternConstructor(metaclass=AstNode):
     # name pattern
@@ -484,6 +805,13 @@ class PatternConstructor(metaclass=AstNode):
     def to_str(self, ctx):
         return f"{self.constructor} {self.pattern.to_str(ctx)}"
 
+    def type_check(self, tctx):
+        tyarg, tyret = tctx.constructors[self.constructor]
+        assert tyret == tctx.subject, f"Constructor {self.constructor} is not applicable to {tctx.subject}"
+        new_tctx = deepcopy(tctx)
+        new_tctx.subject = tyarg
+        return self.pattern.type_check(new_tctx)
+
 class PatternTuple(metaclass=AstNode):
     # {pattern, ..., pattern}
     ty = "pattern"
@@ -492,12 +820,25 @@ class PatternTuple(metaclass=AstNode):
 
     def to_str(self, ctx):
         new_ctx = copy(ctx)
-        new_ctx["curly_brackets"] = False
-        pattern1, pattern2 = self.pattern1.to_str(new_ctx), self.pattern2.to_str(new_ctx)
+        new_ctx["curly_brackets"] = True
+        pattern1 = self.pattern1.to_str(new_ctx)
+        if isinstance(self.pattern2, PatternTuple):
+            new_ctx["curly_brackets"] = False
+        pattern2 = self.pattern2.to_str(new_ctx)
         if "curly_brackets" in ctx and ctx["curly_brackets"]==False:
             return f"{pattern1}, {pattern2}"
         else:
             return f"{{{pattern1}, {pattern2}}}"
+    
+    def type_check(self, tctx):
+        assert tctx.subject.is_tuple(), f"Pattern {self.pattern1} and {self.pattern2} are not tuple to {tctx.subject}"
+        sub1, sub2 = tctx.subject.args
+        new_tctx = deepcopy(tctx)
+        new_tctx.subject = sub1
+        new_tctx = self.pattern1.type_check(new_tctx)
+        new_tctx.subject = sub2
+        new_tctx = self.pattern2.type_check(new_tctx)
+        return new_tctx
         
 class PatternUnk(metaclass=AstNode):
     # ??
@@ -507,6 +848,9 @@ class PatternUnk(metaclass=AstNode):
 
     def to_str(self, ctx):
         return "??"
+    
+    def type_check(self, tctx):
+        return tctx
 
 # return an xxxUnk() object according to class_type
 findUnk = {
@@ -517,6 +861,7 @@ findUnk = {
     "term": TermUnk(),
     "matchcase": MatchCaseUnk(),
     "pattern": PatternUnk(),
+    "string": ""
 }
 
 # judge the class_type of the object
@@ -526,6 +871,72 @@ def class_type(obj):
     else:
         return "string"
 
+# add predefined words to tokenizer
+predefined_class = []
+for t in class_w_type:
+    predefined_class += class_w_type[t]
+assert set(predefined_class) == set(name2cls.keys()), f"Predefined class inconsistant with name2cls: {predefined_class} / {name2cls.keys()}"
+assert set(predefined_class) == set(terms_need_dict.keys()), f"Predefined class inconsistant with terms_need_dict: {predefined_class} / {terms_need_dict.keys()}"
+with open("info.json", 'r') as f:
+    predefined_type = list(json.load(f)["inductive"].keys())
+print(f"Predefined length: {len(predefined_class)}(class) + {len(predefined_type)}(type)")
+tokenizer.add_tokens(predefined_class + predefined_type)
+
+# incremental parsing
+def class_type_str(obj_name):
+    if obj_name in predefined_class:
+        return class_type(name2cls[obj_name]) 
+    elif obj_name in predefined_type:
+        return "type"
+    else:
+        return "string"
+
+def value_complete(value): # if a value(str/astnode) is complete
+    if isinstance(value, str):
+        return value[0]=='Ġ'
+    else:
+        return not value.incomplete()
+        
+def complete(node, terms_need, token):  
+    assert node.incomplete(), f"{node} is already complete"
+    f = node.get_incomplete_field()
+    if isinstance(f, str): # should implement a str
+        assert terms_need[0] == "string", f"{token} is not a string"
+        f = token+f
+        node.set_incomplete_field(f)
+        if f[0] == 'Ġ':
+            terms_need = terms_need[1:]
+        return node, terms_need
+    else: # should implement an astnode
+        if 'Unk' in f.__name__:
+            if isinstance(f, TypeUser):
+                assert token in predefined_type, f"{token} is not a predefined type"
+                f = TypeUser(token)
+                terms_need = terms_need[1:]
+            else:
+                assert token in predefined_class, f"{token} is not a predefined class"
+                f = name2cls[token]()
+                terms_need = terms_need_dict[token] + terms_need[1:]
+            node.set_incomplete_field(f)
+            return node, terms_need
+        else:
+            f, terms_need = complete(f, terms_need, token)
+            node.set_incomplete_field(f)
+            return node, terms_need
+
+def detokenize(tokens):            
+    assert tokens[0] == "ProgramCons", f"invalid tokens: {tokens}"
+    node = ProgramCons()
+    terms_need = terms_need_dict["ProgramCons"]
+    for token in tokens[1:]:
+        assert class_type_str(token) == terms_need[0], f"{token} mismatch the term needed: {terms_need}" 
+        node, terms_need = complete(node, terms_need, token)
+        if len(terms_need) == 0:
+            break
+    assert len(terms_need) == 0 and not node.incomplete(), f"{node} is not complete"
+    return node
+
+# tree-sitter parser
 from tree_sitter import Language, Parser
 import os
 path = os.path.split(os.path.realpath(__file__))[0]
@@ -543,10 +954,7 @@ def visit(node, info):
             # command
             case "inductive_command":
                 type_name = visit(node.children[1], info)
-                if node.child_count <= 3:
-                    tydef = TypeDefNull()
-                else:
-                    tydef = visit(node.children[3], info)
+                tydef = visit(node.children[3], info)
                 return CommandInductive(type_name, tydef)
             case "type_abbreviation_command":
                 type_name = visit(node.children[0], info)
@@ -585,6 +993,8 @@ def visit(node, info):
                 return TypeInt()
             case "type_bool":
                 return TypeBool()
+            case "type_parenthesized":
+                return visit(node.children[1], info)
             # term
             case "term_unit":
                 return TermUnit()
@@ -649,18 +1059,13 @@ def visit(node, info):
             case "term_unlabel":
                 term = visit(node.children[1], info)
                 return TermUnlabel(term)
-            case "term_binop":
+            case "term_op":
                 start, end = node.start_byte, node.end_byte
                 content = info["code"][start:end]
-                return TermBinary(content)
-            case "term_unop":
-                start, end = node.start_byte, node.end_byte
-                content = info["code"][start:end]
-                return TermUnary(content)
+                return TermOp(content)
             case "term_parenthesized":
                 return TermParenthesis(visit(node.children[1], info))
             case "match_case":
-                assert node.child_count >= 4, f"match case: {node.sexp()}"
                 ret = visit(node.children[-2], info)
                 for n in node.children[-4::-2]:
                     ret = MatchCaseCons(visit(n, info), ret)
@@ -693,11 +1098,67 @@ def visit(node, info):
             case _:
                 assert False, "unknown node type: " + node.type
     else:
-        assert False, "unknown node type: " + type(node)
+        assert False, f"unknown node type({type(node)}): {node.to_sexp()}"
 
-if __name__ == "__main__":
-    with open("tree-sitter-sufu/example-file", "r") as f:
-        code = f.read()
+# check parser/type checker/tokenizer
+def check_corr(code, prog, testid=0):
+    def replace_ptree(code):
+        lines = [l.strip() for l in code.splitlines() if l.strip()]
+        for i in range(len(lines)):
+            if lines[i].startswith("Inductive PTree"):
+                if lines[i+1].startswith("Inductive"):
+                    lines[i] = lines[i][:-1]
+                    lines[i+1] = lines[i+1].replace("Inductive", 'with')
+                    break
+        return "\n".join(lines)
+    code = replace_ptree(code)
+    full_code = code+"\n"+prog["tests"]
+    test_file_path = f"SuFu/test{testid}.f"
+    with open(test_file_path, "w") as f:
+        f.write(full_code)
+    interpreter_path = "SuFu/surface/f"
+    res = subprocess.run([interpreter_path, test_file_path], capture_output=True, text=True)
+    if res.stdout.strip() == prog["output"].strip():
+        return True
+    else:
+        print(f"{res.stdout}\n{'='*50}\n{prog["output"]}")
+        return False
+
+def check_one(prog, is_name=False):
+    if is_name:
+        with open("sufu.json", 'r') as f:
+            progs = json.load(f)
+        prog = [p for p in progs if p["file_name"] == prog][0]
+    code = prog["code"]
+    # with open("tree-sitter-sufu/example-file", 'w') as f:
+    #     f.write(code)
     node = parser.parse(bytes(code, "utf8")).root_node
     sufu_node = visit(node, {"code": code})
-    print(sufu_node.to_str({}))
+    sufu_ctx = sufu_node.type_check(TypeCtx())
+    tokens = sufu_node.tokenize()
+    tokens = tokenizer.convert_ids_to_tokens(tokenizer.convert_tokens_to_ids(tokens))
+    sufu_node = detokenize(tokens)
+    print(tokens)
+    new_code = sufu_node.to_str({})
+    return check_corr(new_code, prog)
+
+def check_all():
+    error_cnt = 0
+    with open("sufu.json", 'r') as f:
+        progs = json.load(f)
+    for prog in tqdm(progs):
+        try:
+            assert check_one(prog)
+        except Exception as e:
+            error_cnt += 1
+            print(prog["file_name"])
+            print(e)
+            traceback.print_exc()
+            break
+    print(f"error count: {error_cnt}")
+
+if __name__ == "__main__":
+    with open("sufu.json", 'r') as f:
+        progs = json.load(f)
+    print(check_one("incre-tests-synduce-constraints-bst-most_frequent_v1", True))  
+    # check_all()

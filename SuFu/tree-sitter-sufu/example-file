@@ -1,61 +1,42 @@
 
-Inductive List;
+Inductive List = nil Unit | cons {Int, List};
 
-length = fix (
-    \f: List -> Int. \x: List. 
-    match x with
-      cons {h, t} -> + (f t) 1
-    | nil _ -> 0
+max = \a: Int. \b: Int. 
+    if (< a b) then b
+    else a;
+
+mts = fix (
+    \f: Int -> List -> Int. \pre: Int. \xs: List. 
+    match xs with
+      nil _ -> pre
+    | cons {h, t} -> f (max 0 (+ h pre)) t
     end
 );
 
-concat = fix (
-    \f: List -> List -> List. \x: List. \y: List. 
-    match x with
-      cons {h, t} -> cons {h, f t y}
-    | nil _ -> y
+mps = fix (
+    \f: List -> Int. \xs: List. 
+    match xs with
+      nil _ -> 0
+    | cons {h, t} -> max (+ h (f t)) 0
     end
 );
 
-split = \xs: List. 
-    fix (
-    \f: List -> Int -> {List, List}. \x: List. \n: Int. 
-    if (< n 1) then {nil Unit, x}
-    else match x with
-      cons {h, t} -> 
-        let res = (f t (- n 1)) in 
-            {cons {h, res.1}, res.2}
-    | _ -> {nil Unit, nil Unit}
-    end
-) xs (/ (length xs) 2);
+spec = \xs: List. 
+    {mts 0 xs, mps xs};
 
-dac = \v: List -> Bool. \xs: List. 
-    let run = (fix (
+repr = fix (
     \f: List -> Compress List. \xs: List. 
     match xs with
       nil _ -> 
-        align (label xs ) 
-    | cons {_, nil _} -> 
-        align (label xs ) 
-    | _ -> 
-        let sp = (split xs) in 
-            let tmp1 = (f sp.1) in 
-                let tmp2 = (f sp.2) in 
-                    align (label (concat (unlabel tmp1 ) (unlabel tmp2 )) ) 
+        let tmp1 = (nil unit) in 
+            align (label tmp1 ) 
+    | cons {h, t} -> 
+        let tmp2 = (f t) in 
+            align (label (cons {h, unlabel tmp2 }) ) 
     end
-)) in 
-        let tmp3 = (run xs) in 
-            align (v (unlabel tmp3 )) ;
+);
 
-inf = 100;
+main = \xs: List. 
+    let tmp3 = (repr xs) in 
+        align (spec (unlabel tmp3 )) ;
 
-zafter1 = fix (
-    \f: Bool -> List -> Bool. \seen1: Bool. \xs: List. 
-    match xs with
-      nil _ -> false
-    | cons {h, t} -> if (and seen1 (== h 0)) then true
-        else f (or seen1 (== h 1)) t
-    end
-) false;
-
-main = dac zafter1;

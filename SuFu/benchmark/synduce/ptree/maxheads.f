@@ -1,6 +1,6 @@
 Inductive Tree = telt Int | tnode {Int, Tree, Tree};
-Inductive PTree = pelt Int | pnode {Int, List}
-    with List = elt PTree | cons {PTree, List};
+Inductive PTree = pelt Int | pnode {Int, List};
+Inductive List = elt PTree | cons {PTree, List};
 
 max = \a: Int. \b: Int. if < a b then b else a;
 

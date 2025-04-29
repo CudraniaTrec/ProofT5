@@ -1,6 +1,7 @@
 {
   "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "sufu",
+  "word": "identifier",
   "rules": {
     "source_file": {
       "type": "REPEAT1",
@@ -38,25 +39,12 @@
           "name": "Identifier"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "="
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "typedef"
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "SYMBOL",
+          "name": "typedef"
         },
         {
           "type": "STRING",
@@ -187,6 +175,10 @@
         {
           "type": "SYMBOL",
           "name": "type_unit"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "type_parenthesized"
         }
       ]
     },
@@ -291,6 +283,27 @@
       "type": "STRING",
       "value": "Unit"
     },
+    "type_parenthesized": {
+      "type": "PREC",
+      "value": 10,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "("
+          },
+          {
+            "type": "SYMBOL",
+            "name": "type"
+          },
+          {
+            "type": "STRING",
+            "value": ")"
+          }
+        ]
+      }
+    },
     "term": {
       "type": "CHOICE",
       "members": [
@@ -356,11 +369,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "term_binop"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "term_unop"
+          "name": "term_op"
         },
         {
           "type": "SYMBOL",
@@ -370,11 +379,11 @@
     },
     "term_unit": {
       "type": "STRING",
-      "value": "Unit"
+      "value": "unit"
     },
     "term_integer": {
       "type": "PATTERN",
-      "value": "[0-9]+"
+      "value": "[-+]?\\d+"
     },
     "term_bool": {
       "type": "CHOICE",
@@ -395,7 +404,7 @@
     },
     "term_app": {
       "type": "PREC_LEFT",
-      "value": 10,
+      "value": 0,
       "content": {
         "type": "SEQ",
         "members": [
@@ -412,7 +421,7 @@
     },
     "term_lambda": {
       "type": "PREC",
-      "value": 0,
+      "value": -2,
       "content": {
         "type": "SEQ",
         "members": [
@@ -462,7 +471,7 @@
     },
     "term_let": {
       "type": "PREC",
-      "value": 0,
+      "value": -4,
       "content": {
         "type": "SEQ",
         "members": [
@@ -495,7 +504,7 @@
     },
     "term_if": {
       "type": "PREC",
-      "value": 0,
+      "value": -3,
       "content": {
         "type": "SEQ",
         "members": [
@@ -561,7 +570,7 @@
     },
     "term_proj": {
       "type": "PREC",
-      "value": 5,
+      "value": 7,
       "content": {
         "type": "SEQ",
         "members": [
@@ -582,7 +591,7 @@
     },
     "term_match": {
       "type": "PREC",
-      "value": 0,
+      "value": 5,
       "content": {
         "type": "SEQ",
         "members": [
@@ -613,7 +622,7 @@
           "name": "match_case_single"
         },
         {
-          "type": "REPEAT1",
+          "type": "REPEAT",
           "content": {
             "type": "SEQ",
             "members": [
@@ -653,7 +662,7 @@
     },
     "term_rewrite": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -679,7 +688,7 @@
     },
     "term_label": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -696,7 +705,7 @@
     },
     "term_unlabel": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -711,7 +720,7 @@
         ]
       }
     },
-    "term_binop": {
+    "term_op": {
       "type": "CHOICE",
       "members": [
         {
@@ -757,12 +766,7 @@
         {
           "type": "STRING",
           "value": "or"
-        }
-      ]
-    },
-    "term_unop": {
-      "type": "CHOICE",
-      "members": [
+        },
         {
           "type": "STRING",
           "value": "not"
@@ -770,21 +774,25 @@
       ]
     },
     "term_parenthesized": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "("
-        },
-        {
-          "type": "SYMBOL",
-          "name": "term"
-        },
-        {
-          "type": "STRING",
-          "value": ")"
-        }
-      ]
+      "type": "PREC",
+      "value": 10,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "("
+          },
+          {
+            "type": "SYMBOL",
+            "name": "term"
+          },
+          {
+            "type": "STRING",
+            "value": ")"
+          }
+        ]
+      }
     },
     "pattern": {
       "type": "CHOICE",
@@ -863,11 +871,11 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[a-z][a-zA-Z0-9_]*"
+      "value": "[a-z][a-zA-Z0-9_']*"
     },
     "Identifier": {
       "type": "PATTERN",
-      "value": "[A-Z][a-zA-Z0-9_]*"
+      "value": "[A-Z][a-zA-Z0-9_']*"
     }
   },
   "extras": [

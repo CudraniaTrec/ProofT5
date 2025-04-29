@@ -29,6 +29,16 @@ with open("info.json", "r") as f:
     info["inductive"] = {}
 prompts = info["prompts"]
 
+def replace_ptree(code):
+    lines = [l.strip() for l in code.splitlines() if l.strip()]
+    for i in range(len(lines)):
+        if lines[i].startswith("Inductive PTree"):
+            if lines[i+1].startswith("Inductive"):
+                lines[i] = lines[i][:-1]
+                lines[i+1] = lines[i+1].replace("Inductive", 'with')
+                break
+    return "\n".join(lines)
+
 def replace_inductive(old_code, new_code):
     ret_code = ""
     for line in new_code.split("\n"):
@@ -149,18 +159,19 @@ def main():
             try:
                 labeled_code = labeled_code.replace("Unit", "unit")
                 labeled_code = replace_inductive(code, labeled_code)
+                labeled_code = replace_ptree(labeled_code)
                 labeled_code = filter_at(labeled_code, new_file_name)
                 lib_code, task_code = split_lib_task_code(code, labeled_code)
                 test_code, output = gen_tests(labeled_code)
                 desc = gen_desc(new_file_name, labeled_code, test_code, output)
+                # desc = ""
                 sufu_progs.append({"file_name": new_file_name, "desc": desc, 
                                 "code": labeled_code, "lib_code": lib_code, "task_code": task_code,
                                 "tests": test_code, "output": output})
             except Exception as e:
                 print(f"file:{new_file_name}, err: {e}")
             
-    print(len(sufu_progs))
-    print(sufu_progs[0])
+    print(f"Generated {len(sufu_progs)} sufu programs")
     with open("sufu.json", "w") as f:
         json.dump(sufu_progs, f, indent=4)
     with open("info.json", "w") as f:
@@ -177,6 +188,7 @@ def main():
             })
     with open("error_sufu.json", "w") as f:
         json.dump(error_sufu, f, indent=4)
+    print(f"error_sufu len: {len(error_sufu)}")
 
 def test_gen_desc():
     file_name = "incre-tests-synduce-tailopt-mps"

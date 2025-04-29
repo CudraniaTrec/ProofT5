@@ -80,11 +80,9 @@
 #         node.apply(rule, 0.1)
 #     print(strfy(node.root.getTreestr()))
 #     break
-
-import json
-dataset = []
-with open("instruct_java.jsonl", 'r') as f:
-    for line in f:
-        dataset.append(json.loads(line))
-print(len(dataset))
-print(json.dumps(dataset[1],indent=2))
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained(
+    "Salesforce/codet5-small", min_length=4, local_files_only=True)
+ftokens = tokenizer.tokenize(" pushback")
+ftokens.reverse()
+print(ftokens)
