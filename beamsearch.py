@@ -166,7 +166,7 @@ class BeamSearch:
         return reordered_decoder_past
     
     @torch.no_grad()
-    def search(self, inputnl, model, max_len=400, desc="", offset=0):
+    def search(self, inputnl, model, max_len=400, desc="", offset=0, **args):
         if isinstance(model, torch.nn.parallel.DistributedDataParallel):
             model = model.module
         # input_nl shape: (batchsize*beamsize, max_nl_length)

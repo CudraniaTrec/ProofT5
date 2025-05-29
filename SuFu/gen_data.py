@@ -26,14 +26,14 @@ sufu_progs = []
 
 with open("info.json", "r") as f:
     info = json.load(f)
-    info["inductive"] = {}
+    info["types"] = {}
 prompts = info["prompts"]
 
 def replace_ptree(code):
     lines = [l.strip() for l in code.splitlines() if l.strip()]
     for i in range(len(lines)):
         if lines[i].startswith("Inductive PTree"):
-            if lines[i+1].startswith("Inductive"):
+            if lines[i+1].startswith("Inductive PList"):
                 lines[i] = lines[i][:-1]
                 lines[i+1] = lines[i+1].replace("Inductive", 'with')
                 break
@@ -41,6 +41,7 @@ def replace_ptree(code):
 
 def replace_inductive(old_code, new_code):
     ret_code = ""
+    pattern = r"^[A-Z]\w*\s*=\s*.*?;$" # match Xx = Yy;
     for line in new_code.split("\n"):
         if line.startswith("Inductive"):
             assert len(line.split(" "))==2, f" inductive error, line:{line}"
@@ -48,12 +49,18 @@ def replace_inductive(old_code, new_code):
             start_byte = old_code.index(f"Inductive {type_name}")
             end_byte = old_code.index(";", start_byte)
             definition = old_code[start_byte:end_byte+1]
-            if type_name not in info["inductive"]:
-                info["inductive"][type_name]= []
-            if definition not in info["inductive"][type_name]:
-                info["inductive"][type_name].append(definition)
+            if type_name not in info["types"]:
+                info["types"][type_name]= []
+            if definition not in info["types"][type_name]:
+                info["types"][type_name].append(definition)
             ret_code += definition + "\n"
         else:
+            if re.match(pattern, line):
+                type_name = line.split("=")[0].strip()
+                if type_name not in info["types"]:
+                    info["types"][type_name]= []
+                if line not in info["types"][type_name]:
+                    info["types"][type_name].append(line)
             ret_code += line + "\n"
     return ret_code
 
@@ -159,10 +166,9 @@ def main():
             try:
                 labeled_code = labeled_code.replace("Unit", "unit")
                 labeled_code = replace_inductive(code, labeled_code)
-                labeled_code = replace_ptree(labeled_code)
                 labeled_code = filter_at(labeled_code, new_file_name)
                 lib_code, task_code = split_lib_task_code(code, labeled_code)
-                test_code, output = gen_tests(labeled_code)
+                test_code, output = gen_tests(replace_ptree(labeled_code))
                 desc = gen_desc(new_file_name, labeled_code, test_code, output)
                 # desc = ""
                 sufu_progs.append({"file_name": new_file_name, "desc": desc, 

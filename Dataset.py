@@ -26,22 +26,27 @@ class ChunkedRandomSampler(Sampler):
     def __len__(self):
       return len(self.data_source)
 
-def pad_seq(seq, maxlen):
+def pad_seq(seq, maxlen, reverse=False):
     if len(seq) < maxlen:
         seq_shape = np.array(seq).shape
         pad_shape = (maxlen - len(seq),) + seq_shape[1:]
         pad_elements = np.full(pad_shape, PAD_token).tolist()
-        seq = seq + pad_elements
+        if reverse:
+            seq = pad_elements + seq
+        else:
+            seq = seq + pad_elements
     return seq[:maxlen]
 # pad nl and code to same maxlen
 def rs_collate_fn(batch):
     rbatch = {}
     batch_nl = []
     batch_res = []
+    batch_prefix = []
     batch_coqview = []
 
     max_nl_len = 0
     max_code_len = 0
+    max_prefix_len = 0
 
     for k in (range(len(batch))):
         inputnl = batch[k]['nl']
@@ -51,6 +56,10 @@ def rs_collate_fn(batch):
             assert len(inputcoqview) == len(inputres)-1, f"inputcoqview: {len(inputcoqview)}, inputres: {len(inputres)}"
             inputcoqview = [pad_seq(coqview, args.max_coqview_len) for coqview in inputcoqview]
             batch_coqview.append(inputcoqview)
+        if "prefix" in batch[k]:
+            prefix = batch[k]['prefix']
+            batch_prefix.append(prefix)
+            max_prefix_len = max(max_prefix_len, len(prefix))
 
         max_nl_len = max(max_nl_len, len(inputnl))
         max_code_len = max(max_code_len, len(inputres))
@@ -65,6 +74,9 @@ def rs_collate_fn(batch):
         batch_res[i] = pad_seq(batch_res[i], max_code_len)
         if len(batch_coqview) > i:
             batch_coqview[i] = pad_seq(batch_coqview[i], max_code_len-1)
+    if len(batch_prefix) > 0:
+        batch_prefix = [pad_seq(prefix, max_prefix_len) for prefix in batch_prefix]
+        rbatch['prefix'] = torch.tensor(batch_prefix)
     rbatch['nl'] = torch.tensor(batch_nl)
     rbatch['res'] = torch.tensor(batch_res)
     rbatch['coqview'] = torch.tensor(batch_coqview)

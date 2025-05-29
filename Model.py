@@ -40,7 +40,11 @@ class MyT5(nn.Module):
         return loss, {}
 
     def test_forward(self, nlencode, nlmask, inputrule, past_key_values=None):
-        output = self.model.decoder(inputrule, attention_mask=None, encoder_hidden_states=nlencode, encoder_attention_mask=nlmask, past_key_values=past_key_values)
+        output = self.model.decoder(inputrule, 
+                                    attention_mask=None, 
+                                    encoder_hidden_states=nlencode, 
+                                    encoder_attention_mask=nlmask, 
+                                    past_key_values=past_key_values)
         past_key_values = output.past_key_values
         output = output.last_hidden_state
 
@@ -54,10 +58,68 @@ class MyT5(nn.Module):
         encoder_outputs = self.model.encoder(inputnl, attention_mask=nlmask)
         return encoder_outputs.last_hidden_state, nlmask
 
-# add coqview to back
+# add coqview tp the input
 class MyT5withCoq1(MyT5):
     def __init__(self, args):
         super(MyT5withCoq1, self).__init__(args)
+
+    def forward(self, inputnl, inputrule, inputcoqview):
+        inputRes = inputrule[:, 1:].long()  # (batch_size, rule_len)
+        inputrule = inputrule[:, :-1].long()# (batch_size, rule_len)
+        rule_len = inputrule.size(1)
+        batch_size = inputrule.size(0)
+        rulemask = torch.ne(inputrule, self.mask_id)
+
+        # get model output
+        inputnl = inputnl.repeat_interleave(rule_len, dim=0) # (batch_size*rule_len, nl_len)
+        inputcoqview = inputcoqview.view(-1, inputcoqview.size(-1)) # (batch_size*rule_len, coqview_len)
+        inputnl = torch.cat([inputnl, inputcoqview], dim=-1) # (batch_size*rule_len, nl_len+coqview_len)
+        inputnl = inputnl.view(batch_size, rule_len, -1) # (batch_size, rule_len, nl_len+coqview_len)
+        inputnl = inputnl.transpose(0, 1) # (rule_len, batch_size, nl_len+coqview_len)
+
+        past_kv = None
+        crossentropy = nn.CrossEntropyLoss(ignore_index=self.mask_id)
+        loss = 0
+        for i in range(rule_len):
+            input_stepi = inputnl[i] # input_stepi size: (batch_size, nl_len+coqview_len)
+            stepi_mask = torch.ne(input_stepi, self.mask_id)
+            encoder_outputs = self.model.encoder(input_stepi.long(), attention_mask=stepi_mask)
+            hidden_states = encoder_outputs.last_hidden_state # size: (batch_size, nl_len+coqview_len, embedding_size)
+            output = self.model.decoder(inputrule[:, i:i+1], attention_mask=rulemask[:, i:i+1], encoder_hidden_states=hidden_states, past_key_values=past_kv) 
+            past_kv = output.past_key_values
+            output = output.last_hidden_state # size: (batch_size, 1, embedding_size)
+            output = output.squeeze(1) * (self.embedding_size**-0.5) # size: (batch_size, embedding_size)
+            output = self.lm_head(output) # size: (batch_size, rulenum)
+            standard_output = inputRes[:, i] # size: (batch_size,)
+            loss += crossentropy(output, standard_output)
+        return loss, {}
+
+    def test_forward(self, nlencode, nlmask, inputrule, inputcoqview, past_key_values=None):
+        inputnl = nlencode # size: (batch_size, nl_len)
+        inputcoqview = inputcoqview.squeeze(1) # size: (batch_size, coqview_len)
+        inputnl = torch.cat([inputnl, inputcoqview], dim=-1) # (batch_size, nl_len+coqview_len)
+        input_mask = torch.ne(inputnl, self.mask_id)
+        hidden_states = self.model.encoder(inputnl.long(), attention_mask=input_mask).last_hidden_state 
+        # size: (batch_size, nl_len+coqview_len, embedding_size)
+        output = self.model.decoder(inputrule, 
+                                    attention_mask=None, 
+                                    encoder_hidden_states=hidden_states, 
+                                    encoder_attention_mask=input_mask, 
+                                    past_key_values=past_key_values)
+        past_key_values = output.past_key_values
+        output = output.last_hidden_state * (self.embedding_size**-0.5) # size: (batch_size, 1, embedding_size)
+        
+        #tie-word-embedding
+        resSoftmax = torch.softmax(self.lm_head(output), dim=-1)            
+        return resSoftmax, past_key_values
+
+    def encode_nl(self, inputnl):
+        return inputnl, None
+    
+# add coqview to back
+class MyT5withCoq2(MyT5):
+    def __init__(self, args):
+        super(MyT5withCoq2, self).__init__(args)
         self.ff = nn.Linear(args.embedding_size * 2, args.embedding_size)
         self.relu = nn.ReLU()
         self.sigma1 = nn.Parameter(torch.tensor([0.0]))
@@ -123,57 +185,3 @@ class MyT5withCoq1(MyT5):
         #tie-word-embedding
         resSoftmax = torch.softmax(output, dim=-1)            
         return resSoftmax, past_key_values
-
-# add coqview tp the input
-class MyT5withCoq2(MyT5):
-    def __init__(self, args):
-        super(MyT5withCoq2, self).__init__(args)
-
-    def forward(self, inputnl, inputrule, inputcoqview):
-        inputRes = inputrule[:, 1:].long()  # (batch_size, rule_len)
-        inputrule = inputrule[:, :-1].long()# (batch_size, rule_len)
-        rule_len = inputrule.size(1)
-        batch_size = inputrule.size(0)
-        rulemask = torch.ne(inputrule, self.mask_id)
-
-        # get model output
-        inputnl = inputnl.repeat_interleave(rule_len, dim=0) # (batch_size*rule_len, nl_len)
-        inputcoqview = inputcoqview.view(-1, inputcoqview.size(-1)) # (batch_size*rule_len, coqview_len)
-        inputnl = torch.cat([inputnl, inputcoqview], dim=-1) # (batch_size*rule_len, nl_len+coqview_len)
-        inputnl = inputnl.view(batch_size, rule_len, -1) # (batch_size, rule_len, nl_len+coqview_len)
-        inputnl = inputnl.transpose(0, 1) # (rule_len, batch_size, nl_len+coqview_len)
-
-        past_kv = None
-        crossentropy = nn.CrossEntropyLoss(ignore_index=self.mask_id)
-        loss = 0
-        for i in range(rule_len):
-            input_stepi = inputnl[i] # input_stepi size: (batch_size, nl_len+coqview_len)
-            stepi_mask = torch.ne(input_stepi, self.mask_id)
-            encoder_outputs = self.model.encoder(input_stepi.long(), attention_mask=stepi_mask)
-            hidden_states = encoder_outputs.last_hidden_state # size: (batch_size, nl_len+coqview_len, embedding_size)
-            output = self.model.decoder(inputrule[:, i:i+1], attention_mask=rulemask[:, i:i+1], encoder_hidden_states=hidden_states, past_key_values=past_kv) 
-            past_kv = output.past_key_values
-            output = output.last_hidden_state # size: (batch_size, 1, embedding_size)
-            output = output.squeeze(1) * (self.embedding_size**-0.5) # size: (batch_size, embedding_size)
-            output = self.lm_head(output) # size: (batch_size, rulenum)
-            standard_output = inputRes[:, i] # size: (batch_size,)
-            loss += crossentropy(output, standard_output)
-        return loss, {}
-
-    def test_forward(self, nlencode, nlmask, inputrule, inputcoqview, past_key_values=None):
-        inputnl = nlencode # size: (batch_size, nl_len)
-        inputcoqview = inputcoqview.squeeze(1) # size: (batch_size, coqview_len)
-        inputnl = torch.cat([inputnl, inputcoqview], dim=-1) # (batch_size, nl_len+coqview_len)
-        input_mask = torch.ne(inputnl, self.mask_id)
-        hidden_states = self.model.encoder(inputnl.long(), attention_mask=input_mask).last_hidden_state 
-        # size: (batch_size, nl_len+coqview_len, embedding_size)
-        output = self.model.decoder(inputrule, attention_mask=None, encoder_hidden_states=hidden_states, encoder_attention_mask=input_mask, past_key_values=past_key_values)
-        past_key_values = output.past_key_values
-        output = output.last_hidden_state * (self.embedding_size**-0.5) # size: (batch_size, 1, embedding_size)
-        
-        #tie-word-embedding
-        resSoftmax = torch.softmax(self.lm_head(output), dim=-1)            
-        return resSoftmax, past_key_values
-
-    def encode_nl(self, inputnl):
-        return inputnl, None

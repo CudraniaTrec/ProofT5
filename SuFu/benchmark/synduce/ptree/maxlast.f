@@ -1,6 +1,6 @@
 Inductive Tree = telt Int | tnode {Int, Tree, Tree};
-Inductive PTree = pelt Int | pnode {Int, List};
-Inductive List = elt PTree | cons {PTree, List};
+Inductive PTree = pelt Int | pnode {Int, PList};
+Inductive PList = elt PTree | cons {PTree, PList};
 
 max = \a: Int. \b: Int. if < a b then b else a;
 
@@ -18,7 +18,7 @@ repr = fix (
     telt a -> pelt a
   | tnode {a, l, r} -> 
     let repr_list = fix (
-        \g: Tree -> List. \y: Tree.
+        \g: Tree -> PList. \y: Tree.
         match y with
           telt a -> let z = pelt a in elt z
         | tnode {a, l, r} -> cons {pelt a, cons {f l, g r}}
@@ -34,7 +34,7 @@ spec = fix (
     pelt a -> a
   | pnode {a, l} -> 
     let maxh_aux = fix (
-        \g: List -> Int. \y: List.
+        \g: PList -> Int. \y: PList.
         match y with
           elt a -> f a
         | cons {hd, tl} -> g tl

@@ -1,5 +1,5 @@
 {
-    "inductive": {
+    "types": {
         "List": [
             "Inductive List = cons {Int, List} | nil Unit;",
             "Inductive List = nil Unit | cons {Int, List};",
@@ -9,8 +9,17 @@
             "Inductive List = nil Unit | cons {Int, Int, List};",
             "Inductive List = elt Bool | cons {Bool, List};",
             "Inductive List = nil Unit | cons {{Int, Int}, List};",
-            "Inductive List = single Int | cons {Int, List};",
-            "Inductive List = elt PTree | cons {PTree, List};"
+            "Inductive List = single Int | cons {Int, List};"
+        ],
+        "Tag": [
+            "Tag = Bool;",
+            "Tag = Int;"
+        ],
+        "Result": [
+            "Result = Compress List;"
+        ],
+        "NodeInfo": [
+            "NodeInfo = {Tag, Result};"
         ],
         "SegTree": [
             "Inductive SegTree = empty Unit | node {NodeInfo, SegTree, SegTree};"
@@ -55,12 +64,16 @@
         ],
         "PList": [
             "Inductive PList = pnil Unit | pcons {Int, Int, PList};",
-            "Inductive PList = pnil Unit | pcons {PTree, PList};"
+            "Inductive PList = pnil Unit | pcons {PTree, PList};",
+            "Inductive PList = elt PTree | cons {PTree, PList};"
+        ],
+        "Number": [
+            "Number = {Int, List};"
         ],
         "PTree": [
             "Inductive PTree = ptip {Int, Int} | pbin {PTree, PTree};",
             "Inductive PTree = pleaf Unit | pnode {Int, PList};",
-            "Inductive PTree = pelt Int | pnode {Int, List};"
+            "Inductive PTree = pelt Int | pnode {Int, PList};"
         ],
         "Nat": [
             "Inductive Nat = zero Unit | succ Nat;",
@@ -68,6 +81,9 @@
         ],
         "BoolList": [
             "Inductive BoolList = bnil Unit | bcons {Bool, BoolList};"
+        ],
+        "TwoList": [
+            "TwoList = {List, List};"
         ],
         "CList": [
             "Inductive CList = empty Unit | elt Int | concat {CList, CList};",
@@ -82,6 +98,9 @@
             "Inductive CList = emp Unit | single Bool | concat {CList, CList};",
             "Inductive CList = cnil Unit | single {Int, Int} | concat {CList, CList};",
             "Inductive CList = elt Int | cat {CList, CList};"
+        ],
+        "Searchunit": [
+            "Searchunit = {Int, List};"
         ],
         "SList": [
             "Inductive SList = snil Unit | scons {Int, SList};",

@@ -14,7 +14,8 @@ from Dataset import SumDataset, ChunkedRandomSampler, rs_collate_fn
 from Model import MyT5, MyT5withCoq1, MyT5withCoq2
 from beamsearch import BeamSearch
 from beamsearch_coq import BeamSearch as BeamSearchCoq
-from beamsearch_naive import BeamSearch as BeamSearchDsl
+from beamsearch_dsl import BeamSearch as BeamSearchDsl
+from beamsearch_sufu import BeamSearch as BeamSearchSufu
 
 class Dotdict(dict):
     def __getattr__(self, name):
@@ -44,7 +45,9 @@ args = Dotdict({
     "eval": False,           # Evaluate model
     "train_time": "",
     "checkpoint_epoch": 200,
-    "pretrain_name": "grammart5-small", # Pretrained model name
+    "enable_coqview": False, # Enable coqview model
+    "validation": True,      # Enable validation during training
+    "pretrain_name": "grammart5-base", # Pretrained model name
 })
 
 class Communicate:
@@ -107,11 +110,12 @@ def finetune():
 
     # Initialize accelerator, split train, dev, test data
     accelerator = Accelerator(mixed_precision=args.precision, 
-                            #   log_with="wandb", 
+                              log_with="wandb", 
                               kwargs_handlers=[InitProcessGroupKwargs(timeout=timedelta(seconds=3600))])
     if accelerator.is_main_process:
         split_data(accelerator.num_processes, "train")
-        split_data(accelerator.num_processes, "valid")
+        if args.validation:
+            split_data(accelerator.num_processes, "valid")
         split_data(accelerator.num_processes, "test")
     accelerator.wait_for_everyone()
 
@@ -139,9 +143,7 @@ def finetune():
     device = accelerator.device
 
     # load model
-    if "coqview2" in args.task:
-        model = MyT5withCoq2(args)
-    elif "coqview" in args.task:
+    if args.enable_coqview:
         model = MyT5withCoq1(args)
     else:
         model = MyT5(args)
@@ -151,7 +153,7 @@ def finetune():
     
     # load dataset & print configuration
     train_set = SumDataset(args, "train", idx=accelerator.process_index)
-    dev_set = SumDataset(args, "valid", idx=accelerator.process_index)
+    dev_set = SumDataset(args, "valid" if args.validation else "test", idx=accelerator.process_index)
     test_set = SumDataset(args, "test", idx=accelerator.process_index)
     if accelerator.is_main_process:
         print("Model loaded")
@@ -176,7 +178,6 @@ def finetune():
             load_model(model.module, f"Utils/models/Model{args.task}/")
         # testmodel(dev_set, model, device, accelerator, newruledic)
         testmodel(test_set, model, device, accelerator, newruledic)
-        # testmodel(train_set, model, device, accelerator, newruledic)
         exit(0)
 
     # Fine-tune model
@@ -185,47 +186,49 @@ def finetune():
     for epoch in trange(args.max_epoch, desc=f"Processer {pindex}"):
         # eval model using dev set, early stop if no improvement
         if epoch % args.eval_step == 0 and epoch >= args.eval_step_init:
-            # if accelerator.is_main_process:
-            #     unwrapped_model = accelerator.unwrap_model(model)
-            #     save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="last")
-            #     save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type=f"epoch{epoch}")
-            tnum, bleu = evalmodel(dev_set, model, device, accelerator, newruledic)
-            if accelerator.is_main_process:
-                unwrapped_model = accelerator.unwrap_model(model)
-                save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="last")
-                save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type=f"epoch{epoch}")
-                commu.set("reload", False)
-                commu.set("exit", False)
-                
-                if maxBleu < bleu:
-                    maxBleu = bleu
-                    patience = 0
-                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="best")
-                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type="best")
-                else:
-                    patience += 1
-                    if patience >= args.patience:  # patience exhausted, reload
-                        num_trial += 1
-                        if num_trial >= args.max_num_trials:
-                            print("Early stop!")
-                            commu.set("exit", True)
-                        commu.set("reload", True)
-                        print("Reload model")
+            if args.validation:
+                tnum, bleu = evalmodel(dev_set, model, device, accelerator, newruledic)
+                if accelerator.is_main_process:
+                    unwrapped_model = accelerator.unwrap_model(model)
+                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="last")
+                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type=f"epoch{epoch}")
+                    commu.set("reload", False)
+                    commu.set("exit", False)
+                    
+                    if maxBleu < bleu:
+                        maxBleu = bleu
                         patience = 0
-                print(f"dev_bleu: {bleu}, patience: {patience}, trial: {num_trial}")
-                accelerator.log({
-                        "dev_bleu": bleu,
-                        "patience": patience,
-                        "trial": num_trial,
-                })
-            accelerator.wait_for_everyone()
-            if commu.get("exit"):
-                exit(0)
-            if commu.get("reload"):
-                load_model(model.module, f"Utils/models/Model{args.task}/")
-                for param_group in optimizer.param_groups:
-                    param_group["lr"] = 0.5 * param_group["lr"]
-            accelerator.wait_for_everyone()
+                        save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="best")
+                        save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type="best")
+                    else:
+                        patience += 1
+                        if patience >= args.patience:  # patience exhausted, reload
+                            num_trial += 1
+                            if num_trial >= args.max_num_trials:
+                                print("Early stop!")
+                                commu.set("exit", True)
+                            commu.set("reload", True)
+                            print("Reload model")
+                            patience = 0
+                    print(f"dev_bleu: {bleu}, patience: {patience}, trial: {num_trial}")
+                    accelerator.log({
+                            "dev_bleu": bleu,
+                            "patience": patience,
+                            "trial": num_trial,
+                    })
+                accelerator.wait_for_everyone()
+                if commu.get("exit"):
+                    exit(0)
+                if commu.get("reload"):
+                    load_model(model.module, f"Utils/models/Model{args.task}/")
+                    for param_group in optimizer.param_groups:
+                        param_group["lr"] = 0.5 * param_group["lr"]
+                accelerator.wait_for_everyone()
+            else:
+                if accelerator.is_main_process:
+                    unwrapped_model = accelerator.unwrap_model(model)
+                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/", model_type="last")
+                    save_model(unwrapped_model, f"Utils/models/Model{args.task}/{date}/", model_type=f"epoch{epoch}")
         
         tot_runtime = 0
         sampler = ChunkedRandomSampler(train_set, args.batch_size)
@@ -248,7 +251,7 @@ def finetune():
             # print(dBatch["nl"].shape)
             # print(dBatch["res"].shape)
             # print(dBatch["coqview"].shape)
-            if "coqview" in args.task:
+            if args.enable_coqview:
                 loss, info = model(dBatch["nl"], dBatch["res"], dBatch["coqview"])
             else:
                 loss, info = model(dBatch["nl"], dBatch["res"])
@@ -287,7 +290,7 @@ def evalmodel(dev_set, model, device, accelerator, newruledic):
         pin_memory=True,
     )
     beamsize = 3
-    if "coqview" in args.task:
+    if args.enable_coqview:
         beam = BeamSearchCoq(beamsize, newruledic, coqview_len=args.max_coqview_len, addCoqview=False)
     elif "coq" in args.task:
         beam = BeamSearchCoq(beamsize, newruledic, checkcoq=False)
@@ -334,7 +337,7 @@ def evalmodel(dev_set, model, device, accelerator, newruledic):
 
 @torch.no_grad()
 def testmodel(data_set, model, device, accelerator, newruledic):
-    batch_size = 6 # avoid cuda memory overflow
+    batch_size = 3 # avoid cuda memory overflow
     tasktype = data_set.dataName # valid or test
     data_offset = sum(commu.get(f"{tasktype}_data_len")[:accelerator.process_index])
     print(f"Task type: {tasktype}")
@@ -349,7 +352,12 @@ def testmodel(data_set, model, device, accelerator, newruledic):
     )
     
     beamsize = 10
-    if "coqview" in args.task:
+    if "sufu" in args.task:
+        beam = BeamSearchSufu(beamsize, newruledic, 
+                              type_check=(args.task=="sufucoq"), 
+                              add_type_ctx=(args.task=="sufucoqview"))
+    # mbjp humaneval
+    elif args.enable_coqview:
         beam = BeamSearchCoq(beamsize, newruledic, coqview_len=args.max_coqview_len, addCoqview=True)
     elif "coq" in args.task:
         beam = BeamSearchCoq(beamsize, newruledic, checkcoq=True)
@@ -371,10 +379,13 @@ def testmodel(data_set, model, device, accelerator, newruledic):
     for index, dBatch in enumerate(data_loader):
         offset = data_offset + index * batch_size
         batch_len = len(dBatch["nl"])
-        dBatch["nl"] = dBatch["nl"].to(device).repeat_interleave(beamsize, dim=0)
         ans = beam.search(
-            dBatch["nl"], model, max_len=args.CodeLen,
-            desc = f"Problem {offset}-{offset+batch_len-1}", offset=offset)
+            dBatch["nl"].to(device).repeat_interleave(beamsize, dim=0),
+            model, 
+            max_len=args.CodeLen,
+            desc = f"Problem {offset}-{offset+batch_len-1}", 
+            offset=offset,
+            init_tokens=dBatch["prefix"].to(device) if "prefix" in dBatch else None,)
         for i in range(len(ans)):
             for k in range(beamsize):
                 file_path = f"{target_folder}{offset+i}_{k}.txt"
@@ -394,10 +405,16 @@ if __name__ == "__main__":
     parser.add_argument("--train_time", type=str, default="")
     parser.add_argument("--checkpoint_epoch", type=int, default=200)
     argc = parser.parse_args()
-
-    args.task = argc.task # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl
+    # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl
+    # humaneval_blind, humanevalcoq, humanevalcoqview
+    # sufugrammar, sufucoq, sufucoqview
+    args.task = argc.task 
     args.train_time = argc.train_time
     args.checkpoint_epoch = argc.checkpoint_epoch
     if argc.eval:
         args.eval = True
+    if args.task in ["mbjpcoqview", "humanevalcoqview", "sufucoqview"]:
+        args.enable_coqview = True
+    if "sufu" in args.task:
+        args.validation = False
     finetune()

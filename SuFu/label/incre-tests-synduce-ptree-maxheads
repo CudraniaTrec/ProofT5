@@ -3,7 +3,7 @@ Inductive Tree;
 
 Inductive PTree;
 
-Inductive List;
+Inductive PList;
 
 max = \a: Int. \b: Int. 
     if (< a b) then b
@@ -17,7 +17,7 @@ repr = fix (
             align (label tmp1 ) 
     | tnode {a, l, r} -> 
         let repr_list = (fix (
-        \g: Tree -> Compress List. \y: Tree. 
+        \g: Tree -> Compress PList. \y: Tree. 
         match y with
           telt a -> 
             let z = (pelt a) in 
@@ -42,7 +42,7 @@ spec = fix (
       pelt a -> a
     | pnode {a, l} -> 
         let maxh_aux = (fix (
-        \g: List -> Int. \y: List. 
+        \g: PList -> Int. \y: PList. 
         match y with
           elt a -> f a
         | cons {hd, tl} -> f hd
