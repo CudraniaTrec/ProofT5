@@ -2,6 +2,7 @@ from transformers import AutoTokenizer
 from copy import deepcopy
 import traceback
 import pickle, os
+import json
 
 type_name_vocab = [] # all type names
 term_name_vocab = [] # all term names
@@ -2274,14 +2275,16 @@ class PgConcat(Program):
 
 tactic_name_vocab = term_name_vocab + statement_name_vocab + program_name_vocab
 predefined_vocab = type_name_vocab + tactic_name_vocab + class_name_vocab + method_name_vocab
+def get_path(relative_path):
+    path = os.path.split(os.path.realpath(__file__))[0]
+    return os.path.join(path, relative_path)
+with open(get_path("new_tokens.json"), 'w') as f:
+    json.dump(predefined_vocab, f, indent=4)
 tokenizer.add_tokens(predefined_vocab)
 real_path = os.path.dirname(os.path.realpath(__file__))
-rule_dict = pickle.load(open(real_path+"/datas/grammart5rules.pkl", "rb"))
-for name in predefined_vocab:
-    if name not in rule_dict:
-        rule_dict[name] = len(rule_dict)
-# for name in class_name_vocab:
-#     terms_need_dict[name] = []
+# rule_dict = pickle.load(open(real_path+"/datas/grammart5rules.pkl", "rb"))
+rule_dict = tokenizer.get_vocab()
+
 for name in rule_dict:
     if name not in terms_need_dict:
         terms_need_dict[name] = ["StringOrEnd"]
@@ -2412,7 +2415,7 @@ def detokenization(tokens):
         unify(stack, partial_mode=True)
 
     if len(stack) != 1:  # string / type not complete or wrong sequence
-        print(f"Can't unify stack: stack has length {len(stack)}")
+        # print(f"Can't unify stack: stack has length {len(stack)}")
         return None
     return stack[0].content
 
@@ -2420,9 +2423,9 @@ def detokenization_wrapper(tokens):
     try:
         return detokenization(tokens)
     except Exception as e:
-        print(f"Error in detokenization: {e}")
+        # print(f"Error in detokenization: {e}")
         # traceback.print_exc()
-        print(tokens)
+        # print(tokens)
         return None
 
 def extract_context(coqview):

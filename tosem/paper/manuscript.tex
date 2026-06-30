@@ -1,0 +1,195 @@
+\documentclass[manuscript,screen]{acmart}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}%表格
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{threeparttable}%表格
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{fancyvrb}
+\usepackage{multirow}
+\usepackage{ebproof}%用于证明树
+\usepackage{listings}%用于插入代码
+\usepackage[most]{tcolorbox} % 用于画框框
+\usepackage{wrapfig} % 用于文字环绕图片
+\usepackage{xparse}
+\usepackage{adjustbox} % 用于调整公式背景颜色
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e} % 用于插入算法
+\usepackage{tikz}
+\usetikzlibrary{fit,shapes,backgrounds}
+
+% 设置代码风格
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+}
+
+\allowdisplaybreaks[3]
+\input{macros}
+
+\def\sectionautorefname{Sec.}
+\def\subsectionautorefname{Sec.}
+\def\subsubsectionautorefname{Sec.}
+\def\figureautorefname{Fig.}
+\def\tableautorefname{Tab.}
+\def\algorithmautorefname{Alg.}
+\def\equationautorefname{Formula}
+
+\AtBeginDocument{\providecommand\BibTeX{{Bib\TeX}}}
+
+%% Journal information
+\acmJournal{TOSEM}
+\acmVolume{0}
+\acmNumber{0}
+\acmArticle{0}
+\acmYear{2026}
+\acmMonth{1}
+
+%% Copyright information (for submission)
+\setcopyright{none}
+
+\begin{document}
+\title{\mainname: A Type-Aware Approach to Neural Code Models}
+% \title{Learning about Type Reasoning in Code Generation}
+% \author{Anonymous Author}
+\author{Zhechong Huang}
+\email{willhuang@stu.pku.edu.cn}
+\affiliation{%
+  \institution{Peking University}
+  \city{Beijing}
+  \country{China}
+}
+\author{Zhao Zhang}
+\email{zhangzhao2019@pku.edu.cn}
+\affiliation{%
+  \institution{Peking University}
+  \city{Beijing}
+  \country{China}
+}
+\author{Ruyi Ji}
+\email{jiry@umich.edu}
+\affiliation{%
+  \institution{University of Michigan}
+  \city{Ann Arbor}
+  \country{USA}
+}
+\author{Tingxuan Xia}
+\email{kkogoro@stu.pku.edu.cn}
+\affiliation{%
+  \institution{Peking University}
+  \city{Beijing}
+  \country{China}
+}
+\author{Qihao Zhu}
+\email{Zhuqh@pku.edu.cn}
+\affiliation{%
+  \institution{Peking University}
+  \city{Beijing}
+  \country{China}
+}
+\author{Qinxiang Cao}
+\email{caoqinxiang@gmail.com}
+\affiliation{%
+  \institution{Shanghai Jiao Tong University}
+  \city{Shanghai}
+  \country{China}
+}
+\author{Zeyu Sun}
+\email{zeyu.zys@gmail.com}
+\affiliation{%
+  \institution{Institute of Software, Chinese Academy of Sciences}
+  \city{Beijing}
+  \country{China}
+}
+\author{Wiggin Zhou}
+\email{wigginzhou@tencent.com}
+\affiliation{%
+  \institution{Tencent}
+  \city{Beijing}
+  \country{China}
+}
+\author{Yingfei Xiong}
+\authornote{Corresponding author.}
+\email{xiongyf@pku.edu.cn}
+\affiliation{%
+  \institution{Peking University}
+  \city{Beijing}
+  \country{China}
+}
+
+% \authornote{Both authors contributed equally to this research.}
+% \email{trovato@corporation.com}
+% \orcid{1234-5678-9012}
+% \author{G.K.M. Tobin}
+% \authornotemark[1]
+% \email{webmaster@marysville-ohio.com}
+% \affiliation{%
+%   \institution{Institute for Clarity in Documentation}
+%   \city{Dublin}
+%   \state{Ohio}
+%   \country{USA}
+% }
+
+%% article.
+\begin{abstract}
+Language models have shown remarkable proficiency in code generation; nevertheless, ensuring type correctness remains a challenge. Although traditional methods, such as constrained decoding, alleviate this problem by externally rejecting untypable code, the model itself does not effectively learn type reasoning internally, which ultimately limits its overall performance. 
+
+This paper introduces \mainname, a novel system that internalizes type reasoning within code generation to guide the model to learn the type system. 
+The core of our approach is a novel type-guided program synthesis system that maintains an isomorphism between type derivation trees and synthesis derivation trees, enabling a new code representation based on synthesis decision sequences rather than traditional text-based token sequences. By offloading the complexity of type system learning to the representation itself, models can redirect their computational resources toward higher-level program semantics.
+
+Our evaluation shows that \mainname not only eliminates type errors but also significantly improves functional correctness, highlighting the importance of aligning LMs with type systems internally.
+
+\end{abstract}
+
+\keywords{Type Correctness, Program Synthesis, Code Generation, LLM}
+
+%% CCS Concepts
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011008.10011009.10011015</concept_id>
+<concept_desc>Software and its engineering~Automatic programming</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011006.10011039</concept_id>
+<concept_desc>Software and its engineering~Formal language definitions</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Automatic programming}
+\ccsdesc[300]{Software and its engineering~Formal language definitions}
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+\maketitle
+
+\input{chapters/intro}
+\input{chapters/overview}
+\input{chapters/overview-rules.tex}
+\input{chapters/overview-LM.tex}
+\input{chapters/methods_meta.tex}
+\input{chapters/methods_system}
+\input{chapters/model.tex}
+\input{chapters/evaluation}
+\input{chapters/related}
+\input{chapters/conclusion.tex}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibtex}
+
+\newpage
+\appendix
+\input{chapters/appendix.tex}
+\end{document}

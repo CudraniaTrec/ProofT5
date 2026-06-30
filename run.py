@@ -1,4 +1,4 @@
-import torch
+import torch, swanlab
 from torch import optim
 from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs
@@ -10,7 +10,7 @@ import argparse, traceback, beeprint
 from datetime import timedelta, datetime
 from Utils.evaluator.CodeBLEU import calc_code_bleu
 
-from Dataset import SumDataset, ChunkedRandomSampler, rs_collate_fn
+from Dataset import SumDataset, ChunkedRandomSampler, rs_collate_fn, rs_collate_fn_cutprefix
 from Model import MyT5, MyT5withCoq1, MyT5withCoq2
 from beamsearch import BeamSearch
 from beamsearch_coq import BeamSearch as BeamSearchCoq
@@ -28,15 +28,16 @@ args = Dotdict({
     "NlLen": 512,           # Maximum length of natural language input
     "CodeLen": 512,         # Maximum length of code output
     "batch_size": 10,       # Batch size
+    "batch_size_eval": 5,   # Batch size for beam search evaluation
     "embedding_size": 768,  # Dimension of embeddings
-    "rulenum": 36081,       # Number of rules(types of tokens)
+    "rulenum": 32216,       # Number of rules(types of tokens)
     "max_coqview_len": 160, # Maximum length of coqview
     "seed": 19970316,       # Random seed
     "lr":1e-4,              # Learning rate
-    "max_epoch": 2000,      # Maximum number of epochs
+    "max_epoch": 1000,      # Maximum number of epochs
     "mask_id": 0,           # Mask/Pad token id
     "eval_step": 20,        # Evaluate model every eval_step
-    "eval_step_init": 200,  # Evaluate model after eval_step_init
+    "eval_step_init": 40,  # Evaluate model after eval_step_init
     "patience": 5,          # max number of epochs w/o improvement, reload model
     "max_num_trials": 3,    # max number of reloading before early stop
     "metric":"bleu",        # Model evaluation metric
@@ -45,9 +46,11 @@ args = Dotdict({
     "eval": False,           # Evaluate model
     "train_time": "",
     "checkpoint_epoch": 200,
+    "cut_prefix": False,     # Cut prefix from code output
+    "empty_cuda_cache": 100, # Empty CUDA cache every empty_cuda_cache epochs
     "enable_coqview": False, # Enable coqview model
     "validation": True,      # Enable validation during training
-    "pretrain_name": "grammart5-base", # Pretrained model name
+    "pretrain_name": "pretrain", # Pretrained model name
 })
 
 class Communicate:
@@ -80,6 +83,7 @@ def load_model(model, dirs="Utils/models/Default/", model_type="best"):
             model.load_state_dict(torch.load(path, map_location="cpu"), strict=False)
         else:
             print(f"Model not found in {dirs}")
+            exit(1)
 
 def split_data(process_num, tasktype):
     data = pickle.load(open(f"Utils/data/{args.task}/{tasktype}.pkl", "rb"))
@@ -102,62 +106,47 @@ def split_data(process_num, tasktype):
 def finetune():
     global args
     date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    taskconfig = json.loads(
-        open("Utils/data/%s/config.json" % args.task, "r").read()
-    )
+    taskconfig = json.loads(open("Utils/data/%s/config.json" % args.task, "r").read())
     for key in taskconfig:
         setattr(args, key, taskconfig[key])
+        if key == "max_code_len":
+            args.CodeLen = taskconfig[key]
 
-    # Initialize accelerator, split train, dev, test data
-    accelerator = Accelerator(mixed_precision=args.precision, 
-                              log_with="wandb", 
+    # Initialize accelerator & split train, dev, test data
+    accelerator = Accelerator(mixed_precision=args.precision,
                               kwargs_handlers=[InitProcessGroupKwargs(timeout=timedelta(seconds=3600))])
     if accelerator.is_main_process:
         split_data(accelerator.num_processes, "train")
-        if args.validation:
-            split_data(accelerator.num_processes, "valid")
-        split_data(accelerator.num_processes, "test")
+        if "pretrain" not in args.task:
+            if args.validation:
+                split_data(accelerator.num_processes, "valid")
+            split_data(accelerator.num_processes, "test")
     accelerator.wait_for_everyone()
 
-    # load word table
-    newruledic = pickle.load(open(f"Utils/data/{args.task}/rules.pkl", "rb"))
-    nrulelen = len(newruledic)
-    
     # configuration
-    accelerator.init_trackers(
-        project_name=args.task,
-        config= {
-        "learning_rate": args.lr,
-        "bs": args.batch_size
-        },
-        init_kwargs={
-            "wandb" : {
-                "name" : date,
-            }
-        }
-    )
     pindex = accelerator.process_index
     torch.manual_seed(args.seed + accelerator.process_index)
     np.random.seed(args.seed + accelerator.process_index)
     random.seed(args.seed + accelerator.process_index)
     device = accelerator.device
 
-    # load model
+    # load word table & model
+    newruledic = pickle.load(open(f"Utils/data/{args.task}/rules.pkl", "rb"))
     if args.enable_coqview:
         model = MyT5withCoq1(args)
     else:
         model = MyT5(args)
-    load_model(model, "Utils/models/%s-model/" % args.pretrain_name)
-    args.rulenum = nrulelen
-    model.resize_token_embeddings(nrulelen)
+    load_model(model, "Utils/models/Model%s/" % args.pretrain_name)
+    args.rulenum = len(newruledic)
+    model.resize_token_embeddings(args.rulenum)
     
     # load dataset & print configuration
     train_set = SumDataset(args, "train", idx=accelerator.process_index)
-    dev_set = SumDataset(args, "valid" if args.validation else "test", idx=accelerator.process_index)
-    test_set = SumDataset(args, "test", idx=accelerator.process_index)
+    if "pretrain" not in args.task:
+        dev_set = SumDataset(args, "valid" if args.validation else "test", idx=accelerator.process_index)
+        test_set = SumDataset(args, "test", idx=accelerator.process_index)
     if accelerator.is_main_process:
         print("Model loaded")
-        print("new rulenum is ", nrulelen)
         print("config is :", end = " ")
         beeprint.pp(args)
 
@@ -176,14 +165,20 @@ def finetune():
             load_model(model.module, f"Utils/models/Model{args.task}/{args.train_time}/", model_type=f"epoch{args.checkpoint_epoch}")
         else:
             load_model(model.module, f"Utils/models/Model{args.task}/")
-        # testmodel(dev_set, model, device, accelerator, newruledic)
         testmodel(test_set, model, device, accelerator, newruledic)
         exit(0)
 
     # Fine-tune model
+    swanlab.init(
+        project=args.task,
+        experiment_name=f"{args.task}_{date}",
+        config={
+            "learning_rate": args.lr, 
+        },
+    )
     num_trial = patience = 0
     maxBleu = 0
-    for epoch in trange(args.max_epoch, desc=f"Processer {pindex}"):
+    for epoch in trange(args.max_epoch+1, desc=f"Processer {pindex}"):
         # eval model using dev set, early stop if no improvement
         if epoch % args.eval_step == 0 and epoch >= args.eval_step_init:
             if args.validation:
@@ -211,7 +206,7 @@ def finetune():
                             print("Reload model")
                             patience = 0
                     print(f"dev_bleu: {bleu}, patience: {patience}, trial: {num_trial}")
-                    accelerator.log({
+                    swanlab.log({
                             "dev_bleu": bleu,
                             "patience": patience,
                             "trial": num_trial,
@@ -235,9 +230,9 @@ def finetune():
         data_loader = torch.utils.data.DataLoader(
             dataset=train_set,
             batch_size=args.batch_size,
-            drop_last=True,
+            drop_last=False,
             num_workers=10,
-            collate_fn=rs_collate_fn,
+            collate_fn=rs_collate_fn_cutprefix if args.cut_prefix else rs_collate_fn,
             sampler=sampler,
             pin_memory=True,
         )
@@ -248,11 +243,9 @@ def finetune():
             for x in dBatch:
                 dBatch[x] = dBatch[x].to(device)
             starttime = time.time()
-            # print(dBatch["nl"].shape)
-            # print(dBatch["res"].shape)
-            # print(dBatch["coqview"].shape)
             if args.enable_coqview:
-                loss, info = model(dBatch["nl"], dBatch["res"], dBatch["coqview"])
+                loss, info = model(dBatch["nl"], dBatch["res"], dBatch["coqview"], 
+                                   inputprefix=dBatch["prefix"] if args.cut_prefix else None)
             else:
                 loss, info = model(dBatch["nl"], dBatch["res"])
             tot_runtime += time.time() - starttime
@@ -270,11 +263,15 @@ def finetune():
             optimizer.step()  
             optimizer.zero_grad()
             lr = optimizer.param_groups[0]["lr"]
-            accelerator.log({"loss": loss.item(), "lr": lr})
+            swanlab.log({"loss": loss.item(), "lr": lr})
+            if epoch % args.eval_step == 0 and epoch >= args.eval_step_init:
+                swanlab.log({"loss_eval": loss.item()})
             if "sigma1" in info:
-                accelerator.log({"sigma1": info["sigma1"].item(), "sigma2": info["sigma2"].item()})
-                accelerator.log({"loss1": info["loss1"].item(), "loss2": info["loss2"].item()})
-        accelerator.log({"runtime": tot_runtime / batch_num})
+                swanlab.log({"sigma1": info["sigma1"].item(), "sigma2": info["sigma2"].item()})
+                swanlab.log({"loss1": info["loss1"].item(), "loss2": info["loss2"].item()})
+        swanlab.log({"runtime": tot_runtime / batch_num})
+        if epoch % args.empty_cuda_cache == 0:
+            torch.cuda.empty_cache()
 
 @torch.no_grad()
 def evalmodel(dev_set, model, device, accelerator, newruledic):
@@ -290,10 +287,10 @@ def evalmodel(dev_set, model, device, accelerator, newruledic):
         pin_memory=True,
     )
     beamsize = 3
-    if args.enable_coqview:
-        beam = BeamSearchCoq(beamsize, newruledic, coqview_len=args.max_coqview_len, addCoqview=False)
-    elif "coq" in args.task:
+    if "coq" in args.task or "grammar" in args.task:
         beam = BeamSearchCoq(beamsize, newruledic, checkcoq=False)
+    elif "nocheck" in args.task:
+        beam = BeamSearchCoq(beamsize, newruledic, checkcoq=False, check_grammar=False)
     elif "dsl" in args.task:
         beam = BeamSearchDsl(beamsize, newruledic)
     else:
@@ -330,14 +327,13 @@ def evalmodel(dev_set, model, device, accelerator, newruledic):
             "java",
             benchmark=args.task,
         )
-        # print(f"dev_bleu: {codebelu}")
         return tnum, codebelu
     else:
         return 0, 0
 
 @torch.no_grad()
 def testmodel(data_set, model, device, accelerator, newruledic):
-    batch_size = 3 # avoid cuda memory overflow
+    batch_size = args.batch_size_eval 
     tasktype = data_set.dataName # valid or test
     data_offset = sum(commu.get(f"{tasktype}_data_len")[:accelerator.process_index])
     print(f"Task type: {tasktype}")
@@ -353,14 +349,19 @@ def testmodel(data_set, model, device, accelerator, newruledic):
     
     beamsize = 10
     if "sufu" in args.task:
-        beam = BeamSearchSufu(beamsize, newruledic, 
+        beam = BeamSearchSufu(beamsize, newruledic, type_ctx_len=args.max_coqview_len,
                               type_check=(args.task=="sufucoq"), 
-                              add_type_ctx=(args.task=="sufucoqview"))
+                              add_type_ctx=(args.task=="sufucoqview"),
+                              check_grammar=(args.task!="sufunocheck"))
     # mbjp humaneval
     elif args.enable_coqview:
         beam = BeamSearchCoq(beamsize, newruledic, coqview_len=args.max_coqview_len, addCoqview=True)
     elif "coq" in args.task:
         beam = BeamSearchCoq(beamsize, newruledic, checkcoq=True)
+    elif "grammar" in args.task:
+        beam = BeamSearchCoq(beamsize, newruledic, checkcoq=False)
+    elif "nocheck" in args.task:
+        beam = BeamSearchCoq(beamsize, newruledic, checkcoq=False, check_grammar=False)
     elif "dsl" in args.task:
         beam = BeamSearchDsl(beamsize, newruledic)
     else:
@@ -405,16 +406,13 @@ if __name__ == "__main__":
     parser.add_argument("--train_time", type=str, default="")
     parser.add_argument("--checkpoint_epoch", type=int, default=200)
     argc = parser.parse_args()
-    # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl
+    # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl, mbjpcoq_770m, mbjpcoqview_770m
     # humaneval_blind, humanevalcoq, humanevalcoqview
     # sufugrammar, sufucoq, sufucoqview
+    # pretrain, pretrain_770m
     args.task = argc.task 
-    args.train_time = argc.train_time
-    args.checkpoint_epoch = argc.checkpoint_epoch
     if argc.eval:
         args.eval = True
-    if args.task in ["mbjpcoqview", "humanevalcoqview", "sufucoqview"]:
-        args.enable_coqview = True
-    if "sufu" in args.task:
-        args.validation = False
+        args.train_time = argc.train_time
+        args.checkpoint_epoch = argc.checkpoint_epoch
     finetune()

@@ -5,10 +5,10 @@ with open("apiKey.json", "r") as f:
     apiKey = json.load(f)
 client = OpenAI(**apiKey)
 
-generator_path = "/data3/hzc/ProofT5/SuFu/SuFu/build/executor/gen"
-interpreter_path = "/data3/hzc/ProofT5/SuFu/SuFu/surface/f"
-test_file_path = "/data3/hzc/ProofT5/SuFu/SuFu/test.f"
-test_out_path = "/data3/hzc/ProofT5/SuFu/SuFu/test.out"
+generator_path = "/data4/hzc/ProofT5/SuFu/SuFu/build/executor/gen"
+interpreter_path = "/data4/hzc/ProofT5/SuFu/SuFu/surface/f"
+test_file_path = "/data4/hzc/ProofT5/SuFu/SuFu/test.f"
+test_out_path = "/data4/hzc/ProofT5/SuFu/SuFu/test.out"
 
 def find_all_files(directory):
     res = []

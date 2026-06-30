@@ -37,7 +37,7 @@ def pad_seq(seq, maxlen, reverse=False):
             seq = seq + pad_elements
     return seq[:maxlen]
 # pad nl and code to same maxlen
-def rs_collate_fn(batch):
+def rs_collate_fn(batch, cut_prefix=False):
     rbatch = {}
     batch_nl = []
     batch_res = []
@@ -51,19 +51,23 @@ def rs_collate_fn(batch):
     for k in (range(len(batch))):
         inputnl = batch[k]['nl']
         inputres = batch[k]['rulelist'][1:-1]
-        if "coqview" in batch[k]:
-            inputcoqview = batch[k]['coqview']
-            assert len(inputcoqview) == len(inputres)-1, f"inputcoqview: {len(inputcoqview)}, inputres: {len(inputres)}"
-            inputcoqview = [pad_seq(coqview, args.max_coqview_len) for coqview in inputcoqview]
-            batch_coqview.append(inputcoqview)
         if "prefix" in batch[k]:
             prefix = batch[k]['prefix']
             batch_prefix.append(prefix)
             max_prefix_len = max(max_prefix_len, len(prefix))
-
+            if cut_prefix:
+                assert len(prefix) <= len(inputres) and all(a == b for a, b in zip(prefix, inputres)), f"prefix: {prefix}, inputres: {inputres}"
+                inputres = inputres[len(prefix):]
+        if "coqview" in batch[k]:
+            inputcoqview = batch[k]['coqview']
+            if cut_prefix:
+                inputcoqview = inputcoqview[len(prefix):]
+            assert len(inputcoqview) == len(inputres)-1, f"inputcoqview: {len(inputcoqview)}, inputres: {len(inputres)}"
+            inputcoqview = [pad_seq(coqview, args.max_coqview_len) for coqview in inputcoqview]
+            batch_coqview.append(inputcoqview)
+        
         max_nl_len = max(max_nl_len, len(inputnl))
         max_code_len = max(max_code_len, len(inputres))
-
         batch_nl.append(inputnl)
         batch_res.append(inputres)        
     max_nl_len = min(max_nl_len, args.NlLen)
@@ -81,6 +85,9 @@ def rs_collate_fn(batch):
     rbatch['res'] = torch.tensor(batch_res)
     rbatch['coqview'] = torch.tensor(batch_coqview)
     return rbatch
+
+def rs_collate_fn_cutprefix(batch):
+    return rs_collate_fn(batch, cut_prefix=True)
 
 class SumDataset(data.Dataset):
     def __init__(self, config, dataName="train", idx=-1):

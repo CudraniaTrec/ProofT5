@@ -1,4 +1,5 @@
 import pickle, torch, subprocess, os
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
 from multiprocessing import Pool
 from tqdm import tqdm
 from SuFu import *
@@ -53,13 +54,13 @@ class SearchNode:
         if id == 0:
             return True
         token = rrule_dict[id]
+        self.prob = prob
+        self.state.append(id)
         # print("**"+token)
         if not self.terms_need[0] in class_type_str(token):
             return False
         try:
             self.node, self.terms_need = complete(self.node, self.terms_need, token)
-            self.prob = prob
-            self.state.append(id)
             if len(self.terms_need) == 0:
                 self.isfinish = True
             if update_type_ctx:
@@ -122,7 +123,8 @@ class finishsetBm:
             self.final_set.append(node.to_str())
 
 class BeamSearch:
-    def __init__(self, beamsize, ruledict, length_penalty=0.1, type_ctx_len=155, type_check=False, add_type_ctx=False):
+    def __init__(self, beamsize, ruledict, length_penalty=0.1, type_ctx_len=155, 
+                 type_check=False, add_type_ctx=False, check_grammar=True):
         self.beamsize = beamsize
         self.rule_dict = ruledict
         self.rrule_dict = {v: k for k, v in ruledict.items()}
@@ -130,7 +132,7 @@ class BeamSearch:
         self.type_check = type_check or add_type_ctx
         self.type_ctx_len = type_ctx_len
         self.add_type_ctx = add_type_ctx
-        
+        self.check_grammar = check_grammar
 
     def _reorder_cache(self, past, beam_idx):
         # if decoder past is not included in output
@@ -244,7 +246,9 @@ class BeamSearch:
                     validids = validtensors[beams[bh][bm].terms_need[0]]
                     validtensor[bh, bm, validids] = 1
             validtensor = validtensor.reshape(batch_size * self.beamsize, -1)
-
+            if self.check_grammar == False:
+                validtensor[:, :]= 1 
+                
             output = output.squeeze(1) # batch_size * beamsize, vocabsize
             output = torch.log(output)
             output = output.masked_fill(validtensor == 0, -900)
@@ -293,24 +297,24 @@ class BeamSearch:
                     continue
 
                 topk_candidates = [None] * topk
-                args = [""] * topk # each arg is a coq_proof path passed to coq_check program
                 prog_id = offset + j # task_id
                 for k in range(topk):
-                    if sortfinalscore[j, k].item() < -800:
+                    prob = sortfinalscore[j, k].item()
+                    if prob < -800:
                         break
-
+                    ruleidx = sortindex[j, k].item()
+                    if ruleidx == 0: # eos token
+                        continue
                     originidx = beamidx[j, k].item()
                     bh = originidx // self.beamsize
                     bm = originidx % self.beamsize
                     originbeam = beams[bh][bm]
                     copynode = pickle.loads(pickle.dumps(originbeam))
-                    ruleidx = sortindex[j, k].item()
+                    
                     # can't accept this token
-                    if not copynode.apply(ruleidx, 
-                                          sortfinalscore[j, k].item(),
-                                          update_type_ctx=self.type_check): 
-                        del copynode
-                        continue
+                    if not copynode.apply(ruleidx, prob, update_type_ctx=self.type_check): 
+                        if self.check_grammar:
+                            continue
                     topk_candidates[k] = copynode
 
                 maxscore = sortfinalscore[j, 0].item()

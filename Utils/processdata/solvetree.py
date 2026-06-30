@@ -7,7 +7,7 @@ from .stringfy import parseTree, stringfy
 tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small", local_files_only=True)
 import os
 path = os.path.split(os.path.realpath(__file__))[0]
-rules = pickle.load(open(path+"/../data/grammart5rules.pkl", "rb"))
+rules = pickle.load(open(path+"/../data/pretrain/rules.pkl", "rb"))
 rulelist = []   # for each node, the rule id
 fatherlist = [] # for each node, the father node id
 fathername = [] # for each node, the father node name

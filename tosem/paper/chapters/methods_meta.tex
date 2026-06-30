@@ -1,0 +1,201 @@
+\section{Translation from Typing Rules to Synthesis Rules \label{sec:meta}}
+
+In this section, we introduce the necessary preliminaries on constrained Horn clauses and unification, followed by the user-provided specifications of the object language, including terms, typing rules, and describe how typing rules are systematically translated into synthesis rules.
+
+\subsection{Preliminaries}
+\subsubsection{Constrained Horn Clauses}
+\label{chc-intro}
+Constrained Horn clauses (CHCs) are a fragment of first-order logic with applications to program verification and synthesis~\cite{DBLP:conf/synasc/GurfinkelB19}. A constrained Horn clause, in this setting, is a universally quantified implication of the canonical form:
+\begin{center}
+\begin{prooftree}[rule margin=0.5ex, separation=1em]
+\hypo{P_1(\overline{x}_1)}
+\hypo{P_2(\overline{x}_2)}
+\hypo{\ldots}
+\hypo{P_n(\overline{x}_n)}
+\hypo{\phi(\overline{y})}
+\infer5[(CHC)]{P(\overline{x}_0)}
+\end{prooftree}
+\captionof{figure}{General form of a constrained Horn clause.}
+\label{T-Rule}
+\end{center}
+Each clause consists of zero or more premises, where each premise is a judgment formed by applying an uninterpreted predicate $P_i$ to terms $\overline{x}_i$. It also includes a constraint $\phi(\overline{y})$, a computable function over terms $\overline{y}$, and concludes with a single judgment $P(\overline{x}_0)$.
+%
+This rule states that the judgment $P(\overline{x}_0)$ can be derived whenever all the premises $P_i(\overline{x}_i)$ are derivable and the constraint $\phi(\overline{y})$ holds. Without loss of generality, we can assume that every variable of terms in $\overline{y}$ occurs among a term in the premises or conclusion, namely $FV(\overline{y})\subseteq \bigcup_{i=0}^n FV(\overline{x}_i)$, which ensures that the constraints are always deterministic and checkable given the premises and conclusion.
+
+\begin{example}
+Consider the typing rule \textsc{T-App} for function application in $\stlc$:
+\begin{center}
+\begin{prooftree}[rule margin=1ex, separation=1.5em]
+\hypo{\stlctype{\Gamma}{p_1}{t_1 \rightarrow t_2}}
+\hypo{\stlctype{\Gamma}{p_2}{t_1}}
+\infer2[(T-App)]{\stlctype{\Gamma}{p_1~p_2}{t_2}}
+\end{prooftree}
+\end{center}
+In CHC terminology: the predicates $P_1$ and $P_2$ are both the typing judgment predicate $\stlctype{\cdot}{\cdot}{\cdot}$; the terms $\overline{x}_1 = (\Gamma, p_1, t_1 \rightarrow t_2)$ and $\overline{x}_2 = (\Gamma, p_2, t_1)$ are the arguments to the premises; the conclusion $P(\overline{x}_0)$ is $\stlctype{\Gamma}{p_1~p_2}{t_2}$ with $\overline{x}_0 = (\Gamma, p_1~p_2, t_2)$; and the constraint $\phi$ is implicitly $\mathit{True}$.
+\end{example}
+
+It is well known that any Turing-computable function can be encoded using Horn clauses (HCs)~\cite{DBLP:journals/bit/Tarnlund77}. CHCs extend HCs by adding constraints $\phi(\overline{y})$, which allow expressing computable conditions (e.g., arithmetic comparisons, equality checks) directly within the clause. When all constraints are interpreted as $\mathit{True}$, CHCs collapse to ordinary HCs. Consequently, CHCs are at least as expressive as HCs, and any Turing-computable function can be expressed using CHCs, which ensures the expressiveness of our framework.
+
+\subsubsection{Unification}
+Unification is a fundamental operation in logic and computer science that finds substitutions to make two expressions structurally identical. Formally, given two terms $s$ and $t$, a \emph{unifier} is a substitution $\sigma$ such that $\sigma(s) = \sigma(t)$. When a unifier exists, the two terms are said to be \emph{unifiable}. Among all possible unifiers, the \emph{most general unifier} (MGU) provides the least restrictive solution: any other unifier can be obtained by further instantiating the MGU.
+
+\begin{example}
+Consider unifying an incomplete typing judgment $\stlctype{\tcode{empty}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ with another judgment $\stlctype{\sk{\Gamma_2}}{\left(\abs{\sk{x_1}}{\sk{t_3}}{\sk{p_3}}\right)}{\arr{\sk{t_3}}{\sk{t_4}}}$. The unification process matches corresponding positions: $\tcode{empty}$ with $\sk{\Gamma_2}$, $\sk{p_1}$ with $\abs{\sk{x_1}}{\sk{t_3}}{\sk{p_3}}$, and $\arr{\sk{t_1}}{\sk{t_2}}$ with $\arr{\sk{t_3}}{\sk{t_4}}$. This yields the MGU:
+\[
+\sigma = \{\sk{\Gamma_2} \mapsto \tcode{empty},\quad\sk{p_1} \mapsto \abs{\sk{x_1}}{\sk{t_3}}{\sk{p_3}},\quad\sk{t_1} \mapsto \sk{t_3},\quad\sk{t_2} \mapsto \sk{t_4}\}
+\]
+After applying $\sigma$, both terms become identical: $\stlctype{\tcode{empty}}{\left(\abs{\sk{x_1}}{\sk{t_3}}{\sk{p_3}}\right)}{\arr{\sk{t_3}}{\sk{t_4}}}$.
+
+Note that unification is symmetric: it can bind variables from either term. Here, $\sk{\Gamma_2}$ is bound to a concrete value $\tcode{empty}$, while $\sk{t_1}$ and $\sk{t_2}$ are bound to other variables $\sk{t_3}$ and $\sk{t_4}$.
+The MGU preserves maximum generality by not over-constraining variables. For instance, the substitution $\{\sk{\Gamma_2} \mapsto \tcode{empty}, \sk{p_1} \mapsto \abs{\sk{x_1}}{\sk{t_3}}{\sk{p_3}}, \sk{t_1} \mapsto \sk{t_3}, \sk{t_2} \mapsto \sk{t_4}, \sk{t_3} \mapsto \tcode{bool}\}$ is also a valid unifier, but it is not the MGU because it unnecessarily constrains $\sk{t_3}$ to $\tcode{bool}$.
+\end{example}
+
+In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
+%
+In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
+First-order unification is decidable and admits efficient algorithmic solutions~\cite{DBLP:journals/jacm/Robinson65}, making it suitable for our synthesis framework.
+
+\subsection{Terms and Typing Rules}
+\subsubsection{Terms}
+\label{terms-intro}
+We begin by defining the object language through a structured set of terms. A \emph{term} is a symbolic expression that represents programs, types, contexts, or other syntactic entities in the object language. Each term type is specified inductively: terms are constructed from constants, variables, and composite structures via constructors. For any given term type \tcode{T}, the syntax conforms to the general form:
+\[\tcode{T} \,::=\, \tcode{c} \;\mid\; \tcode{v} \;\mid\; \tcode{k}(\tcode{T}_1, \ldots, \tcode{T}_n)\]
+where \(\tcode{c}\) ranges over constants \(\mathcal{C}_\scode{T}\), \(\tcode{v}\) ranges over the global set of variables \(\mathcal{V}\), and \(\tcode{k}\) ranges over constructor symbols \(\mathcal{K}_\scode{T}\) of specified arity and parameter term types. 
+
+The variable set $\mathcal{V}$ consists of symbolic names serving as placeholders to be instantiated by terms. In contrast, the sets of constants $\mathcal{C}_\scode{T}$ and constructors $\mathcal{K}_\scode{T}$ are determined by user-defined inductive type declarations. 
+Built-in types such as \tcode{Int} and \tcode{String} are provided following conventional programming language syntax.
+
+\begin{example}
+Consider the following syntax for programs in $\stlc$:
+\[
+\tcode{Prog} ::= 
+  \tcode{true} \;\mid\;
+  \tcode{false} \;\mid\;
+  \tcode{var}(\tcode{String}) \;\mid\;
+  \tcode{app}(\tcode{Prog}, \tcode{Prog}) \;\mid\;
+  \tcode{abs}(\tcode{String}, \tcode{Type}, \tcode{Prog})
+\]
+This yields the following instantiations of the general term pattern:
+\begin{itemize}
+  \item \textbf{Constants:} \(\mathcal{C}_{\tcode{Prog}} = \{\tcode{true}, \tcode{false}\}\)
+  \item \textbf{Constructors:}
+    \(\mathcal{K}_{\text{Prog}} = \{
+      \tcode{var} : (\tcode{String}),\ 
+      \tcode{app} : (\tcode{Prog}, \tcode{Prog}),\ 
+      \tcode{abs} : (\tcode{String}, \tcode{Type}, \tcode{Prog})
+    \}\)
+\end{itemize}
+Using this syntax, the program $\lambda x{:}\tcode{bool}.\, x$ is represented as the term $\tcode{abs}(\tcode{"x"}, \tcode{bool}, \tcode{var}(\tcode{"x"}))$. This term is constructed by applying the constructor $\tcode{abs}$ to three arguments: the string $\tcode{"x"}$, the type $\tcode{bool}$, and the subterm $\tcode{var}(\tcode{"x"})$.
+\end{example}
+
+\subsubsection{Categories of terms and substitutions} 
+In general, terms may contain known and unknown components, so in the remainder of this paper, we do not explicitly annotate terms as in \autoref{sketch-label}. Below, we provide definitions for key concepts that will be used throughout the subsequent sections.
+\begin{enumerate}
+    \item \textbf{Ground terms} are terms constructed exclusively from constants and constructors, containing no variables. 
+    They are fully specified expressions that require no further instantiation.
+    
+    \item A \textbf{substitution} is a mapping \(\sigma: \mathcal{V}_0 \to \mathcal{T}\), where \(\mathcal{V}_0\) is a subset of variables \(\mathcal{V}\), and \(\mathcal{T}\) is the set of all terms. A substitution replaces each variable \(v \in \mathcal{V}_0\) with a term \(\sigma(v) \in \mathcal{T}\).
+
+    The \textbf{composition} of two substitutions $\sigma_i$ and $\sigma_j$, denoted $\sigma_i \sigma_j$, is defined such that for any variable $v \in \mathcal{V}$, $(\sigma_i \sigma_j)(v) = \sigma_i(\sigma_j(v))$. 
+    This allows multiple substitutions to be applied sequentially.
+    A substitution $\sigma$ can also operate on a list of terms $\overline{t} = [t_1, t_2, \ldots, t_n]$, yielding a new list $\sigma(\overline{t}) = [\sigma(t_1), \sigma(t_2), \ldots, \sigma(t_n)]$ where $\sigma$ is applied to each term individually.
+    
+    \item An \textbf{assignment} is a special case of a substitution whose codomain ranges over ground terms.
+    %that is, it is a function $\sigma : \mathcal{V}_0 \to \mathcal{G}_\mathcal{T}$, where $\mathcal{G}_\mathcal{T} \subseteq \mathcal{T}$ is the set of ground terms. 
+    Assignments serve as the ultimate objective of the synthesis, as we require that the typing judgments, as synthesis goals, can be instantiated with no remaining uncertainties.
+\end{enumerate}
+
+
+\subsubsection{Typing Rules and Type Derivation Trees}
+We formalize the typing rules of the object language as CHCs for their expressiveness and standard structure, where each typing rule is provided by the user as a CHC shown in \autoref{T-Rule}.
+%
+The user should also provide at least one typing rule whose conclusion is $\welltyped{p}$, the top-level judgment asserting that program $p$ is well-typed. For example, in $\stlc$, this judgment can be defined as $\exists t.\; \stlctype{\tcode{empty}}{p}{t}$, meaning that the program $p$ is well-typed under the empty context.
+
+A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{derivable} from a given set of typing rules if there exists a finite derivation tree whose root is labeled with $P(\overline{t})$, each internal node corresponds to the application of a typing rule, and all constraints of typing rules are satisfied. The type derivation tree is precisely this tree structure that witnesses the derivability of a typing judgment.
+%
+From a logical perspective, a type derivation tree is a \textbf{type correctness proof}: it proves that the typing judgment at the root holds. This correspondence between derivation trees and proofs is central to our approach. Later, we will show that a synthesis derivation tree corresponds to constructing an \textbf{existential type correctness proof} when the program is unknown: the synthesis process simultaneously discovers the program and constructs a proof of its type correctness.
+
+More formally, a \emph{type derivation tree} for a typing judgment $P(\overline{t})$ is defined as: (1) the root node is labeled with $P(\overline{t})$; (2) each node is labeled with a typing judgment $P_i(\overline{t_i})$, where all terms $\overline{t_i}$ are ground terms, and annotated with the typing rule which derives $P_i(\overline{t_i})$ under certain instantiation; (3) the children of each internal node correspond to the premises of the applied typing rule; and (4) for each applied typing rule, all associated constraints are satisfied under the instantiation.
+
+For example, \autoref{figure:sample-type-tree} shows a type derivation tree for the program $(\lambda x{:}\tcode{bool}.\, x)\; \tcode{true}$, which proves that this program has type $\tcode{bool}$ under the empty context. Consider the following subtree for the subterm $\lambda x{:}\tcode{bool}.\, x$:
+\begin{center}
+\begin{prooftree}[rule margin=1ex, separation=1em]
+\hypo{\checkBinding{x{:}\tcode{bool}}{x}{\tcode{bool}}}
+\infer1[(T-Var)]{\stlctype{x{:}\tcode{bool}}{x}{\tcode{bool}}}
+\infer1[(T-Abs)]{\stlctype{\tcode{empty}}{\lambda x{:}\tcode{bool}.\, x}{\tcode{bool} \rightarrow \tcode{bool}}}
+\end{prooftree}
+\end{center}
+In this subtree, the root node is labeled with the typing judgment $\stlctype{\tcode{empty}}{\lambda x{:}\tcode{bool}.\, x}{\tcode{bool} \rightarrow \tcode{bool}}$ and annotated with the typing rule \textsc{T-Abs}. Its child node is labeled with $\stlctype{x{:}\tcode{bool}}{x}{\tcode{bool}}$ and annotated with \textsc{T-Var}, which has a constraint $\checkBinding{x{:}\tcode{bool}}{x}{\tcode{bool}}$ that checks whether the variable $x$ with type $\tcode{bool}$ exists in the context.
+
+The existence of a type derivation tree for $\welltyped{p}$ establishes that the program $p$ is well-typed. To enable this verification, there should be a type checker in the object language toolchain that constructs the type derivation tree for $\welltyped{p}$ given any well-typed program $p$.
+
+\subsection{Synthesis rules}
+\label{sec:meta-translation}
+
+\subsubsection{Synthesis Judgments and Synthesis Goals}
+As outlined in the overview, when some components of a typing judgment are unknown (e.g., the program to be synthesized), typing rules can be reformulated as synthesis rules to handle such uncertainties. 
+A typing judgment $R(\overline{t})$ is converted into a \emph{synthesis judgment} $R(\overline{t}) \leadsto \theta$, where $R(\overline{t})$ denotes the \emph{synthesis goal}, and $\theta$ is the assignment synthesized for the goal. 
+Semantically, $R(\overline{t}) \leadsto \theta$ is derivable iff, after applying $\theta$ to $\overline{t}$, all terms in $\theta(\overline{t})$ are ground and the typing judgment $R(\theta(\overline{t}))$ is derivable.
+
+\subsubsection{Translation from Typing Rules into Synthesis Rules}
+\begin{center}
+\begin{prooftree}[rule margin=1ex, separation=1.5em]
+\hypo{\unify{\overline{x}=\overline{x}_0}=\sigma}
+\infer[no rule]1{\acquire{\sigma(\overline{x}_f)} = \sigma_0}
+\hypo{P_1(\sigma_0\sigma(\overline{x}_1)) \leadsto \sigma_1}
+\infer[no rule]1{P_2(\sigma_1\sigma_0\sigma(\overline{x}_2)) \leadsto \sigma_2}
+\ellipsis{}{P_n(\sigma_{n-1}\ldots\sigma_0\sigma(\overline{x}_n))\leadsto \sigma_n}
+\hypo{\ensure{\phi(\sigma_n\ldots\sigma_0\sigma(\overline{y}))}}
+\infer3[(S-Rule)]{P(\overline{x}) \leadsto \sigma_n\ldots\sigma_0\sigma|_{\mvhzc(\overline{x})}}
+\end{prooftree}
+\captionof{figure}{Normal form of the synthesis rules}
+\label{S-Rule}
+\end{center}
+
+A typing rule in \autoref{T-Rule} can be translated into a synthesis rule in \autoref{S-Rule} in the following manner:
+\begin{enumerate}
+  \item \textbf{Conclusion translation.} The conclusion $P(\overline{x}_0)$ of the typing rule is replaced by a synthesis judgment $P(\overline{x}) \leadsto \sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ (with the same predicate $P$), where $\overline{x}$ is a sequence of newly introduced variables and can be instantiated with respect to the synthesis goal. $\mvhzc(\overline{x})$ denotes the set of variables in $\overline{x}$, which are the only variables that need to be synthesized. 
+  $\sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ indicates that the final assignment is restricted to only those variables in $\overline{x}$.
+
+  \item \textbf{Adding unification.} The unification step is added at the beginning of the synthesis rule, which unifies the variables $\overline{x}$ in the synthesis goal with the variables $\overline{x}_0$ in the conclusion of the typing judgment, yielding a substitution $\sigma$ that is the MGU of the unification problem. 
+  
+  \item \textbf{Adding Free variables acquisition.} The variables appearing in $\overline{x}_0$ but not in any of the $\overline{x}_i$ are collected into $\overline{x}_f$, defined as $\overline{x}_f = \text{list}(\mvhzc(\overline{x}_0) \setminus \bigcup_{i=1}^n \mvhzc(\overline{x}_i))$. We refer to $\overline{x}_f$ as the \emph{free variables} of the synthesis rule: they may not be bound by any premise even after unification, and thus should be acquired from external sources, yielding the assignment $\sigma_0$.
+  
+  \item \textbf{Premises translation.} Each premise $P_i(\overline{x}_i)$ is replaced by $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)) \leadsto \sigma_i$, where $\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)$ instantiates the original terms $\overline{x}_i$ with substitutions from previous steps, and $\sigma_i$ is the assignment synthesized for the subgoal $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i))$ ($i\geq1$).
+  
+  \item \textbf{Constraint translation.} The constraint $\phi(\overline{y})$ is translated into $\ensure{\phi(\sigma_n \ldots \sigma_0 \sigma(\overline{y}))}$, which checks whether it holds under the assignment $\sigma_n \ldots \sigma_0 \sigma$.    
+\end{enumerate}
+
+
+\begin{example}
+For example, if we have the following typing rule:
+\begin{center}
+\begin{prooftree}[rule margin=1ex, separation=1em]
+\hypo{P_1(x_1)}
+\hypo{P_2(x_2, c(x_1,x_3))}
+\hypo{\phi(x_0, x_3)}
+\infer3[(T-Rule1)]{P(x_0, c(x_1,x_2))}       
+\end{prooftree}
+\end{center}
+We can translate it into the following synthesis rule:
+\begin{center}
+\begin{prooftree}[rule margin=1ex, separation=0.7em]
+\hypo{\unify{s_0=x_0,\, s_1=c(x_1, x_2)}=\sigma}
+\infer[no rule]1{\acquire{\sigma(x_0)} = \sigma_0}
+\hypo{P_1(\sigma_0\sigma(x_1)) \leadsto \sigma_1}
+\infer[no rule]1{P_2(\sigma_1\sigma_0\sigma(x_2,\, c(x_1,x_3))) \leadsto \sigma_2}
+\hypo{\ensure{\phi(\sigma_2\sigma_1\sigma_0\sigma(x_0, x_3))}}
+\infer3[(S-Rule1)]{P(s_0, s_1) \leadsto \sigma_2\sigma_1\sigma_0\sigma|_{\mvhzc(s_0, s_1)}}
+\end{prooftree}
+\end{center}
+\end{example}
+
+\begin{lemma}
+\label{rule-bijection}
+There is a one-to-one correspondence between typing rules and synthesis rules.
+\end{lemma}
+
+\begin{proof}
+The complete proof can be found in Appendix~\ref{sec:appendix-lemma1}.
+\end{proof}
+

@@ -686,7 +686,7 @@ def tokenize_all_java_files(dataset_type="mbjp"):
     info["detokenize_error_list"] = []
 
     tbar = tqdm(files)
-    with Pool(50) as p:
+    with Pool(200) as p:
         for file in files:
             p.apply_async(tokenize_java_file, args=(dir_path + file,), 
                           callback=lambda x: update_progress(x, tbar))
@@ -728,8 +728,8 @@ def clean_folder(dir_path=""):
 
 if __name__ == "__main__":
     # clean_folder()
-    # print(parse_java_file("datas/mbjp/MBJP_0.java",verbose=True))
-    # trans_all_java_programs("humaneval")
+    # print(parse_java_file("datas/mbjp/MBJP_1.java",verbose=True))
+    trans_all_java_programs("mbjp")
     # print(tokenize_java_file("datas/humaneval/Java_17.java"))
-    tokenize_all_java_files("humaneval")
+    tokenize_all_java_files("mbjp")
    

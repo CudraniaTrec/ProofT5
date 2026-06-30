@@ -47,8 +47,8 @@ from tqdm import tqdm
 import json, os, subprocess, re, traceback, pickle
 from transformers import AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained(
-    "Salesforce/codet5-small", local_files_only=True)
+with open("/data4/hzc/ProofT5/Utils/data/tokenizer.pkl", 'rb') as f:
+    tokenizer = pickle.load(f)
 
 # internal class for type checking
 class TypeCtx:
@@ -60,7 +60,7 @@ class TypeCtx:
         self.constructors = {} # map from constructor name to args type and return type
 
     def to_str(self):
-        return f"ctx {self.ctx}, ty_ctx {self.ty_ctx}, label {self.labelable}, match {self.subject}, constructors {self.constructors}"
+        return f"ctx {self.ctx} ty_ctx {self.ty_ctx} constructors {self.constructors} label {self.labelable} match {self.subject}"
 
 class SufuType:
     def __init__(self, ty, *args):
@@ -158,6 +158,25 @@ class SufuType:
     
     def is_tuple(self):
         return self.ty == "Prod"
+    
+    def to_type_class(self):
+        if self.ty == "Unit":
+            return TypeUnit()
+        elif self.ty == "Int":
+            return TypeInt()
+        elif self.ty == "Bool":
+            return TypeBool()
+        elif self.ty == "Arrow":
+            return TypeArrow(self.args[0].to_type_class(), self.args[1].to_type_class())
+        elif self.ty == "Reframe":
+            return TypeReframe(self.args[0].to_type_class())
+        elif self.ty == "Prod":
+            return TypeProd(self.args[0].to_type_class(), self.args[1].to_type_class())
+        else:
+            return TypeUser(self.ty)
+    
+    def tokenize(self):
+        return self.to_type_class().tokenize()
 
 # sufu ast node
 class AstNode(type):
@@ -217,8 +236,24 @@ class AstNode(type):
             cls.tokenize = tokenize
         
         def extract_ctx(self):
-            ctx = self.type_check(TypeCtx()).to_str()
-            return tokenizer.tokenize(ctx)
+            ctx = self.type_check(TypeCtx())
+            ret = []
+            for key in ctx.ty_ctx:
+                if isinstance(ctx.ty_ctx[key], SufuType):
+                    ret += tokenizer.tokenize(key)+ ctx.ty_ctx[key].tokenize() + [tokenizer.sep_token]
+            for key in ctx.ctx:
+                if isinstance(ctx.ctx[key], SufuType):
+                    ret += tokenizer.tokenize(key)+ ctx.ctx[key].tokenize() + [tokenizer.sep_token]
+            for key in ctx.constructors:
+                if isinstance(ctx.constructors[key], tuple):
+                    ret += tokenizer.tokenize(key) + ctx.constructors[key][0].tokenize() + ctx.constructors[key][1].tokenize() + [tokenizer.sep_token]
+            if ctx.subject:
+                ret += tokenizer.tokenize("subject") + ctx.subject.tokenize() + [tokenizer.sep_token]
+            if ctx.labelable:
+                ret += tokenizer.tokenize("label")
+            else:
+                ret += tokenizer.tokenize("unlabel")
+            return ret
         cls.extract_ctx = extract_ctx
 
 # type_check returns tctx
@@ -923,7 +958,11 @@ assert set(predefined_class) == set(terms_need_dict.keys()), f"Predefined class 
 with open(get_path("info.json"), 'r') as f:
     predefined_type = list(json.load(f)["types"].keys())
 print(f"Predefined length: {len(predefined_class)}(class) + {len(predefined_type)}(type)")
-tokenizer.add_tokens(predefined_class + predefined_type)
+with open(get_path("new_tokens.json"), "w") as f:
+    json.dump(predefined_class + predefined_type, f, indent=4)
+with open(get_path("sufu.json"), 'r') as f:
+    sufu_progs = json.load(f)
+code_token_len = [len(tokenizer.tokenize(prog['code'])) for prog in sufu_progs]
 
 # incremental parsing
 def class_type_str(obj_name):
@@ -1204,15 +1243,20 @@ def check_all():
             data = {
                 "file_name": prog["file_name"],
                 "nl": tokenizer.encode(prog["desc"]),
+                "nl_raw": f"**{prog["desc"]}**",
                 "rulelist": [1]+tokenizer.convert_tokens_to_ids(tokens)+[2],
                 "prefix": tokenizer.convert_tokens_to_ids(lib_tokens),
+                "prefix_raw": prog["lib_code"],
+                "postfix": tokenizer.convert_tokens_to_ids(tokens[len(lib_tokens):]),
+                "postfix_raw": prog["task_code"],
                 "code": prog["code"],
                 "tests": prog["tests"],
                 "output": prog["output"],
             }
             dataset.append(data)
-            new_data = copy(data)
-            new_data["coqview"] = [tokenizer.convert_tokens_to_ids(tc) for tc in type_ctxes],
+            new_data = deepcopy(data)
+            encoded_type_ctxes = [tokenizer.convert_tokens_to_ids(tc) for tc in type_ctxes]
+            new_data["coqview"] = encoded_type_ctxes
             dataset_typectx.append(new_data)
         except Exception as e:
             error_cnt += 1
@@ -1220,17 +1264,34 @@ def check_all():
             print(e)
             traceback.print_exc()
     print(f"error count: {error_cnt}")
+    # plot distribution
+    import matplotlib.pyplot as plt
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    axes = axes.flatten()  # 将二维 axes 转为一维便于遍历
+    data_list = [
+        ([len(d["nl"]) for d in dataset], 'NL Length', 'blue'),
+        ([len(d["rulelist"]) for d in dataset], 'Rulelist Length', 'green'),
+        ([len(d["prefix"]) for d in dataset], 'Prefix Length', 'orange'),
+        ([len(d["rulelist"]) - len(d["prefix"]) for d in dataset], 'Postfix Length', 'red'),
+        ([max([len(tc) for tc in d["coqview"]]) for d in dataset_typectx], 'Type Context Length', 'purple'),
+    ]
+    for ax, (data, label, color) in zip(axes, data_list):
+        ax.hist(data, bins=50, color=color, alpha=0.7, edgecolor='black')
+        ax.set_title(label)
+        ax.set_xlabel('Length')
+        ax.set_ylabel('Frequency')
+        ax.grid(True, linestyle='--', alpha=0.5)
+    for i in range(len(data_list), len(axes)):
+        fig.delaxes(axes[i])
+    plt.tight_layout()
+    plt.savefig("length_distribution_clear.png")
     print(f"""
-max nl langth: {max([len(d["nl"]) for d in dataset])}
-avg nl langth: {sum([len(d["nl"]) for d in dataset])/len(dataset)}
-max rulelist length: {max([len(d["rulelist"]) for d in dataset])}
-avg rulelist length: {sum([len(d["rulelist"]) for d in dataset])/len(dataset)}
-max prefix length: {max([len(d["prefix"]) for d in dataset])}
-avg prefix length: {sum([len(d["prefix"]) for d in dataset])/len(dataset)}
-max postfix length: {max([len(d["rulelist"])-len(d["prefix"]) for d in dataset])}
-avg postfix length: {sum([len(d["rulelist"])-len(d["prefix"]) for d in dataset])/len(dataset)}
-max type_ctx length: {max([len(tc) for d in dataset_typectx for tc in d["coqview"]])}
-avg type_ctx length: {sum([len(tc) for d in dataset_typectx for tc in d["coqview"]])/len([tc for d in dataset_typectx for tc in d["coqview"]])}
+max nl langth: {max([len(d["nl"]) for d in dataset])}, min nl langth: {min([len(d["nl"]) for d in dataset])}, avg nl langth: {sum([len(d["nl"]) for d in dataset])/len(dataset)}
+max rulelist length: {max([len(d["rulelist"]) for d in dataset])}, min rulelist length: {min([len(d["rulelist"]) for d in dataset])}, avg rulelist length: {sum([len(d["rulelist"]) for d in dataset])/len(dataset)}
+max prefix length: {max([len(d["prefix"]) for d in dataset])}, min prefix length: {min([len(d["prefix"]) for d in dataset])}, avg prefix length: {sum([len(d["prefix"]) for d in dataset])/len(dataset)}
+max postfix length: {max([len(d["rulelist"])-len(d["prefix"]) for d in dataset])}, min postfix length: {min([len(d["rulelist"])-len(d["prefix"]) for d in dataset])}, avg postfix length: {sum([len(d["rulelist"])-len(d["prefix"]) for d in dataset])/len(dataset)}
+max type_ctx length: {max([len(tc) for d in dataset_typectx for tc in d["coqview"]])}, min type_ctx length: {min([len(tc) for d in dataset_typectx for tc in d["coqview"]])}, avg type_ctx length: {sum([len(tc) for d in dataset_typectx for tc in d["coqview"]])/len([tc for d in dataset_typectx for tc in d["coqview"]])}
+max code token length: {max(code_token_len)}, min code token length: {min(code_token_len)}, avg code token length: {sum(code_token_len)/len(code_token_len)}
 """)
     config = {
         "max_nl_len": max([len(d["nl"]) for d in dataset]),
@@ -1238,14 +1299,16 @@ avg type_ctx length: {sum([len(tc) for d in dataset_typectx for tc in d["coqview
         "max_coqview_len": max([len(tc) for d in dataset_typectx for tc in d["coqview"]]),
         "CodeLen": max([len(d["rulelist"]) for d in dataset]),
     }
-    dump_data(dataset, config, "../Utils/data/sufucoq")
-    dump_data(dataset, config, "../Utils/data/sufugrammar")
-    dump_data(dataset_typectx, config, "../Utils/data/sufucoqview")
-
-def dump_data(dataset, config, dump_data_path="../Utils/data/sufucoq"):
     import random
     random.seed(2025) 
     random.shuffle(dataset)
+    random.seed(2025) 
+    random.shuffle(dataset_typectx)
+    dump_data(dataset, config, "../Utils/data/sufucoq", dump_t5=True)
+    dump_data(dataset, config, "../Utils/data/sufugrammar")
+    dump_data(dataset_typectx, config, "../Utils/data/sufucoqview")
+
+def dump_data(dataset, config, dump_data_path="../Utils/data/sufucoq", dump_t5=False):
     train_set = dataset[:int(len(dataset)*0.8)]
     test_set = dataset[int(len(dataset)*0.8):]
     json.dump(train_set, open(f"{dump_data_path}/train.json", "w"))
@@ -1255,6 +1318,67 @@ def dump_data(dataset, config, dump_data_path="../Utils/data/sufucoq"):
     pickle.dump(tokenizer, open(f"{dump_data_path}/tokenizer.pkl", "wb"))
     pickle.dump(tokenizer.get_vocab(), open(f"{dump_data_path}/rules.pkl", "wb"))
     print(f"dump {len(train_set)} train and {len(test_set)} test data to {dump_data_path}")
+    if dump_t5:
+        new_datas = []
+        for data in train_set:
+            new_data = {
+                "task_id": data["file_name"],
+                "prompt": f"{data["nl_raw"]}\n{data['prefix_raw']}",
+                "code": data["code"],
+                "postfix": data["rulelist"][len(data["prefix"]):-1], # remove start/end token
+                "tests": data["tests"],
+                "output": data["output"],
+                "type": "train"
+            }
+            new_datas.append(new_data)
+        for data in test_set:
+            new_data = {
+                "task_id": data["file_name"],
+                "prompt": f"{data["nl_raw"]}\n{data['prefix_raw']}",
+                "code": data["code"],
+                "postfix": data["postfix_raw"],
+                "tests": data["tests"],
+                "output": data["output"],
+                "type": "test"
+            }
+            new_datas.append(new_data)
+        with open("../t5_llm/data/sufu_t5.json", "w") as f:
+            json.dump(new_datas, f, indent=4)
+
+        
+        new_datas_codeproof = []
+        special_tokens = {
+            "additional_special_tokens": ["<code>", "</code>", "<proof>", "</proof>"]
+        }
+        tokenizer.add_special_tokens(special_tokens)
+        pickle.dump(tokenizer, open(f"../t5_llm/data/tokenizer.pkl", "wb"))
+        pickle.dump(tokenizer.get_vocab(), open(f"../t5_llm/data/rules.pkl", "wb"))
+        for data in train_set:
+            new_data = {
+                "task_id": data["file_name"],
+                "prompt": f"{data["nl_raw"]}\n{data['prefix_raw']}",
+                "code": data["code"],
+                "proof": data['rulelist'][1:-1], # remove start/end token
+                "postfix": data["postfix_raw"],
+                "tests": data["tests"],
+                "output": data["output"],
+                "type": "train"
+            }
+            new_datas_codeproof.append(new_data)
+        for data in test_set:
+            new_data = {
+                "task_id": data["file_name"],
+                "prompt": f"{data["nl_raw"]}\n{data['prefix_raw']}",
+                "code": data["code"],
+                "proof": data['rulelist'][1:-1], # remove start/end token
+                "postfix": data["postfix_raw"],
+                "tests": data["tests"],
+                "output": data["output"],
+                "type": "test"
+            }
+            new_datas_codeproof.append(new_data)
+        with open("../t5_llm/data/sufu_t5_codeproof.json", "w") as f:
+            json.dump(new_datas_codeproof, f, indent=4)
 
     with open(f"{dump_data_path}/config.json", "r") as f:
         new_config = json.load(f)

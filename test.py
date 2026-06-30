@@ -1,88 +1,50 @@
-# import pickle, torch, json
-# from Dataset import SumDataset, rs_collate_fn
-# from beamsearch_coq import BeamSearch, tokenizer, vocabsize, rule_dict, verbose
-# from run import args, load_model, split_data
-# from Model import MyT5withCoq
+import os
+from transformers import T5ForConditionalGeneration, T5Config, T5Tokenizer
+import torch
+from pathlib import Path
 
-# print(f"rule_size: {len(rule_dict)}")
-# rrule_dict = {v:k for k,v in rule_dict.items()}
+def download_codet5_large():
+    # 设置模型名称和保存路径
+    model_name = "Salesforce/codet5-large"
+    save_dir = "./Utils/models/Modelcodet5-large/"
+    
+    # 创建保存目录
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+    print(f"开始下载CodeT5-large模型...")
+    print(f"保存路径: {save_dir}")
+    
+    # 方法1: 使用transformers库下载并保存为.ckpt格式
+    print("正在下载模型权重...")
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
+    print("正在下载配置文件...")
+    config = T5Config.from_pretrained(model_name)
+    
+    # 保存配置文件为config.json
+    config_path = os.path.join(save_dir, "config.json")
+    config.save_pretrained(save_dir)
+    print(f"配置文件已保存到: {config_path}")
+    
+    # 保存模型权重为.ckpt格式
+    ckpt_path = os.path.join(save_dir, "best_model.ckpt")
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'config': config.to_dict(),
+        'model_type': 'codet5-large'
+    }, ckpt_path)
+    print(f"模型权重已保存到: {ckpt_path}")
+    
+    print("下载完成！")
+    
+    # 显示文件信息
+    print("\n下载的文件:")
+    for file in os.listdir(save_dir):
+        file_path = os.path.join(save_dir, file)
+        if os.path.isfile(file_path):
+            size = os.path.getsize(file_path) / (1024 * 1024)  # MB
+            print(f"  {file}: {size:.2f} MB")
+    return True
 
-# args.task = "mbjpcoqview"
-# data_set = SumDataset(args, "test", idx=0)
-
-# model = MyT5withCoq(args)
-# args.rulenum = vocabsize
-# model.resize_token_embeddings(vocabsize)
-# load_model(model, f"Utils/models/Modelmbjpcoqview/", model_type="last")
-# model.to("cuda")
-# model.eval()
-
-# data_loader = torch.utils.data.DataLoader(
-#         dataset=data_set,
-#         batch_size=5,
-#         drop_last=False,
-#         num_workers=2,
-#         collate_fn=rs_collate_fn,
-#         shuffle=True,
-#         pin_memory=True,
-# )
-
-# beamsize = 3
-# beam = BeamSearch(beamsize, rule_dict, checkcoq=True)
-# device = "cuda"
-# f = open("tmp/out.txt", "w")
-# for index, dBatch in enumerate(data_loader):
-#     # rule_list = dBatch["res"][0].tolist()
-#     # print("="*50)
-#     # print(rule_list)
-#     # print([rrule_dict[r] for r in rule_list])
-#     batch_len = len(dBatch["nl"])
-#     dBatch["nl"] = dBatch["nl"].to(device).repeat_interleave(beamsize, dim=0)
-#     ans = beam.search(
-#         dBatch["nl"], model, max_len=args.CodeLen)
-#     for i in range(len(ans)):
-#         try:
-#             code = ans[i].final_set[0]
-#         except IndexError as e:
-#             code = f"IndexError: {e}"
-#         f.write(code + "\n")
-# f.close()
-
-# from beamsearch_naive import BeamSearch, SearchNode, identifiers, strfy
-# import pickle, torch, json
-# from run import args, load_model, split_data
-# from Dataset import SumDataset, rs_collate_fn
-
-# with open("Utils/data/mbjp_dsl/train.pkl", "rb") as f:
-#     train_data = pickle.load(f)
-# with open("Utils/data/mbjp_dsl/valid.pkl", "rb") as f:
-#     valid_data = pickle.load(f)
-# with open("Utils/data/mbjp_dsl/test.pkl", "rb") as f:
-#     test_data = pickle.load(f)
-# with open("Utils/data/mbjp_dsl/rules.pkl", "rb") as f:
-#     ruledict = pickle.load(f)
-
-# expandedname = []  # node name to be expanded
-# for rule in ruledict:
-#     tmpname = rule.strip().split()[0]
-#     # x could be a rule or a terminal
-#     # rule: "start -> java"
-#     # terminal: "maxcount"
-#     if len(rule.strip().split()) < 3:
-#         continue
-#     expandedname.append(tmpname)
-# expandedname.extend(identifiers)
-
-# for entry in train_data:
-#     rulelist = entry["rulelist"][1:-1]
-#     node = SearchNode(ruledict, expandedname)
-#     for rule in rulelist:
-#         node.apply(rule, 0.1)
-#     print(strfy(node.root.getTreestr()))
-#     break
-from transformers import AutoTokenizer
-tokenizer = AutoTokenizer.from_pretrained(
-    "Salesforce/codet5-small", min_length=4, local_files_only=True)
-ftokens = tokenizer.tokenize(" pushback")
-ftokens.reverse()
-print(ftokens)
+if __name__ == "__main__":
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"使用设备: {device}")
+    download_codet5_large()

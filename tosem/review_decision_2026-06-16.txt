@@ -1,0 +1,303 @@
+16-Jun-2026
+
+Dear Dr. Huang,
+
+We have completed the review of your paper titled:
+
+TyFlow: A Type-Aware Approach to Neural Code Models
+TOSEM-2026-0076
+authored by Huang, Zhechong; Zhang, Zhao; Ji , Ruyi; Xia, Tingxuan; Zhu, Qihao; Cao, Qinxiang; Sun, Zeyu; Zhou, Wiggin; Xiong, Yingfei
+
+It is the decision of the TOSEM Editorial Board that we cannot accept your paper for publication in TOSEM without major revisions.
+
+I have included anonymous, verbatim reviewer comments to guide your revisions.
+
+If you need further information, please contact Dr. Iftekhar Ahmed, the TOSEM Associate Editor who was in charge of your paper. The email address is: iftekha@uci.edu, iftekharahmed.osu@gmail.com
+
+It is important that you revise your paper as soon as possible for best visibility. If this is a Fast-Impact Track submission, we will do our best to complete subsequent reviews within 45 days on the condition that the revision is submitted within 45 days.
+
+To expedite the re-review process, please submit your revision through Manuscript Central (http://mc.manuscriptcentral.com/tosem) under manuscript ID# TOSEM-2026-0076.  You may select "create a revision" for this manuscript ID which is located under "manuscripts with decisions".  In addition, please include a cover letter that specifically states how your revision addresses the concerns articulated by the referees.
+
+We look forward to receiving your revision, and thank you for your interest in TOSEM.
+
+Sincerely,
+
+Abhik Roychoudhury
+Editor-in-Chief
+On behalf of the Editorial Board of ACM Transactions on Software Engineering and Methodology
+
+
+===============EDITOR’S META REVIEW==============
+
+Senior Associate Editor: 1
+Comments to Author:
+(There are no comments.)
+
+Associate Editor: 2
+Comments to Author:
+All the reviewers agree that the paper investigates an important topic. However, reviewers also point out major concerns that need to be addressed and responded to, hence my recommendation for a Major Revision. In the following, I have provided some of the critical concerns raised by the reviewers.
+
+- Missing failure analysis
+- Limited evaluation benchmarks
+- Missing discussion on scalability
+- Missing comparison with larger and more recent LLMs
+- Missing comparison with state-of-the-art techniques
+- Missing analysis of the system's cost
+
+Details on the above points are in the reviews of the reviewers involved in the process. While preparing a Major Revision, please make sure to respond to all the other reviewers' comments and questions, not just the points summarized above.
+
+===============REVIEWS==============
+
+Referee: 1
+
+Recommendation: Needs Major Revision
+
+Comments:
+Summary: TyFlow proposes a principled method for internalizing type reasoning in neural code generation by reformulating program synthesis as existential proof construction. The approach is grounded in a clean theoretical framework and demonstrates consistent empirical improvements on two languages.
+
+Strengths:
+- The core insight, synthesizing programs by constructing their type correctness proofs, is well formalized.
+- The CHC-based framework is general and subsumes prior grammar-based approaches.
+- The ablation study cleanly isolates the value of each component.
+- The comparison with rejection sampling validates the thesis that internalization beats external filtering.
+
+Weaknesses:
+- Small test sets raise concerns about statistical reliability.
+- The Java results are modest, and the subset restriction introduces potential selection bias.
+- No comparison with modern decoder-only large-scale code models.
+- The restriction to first-order unification and encoder-decoder architectures limits near-term applicability.
+- Missing failure analysis and confidence intervals.
+
+The authors present a well-motivated and technically rigorous contribution that addresses a gap in the literature by internalizing type reasoning within neural code generation rather than enforcing it externally. The paper is clearly written, with the running example in Section 2 making the formalism accessible, and the ablation study offering convincing evidence that each component contributes meaningfully. That said, I have some detailed comments below.
+
+
+Generality and Scalability)
+
+The example language (λ→) is extremely simple. While it serves the pedagogical purpose well, readers may reasonably wonder whether the approach scales to languages with subtyping, polymorphism, type inference, overloading, or mutable state. The paper partially addresses this by evaluating on Java, but the overview could better acknowledge the gap between λ→ and real languages.
+
+The restriction to first-order unification deserves further discussion. Higher-order unification arises naturally in languages with higher-order functions and polymorphism. The authors should discuss what happens when this restriction is violated and what classes of type systems are excluded.
+
+Theoretical Gaps)
+
+The practical implications of completeness deserve more discussion. Completeness says that for any well-typed program, there exists a synthesis derivation tree. But during generation, the LM must find the right sequence of decisions. If the LM makes a wrong choice early, it may be unable to recover. The paper does not discuss the branching factor of the search space or the likelihood of the LM making correct decisions in practice. Beam search partially addresses this, but the theoretical analysis gives no bounds on how many beams are needed.
+
+The paper does not quantify the pruning rate in Section 5.3. What fraction of candidate tokens are eliminated at each level? This would help readers understand the practical search space reduction.
+
+Evaluation Concerns)
+
+The SuFu test set has only ~58 tasks (20% of 290), and the Java test set has only ~61 tasks (10% of 608). These are very small test sets, and the results may not be statistically robust. The authors should report confidence intervals or conduct significance tests. A difference of 1–2 tasks passing or failing could shift pass@1 by several percentage points.
+
+On Java, TyFlow-220M improves pass@1 from 10.45% to only 11.94%, less than 1.5 percentage points absolute. While pass@10 improves more substantially, the pass@1 gain is marginal, given the test set size. The paper should discuss why Java gains are smaller.
+
+The paper compares only with fine-tuned CodeT5 and T5Gemma2 variants. The absence of any comparison with modern LLMs is a notable gap. The authors could at least report zero-shot pass rates for state-of-the-art proprietary and open-weight LLMs on the same benchmarks to contextualize the absolute numbers.
+
+What do the remaining failing programs look like? Are they semantically wrong but well-typed? Do they fail on edge cases? A qualitative analysis of failure modes would significantly strengthen the paper.
+
+
+Additional Questions:
+<strong>Disclosure of Generative AI Tools</strong>
+
+ACM’s Peer Review Policy <a href="https://www.acm.org/publications/policies/peer-review" target="_new"> https://www.acm.org/publications/policies/peer-review</a> requires that the use of generative AI tools must be fully disclosed.  Please confirm whether any AI-based tools, such as large language models, were used in the writing or preparation of this review.: Yes
+
+If yes, please provide details regarding the extent and nature of their use: For polishing text and organization
+
+Review's recommendation for paper type: Full length technical paper
+
+Does this paper present innovative ideas or material?: Yes
+
+In what ways does this paper advance the field?:
+
+Is the information in the paper sound, factual, and accurate?: Yes
+
+If not, please explain why.:
+
+Rate the paper on its contribution to the body of knowledge in software engineering (none=1, very important=5): 3
+
+What are the major contributions of the paper?:
+
+Rate how well the ideas are presented (very difficult to understand=1, very easy to understand=5): 4
+
+Rate the overall quality of the writing (very poor=1, excellent=5): 4
+
+Does this paper cite and use appropriate references?: Yes
+
+If not, what important references are missing?:
+
+Should anything be deleted from or condensed in the paper?: No
+
+If so, please explain.:
+
+Is the treatment of the subject complete?: Yes
+
+If not, What important details / ideas/ analyses are missing?:
+
+If this is a Journal-First Paper, does it differ by more than 70% from any other previous publication?: Yes
+
+Comments:
+
+Please help ACM create a more efficient time-to-publication process: Using your best judgment, what amount of copy editing do you think this paper needs?: Light
+
+Most ACM journal papers are researcher-oriented. Is this paper of potential interest to developers and engineers?: No
+
+
+Referee: 2
+
+Recommendation: Needs Minor Revision
+
+Comments:
+
+Summary
+This paper presents TyFlow, a system that internalizes type reasoning into neural code generation by establishing an isomorphism between type derivation trees and synthesis derivation trees. Rather than treating programs as flat token sequences, TyFlow represents programs as synthesis decision sequences derived from typing rules formulated as constrained Horn clauses (CHCs). The approach includes a dual-encoding transformer architecture where the encoder processes both the static NL specification and the dynamically evolving synthesis goal. Evaluation on SuFu (a functional language) and a Java subset shows that TyFlow eliminates or nearly eliminates type errors while improving functional correctness (pass@k) over baselines.
+
+Strengths
+S1: Principled theoretical foundation. The core insight that an existential proof of type correctness inherently contains the program it proves is compelling. The formalization through CHCs provides a clean abstraction that generalizes prior grammar-based approaches. The isomorphism between type derivation trees and synthesis derivation trees is well-formulated, and the soundness/completeness theorems provide strong formal guarantees.
+S2: Clean separation of concerns in the framework design. The four desired properties (Type Explicitness, Context Locality, Derivation Vicinality, Data Usability) are well-motivated and systematically addressed. The paper convincingly argues why external approaches like constrained decoding are fundamentally limited and why separated type-code generation also falls short.
+S3: The ablation study is well-designed. Table 3 incrementally adds components to clearly isolate the contributions. The comparison against rejection sampling and separated generation are both informative and directly address the paper's core claims.
+
+
+Weaknesses
+W1: Limited evaluation benchmarks. The evaluation uses only a limited number of SuFu test tasks and Java test tasks. These are very small test sets, and no confidence intervals or statistical significance tests are reported. In addition, the SuFu language is highly niche. While this is positioned as a "low-resource" evaluation, it's unclear how findings generalize beyond this specific setting. There is no evaluation on standard, widely-used benchmarks. While the approach requires language-specific tooling (type checker, parser), the absence of comparison on common benchmarks could limit the paper's impact and make it harder to contextualize the results.
+W2: Scalability concerns are insufficiently addressed.
+The paper does not discuss how the synthesis derivation tree scales with program complexity. Real-world programs could have deep type derivation trees with polymorphism, subtyping, type inference, and overloading resolution, but the Java subset avoids most of these. It is also unclear what runtime overhead the synthesis system imposes during inference, as the dynamic re-encoding at each step and the unification/constraint-checking machinery introduce costs that are never quantified
+W3: Comparison with modern LLMs is absent. The baselines are CodeT5-220M and T5Gemma2-2B, and both are relatively small encoder-decoder models. There is no comparison with decoder-only models which are much more common in today’s community. Additionally, no model larger than 2B parameters is evaluated. While the paper demonstrates clear improvements over its chosen baselines, it remains an open question whether larger models might already mitigate type errors sufficiently through scale alone. This would contextualize the practical value of the proposed approach.
+W4: The CHC generality claim is overclaimed relative to the evidence. The paper repeatedly emphasizes that CHCs can encode "any Turing-computable function" and that the framework generalizes to "arbitrary logical constraints." However, the evaluation only covers type correctness for two languages with relatively simple type systems. No evidence is provided for richer constraints. The gap between the theoretical generality and empirical validation is large.
+
+
+Action Items for Improvement
+Major:
+(Addresses W1) Report confidence intervals or evaluate over multiple random train/test splits to establish statistical stability given the small test sets. Consider adding at least one more widely-used benchmark to help contextualize the results.
+
+
+(Addresses W2) Report runtime inference time comparisons between TyFlow and the baselines. Discuss, even qualitatively, how the synthesis system would scale to richer type features such as polymorphism with variance, subtyping hierarchies, or ownership types. Report how frequently beam search exhausts all candidates due to pruning and what the fallback behavior is.
+
+
+(Addresses W3) Include at least a zero-shot or few-shot evaluation of a modern decoder-only model on the same benchmarks. Additionally, discuss whether the core ideas could be adapted to decoder-only architectures, even if full integration is left to future work.
+
+
+(Addresses W4) Either provide a case study demonstrating a constraint richer than basic type correctness (e.g., ownership, effects, refinement types), or explicitly scope the generality claims to what is empirically demonstrated and acknowledge the gap as a limitation.
+
+
+
+Additional Questions:
+<strong>Disclosure of Generative AI Tools</strong>
+
+ACM’s Peer Review Policy <a href="https://www.acm.org/publications/policies/peer-review" target="_new"> https://www.acm.org/publications/policies/peer-review</a> requires that the use of generative AI tools must be fully disclosed.  Please confirm whether any AI-based tools, such as large language models, were used in the writing or preparation of this review.: Yes
+
+If yes, please provide details regarding the extent and nature of their use: LLMs were used to help reviewer understand the content of the paper and polish the language of the final review
+
+Review's recommendation for paper type: Full length technical paper
+
+Does this paper present innovative ideas or material?: Yes
+
+In what ways does this paper advance the field?: The paper advances the field by internalizing type reasoning directly into the neural code generation process, rather than relying on external, post-hoc filtering methods like rejection sampling or constrained decoding. It achieves this by establishing an isomorphism between type derivation trees and synthesis derivation trees using Constrained Horn Clauses (CHCs).
+
+Is the information in the paper sound, factual, and accurate?: Yes
+
+If not, please explain why.:
+
+Rate the paper on its contribution to the body of knowledge in software engineering (none=1, very important=5): 3
+
+What are the major contributions of the paper?: The isomorphism between type derivation and synthesis derivation trees with soundness/completeness guarantees; a CHC-based synthesis framework that generalizes grammar-based code representations to type constraints; a dual-encoding architecture for dynamic synthesis goal tracking; and an automated pipeline (TyFlow) for training LMs to generate well-typed programs from existing codebases
+
+Rate how well the ideas are presented (very difficult to understand=1, very easy to understand=5): 3
+
+Rate the overall quality of the writing (very poor=1, excellent=5): 4
+
+Does this paper cite and use appropriate references?: Yes
+
+If not, what important references are missing?:
+
+Should anything be deleted from or condensed in the paper?: No
+
+If so, please explain.:
+
+Is the treatment of the subject complete?: No
+
+If not, What important details / ideas/ analyses are missing?: There is no evaluation of how the synthesis derivation tree scales with complex real-world program type features.
+
+The runtime overhead of the dynamic re-encoding and constraint-checking at inference time is not empirically quantified.
+
+There is no baseline comparison with modern decoder-only LLMs or models larger than 2B parameters.
+
+If this is a Journal-First Paper, does it differ by more than 70% from any other previous publication?: Yes
+
+Comments:
+
+Please help ACM create a more efficient time-to-publication process: Using your best judgment, what amount of copy editing do you think this paper needs?: Light
+
+Most ACM journal papers are researcher-oriented. Is this paper of potential interest to developers and engineers?: Yes
+
+
+Referee: 3
+
+Recommendation: Needs Major Revision
+
+Comments:
+While previous work, such as GrammarT5, has explored grammar-guided generation, TyFlow extends this to a typing system. It allows the model to generate a representation grounded in the typing system. Furthermore, the isomorphism between type derivation trees and synthesis derivation trees is mathematically rigorous. With that said, I have the following concerns:
+
+1. Missing comparisons against token-level constrained decoding works such as SynCode and Copiloting the Copilots. Those works also guide LLM generation, but they are better than rejection sampling because they guide the LLM at the token level. To demonstrate the robustness of TyFlow, comparisons against those works are important.
+
+2. Missing comparison against iterative refinement approaches: Compared to rejection sampling, iterative refinement approaches regenerate the program with feedback (in this case, the typing failure feedback), which is strictly stronger than rejection sampling as it incorporates typing failure feedback. To demonstrate TyFlow's robustness, the authors should compare it with this line of work.
+
+3. The TyFlow system requires multiple LLM calls to obtain all synthesis decisions. To show the practicality of TyFlow, it is important to provide an analysis of the system's cost for generating the program.
+
+4. Limited Java Performance: Although TyFlow brings significant improvement on SuFu, its performance boost on Java is marginal (from 10.45% to 11.94%).
+
+5. Limited model choices: The TyFlow system was mainly evaluated on small models. Evaluation on larger models (decoder-only, billions of parameters) is unexplored. The authors should consider extending the evaluation to larger models.
+
+6. Generalizability concern: TyFlow relies strongly on the typing system of the language, but how would it work on a dynamically typed language such as Python? Thus, the author should acknowledge this in the threat to validity to make this paper more robust.
+
+
+Additional Questions:
+<strong>Disclosure of Generative AI Tools</strong>
+
+ACM’s Peer Review Policy <a href="https://www.acm.org/publications/policies/peer-review" target="_new"> https://www.acm.org/publications/policies/peer-review</a> requires that the use of generative AI tools must be fully disclosed.  Please confirm whether any AI-based tools, such as large language models, were used in the writing or preparation of this review.: No
+
+If yes, please provide details regarding the extent and nature of their use:
+
+Review's recommendation for paper type: Full length technical paper
+
+Does this paper present innovative ideas or material?: Yes
+
+In what ways does this paper advance the field?: The paper's core innovation lies in internalizing type reasoning into the generation process. Instead of letting the model produce tokens in free form, which makes it difficult to learn the language's typing rules, TyFlow makes the model generate synthesis decision sequences that directly correspond to the typing system. This ensures type correctness by construction rather than as a post-hoc check.
+
+Is the information in the paper sound, factual, and accurate?: Yes
+
+If not, please explain why.:
+
+Rate the paper on its contribution to the body of knowledge in software engineering (none=1, very important=5): 4
+
+What are the major contributions of the paper?:
+
+Rate how well the ideas are presented (very difficult to understand=1, very easy to understand=5): 4
+
+Rate the overall quality of the writing (very poor=1, excellent=5): 4
+
+Does this paper cite and use appropriate references?: Yes
+
+If not, what important references are missing?:
+
+Should anything be deleted from or condensed in the paper?: No
+
+If so, please explain.:
+
+Is the treatment of the subject complete?: No
+
+If not, What important details / ideas/ analyses are missing?: TyFlow mainly compares against rejection sampling, which is a post-hoc method that discards and regenerates the program that fails type checking. However, there are other lines of work that TyFlow missed in comparison:
+1. missing comparison against Copiloting the Copilots
+2. missing comparison against SynCode.
+3. missing comparison against iterative refinement approaches.
+
+Furthermore, the paper does not provide some key details:
+1. The computational cost
+2. Performance on larger models
+
+If this is a Journal-First Paper, does it differ by more than 70% from any other previous publication?: Yes
+
+Comments:
+
+Please help ACM create a more efficient time-to-publication process: Using your best judgment, what amount of copy editing do you think this paper needs?: Moderate
+
+Most ACM journal papers are researcher-oriented. Is this paper of potential interest to developers and engineers?: Yes
+
+===================================

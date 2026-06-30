@@ -1,0 +1,35 @@
+Dear Editors of ACM Transactions on Software Engineering and Methodology,
+
+We are pleased to submit our manuscript entitled "TyFlow: A Type-Aware Approach to Neural Code Models" for consideration for publication in TOSEM.
+
+**Summary:**
+This paper addresses the challenge of ensuring type correctness in neural code generation by internalizing type reasoning within the generation process itself.
+
+**Key Contributions:**
+- A novel type-guided program synthesis framework that maintains an isomorphism between type derivation trees and synthesis derivation trees
+- A new code representation based on synthesis decision sequences, which inherently guarantees type correctness
+- Comprehensive evaluation demonstrating that our approach eliminates type errors and significantly improves functional correctness
+
+**Why TOSEM:**
+We believe this work is well-suited for TOSEM due to its strong methodological contribution at the intersection of programming languages and machine learning. Our approach provides a principled foundation for integrating formal type systems into neural code generation, offering both theoretical insights (the isomorphism between type derivations and synthesis derivations) and practical improvements (guaranteed type correctness with better functional accuracy). This aligns well with TOSEM's emphasis on rigorous methodology in software engineering.
+
+**Conference Extended Version:**
+This is an original submission and is not an extended version of any previously published conference paper.
+
+**Conflict of Interest:**
+The authors declare no conflicts of interest.
+
+**Additional Statement:**
+The manuscript has not been published in any peer-reviewed venue and is not under consideration by any other journal. A preprint version is available on arXiv.
+
+Thank you for considering our submission. We look forward to your response.
+
+Sincerely,
+
+Zhechong Huang, Zhao Zhang, Ruyi Ji, Tingxuan Xia, Qihao Zhu, Qinxiang Cao, Zeyu Sun, Wiggin Zhou, Yingfei Xiong
+
+Corresponding Author:
+Yingfei Xiong
+Peking University
+Beijing, China
+Email: xiongyf@pku.edu.cn

@@ -1,0 +1,43 @@
+# LaTeX 编译产物
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+*-blx.bib
+*.dvi
+*.ps
+
+# 主文档 PDF（如需保留可注释此行）
+manuscript.pdf
+
+# latexmk 相关
+*.latexmain
+
+# 编辑器备份文件
+*~
+*.bak
+*.swp
+
+# macOS
+.DS_Store

@@ -31,7 +31,7 @@ class MyT5(nn.Module):
         hidden_states = encoder_outputs.last_hidden_state
         output = self.model.decoder(inputrule, attention_mask=rulemask, encoder_hidden_states=hidden_states, encoder_attention_mask=nlmask)
         output = output.last_hidden_state
-        output = self.lm_head(output * (self.embedding_size**-0.5))
+        output = self.lm_head(output * (self.embedding_size**-0.5)) # size: (batch_size, seq_len-1, rulenum)
         
         criterion = nn.CrossEntropyLoss(ignore_index=self.mask_id)
         output = output.view(-1, output.size(-1))  # shape: (batch_size * (seq_len-1), rulenum)
@@ -63,7 +63,8 @@ class MyT5withCoq1(MyT5):
     def __init__(self, args):
         super(MyT5withCoq1, self).__init__(args)
 
-    def forward(self, inputnl, inputrule, inputcoqview):
+    def forward(self, inputnl, inputrule, inputcoqview, inputprefix=None):
+        inputnl_origin = inputnl # size: (batch_size, nl_len)
         inputRes = inputrule[:, 1:].long()  # (batch_size, rule_len)
         inputrule = inputrule[:, :-1].long()# (batch_size, rule_len)
         rule_len = inputrule.size(1)
@@ -77,21 +78,41 @@ class MyT5withCoq1(MyT5):
         inputnl = inputnl.view(batch_size, rule_len, -1) # (batch_size, rule_len, nl_len+coqview_len)
         inputnl = inputnl.transpose(0, 1) # (rule_len, batch_size, nl_len+coqview_len)
 
-        past_kv = None
         crossentropy = nn.CrossEntropyLoss(ignore_index=self.mask_id)
-        loss = 0
+        outputs, loss = [], 0
+        if inputprefix is not None:
+            nl_mask = torch.ne(inputnl_origin, self.mask_id) # (batch_size, nl_len)
+            prefix_mask = torch.ne(inputprefix, self.mask_id) # (batch_size, prefix_len)
+            encoder_outputs = self.model.encoder(inputnl_origin.long(), attention_mask=nl_mask)
+            hidden_states = encoder_outputs.last_hidden_state # size: (batch_size, nl_len, embedding_size)
+            
+            decoder_output = self.model.decoder(inputprefix, attention_mask=prefix_mask, encoder_hidden_states=hidden_states)
+            past_kv = decoder_output.past_key_values
+        else:
+            past_kv = None
         for i in range(rule_len):
+            #encoder
             input_stepi = inputnl[i] # input_stepi size: (batch_size, nl_len+coqview_len)
             stepi_mask = torch.ne(input_stepi, self.mask_id)
             encoder_outputs = self.model.encoder(input_stepi.long(), attention_mask=stepi_mask)
             hidden_states = encoder_outputs.last_hidden_state # size: (batch_size, nl_len+coqview_len, embedding_size)
-            output = self.model.decoder(inputrule[:, i:i+1], attention_mask=rulemask[:, i:i+1], encoder_hidden_states=hidden_states, past_key_values=past_kv) 
+            #decoder
+            output = self.model.decoder(inputrule[:, i:i+1], 
+                                        attention_mask=rulemask[:, i:i+1], 
+                                        encoder_hidden_states=hidden_states, 
+                                        past_key_values=past_kv) 
             past_kv = output.past_key_values
             output = output.last_hidden_state # size: (batch_size, 1, embedding_size)
             output = output.squeeze(1) * (self.embedding_size**-0.5) # size: (batch_size, embedding_size)
             output = self.lm_head(output) # size: (batch_size, rulenum)
-            standard_output = inputRes[:, i] # size: (batch_size,)
-            loss += crossentropy(output, standard_output)
+            tloss = crossentropy(output, inputRes[:, i]) # size: (batch_size,)
+            loss += tloss
+            outputs.append(output) # size: (rule_len, batch_size, rulenum)
+        # outputs = torch.stack(outputs, dim=0) # size: (rule_len, batch_size, rulenum)
+        # outputs = outputs.transpose(0, 1) # size: (batch_size, rule_len, rulenum)
+        # outputs = outputs.reshape(-1, outputs.size(-1)) # size: (batch_size*rule_len, rulenum)
+        # inputRes = inputRes.reshape(-1) # size: (batch_size*rule_len,)
+        # loss = crossentropy(outputs, inputRes)
         return loss, {}
 
     def test_forward(self, nlencode, nlmask, inputrule, inputcoqview, past_key_values=None):

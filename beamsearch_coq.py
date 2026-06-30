@@ -1,4 +1,5 @@
 import pickle, torch, subprocess, os
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
 from multiprocessing import Pool
 from tqdm import tqdm
 from coq_model import *
@@ -39,6 +40,9 @@ class SearchNode:
 
     def apply(self, tactic, prob):
         token = rrule_dict[tactic]
+        self.prob = prob
+        self.state.append(tactic)
+
         if tactic not in validtensors[self.expand_nodes[-1]]:
             return False
 
@@ -48,8 +52,6 @@ class SearchNode:
 
         if len(self.expand_nodes) == 0:
             self.isfinish = True
-        self.prob = prob
-        self.state.append(tactic)
         return True
     
     def to_coq(self):
@@ -114,7 +116,7 @@ class finishsetBm:
             self.final_set.append(node.to_java())
 
 class BeamSearch:
-    def __init__(self, beamsize, ruledict, length_penalty=0.1, coqview_len=155, checkcoq=False, addCoqview=False):
+    def __init__(self, beamsize, ruledict, length_penalty=0.1, coqview_len=155, checkcoq=False, addCoqview=False, check_grammar=True):
         self.beamsize = beamsize
         self.length_penalty = length_penalty
         self.checkcoq = checkcoq
@@ -122,6 +124,7 @@ class BeamSearch:
         self.coqview_len = coqview_len
         self.addCoqview = addCoqview
         self.rrule_dict = {v: k for k, v in ruledict.items()}
+        self.check_grammar = check_grammar
 
     def _reorder_cache(self, past, beam_idx):
         # if decoder past is not included in output
@@ -212,6 +215,8 @@ class BeamSearch:
                     validids = validtensors[beams[bh][bm].expand_nodes[-1]]
                     validtensor[bh, bm, validids] = 1
             validtensor = validtensor.reshape(batch_size * self.beamsize, -1)
+            if self.check_grammar==False:
+                validtensor[:, :] = 1 # if not check coq, all tokens are valid
 
             output = output.squeeze(1) # batch_size * beamsize, vocabsize
             output = torch.log(output)
@@ -275,11 +280,11 @@ class BeamSearch:
                     ruleidx = sortindex[j, k].item()
                     # can't accept this token
                     if not copynode.apply(ruleidx, sortfinalscore[j, k].item()): 
-                        del copynode
-                        continue
+                        if self.check_grammar:
+                            continue
                     topk_candidates[k] = copynode
                     coq_code = copynode.to_coq()
-                    if not coq_code:
+                    if not coq_code and self.check_grammar:
                         continue
 
                     coq_proof_path = f"coq_model/coq_code/mbjp/{prog_id}/p{index}_{k}.v"

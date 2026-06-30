@@ -1,0 +1,36 @@
+
+\section{Related Work}\label{sec:related}
+
+\subsection{Rejecting Invalid Generations}
+%Our approach enforces a symbolic constraint expressed in CHCs. 
+Existing studies have primarily explored \emph{external} enforcement of symbolic constraints into LMs.
+%
+A common baseline is the \emph{generate-and-validate} approach~\cite{DBLP:conf/sigsoft/ZhuSXZY0Z21,DBLP:conf/popl/LongR16}, which repeatedly generates code and checks it with an external validator (e.g., a compiler) until a valid candidate is found. While this ensures constraint satisfaction, it is often inefficient due to a high rate of invalid generations.
+
+To address this, \emph{constrained decoding} techniques perform on-the-fly validation during token generation, discarding tokens that cannot lead to a valid complete program. This proactive strategy improves efficiency and has been applied to enforce various constraints, including syntactic correctness~\cite{ugare2024syncodellmgenerationgrammar}, type correctness~\cite{DBLP:journals/corr/abs-2504-09246}, and vulnerability avoidance~\cite{DBLP:conf/issre/StorhaugLH23}. However, such token-level pruning can also distort the LM's output distribution~\cite{DBLP:conf/nips/ParkWBPD24}. We compare with rejection sampling in our evaluation (\autoref{tab:model-compare-sufu-java}), which is functionally equivalent to constrained decoding as both re-normalize the model's output distribution over compilable programs.
+
+Critically, both strategies enforce constraints \emph{externally}. As discussed, externally enforced constraints do not modify the LM's internal reasoning process. Consequently, the model's internal distribution may become skewed, potentially assigning low probability to correct code snippets due to inaccurate assessments of their typability.
+
+\subsection{Internalizing Symbolic Constraints}
+% * Grammar derivation tree
+% * tare
+% * AutoRefine
+Another line of research aims to expose the reasoning process of symbolic constraints to the LMs, thereby guiding them to learn to satisfy the constraints.
+%
+By externalizing the complexity of constraint reasoning, this paradigm relieves LMs from implicitly inferring intricate symbolic rules from plain text. Offloading constraint learning to the representation allows LMs to allocate more capacity to other critical aspects, such as program semantics and algorithmic logic. This reallocation of modeling resources leads to improved generation quality that scales effectively with model size, mirroring the benefits observed in syntactic representations for grammatical learning~\cite{DBLP:conf/acl/LiangZ0LLXCZZZC25}.
+
+Grammar-based encoding~\cite{DBLP:conf/acl/YinN17,DBLP:conf/aaai/SunZXSMZ20,DBLP:conf/icse/ZhuL000C24} represents one such approach, where programs are parsed into ASTs and serialized into sequences of grammar rules for training and inference. 
+%This explicit syntactic representation helps models learn grammatical constraints more effectively. 
+Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. Our approach generalizes this concept to arbitrary CHC-representable constraints.
+
+Tare~\cite{DBLP:conf/icse/ZhuSZXZ23} introduces a neural approach for learning Java's type system in program repair, using specialized components to encode typing contexts and subtyping relations. While it predicts both code and types, Tare is specifically tailored to a subset of Java's type system and operates through AST traversal without achieving full type explicitness, which is a key distinction from our work.
+
+Refine4LLM~\cite{DBLP:journals/pacmpl/CaiHSLLSD25} generates programs through sequential refinement rule applications, transforming specifications into concrete programs while ensuring syntactic and functional correctness. However, it requires training data containing refinement processes, which are scarce in practice, and is specific to a particular refinement calculus. In contrast, our approach utilizes readily available programs for training given a type checker, and supports any constraints expressible as CHCs.
+
+\subsection{Type-Guided Program Synthesis}
+Our approach is inspired by type-guided program synthesis~\cite{DBLP:journals/pacmpl/GuoJJZWJP20, DBLP:conf/pldi/GuriaFH21, DBLP:conf/pldi/PolikarpovaKS16, DBLP:conf/pldi/OseraZ15}, which employs synthesis rules to produce type-correct programs. These approaches also guarantee type correctness by construction; however, they are designed for classical enumerative or constraint-based synthesis algorithms, not for neural code generation.
+
+In contrast, our work addresses three challenges that arise when adapting type-guided synthesis to LMs.
+First, existing synthesis systems do not provide a code representation suitable for LM training. We design synthesis decision sequences that can be derived from existing programs via type derivation trees, enabling the use of readily available codebases as training data.
+Second, existing systems do not enforce the structural correspondence between type derivations and synthesis derivations. We design our synthesis rules to satisfy Type Explicitness and Derivation Vicinality, establishing an isomorphism that makes type reasoning fully explicit in the generated sequences.
+Third, existing systems do not consider neural architectures for learning type systems. We propose a dual-encoding architecture that enables LMs to effectively learn and utilize type constraints during generation.

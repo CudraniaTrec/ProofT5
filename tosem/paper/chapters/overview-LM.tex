@@ -1,0 +1,87 @@
+\subsection{Interacting with the Language Model}
+
+Having defined the synthesis rules, we now describe how the LM interacts with the synthesis system.
+
+\noindent \textbf{LM Queries.} The synthesis rules form a search system for program synthesis, where the system issues queries to the LM and recursively discharges synthesis subgoals based on the decisions the LM makes. 
+As discussed in \autoref{subsection:moti-representation}, at each synthesis step, the system raises two types of queries: to select an appropriate synthesis rule, and to generate variable assignments for predicates. In \mainname, we resolve both queries by prompting the LM with the following information:
+\begin{enumerate}
+    \item the natural language prompt of the overall synthesis task
+    \item the sequence of synthesis decisions generated so far
+    \item the current synthesis goal
+\end{enumerate}
+
+To simplify the interaction, we do not distinguish the two types of queries and assume that the LM can learn to infer what information is needed in each step from the context.
+%
+\autoref{fig:synthesis-sequence} illustrates the expected decision sequence for our sample task.
+%
+Let us consider the first three steps:
+\begin{itemize}
+\item In Step 1, the LM receives the task prompt, an empty decision sequence, and the overall synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$. It predicts the synthesis rule \textsc{S-App} with no other output, as no variable assignment is needed in this rule application.
+\item In Step 2, the case is similar. The LM predicts only \textsc{S-Abs} with no other assignment.
+\item In Step 3, the decision sequence becomes $[\textsc{S-App}, \textsc{S-Abs}]$ and the subgoal becomes $\stlctype{\snoc{\tcode{empty}}{\sk{x_1}}{\sk{t_3}}}{\sk{p_3}}{\sk{t_4}}$. Here, the LM predicts the \textsc{S-Var} rule, and meanwhile, generates all four assignments (\autoref{formula:sig4}) required by this rule.
+\end{itemize}
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[x=1.2cm, y=0.8cm]
+    \tikzset{
+        rule/.style={
+            draw=gray!80, fill=gray!15,
+            minimum height=5mm, minimum width=10mm,
+            rounded corners=1.5pt, font=\small,
+            text depth=0.25ex, text height=1.6ex
+        },
+        assign/.style={
+            draw=blue!40, fill=blue!8,
+            minimum height=5mm, minimum width=6mm,
+            rounded corners=1.5pt, font=\small,
+            text depth=0.25ex, text height=1.6ex
+        },
+    }
+
+    % ==== Top row: steps ====
+    \node[rule] at (0,0) {S-App};
+    \node[rule] at (1,0) {S-Abs};
+    \node[rule] (a0) at (2,0) {S-Var};
+
+    % ==== Assignments row 
+    \node[assign] (a1) at (2.80,0) {\tcode{x}};    
+    \node[assign] (a2) at (3.45,0) {\tcode{x}};    
+    \node[assign] (a3) at (4.20,0) {\tcode{bool}}; 
+    \node[assign] (a4) at (5.05,0) {\tcode{bool}}; 
+
+    \node[rule] at (6.0,0) {$\boldsymbol{\cdots}$};
+
+    % ==== Step labels ====
+    \node[above] at (0,0.3) {\tiny Step 1};
+    \node[above] at (1,0.3) {\tiny Step 2};
+    \node[above] at (3.4,0.3) {\tiny Step 3};
+    \node[above] at (6.0,0.3) {\tiny Step 4};
+
+    % ==== Bounding box around assignments ====
+    \node[
+        draw=gray!60,
+        dashed,
+        rounded corners=2pt,
+        fit={(a0) (a4)},
+        inner sep=2pt
+    ] {};
+\end{tikzpicture}
+
+\setlength{\fboxsep}{1pt}
+\caption{Synthesis decision sequence for $\app{(\abs{\tcode{x}}{\tcode{bool}}{\tcode{x}})}{\tcode{true}}$: 
+\colorbox{gray!15}{\textsf{synthesis rules}} and 
+\colorbox{blue!8}{\textsf{variable assignments}}.}
+\label{fig:synthesis-sequence}
+\end{figure}
+
+As shown in \autoref{fig:synthesis-sequence}, the synthesis rules and variable assignments together form a synthesis decision sequence, which serves as a novel program representation in \mainname. 
+Unlike traditional representations that treat programs as flat sequences of syntactic tokens (e.g., [$\lambda$, $x$, :, \tcode{bool}, $\dots$]), our representation is structured around the type correctness proof. Each token corresponds to a step in the proof construction process, directly capturing the hierarchical structure of type reasoning (as in \autoref{figure:sample-type-tree}). This enables the LM to learn the type system explicitly rather than attempting to reconstruct it from flat token sequences. Since this sequence represents a program synthesis process that determines both the resulting program and its type correctness proof, this representation embodies our \textbf{Derivation Vicinality} principle.
+
+To support this proof-guided synthesis, we design a novel model architecture with dual-encoding: the encoder processes both the static natural language specification and the dynamically evolving synthesis goal at each step, providing rich typing context to the decoder. Details of this architecture are presented in \autoref{sec:implementation}.
+
+\smallskip \noindent \textbf{Training.} Since our representation differs from traditional token sequences, the LM requires fine-tuning to generate synthesis decision sequences.
+%
+Our representation also offers \textbf{Data Usability}, as it is compatible with existing code generation datasets for the target language.
+Given a corpus of programs, we construct their type correctness proofs via the type checker, convert the proofs into synthesis decision sequences using the correspondence between typing rules and synthesis rules, and obtain a training set in \mainname's representation. 
+

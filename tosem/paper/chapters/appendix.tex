@@ -1,0 +1,308 @@
+\section{Proofs for Some Lemmas Used in the Paper}
+
+\subsection{Proof for Lemma~\ref{rule-bijection}}
+\label{sec:appendix-lemma1}
+\begin{lemma}
+There is a bijection $\varphi$ between typing rules and synthesis rules.
+\end{lemma}
+\begin{proof}
+
+$\varphi$ can be proven to be a bijection by showing that it is both surjective and injective.
+\begin{itemize}
+ \item The translation function $\varphi$ maps every typing rule to a synthesis rule, and synthesis rules are constructed exclusively in this manner; thus, $\varphi$ is surjective.
+ \item To prove that $\varphi$ is injective, we define its inverse function $\psi$: given a synthesis rule in the form presented in Figure~\ref{S-Rule}, $\psi$ removes all substitutions $\sigma_i$, as well as the unification and assignment acquisition, and restores the terms $\overline{x}_0$ to the conclusion, recovering the typing rule as shown in Figure~\ref{T-Rule}. Therefore, $\psi \circ \varphi = \varphi \circ \psi = id$. The existence of $\psi$ demonstrates that $\varphi$ is injective.
+\end{itemize}
+
+\end{proof}
+
+\subsection{Proof for Lemma~\ref{lemma:assignment}}
+\label{sec:appendix-lemma2}
+\begin{lemma}
+For any synthesis judgment derived using a synthesis rule of the form in Figure~\ref{S-Rule}, the composed substitution $\sigma_c = \sigma_n \ldots \sigma_0 \sigma$ constitutes an assignment, in the sense that $\sigma_c(\skhzc{\overline{x}_i})$, $\sigma_c(\skhzc{\overline{x}})$, and $\sigma_c(\skhzc{\overline{y}})$ are all ground terms.
+\end{lemma}
+\begin{proof}
+Induction on the structure of the synthesis derivation.
+\begin{itemize}
+ \item \textbf{Base case:} The base case occurs when the synthesis rule has no subgoals. In this situation, the free variables $\overline{x}_f$ are precisely those appearing in the typing rule's conclusion, i.e., $\mvhzc(\overline{x}_f) = \mvhzc(\overline{x}_0)$. The unification step produces a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$, and the assignment $\sigma_0$ obtained in this step covers all variables in $\sigma(\overline{x}_f)$. 
+ 
+ Consequently, $\sigma_0\sigma(\overline{x}_f)$ are ground terms, thus $\sigma_0\sigma(\overline{x}_0) = \sigma_0\sigma(\overline{x})$ are also ground terms, and so is $\sigma_0\sigma(\overline{y})$ since $\overline{y}$ contains only variables that are in $\overline{x}_0$.
+ 
+ \item \textbf{Inductive case:} The inductive case arises when the synthesis rule has one or more subgoals. By the induction hypothesis, for each $i$, the substitution $\sigma_i$ is an assignment that covers all variables in $\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)$, ensuring that $\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)$ are ground terms, and therefore so is $\sigma_c(\overline{x}_i)$ for all $i\ge1$.
+ 
+ We similarly observe that $\sigma_0\sigma$ covers all variables in $\overline{x}_f$ so $\sigma_c$ must also cover $\overline{x}_f$ and thus $\overline{x}_0$ ($\overline{x}_f$ contains all variables in $\overline{x}_0$ besides those already instantiated in $\overline{x}_i$). 
+ %
+ We finally have $\sigma_c(\overline{x}) = \sigma_n \ldots \sigma_0 \sigma(\overline{x}) = \sigma_n \ldots \sigma_0 \sigma(\overline{x}_0) = \sigma_c(\overline{x}_0)$ is a ground term, and so is $\sigma_c(\overline{y})$, since $\overline{y}$ contains only variables that are in $\bigcup_{i=0}^n\overline{x}_i$.
+ \end{itemize}
+\end{proof}
+
+\subsection{Proof for Lemma~\ref{lemma:translation}}
+\label{sec:appendix-lemma3}
+\begin{lemma}
+Let $T_1$ be a well-formed type derivation tree with root node labeled $P(\overline{x}_c)$, annotated with typing rule $R$, and let $T_2$ be its corresponding synthesis derivation tree constructed via the translation, whose root node is labeled with $P(\overline{x}) \leadsto \theta$, where $\theta$ is the assignment synthesized by Algorithm~\ref{alg:synthtree}.
+If $\overline{x}$ is unifiable with $\overline{x}_c$, then in the application of the synthesis rule that derives $P(\overline{x}) \leadsto \theta$, (1) the unification step, (2) the acquisition for free variables, and (3) the constraint checking step will always succeed, and (4) the synthesized assignment $\theta$ makes $P(\overline{x})$ concretized to $P(\theta(\overline{x})) = P(\overline{x}_c)$.
+\end{lemma}
+
+\begin{proof}
+  Induction on the size of the type derivation tree $T_1$. Suppose the typing rule $R$ has the form shown in Figure~\ref{T-Rule}, its corresponding synthesis rule $R'$ has the form shown in Figure~\ref{S-Rule}.
+  \begin{itemize}
+    \item \textbf{Base case:} 
+    The base case is when the type derivation tree $T_1$ has only one node, which means the typing rule $R$ has no premises. 
+    In this case, since $\overline{x}$ is unifiable with $\overline{x}_c$ and in the typing rule $R$, $\overline{x}_c$ is the concretization of $\overline{x}_0$, the unification and acquisition steps will succeed, yielding a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$ and $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ for some assignment $\theta'$, which can be used to obtain $\sigma_0 = \theta'|_{\mvhzc(\sigma(\overline{x}_f))}= \theta'|_{\mvhzc(\sigma(\overline{x}_0))}$.
+    
+    By lemma~\ref{lemma:assignment}, $\sigma_0\sigma$ is an assignment that covers all variables in $\overline{x}$, $\overline{x}_0$ and $\overline{y}$, and $\sigma_0\sigma(\overline{x}_0) = \theta'\sigma(\overline{x}_0) = \overline{x}_c$, so if we set $\theta = \sigma_0\sigma|_{\mvhzc(\overline{x})}$ we have $\theta(\overline{x}) = \sigma_0\sigma(\overline{x})= \sigma_0\sigma(\overline{x}_0) = \overline{x}_c$. The constraint checking step is also satisfied because $\mvhzc(y)\subseteq \mvhzc(\overline{x}_0)$ and $\sigma_0\sigma(\overline{y})$ is the same as the verified concretized constraint in the type derivation tree.
+    
+    \item \textbf{Inductive case:} If the typing rule $R$ has a series premises $P_1(\overline{x}_1), \ldots, P_n(\overline{x}_n)$, then the synthesis rule $R'$ has a series of subgoals $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1, \ldots, P_n(\meta{\sigma_{n-1}\ldots\sigma_0\sigma(\overline{x}_n)}) \leadsto \sigma_n$.
+    
+    The same as the base case, the unification and acquisition steps will succeed, yielding a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$ and $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ for some assignment $\theta'$, and the $\sigma_0 = \theta'|_{\mvhzc(\overline{x}_f)}$.
+    
+    In the type derivation tree, suppose the $i$-th child node of the root node is labeled with $P_i(\overline{x}_{ic})$, then rule $R$ can be instantiated with some assignment $\theta_c$ such that $\theta_c(\overline{x}_i) = \overline{x}_{ic}$ for all $i$ ($\overline{x}_{0c}$ is just $\overline{x}_{c}$).
+    %
+    We use the notation $\sigma_i \trianglelefteq \sigma_j$ to denote that $\sigma_j$ factors through $\sigma_i$, meaning that $\sigma_j = \sigma'\sigma_i$ for some substitution $\sigma'$.
+    Following the derivation of $\sigma_0$, we know that $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ and $\sigma_0 = \theta'|_{\mvhzc(\sigma(\overline{x}_f))}\trianglelefteq \theta'|_{\mvhzc(\sigma(\overline{x}_0))}$, thus $(\sigma_0\sigma|_{\mvhzc(\overline{x}_0)})\trianglelefteq (\theta'\sigma|_{\mvhzc(\overline{x}_0)}) \trianglelefteq \theta_c$ holds ($\theta_c$ concretizes $\overline{x}_0$) and $\sigma_0\sigma$ ranges over only variables in $\overline{x}_0$ and $\overline{x}$.
+    
+    Since $\overline{x}_1$ has no common variables with $\overline{x}$, $\sigma_0\sigma(\overline{x}_1)= (\sigma_0\sigma|_{\mvhzc(\overline{x}_0)})(\overline{x}_1)$, and $\theta_c(\overline{x}_1)=\overline{x}_{1c}$, hence $\sigma_0\sigma(\overline{x}_1)$ is unifiable with $\overline{x}_{1c}$.
+    %
+    Thus we can use the induction hypothesis to synthesis $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1$, where $\sigma_1\sigma_0\sigma(\overline{x}_1) = \overline{x}_{1c}$.
+    
+    Then we continue that $\sigma_1\sigma_0\sigma(\overline{x}_1) = \theta_c(\overline{x}_1)$, and $(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)}) \trianglelefteq \theta'$ holds, and then $\sigma_1\sigma_0\sigma(\overline{x}_2)=(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)})(\overline{x}_2)$ is unifiable with $\overline{x}_{2c}$, and we can apply the induction hypothesis again and again until all assignments to subgoals are synthesized.
+    
+    Finally, we can collect all the assignments $\sigma_n, \ldots, \sigma_1, \sigma_0$ and compose them to form $\sigma_c = \sigma_n \ldots \sigma_0\sigma$, which is an assignment and covers all variables in $\overline{x}_i$, $\overline{x}$ and $\overline{y}$ by Lemma~\ref{lemma:assignment}. $\sigma_c(\overline{x}_i)=\overline{x}_{ic}=\theta_c(\overline{x}_i)$ for all $i$, so $\theta_c \trianglelefteq \sigma_c$ since $\sigma_c$ also ranges over $\mvhzc(\overline{x})$.
+    We have $\sigma_c(\overline{y}) = \theta_c(\overline{y})$, which instantiates the constraint $\phi(\overline{y})$ to be satisfied as in the type derivation tree. And let $\theta(\overline{x}) = \sigma_c|_{\mvhzc(\overline{x})}$ concretizes the synthesis goal $P(\overline{x})$ to the ground typing judgment $P(\overline{x}_c)$ ($\theta(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x}_0)=\sigma_c(\overline{x}_0)=\overline{x}_c$), which is the same as the root node of the type derivation tree.
+  \end{itemize}
+\end{proof}
+
+\subsection{Proof for Lemma~\ref{lemma:isomorphism2}}
+\label{sec:appendix-lemma4}
+
+\begin{lemma}
+For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_1$, $T_1 \cong T_2$.
+\end{lemma}
+\begin{proof}
+  Following the translation from synthesis derivation trees to the type derivation trees detailed in \autoref{sec:isomorphism}, the root and child order preservation is easily satisfied. Then we can prove the label correspondence by induction on the size of the synthesis derivation tree $T_2$ (suppose $T_2$'s top-level synthesis rule has the form in \autoref{S-Rule}).
+
+  \begin{itemize}
+     \item \textbf{Base case:} The base case occurs when the synthesis derivation tree $T_2$ has only one node, whose synthesis rule has no premises. By the described translation, the node in the type derivation tree $T_1$ is annotated with the typing judgment $P(\theta(\overline{x}))$, if $\theta$ is the synthesized assignment. In this case, the label correspondence is clearly satisfied.
+     \item \textbf{Inductive case:} The inductive case arises when the synthesis rule has one or more subgoals. 
+     By the induction hypothesis, for the $i$-th subgoal $P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$, we have constructed a sub type derivation tree whose root node is labeled with the typing judgement $P_i(\overline{x}_{ic})$, where $\overline{x}_{ic}=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)$. 
+     
+     Let $\theta_c=\sigma_{i}\ldots\sigma_0|_{\mvhzc(\overline{x}_0\cup\ldots \overline{x}_n)}$, then we have $\theta_c(\overline{x}_{i})=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)=\overline{x}_{ic}$ for all $i\geq 1$. 
+     For the conclusion part, $\theta_c(\overline{x}_{0})=\sigma_0\sigma(\overline{x}_0)=\sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\theta(\overline{x})$. 
+     Thus, under the assignment $\theta_c$, the corresponding typing rule, along with the translated sub type derivation trees, forms a valid type derivation tree $T_1$ whose root node is labeled with $P(\theta(\overline{x}))$.
+ \end{itemize}
+\end{proof}
+
+\newpage
+\section{Additional Information about Benchmarks}
+\label{appendix-benchmark}
+
+\subsection{Java Benchmark}
+We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including classes, methods, variables, arrays, generic types, operators, and control flow statements. While excluding advanced Java features such as multithreading, lambda expressions, and complex reflection mechanisms.
+
+The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}. The complete grammar specification is presented below:
+
+\begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    title=Java Subset Language Grammar,
+    fonttitle=\bfseries,
+    boxrule=1pt,
+    arc=3pt
+]
+\begin{Verbatim}[fontsize=\small]
+<program>     := <program> <program>
+              |  <modifier> <type> <identifier> ;
+              |  <modifier> <type> <identifier> = <term> ;
+              |  <modifier> <type> <identifier> ( <stmt> ) { <stmt> }
+              |  <identifier> ( <stmt> ) { <stmt> }
+              |  <stmt>
+              |  class <identifier> { <program> }
+<stmt>        := empty
+              |  <type> <identifier> = <term>;
+              |  <type> <identifier>;
+              |  if ( <term> ) { <stmt> }
+              |  if ( <term> ) { <stmt> } else { <stmt> }
+              |  while ( <term> ) { <stmt> }
+              |  do { <stmt> } while ( <term> )
+              |  for ( <stmt> ; <term> ; <term> ) { <stmt> }
+              |  for ( <type> <identifier> : <term> ) { <stmt> }
+              |  return <term>;
+              |  continue;
+              |  break;
+              |  <term>;
+              |  switch ( <term> ) { <stmt> }
+              |  case <term> : <stmt>
+              |  <stmt> <stmt>
+<term>        := <identifier>
+              |  <integer>
+              |  <float>
+              |  <character>
+              |  <string>
+              |  true
+              |  false
+              |  null
+              |  <term> = <term>
+              |  ( <type> ) <term>
+              |  <term> instanceof <type>
+              |  <term> ? <term> : <term>
+              |  <term> . <identifier>
+              |  <term> [ <term> ]
+              |  new <type> ( <term> )
+              |  new <type>
+              |  new <term> [ <term> ]
+              |  <term> . <identifier> ( <term> )
+              |  <identifier> ( <term> )
+              |  <type>
+              |  [ <term_list> ]
+              |  { <term_list> }
+              |  ( <term> )
+              |  <term> + <term>
+              |  <term> - <term>
+              |  <term> * <term>
+              |  <term> / <term>
+              |  <term> % <term>
+              |  - <term>
+              |  <term> << <term>
+              |  <term> >> <term>
+              |  <term> & <term>
+              |  <term> | <term>
+              |  <term> ^ <term>
+              |  ~ <term>
+              |  <term> ++
+              |  <term> --
+              |  ++ <term>
+              |  -- <term>
+              |  <term> == <term>
+              |  <term> != <term>
+              |  <term> < <term>
+              |  <term> <= <term>
+              |  <term> > <term>
+              |  <term> >= <term>
+              |  <term> && <term>
+              |  <term> || <term>
+              |  ! <term>
+<type>        := int
+              |  float
+              |  boolean
+              |  char
+              |  String
+              |  null
+              |  <type> []
+              |  <identifier> <>
+              |  <identifier> < <type> >
+              |  <identifier> < <type> , <type> >
+              |  <type> -> <type>
+              |  <identifier>
+              |  void
+<term_list>   := <term> , <term_list>
+              |  <term>
+              |  empty
+<modifier>    := public | private | protected | static | final | abstract
+<identifier>  := [a-zA-Z_][a-zA-Z0-9_]*
+<integer>     := [0-9]+
+<float>       := [0-9]+.[0-9]+
+<character>   := '[^']'
+<string>      := ".*"
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{SuFu Benchmark}
+
+The SuFu dataset is sourced from the GitHub repository accompanying the SuperFusion research paper (\href{https://github.com/jiry17/SuFu}{jiry17/SuFu}). SuperFusion is an advanced program optimization tool that processes SuFu programs as input and applies a series of transformations to improve computational efficiency. 
+The SuFu language features a type system that explicitly specifies those intermediate data structures to be optimized, and all code fragments operating on these data structures.
+The SuFu programs in this dataset are drawn from two primary lines of prior work. The first source consists of fusion tasks primarily collected from classical textbooks such as Introduction to Algorithms, while the second originates from research on program restructuring, where the goal is to transform a reference program into specific target forms such as divide-and-conquer or single-pass. 
+Each program is supplemented with a natural language description. These descriptions were first generated by the GPT-o3-mini model and then carefully reviewed and edited by human experts to correct inaccuracies and improve clarity.
+
+A key issue with the SuFu language is that when an algorithm description is provided, the initial SuFu program still needs to be manually constructed.
+However, manually constructing SuFu programs from algorithmic descriptions is highly challenging and requires considerable domain expertise in functional programming. 
+Directly prompting language models to generate SuFu code from natural language descriptions often results in programs that are syntactically or semantically flawed, typically containing multiple type errors. 
+
+The following is an example of generated SuFu programs with type errors:
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=Natural Language Prompt
+]
+\textit{Write a function for the mts algorithm, which finds the maximum sum among all possible tail lists of the input list.}
+\end{tcolorbox}
+\begin{tcolorbox}[
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.5pt,
+    arc=2pt
+]
+\begin{Verbatim}[fontsize=\small, xleftmargin=1em]
+tails :: List -> Packed NList
+tails Nil = let ts = NCons(Nil, NNil) in
+            rewrite (label ts)
+tails Cons(_, t)@xs = let ts = tails t in
+                      rewrite (label NCons(xs, ts))
+                      // there is a type error, `ts` should be `unlabel ts`
+mts_label xs = let ts = tails xs in
+                rewrite (maximum (map sum (unlabel ts)))
+\end{Verbatim}
+\end{tcolorbox}
+
+The complete SuFu grammar specification is as follows:
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    title=SuFu Language Grammar,
+    fonttitle=\bfseries,
+    boxrule=1pt,
+    arc=3pt,
+    breakable
+]
+\begin{Verbatim}[fontsize=\small]
+<program>     := <program> <program>
+              |  <command>
+<command>     := Inductive <Name> = <name> <type> 
+                                    | ... 
+                                    | <name> <type>;
+              |  <Name> = <type>;
+              |  <name> = <term>;
+<type>        := {<type>, ..., <type>}
+              |  <type> -> <type>
+              |  Reframe <type>
+              |  Unit 
+              |  Int 
+              |  Bool 
+              |  <Name>
+<term>        := unit 
+              |  <integer> 
+              |  true 
+              |  false 
+              |  <name>
+              |  + | - | * | / 
+              |  < | <= | > | >= | == 
+              |  and | or | not
+              |  <term> <term>
+              |  \<name>:<type>. <term>
+              |  fix <term>
+              |  let <name> = <term> in <term>
+              |  if <term> then <term> else <term>
+              |  {<term>, ..., <term>}
+              |  <term>.<integer>
+              |  match <term> with <pattern> -> <term> 
+                                   | ... 
+                                   | <pattern> -> <term> 
+                 end
+              |  rewrite <term> 
+              |  label <term> 
+              |  unlabel <term>
+<pattern>     := _ 
+              |  <name>
+              |  <name> <pattern>
+              |  {<pattern>, ..., <pattern>}
+<Name>        := [A-Z][a-zA-Z0-9_]*
+<name>        := [a-z][a-zA-Z0-9_]*
+<integer>     := [0-9]+
+\end{Verbatim}
+\end{tcolorbox}
