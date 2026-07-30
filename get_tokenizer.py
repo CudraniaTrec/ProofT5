@@ -1,7 +1,10 @@
-import json, pickle
+import json, os, pickle
 from transformers import AutoTokenizer
 # Load the tokenizer
-tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small", local_files_only=True)
+tokenizer_path = "Utils/models/codet5-small"
+if not os.path.exists(tokenizer_path):
+    tokenizer_path = "Salesforce/codet5-small"
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True)
 with open("coq_model/new_tokens.json", 'r') as f:
     new_tokens = json.load(f)
 tokenizer.add_tokens(new_tokens)

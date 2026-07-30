@@ -9,6 +9,7 @@ term_name_vocab = [] # all term names
 statement_name_vocab = [] # all statement names
 program_name_vocab = []   # all program names
 class_name_vocab = [
+    "Object",
     "Objects",
     "Arrays",
     "Integer",
@@ -108,8 +109,41 @@ concrete_class_map = {
     "Map": "HashMap"
 }
 
-tokenizer = AutoTokenizer.from_pretrained(
-    "Salesforce/codet5-small", min_length=4, local_files_only=True)
+def _strip_token_space(token):
+    return token.replace("Ġ", "").replace("▁", "")
+
+def _token_piece_text(token):
+    return token.replace("Ġ", " ").replace("▁", " ")
+
+def _is_noise_token(token):
+    cleaned = _strip_token_space(token).strip()
+    return token == tokenizer.unk_token or cleaned == '"'
+
+def _type_tokens(pvalue):
+    cleaned = (
+        pvalue.replace("(", " ")
+        .replace(")", " ")
+        .replace('"', " ")
+        .strip()
+    )
+    return [token for token in cleaned.split() if token]
+
+def _is_type_expr(pvalue):
+    tokens = _type_tokens(pvalue)
+    return bool(tokens and tokens[0] in type_name_vocab)
+
+tokenizer_path = "Utils/models/codet5-small"
+if not os.path.exists(tokenizer_path):
+    tokenizer_path = "Salesforce/codet5-small"
+try:
+    tokenizer = AutoTokenizer.from_pretrained(
+        tokenizer_path, min_length=4, local_files_only=True)
+except (TypeError, ValueError):
+    from transformers.models.roberta.tokenization_roberta import RobertaTokenizer
+    tokenizer = RobertaTokenizer(
+        os.path.join("Utils", "models", "codet5-small", "vocab.json"),
+        os.path.join("Utils", "models", "codet5-small", "merges.txt"),
+    )
 
 class CoqProof:
     partial_proof = False
@@ -207,19 +241,14 @@ Defined."""
                 if pvalue[0] == '"' and pvalue[-1] == '"':
                     pvalue = pvalue[1:-1]
 
-                ptokens = tokenizer.tokenize(pvalue)
-                if pvalue.startswith('Ty') or pvalue.startswith('(Ty'): # type
-                    tokens += [
-                        token
-                        for token in [t.replace("Ġ", "") for t in ptokens 
-                                      if "(" not in t and ")" not in t]
-                        if token not in [" ", tokenizer.unk_token, '"', ""]
-                    ]
+                if _is_type_expr(pvalue): # type
+                    tokens += _type_tokens(pvalue)
                 else: # string
+                    ptokens = tokenizer.tokenize(pvalue)
                     tokens += [
                         token
                         for token in ptokens
-                        if (token not in [tokenizer.unk_token, '"', ""])
+                        if not _is_noise_token(token)
                     ] + [tokenizer.eos_token]
 
         elif self.tactic == "reflexivity":
@@ -1379,15 +1408,11 @@ class TmBitXor(Term):
 class TmBitNot(Term):
     terms_need = ["Term"]
     def __init__(self, *args):
-        self.term1 = TmUnk()
-        self.term2 = TmUnk()
+        self.term = TmUnk()
         if len(args) >= 1:
-            self.term1 = args[0]
-        if len(args) >= 2:
-            self.term2 = args[1]
+            self.term = args[0]
             self.complete = True
-        assert isinstance(self.term1, Term) and \
-                isinstance(self.term2, Term), f"invalid TmBitNot type: {self.to_coq()}"
+        assert isinstance(self.term, Term), f"invalid TmBitNot type: {self.to_coq()}"
     
     def to_coq(self):
         return CoqProof("T_BitNot", children=[self.term.to_coq(), proof_refl])
@@ -2393,7 +2418,7 @@ def detokenization(tokens):
         if token_type(token) != "String":
             stack.append(PNode(token))
         else: # token is a string
-            tmp_str = PNode(token.replace("Ġ", " "))
+            tmp_str = PNode(_token_piece_text(token))
             # if the string is in a type definition Eg. TyGeneric1 List TyInt
             if stack[-1].type == "Type" and stack[-1].completed == False:
                 tmp_str.completed = True
@@ -2402,6 +2427,10 @@ def detokenization(tokens):
                 # empty string "" is a special case
                 if stack[-1].type == "Term" and "TmString" in str(type(stack[-1].content)):
                     stack[-1].complete([PNode("")])
+                elif stack[-1].type != "String" and stack[-1].completed == False:
+                    next_need = stack[-1].terms_needed_list[:1]
+                    assert next_need and "String" in next_need[0], "Encounter eos token when a string is needed"
+                    stack.append(PNode(""))
                 # else stack[-1] is a string
                 else:
                     assert stack[-1].type == "String", "Encounter eos token when a string is needed"

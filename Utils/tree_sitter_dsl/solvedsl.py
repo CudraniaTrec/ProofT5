@@ -9,7 +9,10 @@ DSL_LANGUAGE = Language(path + "/parser.so", "dsl")
 parser = Parser()
 parser.set_language(DSL_LANGUAGE)
 
-tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small", local_files_only=True)
+tokenizer_path = "Utils/models/codet5-small"
+if not os.path.exists(tokenizer_path):
+    tokenizer_path = "Salesforce/codet5-small"
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True)
 rules = pickle.load(open(path+"/../data/grammart5rules.pkl", "rb"))
 for rule in [f"string_literal{postfix} -> End", f"string_literal{postfix} -> End", "start -> dsl"]:
     if rule not in rules:

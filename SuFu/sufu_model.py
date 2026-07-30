@@ -44,11 +44,40 @@ class_w_type = {
 
 from copy import copy, deepcopy
 from tqdm import tqdm
-import json, os, subprocess, re, traceback, pickle
+import json, os, shutil, subprocess, re, traceback, pickle
 from transformers import AutoTokenizer
 
-with open("/data4/hzc/ProofT5/Utils/data/tokenizer.pkl", 'rb') as f:
-    tokenizer = pickle.load(f)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+tokenizer_path = os.path.join(repo_root, "Utils/data/tokenizer.pkl")
+if not os.path.exists(tokenizer_path):
+    tokenizer_path = "/data4/hzc/ProofT5/Utils/data/tokenizer.pkl"
+try:
+    with open(tokenizer_path, 'rb') as f:
+        tokenizer = pickle.load(f)
+except (ModuleNotFoundError, TypeError):
+    from transformers.models.roberta.tokenization_roberta import RobertaTokenizer
+    tokenizer = RobertaTokenizer(
+        os.path.join(repo_root, "Utils", "models", "codet5-small", "vocab.json"),
+        os.path.join(repo_root, "Utils", "models", "codet5-small", "merges.txt"),
+    )
+    for rel_path in [("coq_model", "new_tokens.json"), ("SuFu", "new_tokens.json")]:
+        token_file = os.path.join(repo_root, *rel_path)
+        if os.path.exists(token_file):
+            with open(token_file, "r") as f:
+                tokenizer.add_tokens(json.load(f))
+
+def run_sufu_executor(executor_path, test_file_path):
+    ocamlrun_path = shutil.which("ocamlrun")
+    cmd = [ocamlrun_path, executor_path, test_file_path] if ocamlrun_path else [executor_path, test_file_path]
+    return subprocess.run(cmd, capture_output=True, text=True)
+
+def get_sufu_surface_executor():
+    candidates = [
+        os.path.join(repo_root, "SuFu/SuFu/surface/f"),
+        os.path.join(repo_root, "SuFu/surface/f"),
+        "/data4/hzc/ProofT5/SuFu/SuFu/surface/f",
+    ]
+    return next((path for path in candidates if os.path.exists(path)), candidates[0])
 
 # internal class for type checking
 class TypeCtx:
@@ -1198,8 +1227,8 @@ def check_corr(code, prog, testid=0):
     test_file_path = f"SuFu/test{testid}.f"
     with open(test_file_path, "w") as f:
         f.write(full_code)
-    interpreter_path = "SuFu/surface/f"
-    res = subprocess.run([interpreter_path, test_file_path], capture_output=True, text=True)
+    interpreter_path = get_sufu_surface_executor()
+    res = run_sufu_executor(interpreter_path, test_file_path)
     if res.stdout.strip() == prog["output"].strip():
         return True
     else:

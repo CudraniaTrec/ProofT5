@@ -3,6 +3,7 @@ from transformers import EncoderDecoderCache
 from tqdm import trange, tqdm
 from Utils.processdata import strfy
 import torch, pickle
+from beamsearch_cache import reorder_cache
 
 onelist = [ x+postfix for x in onelist]
 identifiers = [x+postfix for x in identifiers]
@@ -147,23 +148,7 @@ class BeamSearch:
             self.rrdict[ruledict[x]] = x
         self.ruledict = ruledict #rule str to rule id
     def _reorder_cache(self, past, beam_idx):
-        # if decoder past is not included in output
-        # speedy decoding is disabled and no need to reorder
-        if past is None:
-            return past
-
-        reordered_decoder_past = ()
-        for layer_past_states in past:
-            # get the correct batch idx from layer past batch dim
-            # batch dim of `past` is at 2nd position
-            reordered_layer_past_states = ()
-            for layer_past_state in layer_past_states:
-                # need to set correct `past` for each of the four key / value states
-                reordered_layer_past_states = reordered_layer_past_states + (
-                    layer_past_state.index_select(0, beam_idx.to(layer_past_state.device)),
-                )
-            reordered_decoder_past = reordered_decoder_past + (reordered_layer_past_states,)
-        return reordered_decoder_past
+        return reorder_cache(past, beam_idx)
     
     @torch.no_grad()
     def search(self, inputnl, model, max_len=400, desc="", offset=0, **args):

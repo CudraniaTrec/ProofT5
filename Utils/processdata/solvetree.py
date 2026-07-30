@@ -1,11 +1,21 @@
 from tqdm import tqdm
+import os
 import pickle, traceback
 from transformers import AutoTokenizer
 from .process_utils import Node, onelist, identifiers, postfix
 from .stringfy import parseTree, stringfy
 
-tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small", local_files_only=True)
-import os
+tokenizer_path = "Utils/models/codet5-small"
+if not os.path.exists(tokenizer_path):
+    tokenizer_path = "Salesforce/codet5-small"
+try:
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True)
+except (TypeError, ValueError):
+    from transformers.models.roberta.tokenization_roberta import RobertaTokenizer
+    tokenizer = RobertaTokenizer(
+        os.path.join("Utils", "models", "codet5-small", "vocab.json"),
+        os.path.join("Utils", "models", "codet5-small", "merges.txt"),
+    )
 path = os.path.split(os.path.realpath(__file__))[0]
 rules = pickle.load(open(path+"/../data/pretrain/rules.pkl", "rb"))
 rulelist = []   # for each node, the rule id

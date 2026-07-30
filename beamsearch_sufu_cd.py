@@ -1,10 +1,12 @@
 import pickle, torch, subprocess, os
-os.environ["TOKENIZERS_PARALLELISM"] = "true"
+# Keep distributed launchers in control of tokenizer worker pools.
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 from multiprocessing import Pool
 from tqdm import tqdm
 from SuFu import *
 from copy import deepcopy
 from Dataset import pad_seq
+from beamsearch_cache import reorder_cache, tokenizer_special_tokens
 
 rule_dict = tokenizer.get_vocab() # token -> id
 eos_token = tokenizer.eos_token
@@ -13,13 +15,33 @@ vocabsize = len(rule_dict)
 
 validtensors = {ty: [rule_dict[v] for v in class_w_type[ty]] for ty in class_w_type}
 validtensors["string"] = []
+special_tokens = tokenizer_special_tokens(tokenizer)
 for token, id in rule_dict.items():
     if len(token.strip().split()) == 1: #filter out grammart5 rules
-        if token not in predefined_class: # token is a string/typename
+        if token not in predefined_class and token not in special_tokens: # token is a string/typename
             validtensors["string"].append(id)
             if token in predefined_type:
                 validtensors["type"].append(id)
 verbose = False
+
+def model_step_log_probs(model, encodenl, nlmask, inputrule, inputcoqview=None, past_key_values=None):
+    if hasattr(model, "test_forward_logits"):
+        if inputcoqview is None:
+            logits, pastkv = model.test_forward_logits(
+                encodenl, nlmask, inputrule, past_key_values=past_key_values
+            )
+        else:
+            logits, pastkv = model.test_forward_logits(
+                encodenl, nlmask, inputrule, inputcoqview, past_key_values=past_key_values
+            )
+        return torch.log_softmax(logits.float(), dim=-1), pastkv
+    if inputcoqview is None:
+        output, pastkv = model.test_forward(encodenl, nlmask, inputrule, past_key_values=past_key_values)
+    else:
+        output, pastkv = model.test_forward(
+            encodenl, nlmask, inputrule, inputcoqview, past_key_values=past_key_values
+        )
+    return torch.log(output.float().clamp_min(1e-45)), pastkv
 
 class SearchNode:
     def __init__(self, init_state, typectx_len=155):
@@ -125,34 +147,7 @@ class BeamSearch:
         self.check_grammar = check_grammar
 
     def _reorder_cache(self, past, beam_idx):
-        # if decoder past is not included in output
-        # speedy decoding is disabled and no need to reorder
-        if past is None:
-            print(
-                "You might want to consider setting `use_cache=True` to speed up decoding"
-            )
-            return past
-
-        reordered_decoder_past = ()
-        for layer_past_states in past:
-            # get the correct batch idx from layer past batch dim
-            # batch dim of `past` is at 2nd position
-            reordered_layer_past_states = ()
-            for layer_past_state in layer_past_states:
-                # need to set correct `past` for each of the four key / value states
-                reordered_layer_past_states = reordered_layer_past_states + (
-                    layer_past_state.index_select(
-                        0, beam_idx.to(layer_past_state.device)
-                    ),
-                )
-
-            assert reordered_layer_past_states[0].shape == layer_past_states[0].shape
-            assert len(reordered_layer_past_states) == len(layer_past_states)
-
-            reordered_decoder_past = reordered_decoder_past + (
-                reordered_layer_past_states,
-            )
-        return reordered_decoder_past
+        return reorder_cache(past, beam_idx)
 
     @torch.no_grad()
     def search(self, 
@@ -209,21 +204,21 @@ class BeamSearch:
             with torch.no_grad():
                 if self.add_type_ctx:
                     if past_key_values:
-                        output, pastkv = model.test_forward(
-                            encodenl, nlmask, tmpstates[:, -1:], tmpcoqview, past_key_values=past_key_values
+                        output, pastkv = model_step_log_probs(
+                            model, encodenl, nlmask, tmpstates[:, -1:], tmpcoqview, past_key_values=past_key_values
                         ) # batch_size * beamsize, 1, vocabsize
                     else:
-                        output, pastkv = model.test_forward(
-                            encodenl, nlmask, tmpstates[:, :], tmpcoqview
+                        output, pastkv = model_step_log_probs(
+                            model, encodenl, nlmask, tmpstates[:, :], tmpcoqview
                         ) # batch_size * beamsize, init_tokens_len, vocabsize
                         output = output[:, -1:, :] # batch_size * beamsize, 1, vocabsize
                 else:
                     if past_key_values:
-                        output, pastkv = model.test_forward(
-                            encodenl, nlmask, tmpstates[:, -1:], past_key_values=past_key_values)
+                        output, pastkv = model_step_log_probs(
+                            model, encodenl, nlmask, tmpstates[:, -1:], past_key_values=past_key_values)
                     else:
-                        output, pastkv = model.test_forward(
-                            encodenl, nlmask, tmpstates[:, :])
+                        output, pastkv = model_step_log_probs(
+                            model, encodenl, nlmask, tmpstates[:, :])
                         output = output[:, -1:, :]
 
             validtensor = torch.zeros(batch_size, self.beamsize, vocabsize).to(inputnl.device)
@@ -240,17 +235,15 @@ class BeamSearch:
                 validtensor[:, :]= 1 
                 
             output = output.squeeze(1) # batch_size * beamsize, vocabsize
-            output = torch.log(output)
             output = output.masked_fill(validtensor == 0, -900)
             
             topk = 2 * self.beamsize
-            # sortscore : batch_size * beamsize, vocabsize
-            # sortindex : batch_size * beamsize, vocabsize (original token_id)
-            sortscore, sortindex = torch.sort(output, descending=True)
+            sortscore, sortindex = torch.topk(
+                output, topk, dim=-1, largest=True, sorted=True
+            )
             # tmpscore : batch_size * beamsize, 2*beamsize
             tmpscore = score.view(-1).unsqueeze(1).repeat(1, topk)
-            sortscore = sortscore[:, : topk] + (tmpscore)
-            sortindex = sortindex[:, : topk]
+            sortscore = sortscore + tmpscore
             
             beamidx = (
                 torch.arange(self.beamsize * batch_size)
@@ -286,9 +279,12 @@ class BeamSearch:
                         next_beam_id.append(0)
                     continue
 
-                topk_candidates = [None] * topk
                 prog_id = offset + j # task_id
+                maxscore = sortfinalscore[j, 0].item()
+                tmpbeam = []       # a list of search nodes for this beam, size <= beamsize
                 for k in range(topk):
+                    if len(tmpbeam) >= self.beamsize: # the beam is full
+                        break
                     prob = sortfinalscore[j, k].item()
                     if prob < -800:
                         break
@@ -305,17 +301,6 @@ class BeamSearch:
                     if not copynode.apply(ruleidx, prob, update_type_ctx=self.type_check): 
                         if self.check_grammar:
                             continue
-                    topk_candidates[k] = copynode
-
-                maxscore = sortfinalscore[j, 0].item()
-                tmpbeam = []       # a list of search nodes for this beam, size <= beamsize
-                for k in range(topk):
-                    if len(tmpbeam) >= self.beamsize: # the beam is full
-                        break
-                    if not topk_candidates[k]: # the token is invalid
-                        continue
-
-                    copynode = topk_candidates[k]
                     if copynode.isfinish:
                         finalbeams[j].add(copynode)
                     else:  # add new beam to the vairbles
