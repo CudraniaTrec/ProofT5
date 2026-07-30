@@ -1,6 +1,5 @@
 wandb/
-tmp/*.pkl
-tmp/*.txt
+/tmp/
 coq_model/coq_code/mbjp/*
 coq_model/coq_code/humaneval/*
 coq_model/datas/mbjp_coqview/*
@@ -10,10 +9,24 @@ coq_model/datas/humaneval/*
 Utils/output/*
 Utils/models/*
 Utils/data/*/
+/Utils/tensorboard/
 Utils/score_output/forjava/*
 SuFu/SuFu
 SuFu/SuFu_origin
 **/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/target/
+*.py[cod]
+*.aux
+*.glob
+*.vo
+*.vok
+*.vos
+*.class
+*.log
+*.pid
+*.lock
 **/instruct_java.jsonl
 **/hemp_java_shuffle.json
 **/opencoder-sft-java.json
@@ -21,3 +34,14 @@ SuFu/SuFu_origin
 t5_llm/models/
 t5_llm/outputs/
 t5_llm/evaluator/
+/coq_model/mxeval/mxeval/java_exec_eval/
+
+/coq_model/Makefile.coq
+/coq_model/Makefile.coq.conf
+**/compile_error_list.json
+
+# Superseded local experiment notes and entry points.
+/MODEL_LINEAGE_T5GEMMA2_20260710.md
+/T5GEMMA2_2B_EXPERIMENT_PLAN.md
+/prepare_t5gemma2_prooft5_data.py
+/eval_coq_shard.py
