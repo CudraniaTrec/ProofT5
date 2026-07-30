@@ -57,10 +57,10 @@ class CodeDataset(Dataset):
             else:
                 code = example['prompt'] + example['canonical_solution']
             description = example['prompt']
-            input = tokenizer.encode(description, 
-                                     return_tensors="pt", 
-                                     max_length=self.max_length, 
-                                     truncation=True, 
+            input = tokenizer.encode(description,
+                                     return_tensors="pt",
+                                     max_length=self.max_length,
+                                     truncation=True,
                                      padding='max_length')[0]
             output = tokenizer.encode(code, return_tensors="pt")[0]
             if 'proof' in example:
@@ -135,10 +135,10 @@ def test_epoch(model, eval_dataset, codebleu_dataset, tokenizer, topk=10, device
         input_mask = input_ids.ne(0)
         with torch.no_grad():
             preds = model.generate(
-                input_ids, 
-                attention_mask=input_mask, 
-                max_length=1024, 
-                num_beams=topk, 
+                input_ids,
+                attention_mask=input_mask,
+                max_length=1024,
+                num_beams=topk,
                 num_return_sequences=topk)
         predictions.extend(list(preds.cpu().numpy()))
 
@@ -157,12 +157,12 @@ def test_epoch(model, eval_dataset, codebleu_dataset, tokenizer, topk=10, device
     model.train()  # Reset model to training mode
     return pred_texts, codebleu
 
-def finetune(model_name="Salesforce/codet5-base", 
-             dataset_name="humaneval", 
-             cuda_num=0, 
-             warmup_epochs=50, 
-             eval_step=20, 
-             lr=5e-4, 
+def finetune(model_name="Salesforce/codet5-base",
+             dataset_name="humaneval",
+             cuda_num=0,
+             warmup_epochs=50,
+             eval_step=20,
+             lr=5e-4,
              weight_decay=1e-2):
     # 加载 T5 模型和 Tokenizer
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name,local_files_only=False, trust_remote_code=True)
@@ -191,7 +191,7 @@ def finetune(model_name="Salesforce/codet5-base",
     sufu_path = "data/sufu_t5.json"
     codeproof = False
     if dataset_name == "humaneval":
-        data_path = humaneval_path 
+        data_path = humaneval_path
     elif dataset_name == "mbjp":
         data_path = mbjp_path
     elif dataset_name == "sufu":
@@ -226,7 +226,6 @@ def finetune(model_name="Salesforce/codet5-base",
     train_dataset = CodeDataset(train_data, tokenizer, codeproof=codeproof)
     valid_dataset = CodeDataset(valid_data, tokenizer, codeproof=codeproof)
     test_dataset = CodeDataset(test_data, tokenizer, codeproof=codeproof)
-    return 
     test_data_path = f"../Utils/data/{task_name}"
     if not os.path.exists(test_data_path):
         os.makedirs(test_data_path)
@@ -269,7 +268,7 @@ def finetune(model_name="Salesforce/codet5-base",
         "codet5-base_mbjp_proofcode": 5,
     }
     batch_size = batch_size_map.get(task_name, 10)
-    
+
     for epoch in range(500):
         train_loss = train_epoch(model, train_dataset, optimizer, device=device, batch_size=batch_size)
         print(f"Task {task_name} Epoch {epoch} Train Loss: {train_loss}")
@@ -288,7 +287,7 @@ def finetune(model_name="Salesforce/codet5-base",
             else:
                 patient += 1
                 if patient >= 3:
-                    break  
+                    break
             model.save_pretrained(f"models/{task_name}/{date}/epoch_{epoch}")
             torch.cuda.empty_cache()
 
@@ -317,4 +316,4 @@ if __name__ == "__main__":
         pool.starmap(finetune, tasks)
     # with mp.Pool(processes=len(tasks2)+1) as pool:
     #     pool.starmap(finetune, tasks2)
-    
+

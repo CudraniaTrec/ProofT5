@@ -1,4 +1,6 @@
+import os
 import pickle, subprocess, argparse
+import shutil
 from tqdm import trange, tqdm
 import pandas as pd
 
@@ -11,7 +13,15 @@ dir_postfix= ""
 test_codes = None   # test codes
 prob_cnt = 0        # number of problems to test
 pass_at_k = 10      # number of top k solutions to test
-sufu_executor_path = "/data4/hzc/ProofT5/SuFu/SuFu/surface/f"
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sufu_executor_path = os.environ.get(
+    "PROOFT5_SUFU_PARSER",
+    os.path.join(repo_root, "SuFu/SuFu/surface/f"),
+)
+ocamlrun_path = shutil.which("ocamlrun")
+sufu_executor_cmd = (
+    [ocamlrun_path, sufu_executor_path] if ocamlrun_path else [sufu_executor_path]
+)
 
 # load top k solutions and test codes
 def load_data():
@@ -75,7 +85,7 @@ def tests_one_problem(id):
             f.write(full_code)
         try:
             res = subprocess.run(
-                [sufu_executor_path, test_path],
+                sufu_executor_cmd + [test_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 timeout=1,
@@ -94,7 +104,7 @@ def tests_one_problem(id):
                 with open(test_path, "w") as f:
                     f.write(gen_code)
                 res = subprocess.run(
-                    [sufu_executor_path, test_path],
+                    sufu_executor_cmd + [test_path],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     timeout=1,
@@ -223,6 +233,11 @@ if __name__ == "__main__":
     )
     
     argc = parser.parse_args()
+    if not os.path.isfile(sufu_executor_path):
+        parser.error(
+            "SuFu parser not found. Build SuFu/SuFu/surface/f or set "
+            "PROOFT5_SUFU_PARSER."
+        )
     output_mode = argc.output
     test_type = "valid" if argc.valid else "train" if argc.train else "test"
     task_name = argc.task
