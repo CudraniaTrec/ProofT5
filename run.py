@@ -7,7 +7,7 @@ except Exception:
     swanlab = None
 from torch import optim
 from accelerate import Accelerator
-from accelerate.utils import InitProcessGroupKwargs
+from accelerate.utils import DistributedDataParallelKwargs, InitProcessGroupKwargs
 from tqdm import tqdm, trange
 import numpy as np
 import os, sys, json, random, time, pickle, shutil
@@ -58,6 +58,8 @@ args = Dotdict({
     "empty_cuda_cache": 100, # Empty CUDA cache every empty_cuda_cache epochs
     "enable_coqview": False, # Enable coqview model
     "validation": True,      # Enable validation during training
+    "evaluation_only": False, # Dataset has no train split and must not be fine-tuned
+    "include_debug": False,    # Append optional debug.pkl rows to training
     "pretrain_name": "pretrain", # Pretrained model name
     "pretrain_model_type": "best", # Checkpoint type used only for the direct parent
     "no_swanlab": False,
@@ -69,14 +71,23 @@ args = Dotdict({
     "coq_candidate_multiplier": None,
     "coq_workers": 0,
     "coq_timeout": 20,
+    "coq_final_only_check": False,
     "length_penalty": 0.1,
+    "beam_size": 10,
     "early_stop_after_final_steps": None,
     "early_stop_max_first_final_len": None,
     "eval_split": "test",
     "eval_start": 0,
     "eval_limit": 0,
+    "eval_indices": "",
+    # 0 selects the task's observed target maximum (`max_code_len`).  Using
+    # `CodeLen` here can include a long fixed prefix and lets constrained
+    # decoding continue hundreds of tokens beyond every observed target.
+    "eval_max_len": 0,
     "resume_output": False,
     "disable_tqdm": False,
+    "force_coq_decoder": False,
+    "force_sufu_type_check": False,
     "save_last_only": False,
     "cli_overrides": {},
     "coqview_max_step_offset": 0,
@@ -95,10 +106,13 @@ args = Dotdict({
     "coqview_skip_backward_for_debug": False,
     "coqview_manual_distributed": True,
     "coqview_history_gradient_policy": "streaming_detached_self_kv",
+    "train_only_expanded_embedding_rows": False,
+    "base_vocab_rows": 0,
     "pad_train_shards_to_equal_batches": False,
     "train_num_workers": 10,
     "eval_num_workers": 2,
     "distributed_timeout_minutes": int(os.environ.get("PROOFT5_DISTRIBUTED_TIMEOUT_MINUTES", "60")),
+    "ddp_find_unused_parameters": False,
 })
 
 
@@ -418,6 +432,83 @@ def build_model_for_task():
         return MyT5Gemma2withCoq1(args) if args.enable_coqview else MyT5Gemma2(args)
     return MyT5withCoq1(args) if args.enable_coqview else MyT5(args)
 
+
+def configure_expanded_embedding_only_training(model, base_vocab_rows):
+    """Freeze the backbone and update only vocabulary rows added after the base LM."""
+    base_vocab_rows = int(base_vocab_rows)
+    if base_vocab_rows <= 0:
+        raise ValueError("base_vocab_rows must be positive for embedding-only training")
+    embedding = model.seq2seq.model.encoder.text_model.embed_tokens.weight
+    if base_vocab_rows >= embedding.shape[0]:
+        raise ValueError(
+            f"base_vocab_rows={base_vocab_rows} must be smaller than "
+            f"expanded vocabulary size {embedding.shape[0]}"
+        )
+    tied_parameters = (
+        embedding,
+        model.seq2seq.model.decoder.embed_tokens.weight,
+        model.seq2seq.lm_head.out_proj.weight,
+    )
+    if len({parameter.data_ptr() for parameter in tied_parameters}) != 1:
+        raise RuntimeError("encoder, decoder, and output embeddings are not tied")
+    for parameter in model.parameters():
+        parameter.requires_grad_(False)
+    embedding.requires_grad_(True)
+
+    def zero_base_rows(gradient):
+        gradient[:base_vocab_rows].zero_()
+        return gradient
+
+    embedding.register_hook(zero_base_rows)
+    return embedding.shape[0] - base_vocab_rows
+
+
+def aggregate_distributed_token_mean(rank_losses, rank_active_target_tokens):
+    """Combine per-rank token-mean losses without counting padding tokens."""
+    rank_losses = [float(value) for value in rank_losses]
+    rank_active_target_tokens = [int(value) for value in rank_active_target_tokens]
+    if len(rank_losses) != len(rank_active_target_tokens) or not rank_losses:
+        raise ValueError("rank losses and target-token counts must have equal nonzero length")
+    if any(not np.isfinite(value) for value in rank_losses):
+        raise ValueError("rank losses must be finite")
+    if any(value < 0 for value in rank_active_target_tokens):
+        raise ValueError("rank target-token counts must be non-negative")
+    total_tokens = sum(rank_active_target_tokens)
+    if total_tokens <= 0:
+        raise ValueError("distributed batch contains no active target tokens")
+    return (
+        sum(
+            rank_loss * rank_tokens
+            for rank_loss, rank_tokens in zip(
+                rank_losses, rank_active_target_tokens
+            )
+        )
+        / total_tokens
+    )
+
+
+def count_active_target_tokens(input_res, mask_id, has_prefix=False):
+    """Count targets used by MyT5/MyT5Gemma2 cross entropy."""
+    targets = input_res if has_prefix else input_res[:, 1:]
+    return int(torch.ne(targets, mask_id).sum().item())
+
+
+def distributed_token_mean_backward_scale(
+    local_active_target_tokens, global_active_target_tokens, process_count
+):
+    """Scale a local token mean so DDP's rank mean becomes a global token mean."""
+    local_active_target_tokens = int(local_active_target_tokens)
+    global_active_target_tokens = int(global_active_target_tokens)
+    process_count = int(process_count)
+    if local_active_target_tokens < 0 or global_active_target_tokens <= 0:
+        raise ValueError("active target-token counts are invalid")
+    if process_count <= 0:
+        raise ValueError("process count must be positive")
+    if local_active_target_tokens > global_active_target_tokens:
+        raise ValueError("local target-token count exceeds the global count")
+    return process_count * local_active_target_tokens / global_active_target_tokens
+
+
 def load_beam_searches():
     global BeamSearch, BeamSearchCoq, BeamSearchDsl, BeamSearchSufu
     if BeamSearch is None:
@@ -460,6 +551,27 @@ def partition_data_rows(data, process_num, add_zero_loss_padding=False):
     return shards, original_lengths, padding_counts
 
 
+def partition_selected_eval_rows(data, process_num, eval_indices):
+    """Select global eval rows first, then distribute them evenly across ranks."""
+    requested = [int(index) for index in eval_indices]
+    if len(requested) != len(set(requested)):
+        raise ValueError("eval_indices contains duplicates")
+    invalid = [index for index in requested if index < 0 or index >= len(data)]
+    if invalid:
+        raise ValueError(f"eval_indices out of range: {invalid}")
+    problem_ids = sorted(requested)
+    selected_rows = [data[index] for index in problem_ids]
+    row_shards, original_lengths, padding_counts = partition_data_rows(
+        selected_rows, process_num, add_zero_loss_padding=False
+    )
+    id_shards, id_lengths, _ = partition_data_rows(
+        problem_ids, process_num, add_zero_loss_padding=False
+    )
+    if original_lengths != id_lengths:
+        raise AssertionError("selected eval row/id partition mismatch")
+    return row_shards, id_shards, original_lengths, padding_counts
+
+
 def distributed_eval_range_slice(
     shard_start,
     shard_length,
@@ -486,18 +598,93 @@ def distributed_eval_range_slice(
     )
 
 
+def distributed_eval_index_positions(
+    shard_start,
+    shard_length,
+    global_length,
+    eval_indices,
+):
+    """Return (local position, global id) pairs for arbitrary eval rows."""
+    shard_start = int(shard_start)
+    shard_length = int(shard_length)
+    global_length = int(global_length)
+    requested = [int(index) for index in eval_indices]
+    if len(requested) != len(set(requested)):
+        raise ValueError("eval_indices contains duplicates")
+    invalid = [index for index in requested if index < 0 or index >= global_length]
+    if invalid:
+        raise ValueError(f"eval_indices out of range: {invalid}")
+    requested = sorted(requested)
+    shard_end = shard_start + shard_length
+    return [
+        (index - shard_start, index)
+        for index in requested
+        if shard_start <= index < shard_end
+    ]
+
+
+def resolve_eval_decode_max_len(config):
+    """Use the observed target maximum unless the caller asks for another cap."""
+    requested = int(config.get("eval_max_len", 0) or 0)
+    if requested > 0:
+        return requested
+    observed_target_max = int(config.get("max_code_len", 0) or 0)
+    if observed_target_max > 0:
+        return observed_target_max
+    if hasattr(config, "CodeLen"):
+        return int(config.CodeLen)
+    return int(config["CodeLen"])
+
+
+def resolve_sufu_decoder_options(config):
+    """Resolve SuFu decoder features from model config, not task spelling."""
+    enable_coqview = bool(config.get("enable_coqview", False))
+    task = str(config.get("task", ""))
+    legacy_coqview_name = "sufucoqview" in task
+    return {
+        "type_check": bool(
+            config.get("force_sufu_type_check", False)
+            or enable_coqview
+            or legacy_coqview_name
+            or ("sufucoq" in task and not legacy_coqview_name)
+        ),
+        "add_type_ctx": enable_coqview or legacy_coqview_name,
+    }
+
+
 def split_data(process_num, tasktype):
     data = pickle.load(open(f"Utils/data/{args.task}/{tasktype}.pkl", "rb"))
+    if tasktype == "train" and args.get("include_debug", False):
+        debug_path = f"Utils/data/{args.task}/debug.pkl"
+        if not os.path.exists(debug_path):
+            raise FileNotFoundError(
+                f"--include_debug requested, but {debug_path} does not exist"
+            )
+        debug_rows = pickle.load(open(debug_path, "rb"))
+        if any(not row.get("debug_overlap", False) for row in debug_rows):
+            raise RuntimeError(f"Unmarked row found in debug split {debug_path}")
+        data.extend(debug_rows)
+        print(
+            "Included "
+            f"{len(debug_rows)} additional rows in the complete training set."
+        )
     add_zero_loss_padding = bool(
         tasktype == "train"
         and not args.eval
         and args.get("pad_train_shards_to_equal_batches", False)
     )
-    shards, original_lengths, padding_counts = partition_data_rows(
-        data,
-        process_num,
-        add_zero_loss_padding=add_zero_loss_padding,
-    )
+    requested_indices = parse_int_list(args.get("eval_indices", ""))
+    selected_problem_ids = None
+    if args.eval and requested_indices and tasktype == args.get("eval_split", "test"):
+        shards, selected_problem_ids, original_lengths, padding_counts = (
+            partition_selected_eval_rows(data, process_num, requested_indices)
+        )
+    else:
+        shards, original_lengths, padding_counts = partition_data_rows(
+            data,
+            process_num,
+            add_zero_loss_padding=add_zero_loss_padding,
+        )
     actual_lengths = [len(shard) for shard in shards]
     for i, shard in enumerate(shards):
         shard_path = os.path.join(args.runtime_dir, f"data_{tasktype}{i}.pkl")
@@ -506,6 +693,8 @@ def split_data(process_num, tasktype):
     commu.set(f"{tasktype}_data_len", actual_lengths)
     commu.set(f"{tasktype}_original_data_len", original_lengths)
     commu.set(f"{tasktype}_zero_loss_padding", padding_counts)
+    if selected_problem_ids is not None:
+        commu.set(f"{tasktype}_problem_ids", selected_problem_ids)
     print(f"{tasktype}_set length : {commu.get(f"{tasktype}_data_len")}, total length : {len(data)}")
     if any(padding_counts):
         print(
@@ -523,7 +712,15 @@ def finetune():
             args.CodeLen = taskconfig[key]
     for key, value in args.get("cli_overrides", {}).items():
         setattr(args, key, value)
-    model_output_task = args.get("model_output_task", "") or args.task
+    if args.get("evaluation_only", False) and not args.eval:
+        raise RuntimeError(
+            f"Task {args.task!r} is evaluation-only and cannot be used for fine-tuning."
+        )
+    model_output_task = args.get("model_output_task", "") or (
+        f"{args.task}_debug"
+        if args.get("include_debug", False)
+        else args.task
+    )
     runtime_key = "".join(
         ch if ch.isalnum() or ch in "._-" else "_" for ch in model_output_task
     )
@@ -535,11 +732,16 @@ def finetune():
     is_pretrain_task = args.task.startswith("pretrain")
 
     # Initialize accelerator & split train, dev, test data
+    accelerator_handlers = [
+        InitProcessGroupKwargs(timeout=timedelta(minutes=int(args.distributed_timeout_minutes)))
+    ]
+    if args.get("ddp_find_unused_parameters", False):
+        accelerator_handlers.append(
+            DistributedDataParallelKwargs(find_unused_parameters=True)
+        )
     accelerator = Accelerator(
         mixed_precision=args.precision,
-        kwargs_handlers=[
-            InitProcessGroupKwargs(timeout=timedelta(minutes=int(args.distributed_timeout_minutes)))
-        ],
+        kwargs_handlers=accelerator_handlers,
     )
     set_process_group_timeout(accelerator, args.distributed_timeout_minutes, "accelerator init")
     if accelerator.is_main_process:
@@ -579,6 +781,15 @@ def finetune():
         )
     args.rulenum = runtime_rulenum
     model.resize_token_embeddings(args.rulenum)
+    if args.get("train_only_expanded_embedding_rows", False):
+        expanded_rows = configure_expanded_embedding_only_training(
+            model, args.get("base_vocab_rows", 0)
+        )
+        if accelerator.is_main_process:
+            print(
+                "Embedding-only adaptation enabled: "
+                f"training {expanded_rows} expanded rows and freezing the backbone"
+            )
     
     # load dataset & print configuration
     train_set = SumDataset(args, "train", idx=accelerator.process_index)
@@ -657,6 +868,18 @@ def finetune():
             "learning_rate": args.lr, 
         },
     )
+    if accelerator.is_main_process:
+        logger.log(
+            {
+                "event": "training_configuration",
+                "base_seed": int(args.seed),
+                "rank_seeds": [
+                    int(args.seed) + rank
+                    for rank in range(accelerator.num_processes)
+                ],
+                "world_size": int(accelerator.num_processes),
+            }
+        )
     num_trial = patience = 0
     maxBleu = 0
     epoch_offset = int(args.get("epoch_offset", 0) or 0)
@@ -891,11 +1114,66 @@ def finetune():
                 loss, info = model(dBatch["nl"], dBatch["res"], dBatch["coqview"], 
                                    inputprefix=dBatch["prefix"] if args.cut_prefix else None)
             else:
+                forward_res = dBatch["res"]
+                if (
+                    local_padding_rows == int(dBatch["res"].size(0))
+                    and "distributed_zero_loss_padding_res" in dBatch
+                ):
+                    forward_res = dBatch["distributed_zero_loss_padding_res"]
                 loss, info = model(
                     dBatch["nl"],
-                    dBatch["res"],
+                    forward_res,
                     inputprefix=dBatch["prefix"] if args.cut_prefix and "prefix" in dBatch else None,
                 )
+                if local_padding_rows == int(dBatch["res"].size(0)):
+                    loss = loss * 0.0
+                # ``loss`` is a token mean computed independently on every
+                # distributed rank.  Logging only rank 0's scalar makes
+                # checkpoint selection depend on one data shard.  Reconstruct
+                # the global, non-padding token mean for metrics while keeping
+                # the original local loss for DDP backward semantics.
+                local_active_target_tokens = count_active_target_tokens(
+                    dBatch["res"],
+                    args.mask_id,
+                    has_prefix=bool(args.cut_prefix and "prefix" in dBatch),
+                )
+                gathered_active_target_tokens = accelerator.gather(
+                    torch.tensor(
+                        [local_active_target_tokens], device=device, dtype=torch.long
+                    )
+                )
+                gathered_rank_losses = accelerator.gather(
+                    loss.detach().float().reshape(1)
+                )
+                global_active_target_tokens = int(
+                    gathered_active_target_tokens.sum().item()
+                )
+                rank_losses = [
+                    float(value) for value in gathered_rank_losses.cpu().tolist()
+                ]
+                rank_active_target_tokens = [
+                    int(value)
+                    for value in gathered_active_target_tokens.cpu().tolist()
+                ]
+                global_token_weighted_loss = aggregate_distributed_token_mean(
+                    rank_losses, rank_active_target_tokens
+                )
+                distributed_loss_scale = distributed_token_mean_backward_scale(
+                    local_active_target_tokens,
+                    global_active_target_tokens,
+                    accelerator.num_processes,
+                )
+                info.update(
+                    {
+                        "local_rank_loss": float(loss.detach().item()),
+                        "global_token_weighted_loss": global_token_weighted_loss,
+                        "global_active_target_tokens": global_active_target_tokens,
+                        "rank_active_target_tokens": rank_active_target_tokens,
+                        "rank_losses": rank_losses,
+                        "distributed_token_mean_backward_scale": distributed_loss_scale,
+                    }
+                )
+                loss = loss * distributed_loss_scale
             info["distributed_zero_loss_padding_rows"] = local_padding_rows
             info["global_distributed_zero_loss_padding_rows"] = int(
                 gathered_padding_rows.sum().item()
@@ -932,8 +1210,11 @@ def finetune():
             optimizer.step()  
             optimizer.zero_grad()
             lr = optimizer.param_groups[0]["lr"]
+            metric_loss = float(
+                info.get("global_token_weighted_loss", loss.detach().item())
+            )
             batch_metrics = {
-                "loss": loss.item(),
+                "loss": metric_loss,
                 "lr": lr,
                 "epoch": epoch,
                 "batch": batch_num - 1,
@@ -955,13 +1236,19 @@ def finetune():
                 "distributed_zero_loss_padding_rows",
                 "global_distributed_zero_loss_padding_rows",
                 "rank_distributed_zero_loss_padding_rows",
+                "local_rank_loss",
+                "global_token_weighted_loss",
+                "global_active_target_tokens",
+                "rank_active_target_tokens",
+                "rank_losses",
+                "distributed_token_mean_backward_scale",
             ):
                 if key in info:
                     batch_metrics[key] = info[key]
             logger.log(batch_metrics)
             if epoch % args.eval_step == 0 and epoch >= args.eval_step_init:
                 logger.log({
-                    "loss_eval": loss.item(),
+                    "loss_eval": metric_loss,
                     "epoch": epoch,
                     "batch": batch_num - 1,
                 })
@@ -1058,7 +1345,17 @@ def testmodel(data_set, model, device, accelerator, newruledic):
     tasktype = data_set.dataName # valid or test
     shard_lengths = commu.get(f"{tasktype}_data_len")
     data_offset = sum(shard_lengths[:accelerator.process_index])
-    if (args.eval_start or args.eval_limit) and hasattr(data_set, "data"):
+    requested_indices = parse_int_list(args.get("eval_indices", ""))
+    if requested_indices:
+        problem_id_shards = commu.get(f"{tasktype}_problem_ids")
+        selected_problem_ids = [int(value) for value in problem_id_shards[accelerator.process_index]]
+        if len(selected_problem_ids) != len(data_set.data):
+            raise RuntimeError("preselected eval row/id shard length mismatch")
+    else:
+        selected_problem_ids = list(range(data_offset, data_offset + len(data_set.data)))
+    if requested_indices and (args.eval_start or args.eval_limit):
+        raise ValueError("eval_indices cannot be combined with eval_start/eval_limit")
+    if not requested_indices and (args.eval_start or args.eval_limit) and hasattr(data_set, "data"):
         local_start, local_end, selected_offset = distributed_eval_range_slice(
             shard_start=data_offset,
             shard_length=len(data_set.data),
@@ -1068,6 +1365,9 @@ def testmodel(data_set, model, device, accelerator, newruledic):
         )
         data_set.data = data_set.data[local_start:local_end]
         data_offset = selected_offset
+        selected_problem_ids = list(
+            range(selected_offset, selected_offset + len(data_set.data))
+        )
     print(f"Task type: {tasktype}")
     data_loader = torch.utils.data.DataLoader(
         dataset=data_set,
@@ -1079,11 +1379,16 @@ def testmodel(data_set, model, device, accelerator, newruledic):
         pin_memory=True,
     )
     
-    beamsize = 10
+    beamsize = int(args.get("beam_size", 10))
+    if beamsize < 1:
+        raise ValueError(f"beam_size must be positive, got {beamsize}")
+    eval_max_len = resolve_eval_decode_max_len(args)
     if "sufu" in args.task:
+        sufu_decoder_options = resolve_sufu_decoder_options(args)
         beam = BeamSearchSufu(beamsize, newruledic, tokenizer_obj=load_tokenizer_for_task(args.task), type_ctx_len=args.max_coqview_len,
-                              type_check=("sufucoq" in args.task and "sufucoqview" not in args.task),
-                              add_type_ctx=("sufucoqview" in args.task),
+                              length_penalty=args.length_penalty,
+                              type_check=sufu_decoder_options["type_check"],
+                              add_type_ctx=sufu_decoder_options["add_type_ctx"],
                               check_grammar=("sufunocheck" not in args.task),
                               candidate_multiplier=args.coq_candidate_multiplier,
                               disable_tqdm=args.disable_tqdm)
@@ -1103,12 +1408,13 @@ def testmodel(data_set, model, device, accelerator, newruledic):
             early_stop_max_first_final_len=args.early_stop_max_first_final_len,
             disable_tqdm=args.disable_tqdm,
         )
-    elif "coq" in args.task:
+    elif args.get("force_coq_decoder", False) or "coq" in args.task:
         beam = BeamSearchCoq(
             beamsize,
             newruledic,
             tokenizer_obj=load_tokenizer_for_task(args.task),
             checkcoq=not args.get("disable_coq_check", False),
+            final_only_coq_check=args.get("coq_final_only_check", False),
             candidate_multiplier=args.coq_candidate_multiplier,
             coq_workers=args.coq_workers,
             coq_timeout=args.coq_timeout,
@@ -1151,39 +1457,56 @@ def testmodel(data_set, model, device, accelerator, newruledic):
     accelerator.wait_for_everyone()
     model.eval()
     for index, dBatch in enumerate(data_loader):
-        offset = data_offset + index * batch_size
         batch_len = len(dBatch["nl"])
+        batch_problem_ids = selected_problem_ids[
+            index * batch_size : index * batch_size + batch_len
+        ]
         if args.resume_output:
             all_done = True
-            for i in range(batch_len):
+            for problem_id in batch_problem_ids:
                 for k in range(beamsize):
-                    if not output_candidate_complete(f"{target_folder}{offset+i}_{k}.txt"):
+                    if not output_candidate_complete(f"{target_folder}{problem_id}_{k}.txt"):
                         all_done = False
                         break
                 if not all_done:
                     break
             if all_done:
-                print(f"{offset} to {offset + batch_len - 1} already exists in {target_folder}")
+                print(f"{batch_problem_ids} already exist in {target_folder}")
                 continue
         with accelerator.autocast():
             ans = beam.search(
                 dBatch["nl"].to(device).repeat_interleave(beamsize, dim=0),
                 model,
-                max_len=args.CodeLen,
-                desc=f"Problem {offset}-{offset+batch_len-1}",
-                offset=offset,
+                max_len=eval_max_len,
+                desc=f"Problems {batch_problem_ids}",
+                offset=batch_problem_ids[0] if batch_problem_ids else 0,
+                problem_ids=batch_problem_ids,
                 init_tokens=dBatch["prefix"].to(device) if "prefix" in dBatch else None,
             )
         for i in range(len(ans)):
+            problem_id = batch_problem_ids[i]
             for k in range(beamsize):
-                file_path = f"{target_folder}{offset+i}_{k}.txt"
+                file_path = f"{target_folder}{problem_id}_{k}.txt"
                 if k >= len(ans[i].final_set):
                     if os.path.exists(file_path):
                         os.remove(file_path)
                     continue
                 with open(file_path, "w") as f:
                     f.write(ans[i].final_set[k])
-        print(f"{offset} to {offset + batch_len - 1} saved to {target_folder}")
+            if hasattr(ans[i], "final_metadata"):
+                score_path = f"{target_folder}{problem_id}_beam_scores.json"
+                with open(score_path, "w") as f:
+                    json.dump(
+                        {
+                            "problem_id": problem_id,
+                            "beam_size": beamsize,
+                            "candidates": ans[i].final_metadata,
+                        },
+                        f,
+                        indent=2,
+                        sort_keys=True,
+                    )
+        print(f"{batch_problem_ids} saved to {target_folder}")
                   
 if __name__ == "__main__":
     np.set_printoptions(threshold=sys.maxsize)
@@ -1193,6 +1516,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_time", type=str, default="")
     parser.add_argument("--checkpoint_epoch", type=int, default=200)
     parser.add_argument("--no_swanlab", action="store_true")
+    parser.add_argument("--include_debug", action="store_true")
     parser.add_argument("--max_epoch", type=int)
     parser.add_argument("--epoch_offset", type=int)
     parser.add_argument("--batch_size", type=int)
@@ -1213,18 +1537,26 @@ if __name__ == "__main__":
     parser.add_argument("--coq_workers", type=int)
     parser.add_argument("--coq_timeout", type=int)
     parser.add_argument("--disable_coq_check", action="store_true")
+    parser.add_argument("--coq_final_only_check", action="store_true")
     parser.add_argument("--length_penalty", type=float)
+    parser.add_argument("--beam_size", type=int)
     parser.add_argument("--early_stop_after_final_steps", type=int)
     parser.add_argument("--early_stop_max_first_final_len", type=int)
     parser.add_argument("--eval_split", type=str, choices=["train", "valid", "test"], default="test")
     parser.add_argument("--eval_start", type=int)
     parser.add_argument("--eval_limit", type=int)
+    parser.add_argument("--eval_indices", type=str)
+    parser.add_argument("--eval_max_len", type=int)
     parser.add_argument("--resume_output", action="store_true")
     parser.add_argument("--disable_tqdm", action="store_true")
+    parser.add_argument("--force_coq_decoder", action="store_true")
+    parser.add_argument("--force_sufu_type_check", action="store_true")
     parser.add_argument("--save_last_only", action="store_true")
+    parser.add_argument("--pad_train_shards_to_equal_batches", action="store_true")
     parser.add_argument("--train_num_workers", type=int)
     parser.add_argument("--eval_num_workers", type=int)
     parser.add_argument("--distributed_timeout_minutes", type=int)
+    parser.add_argument("--ddp_find_unused_parameters", action="store_true", default=None)
     parser.add_argument("--coqview_suffix_replay_steps", type=int)
     parser.add_argument("--coqview_suffix_replay_repeats", type=int)
     parser.add_argument("--coqview_extra_window_offsets", type=str)
@@ -1235,6 +1567,8 @@ if __name__ == "__main__":
     parser.add_argument("--coqview_eval_mode_for_loss", action=argparse.BooleanOptionalAction, default=None)
     parser.add_argument("--coqview_skip_backward_for_debug", action=argparse.BooleanOptionalAction, default=None)
     parser.add_argument("--coqview_manual_distributed", action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument("--train_only_expanded_embedding_rows", action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument("--base_vocab_rows", type=int)
     argc = parser.parse_args()
     # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl, mbjpcoq_770m, mbjpcoqview_770m
     # humaneval_blind, humanevalcoq, humanevalcoqview
@@ -1246,6 +1580,6 @@ if __name__ == "__main__":
         args.train_time = argc.train_time
         args.checkpoint_epoch = argc.checkpoint_epoch
     args.no_swanlab = argc.no_swanlab
-    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "length_penalty", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "resume_output", "disable_tqdm", "save_last_only", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed"]
+    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "coq_final_only_check", "length_penalty", "beam_size", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "eval_indices", "eval_max_len", "resume_output", "disable_tqdm", "force_coq_decoder", "force_sufu_type_check", "save_last_only", "pad_train_shards_to_equal_batches", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "ddp_find_unused_parameters", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed", "train_only_expanded_embedding_rows", "base_vocab_rows", "include_debug"]
     args.cli_overrides = {key: getattr(argc, key) for key in override_keys if getattr(argc, key) is not None}
     finetune()

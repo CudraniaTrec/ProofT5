@@ -1,0 +1,161 @@
+{
+  "package": "prooft5_java_major_revision_20260824",
+  "frozen_at_utc": "2026-08-24",
+  "reporting_contract": {
+    "validation_rows": 0,
+    "candidate_order": "the same ordered ten candidates are used for pass@1 and pass@10",
+    "checkpoint_selection": "training diagnostics only; the frozen test is not used for checkpoint selection",
+    "prooft5_train_evaluation_status": "not run; no ProofT5 train score is reported",
+    "humaneval_warning": "The 146/0/16 split is exploratory and ancestor-mixed. Report the matched lineage-unseen 11-problem comparison beside it.",
+    "gfg_warning": "Problem 44 failed to terminate after more than two hours in isolation. It is counted fail-closed as ten failed candidates, preserving the 103-problem denominator."
+  },
+  "datasets": {
+    "mbjp": {
+      "split": [608, 0, 67],
+      "proof_train": "Utils/data/mbjp_humaneval_half_train_t5gemma2_20260731/train.pkl",
+      "proof_train_sha256": "3fb0bd1ffcbd3e4595c6b2e38a4d55bbb2b37ac95eb2de9fdcdf7b05321cdfe8",
+      "proof_test": "Utils/data/mbjp_original_test_t5gemma2_20260731/test.pkl",
+      "proof_test_sha256": "13a9fde62ed43632f91e1a363922806e4057cd9230ea9202a4e82f5566e69609",
+      "plain_train": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+      "plain_test": "t5_llm/data/java_mbjp_original_test_t5.json"
+    },
+    "humaneval_java_v15": {
+      "split": [146, 0, 16],
+      "task": "Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+      "ordinary_training_task": "Utils/data/java_mbjp_humaneval_semanticsupport1082_v15_pair_t5gemma2_20260822",
+      "ordinary_test_adapter_task": "Utils/data/java_humaneval_v15_semanticsupport_plain_selected_test16_eval_20260822",
+      "train_sha256": "9251c16a4a1dc8859f7f0b025fb229528ddff6483625d26a5fcd55a4508de85e",
+      "test_sha256": "38be37d0c76bf708cf67413fab7d993a140241998442db23687e4d3d6ba58b79",
+      "split_manifest_copy": "artifacts/major_revision_20260824/audits/humaneval_v15_split_manifest.json",
+      "ancestor_overlap_audit_copy": "artifacts/major_revision_20260824/audits/humaneval_v15_ancestor_overlap.json"
+    },
+    "transcoder_gfg_v13": {
+      "split": [414, 0, 103],
+      "task": "Utils/data/java_transcoder_gfg_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13",
+      "ordinary_training_task": "Utils/data/java_mbjp_transcoder_gfg_mbjp_native_prompt2164_v13_exposure3_pair_t5gemma2_20260819",
+      "ordinary_test_adapter_task": "Utils/data/java_transcoder_gfg_v13_mbjp_native_plain_stage2_test_eval_20260819",
+      "ordinary_train_adapter_task": "Utils/data/java_transcoder_gfg_v13_mbjp_native_plain_stage2_trainfull414_eval_20260819",
+      "train_sha256": "35db3eaf1b57f7aa1a7d2f3ec6fef7e09570636c0bfd1866ff419562effc7421",
+      "test_sha256": "454c459a867b6c258ee1b6308e09d0433c002dfce641cbcff242267eed53b7e4",
+      "split_manifest_copy": "artifacts/major_revision_20260824/audits/transcoder_gfg_v13_split_manifest.json"
+    },
+    "prooft5_dual_curriculum": {
+      "split": [1082, 0, 0],
+      "task": "Utils/data/java_humaneval_v15_transcoder_v13_dual1082_t5gemma2_20260823",
+      "train_sha256": "99c24b9c0646155cb9e6fa4cca647b91878de97a474f87706596433d966f7712",
+      "composition": "541 HumanEval occurrences + 541 GFG occurrences; train-only balanced replay",
+      "curriculum_manifest_copy": "artifacts/major_revision_20260824/audits/prooft5_dual_curriculum_manifest.json"
+    }
+  },
+  "checkpoints": {
+    "mbjp_t5gemma2": {
+      "path": "t5_llm/models/t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview/20260811_after_clean_coqview/epoch_20",
+      "manifest_sha256": "18150d66e60fba84f99d48668af16a495fc5809ec96e04e4f21b3d0e1c6c517f"
+    },
+    "mbjp_prooft5": {
+      "path": "Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt",
+      "sha256": "610644af2d599a7105450c9ecd1afbe30f127863374ebe95b9620d6e9fe39e48"
+    },
+    "humaneval_v15_t5gemma2": {
+      "path": "t5_llm/models/t5gemma2-2b_java_mbjp_humaneval_semanticsupport1082_v15_plain_selected_20260822",
+      "manifest_sha256": "21ff18f2b452eaf1513ad06083956258a7435eccdb9de2eabe1d660785cdfed9"
+    },
+    "transcoder_gfg_v13_t5gemma2": {
+      "path": "t5_llm/models/t5gemma2-2b_java_mbjp_transcoder_gfg_mbjp_native_prompt2164_v13_exposure3_pair_frombase_stage2_selected_20260819",
+      "manifest_sha256": "627e37c625ea00827e9b5e492c92252d1778b2dce1df0a9a21fe2cfcf998096b"
+    },
+    "humaneval_v15_and_gfg_v13_prooft5": {
+      "path": "Utils/models/Modeljoint23_dual_hegfg_from_heonly_lr2e6_p5_20260823/last_model.ckpt",
+      "sha256": "6740c1f15dfbc6fabcc55ceafa2f6d5624d9e3197336c1bcdc58acb6ae3e2791"
+    }
+  },
+  "test_results": [
+    {
+      "benchmark": "MBJP",
+      "model": "T5Gemma2",
+      "denominator": 67,
+      "pass1": [9, 67],
+      "pass10": [22, 67],
+      "score": "artifacts/major_revision_20260824/scores/mbjp_t5gemma2_test.json",
+      "candidate_output": "Utils/output/diagnostic_plain_epoch20_trainloss_mbjp_b10_20260811_java_mbjp_test_test_ans/diagnostic_plain_epoch20_trainloss_mbjp_b10_20260811",
+      "candidate_tree_sha256": "d34d227dc9c82d20870755ffeeef6b90ef69f1dd2990166de5f5d351f51064ef"
+    },
+    {
+      "benchmark": "MBJP",
+      "model": "ProofT5",
+      "denominator": 67,
+      "pass1": [17, 67],
+      "pass10": [29, 67],
+      "score": "artifacts/major_revision_20260824/scores/mbjp_prooft5_test.json",
+      "candidate_output": "Utils/output/mbjp_original_test_t5gemma2_20260731_test_ans/cleanrepro_coq_mbjp_final_b10_lp0p1_20260811",
+      "candidate_tree_sha256": "ac5410b7f9396c0c67bcf538d6d2c5f84954a7c758450a4f46bdf137ebd7d477"
+    },
+    {
+      "benchmark": "HumanEval-Java v15",
+      "model": "T5Gemma2",
+      "denominator": 16,
+      "pass1": [2, 16],
+      "pass10": [4, 16],
+      "score": "artifacts/major_revision_20260824/scores/humaneval_v15_t5gemma2_test.json",
+      "candidate_output": "Utils/output/java_humaneval_v15_semanticsupport_plain_selected_test16_eval_20260822_test_ans/v15_he_semanticsupport_plain_selected_test16_20260822",
+      "candidate_tree_sha256": "cc1931ef341fa4cf56bd81985dff4588b0393cc7f00fe3d477164f8940cccece"
+    },
+    {
+      "benchmark": "HumanEval-Java v15",
+      "model": "ProofT5",
+      "denominator": 16,
+      "pass1": [8, 16],
+      "pass10": [9, 16],
+      "score": "artifacts/major_revision_20260824/scores/humaneval_v15_prooft5_test.json",
+      "candidate_output": "Utils/output/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15_test_ans/joint23_dual_hegfg_hev15_strict16_merged_20260823",
+      "candidate_tree_sha256": "00f7573ca54a1579fe9edd7dd971eec4b6d2f010f6cc7de22cd0ea369c1dd8be"
+    },
+    {
+      "benchmark": "TransCoder-GFG v13",
+      "model": "T5Gemma2",
+      "denominator": 103,
+      "pass1": [14, 103],
+      "pass10": [28, 103],
+      "score": "artifacts/major_revision_20260824/scores/transcoder_gfg_v13_t5gemma2_test.json",
+      "candidate_output": "Utils/output/java_transcoder_gfg_v13_mbjp_native_plain_stage2_test_eval_20260819_test_ans/v13_gfg_mbjp_native_plain_stage2_selected_test103_20260819",
+      "candidate_tree_sha256": "1686cf7c1ad5868f2ad075b2bd484769b9c155287d088de50435dce433a80ce3"
+    },
+    {
+      "benchmark": "TransCoder-GFG v13",
+      "model": "ProofT5",
+      "denominator": 103,
+      "pass1": [31, 103],
+      "pass10": [48, 103],
+      "score": "artifacts/major_revision_20260824/scores/transcoder_gfg_v13_prooft5_test_failclosed.json",
+      "candidate_output": "Utils/output/java_transcoder_gfg_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13_test_ans/joint23_dual_gfgv13_strict103_partial102_20260824",
+      "candidate_tree_sha256": "6f42e335e0aa8fbbc14d7ff25c8f6c9841de35847949b562306d517bd93a0e67",
+      "fail_closed_problem_ids": [44]
+    }
+  ],
+  "ordinary_train_results": {
+    "MBJP": {"pass1": [506, 608], "pass10": [564, 608], "score": "artifacts/major_revision_20260824/scores/mbjp_t5gemma2_train.json"},
+    "HumanEval-Java v15": {"pass1": [145, 146], "pass10": [145, 146], "score": "artifacts/major_revision_20260824/scores/humaneval_v15_t5gemma2_train.json"},
+    "TransCoder-GFG v13": {"pass1": [408, 414], "pass10": [411, 414], "score": "artifacts/major_revision_20260824/scores/transcoder_gfg_v13_t5gemma2_train.json"}
+  },
+  "package_file_sha256": {
+    "scores/mbjp_t5gemma2_train.json": "2bdba990c595762671d71a63fa99d71cef1453c9a71ecddc4b4d07ddbffaae24",
+    "scores/mbjp_t5gemma2_test.json": "f4e5aa90bb5fd2531c2d8b9c411d6c41647fb5f389def6b42500046761c285ce",
+    "scores/mbjp_prooft5_test.json": "d0e7cdfc28a51d816df174d482ed9b08e326e71f238118e35efbedc504005298",
+    "scores/humaneval_v15_t5gemma2_train.json": "a5209883dbb2ad0ca32282280d21c42ccadc905b5d5ebfcbe60bf6ef7e20d7be",
+    "scores/humaneval_v15_t5gemma2_test.json": "eb7c2b58b561966c5b535961eb6047e76ed44a48b332e62167a37ca2d9dc5f82",
+    "scores/humaneval_v15_prooft5_test.json": "f3a1db0e3f095ffd97a04dffc29f2ee4ab0e8c821b960f45d2d30be541f36f1d",
+    "scores/humaneval_v15_t5gemma2_lineage_unseen11.json": "b6a2361582dbdeb5123359dbd4b8542db1c2b1fdebe5e63e495d3e388c481e29",
+    "scores/humaneval_v15_prooft5_lineage_unseen11.json": "47ead7cca26564ccf6bc85bb02ac0f5621f777b02f2aea39a586eca64307f48c",
+    "scores/transcoder_gfg_v13_t5gemma2_train.json": "0360ddccb1d5fdb69dcb4c2af3a9ac6fc1ac17476a8a1dfba9a7a7d9fb0060d0",
+    "scores/transcoder_gfg_v13_t5gemma2_test.json": "6e86f24dc1f7faf17a02440c7f9887b2a37cc088f854ce44b4f2929baff871fe",
+    "scores/transcoder_gfg_v13_prooft5_test_failclosed.json": "f632a97414cbadc7dd9b5f43cd3f78a36e4b221294c9e5a65a4699ffd988bcac",
+    "audits/clean_java_reproduction_ledger.json": "e60b975e1ae9ce65dc769b0859922a805a28130bceb21f33d0088a0e216621ca",
+    "audits/humaneval_v15_ancestor_overlap.json": "6668e41a10c8c4870592ec3d311a25cd005fa783b58346773e4d10f4012f16c8",
+    "audits/humaneval_v15_split_manifest.json": "d86fcc82c632a0bcb6f145e81d427568ddf6328df9b9376a7afab1a9a5638671",
+    "audits/humaneval_v15_parent_safe_split_manifest.json": "d86fcc82c632a0bcb6f145e81d427568ddf6328df9b9376a7afab1a9a5638671",
+    "audits/transcoder_gfg_v13_split_manifest.json": "eb5b353d7c3086858828ec437867ad409e8ef07348679f0475e8d2d0296716cc",
+    "audits/transcoder_gfg_v13_semantic_signature_manifest.json": "e9db768ab747d50abf6286d61f7091dae962213417c7a828716c113e978a060d",
+    "audits/prooft5_dual_curriculum_manifest.json": "2247a9d5a957c64273073304461e94262cf2ef938246225e5a600578b82e39dc",
+    "audits/prooft5_dual_training_metrics.jsonl": "d6bfdff8fb687c23c21823f85d0812aefefd5e6b7e28e234c05de4db7151bd75"
+  }
+}

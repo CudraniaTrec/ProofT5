@@ -1,0 +1,23 @@
+{
+  "eclipse_jdt_ls": {
+    "commit": "37b8de3419e844b5b4543924a82c7c00bb0b0865",
+    "path": "third_party/baselines/eclipse.jdt.ls",
+    "url": "https://github.com/UniverseFly/eclipse.jdt.ls.git"
+  },
+  "llmloop": {
+    "commit": "85d809739a34e84e4a7ff687ec6ec28a3822ef27",
+    "path": "third_party/baselines/llmloop",
+    "url": "https://github.com/ravinravi03/LLMLOOP.git"
+  },
+  "repilot": {
+    "commit": "545cfe86de3b3674eb11f9edd48b50cb96d4d9e6",
+    "path": "third_party/baselines/repilot",
+    "url": "https://github.com/ise-uiuc/Repilot.git"
+  },
+  "syncode": {
+    "commit": "4d6c110a028d3fb9cbb5f1a6ac6446b696f3eac4",
+    "path": "third_party/baselines/syncode",
+    "url": "https://github.com/structuredllm/syncode.git",
+    "version": "0.4.16"
+  }
+}

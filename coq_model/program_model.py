@@ -303,7 +303,7 @@ class TacticMeta(type):
             self.complete = False
             original_init(self, *args, **kwargs)
         cls.__init__ = new_init
-    
+
 class Type(metaclass=TypeMeta):
     terms_need = []
 class Term(metaclass=TacticMeta):
@@ -2073,18 +2073,23 @@ class StConcat(Statement):
         return CoqProof("T_Concat", children=[self.statement1.to_coq(), self.statement2.to_coq()])
     
     def to_code(self):
-        if self.statement2.to_code() == "skip":
-            return self.statement1.to_code()
-        else:
-            return f"{self.statement1.to_code()};\n{self.statement2.to_code()}"
+        statement2 = self.statement2.to_code()
+        statement1 = self.statement1.to_code()
+        if statement2 == "skip":
+            return statement1
+        return f"{statement1};\n{statement2}"
     
     def to_java(self, context={}):
-        if self.statement2.to_java(context) == "":
-            return self.statement1.to_java(context)
-        else:
-            if "comma" in context and context["comma"]:
-                return f"{self.statement1.to_java(context)}, {self.statement2.to_java(context)}"
-            return f"{self.statement1.to_java(context)}\n{self.statement2.to_java(context)}"
+        # Render each subtree exactly once.  Calling statement2.to_java()
+        # both for the empty check and again for interpolation makes a
+        # right-deep StConcat tree perform exponentially repeated work.
+        statement2 = self.statement2.to_java(context)
+        statement1 = self.statement1.to_java(context)
+        if statement2 == "":
+            return statement1
+        if "comma" in context and context["comma"]:
+            return f"{statement1}, {statement2}"
+        return f"{statement1}\n{statement2}"
 
 # Program level
 class PgUnk(Program):

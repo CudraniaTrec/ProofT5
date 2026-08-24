@@ -112,6 +112,11 @@ def rs_collate_fn(batch, cut_prefix=False):
     rbatch['coqview'] = torch.tensor(batch_coqview)
     if any(batch_distributed_padding):
         padding_mask = torch.tensor(batch_distributed_padding, dtype=torch.bool)
+        # Keep valid targets for the forward graph.  Padding-only distributed
+        # batches use these targets and zero the resulting scalar loss in
+        # run.py, avoiding NaN from an all-ignore target tensor while still
+        # executing the same model graph on every rank.
+        rbatch['distributed_zero_loss_padding_res'] = rbatch['res'].clone()
         rbatch['res'][padding_mask] = PAD_token
         rbatch['distributed_zero_loss_padding'] = padding_mask
     return rbatch
@@ -136,10 +141,13 @@ class SumDataset(data.Dataset):
         leng = [ len(x['rulelist']) for x in self.data]
         leng2 = [ len(x['nl']) for x in self.data]
         print(f"{dataName} set({idx}) length: {len(self.data)}")
-        print(f"{dataName} set({idx}) mean rulelist length: {np.mean(leng)}")
-        print(f"{dataName} set({idx}) max rulelist length: {np.max(leng)}")
-        print(f"{dataName} set({idx}) mean nl length: {np.mean(leng2)}")
-        print(f"{dataName} set({idx}) max nl length: {np.max(leng2)}")
+        if self.data:
+            print(f"{dataName} set({idx}) mean rulelist length: {np.mean(leng)}")
+            print(f"{dataName} set({idx}) max rulelist length: {np.max(leng)}")
+            print(f"{dataName} set({idx}) mean nl length: {np.mean(leng2)}")
+            print(f"{dataName} set({idx}) max nl length: {np.max(leng2)}")
+        else:
+            print(f"{dataName} set({idx}) is empty")
 
     def __getitem__(self, offset):
         return self.data[offset]

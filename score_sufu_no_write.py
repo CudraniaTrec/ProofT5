@@ -20,8 +20,11 @@ SUFU_EXECUTOR_CMD = (
 WORKDIR_COMPONENT_LIMIT = 120
 
 
-def score_work_root(task, split, output_tag):
-    raw_name = f"{task}_{split}_{output_tag}"
+def score_work_root(task, split, output_tag, selection_scope="all"):
+    # Different subsets of the same generated output may be scored in
+    # parallel.  Keep their executor sandboxes disjoint so one scorer cannot
+    # delete another scorer's files during initial cleanup.
+    raw_name = f"{task}_{split}_{output_tag}_{selection_scope}"
     digest = hashlib.sha256(raw_name.encode("utf-8")).hexdigest()[:16]
     readable = "".join(
         char if char.isalnum() or char in "._-" else "_" for char in raw_name
@@ -62,8 +65,32 @@ def read_candidate(output_dir, idx, cand_idx):
     return None, None
 
 
+def compare_executor_output(actual, expected, test_code, test_results_only=False):
+    if not test_results_only:
+        return actual == expected
+    test_count = sum(
+        1 for line in test_code.splitlines() if line.strip().endswith(";")
+    )
+    if test_count <= 0:
+        raise ValueError("cannot compare test results without test statements")
+    actual_lines = [line.strip() for line in actual.splitlines() if line.strip()]
+    expected_lines = [line.strip() for line in expected.splitlines() if line.strip()]
+    if len(actual_lines) < test_count or len(expected_lines) < test_count:
+        return False
+    return actual_lines[-test_count:] == expected_lines[-test_count:]
+
+
 def test_candidate(job):
-    idx, cand_idx, output_dir, test_code, expected_output, work_root, timeout = job
+    (
+        idx,
+        cand_idx,
+        output_dir,
+        test_code,
+        expected_output,
+        work_root,
+        timeout,
+        test_results_only,
+    ) = job
     path, gen_code = read_candidate(output_dir, idx, cand_idx)
     if path is None:
         return idx, cand_idx, "missing"
@@ -90,7 +117,14 @@ def test_candidate(job):
             return (
                 idx,
                 cand_idx,
-                "success" if output == expected_output else "failed",
+                "success"
+                if compare_executor_output(
+                    output,
+                    expected_output,
+                    test_code,
+                    test_results_only=test_results_only,
+                )
+                else "failed",
             )
 
         with open(test_path, "w") as f:
@@ -117,6 +151,14 @@ def main():
     parser.add_argument("--pass_at_k", type=int, default=10)
     parser.add_argument("--workers", type=int, default=32)
     parser.add_argument("--timeout", type=float, default=1.0)
+    parser.add_argument(
+        "--compare_test_results_only",
+        action="store_true",
+        help=(
+            "Compare only the trailing interpreter results produced by test "
+            "statements, ignoring declarations and generated identifier names."
+        ),
+    )
     parser.add_argument("--only_completed_top0", action="store_true")
     parser.add_argument("--indices", default="")
     parser.add_argument("--limit", type=int, default=0)
@@ -140,7 +182,16 @@ def main():
     if not os.path.isdir(output_dir):
         raise FileNotFoundError(output_dir)
 
-    work_root = score_work_root(args.task, args.split, args.output_tag)
+    selection_scope = json.dumps(
+        {
+            "indices": args.indices,
+            "limit": args.limit,
+            "only_completed_top0": args.only_completed_top0,
+            "pass_at_k": args.pass_at_k,
+        },
+        sort_keys=True,
+    )
+    work_root = score_work_root(args.task, args.split, args.output_tag, selection_scope)
     if os.path.exists(work_root):
         shutil.rmtree(work_root)
     os.makedirs(work_root, exist_ok=True)
@@ -182,6 +233,7 @@ def main():
                     row["output"],
                     work_root,
                     args.timeout,
+                    args.compare_test_results_only,
                 )
             )
 
@@ -203,6 +255,8 @@ def main():
     timeouts = 0
     first_success_pos = []
     avg_candidate_success_num = 0
+    timeout_candidate_ids = []
+    compile_error_candidate_ids = []
 
     for idx in selected_indices:
         statuses = [status for _, status in per_problem[idx]]
@@ -213,6 +267,16 @@ def main():
         total_tested += sum(1 for status in statuses if status not in {"missing", "ignored"})
         success_positions = [cand_idx for cand_idx, status in per_problem[idx] if status == "success"]
         avg_candidate_success_num += len(success_positions)
+        timeout_candidate_ids.extend(
+            [idx, cand_idx]
+            for cand_idx, status in per_problem[idx]
+            if status == "timeout"
+        )
+        compile_error_candidate_ids.extend(
+            [idx, cand_idx]
+            for cand_idx, status in per_problem[idx]
+            if status == "compile_error"
+        )
         if success_positions:
             solved.append(idx)
             first_success_pos.append(success_positions[0])
@@ -241,6 +305,9 @@ def main():
         "problems": prob_cnt,
         "problem_ids": selected_indices,
         "pass_at_k": args.pass_at_k,
+        "output_comparison": (
+            "test_results_only" if args.compare_test_results_only else "full_stdout"
+        ),
         "pass1": pass1,
         f"pass{args.pass_at_k}": passk,
         "compile_error_rate": ce_rate,
@@ -253,6 +320,8 @@ def main():
         "missing_problem_output_ids": missing_problem_output_ids,
         "ignored": ignored,
         "timeouts": timeouts,
+        "timeout_candidate_ids": timeout_candidate_ids,
+        "compile_error_candidate_ids": compile_error_candidate_ids,
         "top1_solved": top1_solved,
         "solved": solved,
         "first_success_pos": first_success_pos,

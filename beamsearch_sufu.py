@@ -126,6 +126,38 @@ class SearchNode:
     def to_str(self):
         return self.node.to_str({})
 
+    def is_type_correct(self):
+        """Validate a completed AST independently of incremental context updates."""
+        if self.node is None or not self.isfinish or self.terms_need:
+            return False
+        try:
+            self.node.type_check(TypeCtx())
+            return True
+        except Exception as exc:
+            logger.info("reject completed ill-typed SuFu candidate: %s", exc)
+            return False
+
+    def is_surface_type_correct(self):
+        """Validate the exact surface program that will be written to disk.
+
+        The incremental AST is the source of the rendered program, but the
+        surface printer and parser are a second semantic boundary.  Reparse
+        the rendered text so an inconsistency in incremental completeness or
+        printing cannot leak an unbound/ill-typed candidate into evaluation.
+        """
+        if self.node is None or not self.isfinish or self.terms_need:
+            return False
+        try:
+            code = self.to_str()
+            tree = parser.parse(code.encode("utf-8"))
+            if tree.root_node.has_error:
+                raise AssertionError(tree.root_node.sexp())
+            visit(tree.root_node, {"code": code}).type_check(TypeCtx())
+            return True
+        except Exception as exc:
+            logger.info("reject invalid rendered SuFu candidate: %s", exc)
+            return False
+
 # Set contains at most beamsize complete nodes w/ the highest probability
 class finishsetBm:
     def __init__(self, beamsize, length_penalty=0.1):
@@ -136,8 +168,11 @@ class finishsetBm:
         self.minidx = -1
 
     def add(self, node):
-        score = node.prob / (len(node.state) ** self.length_penalty)
+        raw_prob = float(node.prob)
+        score = raw_prob / (len(node.state) ** self.length_penalty)
         if len(self.set) < self.beamsize:
+            node.raw_prob = raw_prob
+            node.normalized_score = score
             node.prob = score
             self.set.append(node)
             if score < self.minprob:
@@ -145,6 +180,8 @@ class finishsetBm:
                 self.minidx = len(self.set) - 1
         else:
             if score > self.minprob:
+                node.raw_prob = raw_prob
+                node.normalized_score = score
                 node.prob = score
                 self.set[self.minidx] = node
                 self.minprob = 1e10
@@ -154,21 +191,45 @@ class finishsetBm:
                         self.minprob = score
                         self.minidx = i
 
-    # check if any new nodes can be added to the set
-    def isfinish(self, prob, curlen):
+    # Check whether no *unfinished* node can enter the completed top-k set.
+    # `prob` is a non-positive cumulative log-probability.  For a positive
+    # length penalty, its score at the current length is not an upper bound:
+    # a longer continuation can be less negative after normalisation.  Use
+    # the largest reachable state length to avoid prematurely pruning it.
+    def isfinish(self, prob, curlen, max_len=None):
         if len(self.set) < self.beamsize:
             return False
+        if self.length_penalty > 0 and max_len is not None:
+            score_upper_bound = prob / (max_len**self.length_penalty)
         else:
-            if prob / (curlen**self.length_penalty) > self.minprob:
-                return False
-            else:
-                return True
+            score_upper_bound = prob / (curlen**self.length_penalty)
+        return score_upper_bound <= self.minprob
 
     def finalize(self):
-        self.set = sorted(self.set, key=lambda x: x.prob, reverse=True)
+        # A live partial AST is not a program. Returning it after max_len also
+        # bypasses the completed-candidate whole-program type guard.  Recheck
+        # the exact rendered surface program as a final write-boundary guard.
+        self.set = sorted(
+            [
+                node
+                for node in self.set
+                if node.isfinish and node.is_surface_type_correct()
+            ],
+            key=lambda x: x.prob,
+            reverse=True,
+        )
         self.final_set = []
+        self.final_metadata = []
         for node in self.set:
             self.final_set.append(node.to_str())
+            self.final_metadata.append(
+                {
+                    "raw_log_probability": node.raw_prob,
+                    "normalized_score": node.normalized_score,
+                    "scoring_length": len(node.state),
+                    "length_penalty": self.length_penalty,
+                }
+            )
 
 class BeamSearch:
     def __init__(self, beamsize, ruledict, length_penalty=0.1, type_ctx_len=155, 
@@ -198,11 +259,16 @@ class BeamSearch:
                offset=0, # offset of the task id
                standard = None, # standard output
                init_tokens = [], # init output tokens for each problem
+               problem_ids = None,
                ):
         actual = []
         if isinstance(model, torch.nn.parallel.DistributedDataParallel):
             model = model.module
         batch_size = inputnl.size(0) // self.beamsize
+        if problem_ids is None:
+            problem_ids = list(range(offset, offset + batch_size))
+        if len(problem_ids) != batch_size:
+            raise ValueError("problem_ids length does not match SuFu batch size")
         score = torch.zeros(batch_size, self.beamsize).to(inputnl.device)
         score.fill_(-1e10)  # size: batch_size, beamsize
         state_len = init_tokens.size(1)
@@ -321,7 +387,7 @@ class BeamSearch:
                         next_beam_id.append(0)
                     continue
 
-                prog_id = offset + j # task_id
+                prog_id = problem_ids[j]
                 maxscore = sortfinalscore[j, 0].item()
                 tmpbeam = []       # a list of search nodes for this beam, size <= beamsize
                 for k in range(topk):
@@ -344,6 +410,17 @@ class BeamSearch:
                         if self.check_grammar:
                             continue
                     if copynode.isfinish:
+                        # Incremental checks are deliberately permissive while
+                        # an AST field is incomplete.  Recheck the whole final
+                        # program and its exact rendered surface form before it
+                        # occupies a top-k completion slot.  Filtering only in
+                        # finalize() lets a high-scoring invalid candidate evict
+                        # a lower-scoring valid program.
+                        if self.type_check and (
+                            not copynode.is_type_correct()
+                            or not copynode.is_surface_type_correct()
+                        ):
+                            continue
                         finalbeams[j].add(copynode)
                     else:  # add new beam to the vairbles
                         next_input_ids.append(copynode.state)
@@ -358,7 +435,8 @@ class BeamSearch:
                         next_input_ids.append([0] * state_len)
                         next_input_coqviews.append([0] * self.type_ctx_len)
                         next_beam_id.append(0)
-                if finalbeams[j].isfinish(maxscore, state_len):
+                max_state_len = state_len + (max_len - index - 1)
+                if finalbeams[j].isfinish(maxscore, state_len, max_state_len):
                     endnum[j] = 1
                     complete_num += 1
                 beams[j] = tmpbeam
@@ -376,10 +454,6 @@ class BeamSearch:
             index += 1
         pbar.close()
 
-        for i in range(batch_size):
-            if len(finalbeams[i].set) ==0: # no valid proof
-                for j in range(len(beams[i])):
-                    finalbeams[i].add(beams[i][j])
         for i in range(batch_size):
             finalbeams[i].finalize()
         if verbose:

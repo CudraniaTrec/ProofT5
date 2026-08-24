@@ -1,0 +1,17 @@
+{
+  "policy": "held-out evaluation only",
+  "java": {
+    "dataset": "HumanEval",
+    "rows": 131,
+    "proof_task": "java_humaneval_external_t5gemma2_20260730",
+    "readable_file": "java_humaneval_131.json",
+    "baseline_file": "t5_llm/data/humaneval_external131_test_t5.json"
+  },
+  "sufu": {
+    "dataset": "synthetic v1 + structural v2",
+    "rows": 40,
+    "proof_task": "sufu_synthetic40_external_t5gemma2_20260731",
+    "readable_file": "sufu_synthetic_40.json",
+    "baseline_file": "t5_llm/data/sufu_synthetic40_test_t5.json"
+  }
+}

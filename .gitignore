@@ -27,6 +27,7 @@ SuFu/SuFu_origin
 *.log
 *.pid
 *.lock
+javac.*.args
 **/instruct_java.jsonl
 **/hemp_java_shuffle.json
 **/opencoder-sft-java.json
@@ -39,6 +40,11 @@ t5_llm/evaluator/
 /coq_model/Makefile.coq
 /coq_model/Makefile.coq.conf
 **/compile_error_list.json
+
+# Reproducible external checkouts and generated caches. Upstream revisions are
+# pinned in baselines/java_baselines/UPSTREAM_LOCK.json.
+/third_party/
+/cache/
 
 # Superseded local experiment notes and entry points.
 /MODEL_LINEAGE_T5GEMMA2_20260710.md

@@ -11,6 +11,20 @@ import Dataset
 from run import Dotdict, partition_data_rows
 
 
+def assert_exact_real_row_partition(shards, expected_rows, expected_padding):
+    real_ids = []
+    padding_rows = []
+    for shard in shards:
+        for row in shard:
+            if row.get("_distributed_zero_loss_padding", False):
+                padding_rows.append(row)
+            else:
+                real_ids.append(row["row_id"])
+    assert sorted(real_ids) == list(range(expected_rows))
+    assert len(real_ids) == len(set(real_ids)) == expected_rows
+    assert len(padding_rows) == expected_padding
+
+
 def main():
     sufu_rows = [{"row_id": row_id} for row_id in range(232)]
     sufu_shards, sufu_original_lengths, sufu_padding_counts = partition_data_rows(
@@ -22,6 +36,32 @@ def main():
     assert sufu_padding_counts == [0] * 8
     assert [len(shard) for shard in sufu_shards] == [29] * 8
 
+    complete_sufu_rows = [{"row_id": row_id} for row_id in range(281)]
+    complete_sufu_shards, complete_sufu_original, complete_sufu_padding = (
+        partition_data_rows(
+            complete_sufu_rows,
+            process_num=8,
+            add_zero_loss_padding=True,
+        )
+    )
+    assert complete_sufu_original == [35, 35, 35, 35, 35, 35, 35, 36]
+    assert complete_sufu_padding == [1, 1, 1, 1, 1, 1, 1, 0]
+    assert [len(shard) for shard in complete_sufu_shards] == [36] * 8
+    assert_exact_real_row_partition(complete_sufu_shards, 281, 7)
+
+    complete_java_rows = [{"row_id": row_id} for row_id in range(706)]
+    complete_java_shards, complete_java_original, complete_java_padding = (
+        partition_data_rows(
+            complete_java_rows,
+            process_num=8,
+            add_zero_loss_padding=True,
+        )
+    )
+    assert complete_java_original == [88, 88, 88, 88, 88, 88, 89, 89]
+    assert complete_java_padding == [1, 1, 1, 1, 1, 1, 0, 0]
+    assert [len(shard) for shard in complete_java_shards] == [89] * 8
+    assert_exact_real_row_partition(complete_java_shards, 706, 6)
+
     synthetic_rows = [{"row_id": row_id} for row_id in range(541)]
     shards, original_lengths, padding_counts = partition_data_rows(
         synthetic_rows,
@@ -32,16 +72,7 @@ def main():
     assert padding_counts == [1, 1, 1, 0, 0, 0, 0, 0]
     assert [len(shard) for shard in shards] == [68] * 8
 
-    original_ids = []
-    padded_rows = []
-    for shard in shards:
-        for row in shard:
-            if row.get("_distributed_zero_loss_padding", False):
-                padded_rows.append(row)
-            else:
-                original_ids.append(row["row_id"])
-    assert sorted(original_ids) == list(range(541))
-    assert len(padded_rows) == 3
+    assert_exact_real_row_partition(shards, 541, 3)
 
     task_dir = Path(
         "Utils/data/mbjpcoqview_t5gemma2_2b_corrected_from_java30_prefixpadfix_b1_20260718"
@@ -62,6 +93,7 @@ def main():
     padding_batch = Dataset.rs_collate_fn_cutprefix([padding_row])
     assert padding_batch["distributed_zero_loss_padding"].tolist() == [True]
     assert int(padding_batch["res"].ne(0).sum()) == 0
+    assert int(padding_batch["distributed_zero_loss_padding_res"].ne(0).sum()) > 0
     assert padding_batch["coqview"].ndim == 3
     assert padding_batch["coqview"].shape[1] == normal_batch["coqview"].shape[1]
     assert padding_batch["prefix"].shape == normal_batch["prefix"].shape
@@ -76,6 +108,10 @@ def main():
             "padding_coqview_shape": tuple(padding_batch["coqview"].shape),
             "sufu_original_lengths": sufu_original_lengths,
             "sufu_padding_counts": sufu_padding_counts,
+            "complete_java_original_lengths": complete_java_original,
+            "complete_java_padding_counts": complete_java_padding,
+            "complete_sufu_original_lengths": complete_sufu_original,
+            "complete_sufu_padding_counts": complete_sufu_padding,
         }
     )
 

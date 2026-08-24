@@ -1,6 +1,7 @@
 import argparse
 import io
 import json
+import os
 import pickle
 import sys
 from pathlib import Path
@@ -128,9 +129,12 @@ def check_java():
     original_open = getattr(beamsearch_coq, "open", None)
     original_makedirs = beamsearch_coq.os.makedirs
     original_runner = beamsearch_coq.test_coq_proof_with_timeout
+    coq_checks = []
     beamsearch_coq.open = lambda *args, **kwargs: io.StringIO()
     beamsearch_coq.os.makedirs = lambda *args, **kwargs: None
-    beamsearch_coq.test_coq_proof_with_timeout = lambda args: (True, "empty_context")
+    beamsearch_coq.test_coq_proof_with_timeout = lambda args: (
+        coq_checks.append(args) or (True, "empty_context")
+    )
     try:
         beam = beamsearch_coq.BeamSearch(
             1,
@@ -161,12 +165,23 @@ def check_java():
     assert_decoder_history(model.calls, prefix, suffix)
     assert all(call["inputcoqview"].shape == (1, 1, config.max_coqview_len) for call in model.calls)
     assert len(result) == 1 and len(result[0].final_set) == 1
+    # One initial-prefix check plus one score-leading candidate per decoding
+    # step (and at most one extra live continuation after the final program).
+    # The eager implementation checked both top-k expansions at every step
+    # despite beam size one and would make roughly twice as many calls here.
+    assert len(coq_checks) <= len(suffix) + 2
+    assert all(path for path, _timeout in coq_checks)
+    assert all(
+        Path(path).stem.endswith(f"_{os.getpid()}")
+        for path, _timeout in coq_checks
+    )
     return {
         "row_index": row_index,
         "prefix_len": len(prefix),
         "suffix_len": len(suffix),
         "decoder_calls": len(model.calls),
         "cache_reorders": len(model.cache.reorders),
+        "coq_checks": len(coq_checks),
         "final_candidates": len(result[0].final_set),
     }
 
@@ -210,6 +225,14 @@ def check_sufu():
         "cache_reorders": len(model.cache.reorders),
         "final_candidates": len(result[0].final_set),
     }
+
+
+def test_java_forced_gold_history_and_lazy_coq_checks():
+    check_java()
+
+
+def test_sufu_forced_gold_history_and_context_alignment():
+    check_sufu()
 
 
 def main():

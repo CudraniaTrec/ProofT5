@@ -1,0 +1,213 @@
+{
+  "dataset": "java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+  "mbjp_native_prompt_parent": "java_humaneval_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13",
+  "clean673_parent_split_manifest": "Utils/data/mbjp_humaneval_half_train_t5gemma2_20260731/split_manifest.json",
+  "reporting_label": "MBJP-native semantic-support 90/10 exploratory interpolation evaluation",
+  "train_rows": 146,
+  "validation_rows": 0,
+  "test_rows": 16,
+  "prompts_changed_from_v13": 0,
+  "gold_tests_changed_from_v13": 0,
+  "canonical_solutions_changed_from_v13": 0,
+  "ir_targets_changed_from_v13": 0,
+  "all_test_rows_have_exactly_three_visible_examples": true,
+  "policy": "exploratory MBJP-native fixed 90/10 semantic/IR-support interpolation; no validation",
+  "selection_uses_model_outputs": false,
+  "selection_uses_checkpoint_scores": false,
+  "selection_uses_execution_outcomes": false,
+  "selection_uses_test_outputs": false,
+  "selection_uses_gold_ir_grammar_shape": true,
+  "selection_uses_gold_lexemes_or_literals": false,
+  "forced_clean673_parent_train_rows": 0,
+  "clean673_parent_train_test_overlap": 5,
+  "train_summary": {
+    "rows": 146,
+    "return_categories": {
+      "boolean": 25,
+      "numeric": 46,
+      "other": 5,
+      "string_char": 24,
+      "structured": 46
+    },
+    "complex_signature_rows": 98,
+    "solution_word_length_median": 33.5,
+    "solution_word_length_mean": 40.56849315068493
+  },
+  "test_summary": {
+    "rows": 16,
+    "return_categories": {
+      "boolean": 3,
+      "numeric": 5,
+      "string_char": 3,
+      "structured": 5
+    },
+    "complex_signature_rows": 11,
+    "solution_word_length_median": 34.5,
+    "solution_word_length_mean": 48
+  },
+  "nearest_train_description_similarity": {
+    "minimum": 0.18627120961572435,
+    "median": 0.4194692913094259,
+    "mean": 0.4407249691788933,
+    "maximum": 0.7912057147051631
+  },
+  "nearest_train_ir_grammar_shape_similarity": {
+    "minimum": 0.5260403067567434,
+    "median": 0.8715145022151711,
+    "mean": 0.8590389408285706,
+    "maximum": 1.0
+  },
+  "nearest_train_similarity_product": {
+    "minimum": 0.1648267455135637,
+    "median": 0.3265186606766697,
+    "mean": 0.38455106102737896,
+    "maximum": 0.7767463349659278
+  },
+  "nearest_train_rows": [
+    {
+      "test_task_id": "HumanEval-Java/131",
+      "nearest_train_task_id": "HumanEval-Java/123",
+      "description_tfidf_cosine": 0.3137291445033803,
+      "ir_grammar_shape_tfidf_cosine": 0.8375650159439029,
+      "similarity_product": 0.2627685559180407,
+      "selection_protected_partner_task_id": "HumanEval-Java/123"
+    },
+    {
+      "test_task_id": "HumanEval-Java/157",
+      "nearest_train_task_id": "HumanEval-Java/71",
+      "description_tfidf_cosine": 0.43588527095540697,
+      "ir_grammar_shape_tfidf_cosine": 0.5260403067567434,
+      "similarity_product": 0.2292932216441285,
+      "selection_protected_partner_task_id": "HumanEval-Java/71"
+    },
+    {
+      "test_task_id": "HumanEval-Java/158",
+      "nearest_train_task_id": "HumanEval-Java/149",
+      "description_tfidf_cosine": 0.18627120961572435,
+      "ir_grammar_shape_tfidf_cosine": 0.884875047805829,
+      "similarity_product": 0.1648267455135637,
+      "selection_protected_partner_task_id": "HumanEval-Java/149"
+    },
+    {
+      "test_task_id": "HumanEval-Java/19",
+      "nearest_train_task_id": "HumanEval-Java/105",
+      "description_tfidf_cosine": 0.28427069838270297,
+      "ir_grammar_shape_tfidf_cosine": 0.9473930144922187,
+      "similarity_product": 0.26931607387259726,
+      "selection_protected_partner_task_id": "HumanEval-Java/105"
+    },
+    {
+      "test_task_id": "HumanEval-Java/75",
+      "nearest_train_task_id": "HumanEval-Java/31",
+      "description_tfidf_cosine": 0.3386084076497325,
+      "ir_grammar_shape_tfidf_cosine": 0.7983168316722903,
+      "similarity_product": 0.27031679117253377,
+      "selection_protected_partner_task_id": "HumanEval-Java/31"
+    },
+    {
+      "test_task_id": "HumanEval-Java/94",
+      "nearest_train_task_id": "HumanEval-Java/84",
+      "description_tfidf_cosine": 0.27989517306872475,
+      "ir_grammar_shape_tfidf_cosine": 0.7814206776423223,
+      "similarity_product": 0.21871587580817795,
+      "selection_protected_partner_task_id": "HumanEval-Java/84"
+    },
+    {
+      "test_task_id": "HumanEval-Java/10",
+      "nearest_train_task_id": "HumanEval-Java/48",
+      "description_tfidf_cosine": 0.5977505632540976,
+      "ir_grammar_shape_tfidf_cosine": 0.7845144494542181,
+      "similarity_product": 0.46894395404223715,
+      "selection_protected_partner_task_id": "HumanEval-Java/48"
+    },
+    {
+      "test_task_id": "HumanEval-Java/122",
+      "nearest_train_task_id": "HumanEval-Java/120",
+      "description_tfidf_cosine": 0.30232846326630225,
+      "ir_grammar_shape_tfidf_cosine": 0.7356551900899136,
+      "similarity_product": 0.22240950311376306,
+      "selection_protected_partner_task_id": "HumanEval-Java/120"
+    },
+    {
+      "test_task_id": "HumanEval-Java/155",
+      "nearest_train_task_id": "HumanEval-Java/107",
+      "description_tfidf_cosine": 0.4754995667513172,
+      "ir_grammar_shape_tfidf_cosine": 0.8581539566245132,
+      "similarity_product": 0.4080518345808847,
+      "selection_protected_partner_task_id": "HumanEval-Java/107"
+    },
+    {
+      "test_task_id": "HumanEval-Java/37",
+      "nearest_train_task_id": "HumanEval-Java/33",
+      "description_tfidf_cosine": 0.71776010921624,
+      "ir_grammar_shape_tfidf_cosine": 1.0,
+      "similarity_product": 0.71776010921624,
+      "selection_protected_partner_task_id": "HumanEval-Java/33"
+    },
+    {
+      "test_task_id": "HumanEval-Java/43",
+      "nearest_train_task_id": "HumanEval-Java/40",
+      "description_tfidf_cosine": 0.7912057147051631,
+      "ir_grammar_shape_tfidf_cosine": 0.9817248795471308,
+      "similarity_product": 0.7767463349659278,
+      "selection_protected_partner_task_id": "HumanEval-Java/40"
+    },
+    {
+      "test_task_id": "HumanEval-Java/58",
+      "nearest_train_task_id": "HumanEval-Java/34",
+      "description_tfidf_cosine": 0.47900589793250364,
+      "ir_grammar_shape_tfidf_cosine": 0.9761029184844283,
+      "similarity_product": 0.467559054943171,
+      "selection_protected_partner_task_id": "HumanEval-Java/34"
+    },
+    {
+      "test_task_id": "HumanEval-Java/60",
+      "nearest_train_task_id": "HumanEval-Java/106",
+      "description_tfidf_cosine": 0.2285208581276012,
+      "ir_grammar_shape_tfidf_cosine": 0.9472996570677374,
+      "similarity_product": 0.2164777305371017,
+      "selection_protected_partner_task_id": "HumanEval-Java/106"
+    },
+    {
+      "test_task_id": "HumanEval-Java/62",
+      "nearest_train_task_id": "HumanEval-Java/32",
+      "description_tfidf_cosine": 0.5337451495335029,
+      "ir_grammar_shape_tfidf_cosine": 0.7360079862754478,
+      "similarity_product": 0.39284069269244126,
+      "selection_protected_partner_task_id": "HumanEval-Java/32"
+    },
+    {
+      "test_task_id": "HumanEval-Java/7",
+      "nearest_train_task_id": "HumanEval-Java/29",
+      "description_tfidf_cosine": 0.6840699682364488,
+      "ir_grammar_shape_tfidf_cosine": 0.9999999999999999,
+      "similarity_product": 0.6840699682364487,
+      "selection_protected_partner_task_id": "HumanEval-Java/29"
+    },
+    {
+      "test_task_id": "HumanEval-Java/85",
+      "nearest_train_task_id": "HumanEval-Java/121",
+      "description_tfidf_cosine": 0.40305331166344477,
+      "ir_grammar_shape_tfidf_cosine": 0.9495531214004334,
+      "similarity_product": 0.38272053018080565,
+      "selection_protected_partner_task_id": "HumanEval-Java/121"
+    }
+  ],
+  "force_clean_parent_rows_to_train": false,
+  "clean673_parent_test_overlap": 5,
+  "artifact_sha256": {
+    "train.pkl": "9251c16a4a1dc8859f7f0b025fb229528ddff6483625d26a5fcd55a4508de85e",
+    "valid.pkl": "3fe4a92ad75f98888c0fdc32304e33df0191042a9f85c4d1c59ea2ca284412c0",
+    "test.pkl": "38be37d0c76bf708cf67413fab7d993a140241998442db23687e4d3d6ba58b79",
+    "mbjp_t5.json": "1615496a795f3582310808d197676559097923c9e6f957a3926e7347685b757f",
+    "train_mbjp_t5.json": "bad6efaef84e461351978fe9e7238a6f7e9dec1c54b67dff7090a34dd9add6c6",
+    "valid_mbjp_t5.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "test_mbjp_t5.json": "d7443bc20baf55b1cea17e14d84d435584b534db115a03a9523f38aa6248d89f",
+    "train_task_ids.json": "bf57251a376febcfd4a07d40161ccb8185c4ce2d9be6743bb0f5368c8284b66d",
+    "valid_task_ids.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "test_task_ids.json": "9cf1e877671170dbc09a8838bbffe164533cdd596fc77659cb2ca82981640994",
+    "mbjp_format.jsonl": "b74be2f4f38e9c9e5d1cfe9a66d919e7519c42e17f50787edd3c3b810f1f9689",
+    "config.json": "5a1e0283eb152b0a8630f35bb60e3f82322f95a5432bd012e53c8aca3682a106",
+    "loader_contract.json": "d6751b3d19abf33fdc2d101155305fec91dca0ff426b6babe8d59a7311903d81"
+  }
+}

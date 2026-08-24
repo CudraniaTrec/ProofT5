@@ -1,4 +1,4 @@
-import pickle, torch, subprocess, os
+import pickle, torch, subprocess, os, time, fcntl, json, hashlib
 # Keep distributed launchers in control of tokenizer worker pools.
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 from multiprocessing import Pool
@@ -68,11 +68,14 @@ def configure_runtime(ruledict, tokenizer_obj=None):
     rrule_dict = {v: k for k, v in rule_dict.items()}
     vocabsize = len(rule_dict)
     validtensors = {
-        "Type": [rule_dict[t] for t in type_name_vocab],
-        "Term": [rule_dict[t] for t in term_name_vocab],
-        "Statement": [rule_dict[t] for t in statement_name_vocab],
-        "Program": [rule_dict[t] for t in program_name_vocab],
-        "ClassString": [rule_dict[t] for t in class_name_vocab],
+        # Pickle loading can register task-specific grammar classes globally.
+        # A later runtime reconfiguration must expose only symbols present in
+        # the selected task vocabulary, not stale symbols from another task.
+        "Type": [rule_dict[t] for t in type_name_vocab if t in rule_dict],
+        "Term": [rule_dict[t] for t in term_name_vocab if t in rule_dict],
+        "Statement": [rule_dict[t] for t in statement_name_vocab if t in rule_dict],
+        "Program": [rule_dict[t] for t in program_name_vocab if t in rule_dict],
+        "ClassString": [rule_dict[t] for t in class_name_vocab if t in rule_dict],
         "String": [],
         "StringOrEnd": [],
     }
@@ -137,8 +140,11 @@ class finishsetBm:
         self.minidx = -1
 
     def add(self, node):
-        score = node.prob / (len(node.state) ** self.length_penalty)
+        raw_prob = float(node.prob)
+        score = raw_prob / (len(node.state) ** self.length_penalty)
         if len(self.set) < self.beamsize:
+            node.raw_prob = raw_prob
+            node.normalized_score = score
             node.prob = score
             self.set.append(node)
             if score < self.minprob:
@@ -146,6 +152,8 @@ class finishsetBm:
                 self.minidx = len(self.set) - 1
         else:
             if score > self.minprob:
+                node.raw_prob = raw_prob
+                node.normalized_score = score
                 node.prob = score
                 self.set[self.minidx] = node
                 self.minprob = 1e10
@@ -155,21 +163,59 @@ class finishsetBm:
                         self.minprob = score
                         self.minidx = i
 
-    # check if any new nodes can be added to the set
-    def isfinish(self, prob, curlen):
+    # Check whether no *unfinished* node can enter the completed top-k set.
+    #
+    # `prob` is a cumulative log-probability and is therefore non-positive.
+    # With a positive length penalty, normalising it by the *current* length
+    # is not an upper bound: a longer continuation can have a better
+    # normalised score even though its raw log-probability only decreases.
+    # Using that invalid bound used to stop searches as soon as ten short
+    # programs completed, which can discard a high-probability long program.
+    def isfinish(self, prob, curlen, max_len=None):
         if len(self.set) < self.beamsize:
             return False
+        if self.length_penalty > 0 and max_len is not None:
+            # Future log-probabilities are <= 0.  The most favourable possible
+            # normaliser is the largest reachable sequence length.
+            score_upper_bound = prob / (max_len**self.length_penalty)
         else:
-            if prob / (curlen**self.length_penalty) > self.minprob:
-                return False
-            else:
-                return True
+            score_upper_bound = prob / (curlen**self.length_penalty)
+        return score_upper_bound <= self.minprob
 
     def finalize(self):
-        self.set = sorted(self.set, key=lambda x: x.prob, reverse=True)
+        # Only complete grammar trees are valid decoder outputs. Older code
+        # inserted live beams here when decoding reached max_len without a
+        # completion, turning a search failure into malformed Java and
+        # inflating the downstream compilation-error rate.
+        self.set = sorted(
+            [node for node in self.set if node.isfinish],
+            key=lambda x: x.prob,
+            reverse=True,
+        )
         self.final_set = []
+        self.final_metadata = []
         for node in self.set:
-            self.final_set.append(node.to_java())
+            try:
+                rendered = node.to_java()
+            except Exception as exc:
+                # A grammar-complete tree can still contain a semantically
+                # invalid literal (for example, a non-numeric TmChar payload).
+                # One unprintable candidate must not abort the whole problem
+                # or, under distributed evaluation, every rank.
+                print(
+                    "Skipping unrenderable Java candidate: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+                continue
+            self.final_set.append(rendered)
+            self.final_metadata.append(
+                {
+                    "raw_log_probability": node.raw_prob,
+                    "normalized_score": node.normalized_score,
+                    "scoring_length": len(node.state),
+                    "length_penalty": self.length_penalty,
+                }
+            )
 
 class BeamSearch:
     def __init__(
@@ -179,6 +225,7 @@ class BeamSearch:
         length_penalty=0.1,
         coqview_len=155,
         checkcoq=False,
+        final_only_coq_check=False,
         addCoqview=False,
         check_grammar=True,
         tokenizer_obj=None,
@@ -193,6 +240,7 @@ class BeamSearch:
         self.beamsize = beamsize
         self.length_penalty = length_penalty
         self.checkcoq = checkcoq
+        self.final_only_coq_check = final_only_coq_check
         self.rule_dict = ruledict
         self.coqview_len = coqview_len
         self.addCoqview = addCoqview
@@ -206,9 +254,26 @@ class BeamSearch:
         self.early_stop_after_final_steps = early_stop_after_final_steps
         self.early_stop_max_first_final_len = early_stop_max_first_final_len
         self.disable_tqdm = disable_tqdm
+        if self.final_only_coq_check and not self.checkcoq:
+            raise ValueError("final_only_coq_check requires checkcoq=True")
+        if self.final_only_coq_check and self.addCoqview:
+            raise ValueError("final-only Coq checking is incompatible with CoqView")
 
     def _reorder_cache(self, past, beam_idx):
         return reorder_cache(past, beam_idx)
+
+    def _requires_coq_check(self, node):
+        return not (self.final_only_coq_check and not node.isfinish)
+
+    @staticmethod
+    def _coq_status_allows_candidate(node, checked_valid):
+        if checked_valid is True:
+            return True
+        # A temporarily unrenderable/slow prefix may become checkable after
+        # more tokens arrive.  A completed candidate has no such future
+        # opportunity, so accepting a timeout would put an unverified program
+        # directly into the returned top-k set.
+        return checked_valid is None and not node.isfinish
 
     def _set_node_coqview(self, node, raw_coqview):
         context = extract_context(raw_coqview)
@@ -219,13 +284,54 @@ class BeamSearch:
         coq_code = node.to_coq()
         if not coq_code:
             raise RuntimeError(f"Cannot render initial Coq prefix for problem {prog_id}")
+        cache_dir = os.environ.get("PROOFT5_COQ_INIT_CACHE_DIR", "")
+        if cache_dir:
+            cache_path = os.path.join(cache_dir, f"{prog_id}.json")
+            with open(cache_path, "r", encoding="utf-8") as cache_file:
+                cached = json.load(cache_file)
+            coq_sha256 = hashlib.sha256(coq_code.encode("utf-8")).hexdigest()
+            if (
+                cached.get("problem_id") != prog_id
+                or cached.get("coq_sha256") != coq_sha256
+                or not cached.get("raw_coqview")
+            ):
+                raise RuntimeError(
+                    f"Invalid initial Coq cache for problem {prog_id}: {cache_path}"
+                )
+            self._set_node_coqview(node, cached["raw_coqview"])
+            return
         coq_proof_path = f"coq_model/coq_code/mbjp/{prog_id}/pinit_{os.getpid()}.v"
         os.makedirs(os.path.dirname(coq_proof_path), exist_ok=True)
         with open(coq_proof_path, "w") as f:
             f.write(coq_code)
-        checked_valid, raw_coqview = test_coq_proof_with_timeout(
-            (coq_proof_path, self.coq_timeout)
-        )
+        checked_valid = False
+        raw_coqview = ""
+        # The initial prefix is immutable and known to compile.  During a
+        # many-shard cold start, `coqc` can fail transiently because of host
+        # process/resource pressure.  Retry this infrastructure check before
+        # treating it as a semantic failure; normal candidate checks retain
+        # their single-attempt behavior.
+        # Serialize only this one-time cold-start check.  Dozens of model
+        # processes can reach it together after loading the same checkpoint;
+        # concurrent `coqc` startup was observed to return transient failures
+        # even though every file compiled successfully in isolation.  Normal
+        # per-token candidate checks remain parallel.
+        lock_path = "coq_model/coq_code/mbjp/.pinit_coqc.lock"
+        lock_fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o664)
+        try:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX)
+            max_initial_attempts = 30
+            for attempt in range(max_initial_attempts):
+                checked_valid, raw_coqview = test_coq_proof_with_timeout(
+                    (coq_proof_path, self.coq_timeout)
+                )
+                if checked_valid is True:
+                    break
+                if attempt < max_initial_attempts - 1:
+                    time.sleep(2)
+        finally:
+            fcntl.flock(lock_fd, fcntl.LOCK_UN)
+            os.close(lock_fd)
         if checked_valid is not True:
             raise RuntimeError(
                 f"Initial Coq prefix failed for problem {prog_id}: status={checked_valid}"
@@ -246,6 +352,11 @@ class BeamSearch:
         past_key_values = None
         encodenl, nlmask = model.encode_nl(inputnl)
         init_tokens = args.get("init_tokens")
+        problem_ids = args.get("problem_ids")
+        if problem_ids is None:
+            problem_ids = list(range(offset, offset + batch_size))
+        if len(problem_ids) != batch_size:
+            raise ValueError("problem_ids length does not match Coq batch size")
         if init_tokens is not None:
             init_tokens = init_tokens.detach().cpu().tolist()
         for i in range(batch_size):
@@ -257,7 +368,7 @@ class BeamSearch:
                         if not beams[i][0].apply(token, 0) and self.check_grammar:
                             raise ValueError(f"Invalid init token {token} for beam {i}")
             if self.addCoqview:
-                self._initialize_node_coqview(beams[i][0], offset + i)
+                self._initialize_node_coqview(beams[i][0], problem_ids[i])
             score[i, 0] = 0            # given the inital element a score 0
             finalbeams[i] = finishsetBm(self.beamsize, self.length_penalty)
 
@@ -276,6 +387,7 @@ class BeamSearch:
         fail_num, complete_num = 0, 0
         pbar = tqdm(total=max_len, leave=False, desc=desc, disable=self.disable_tqdm)
         coq_pool = None
+        worker_count = 0
         if self.checkcoq or self.addCoqview:
             worker_count = self.coq_workers or min(os.cpu_count() or 1, max(1, self.candidate_multiplier * self.beamsize))
             coq_pool = ThreadPool(processes=worker_count)
@@ -367,7 +479,7 @@ class BeamSearch:
                     topk_candidates = [None] * topk
                     coq_proof_paths = [""] * topk # each path is passed to coq_check program
                     coq_valid = [False] * topk
-                    prog_id = offset + j # task_id
+                    prog_id = problem_ids[j]
                     for k in range(topk):
                         if sortfinalscore[j, k].item() < -800:
                             break
@@ -387,6 +499,17 @@ class BeamSearch:
                             coq_valid[k] = True
                             continue
 
+                        # Optional two-stage decoding ablation: retain every
+                        # grammar-valid unfinished prefix and ask Coq only
+                        # about complete programs.  This still rejects a
+                        # completed candidate unless its full Coq rendering
+                        # checks, but avoids losing a valid final program just
+                        # because an intermediate prefix was temporarily
+                        # unrenderable or unprovable.
+                        if not self._requires_coq_check(copynode):
+                            coq_valid[k] = True
+                            continue
+
                         coq_code = copynode.to_coq()
                         if not coq_code:
                             if copynode.isfinish and self.check_grammar:
@@ -397,7 +520,14 @@ class BeamSearch:
                             coq_valid[k] = True
                             continue
 
-                        coq_proof_path = f"coq_model/coq_code/mbjp/{prog_id}/p{index}_{k}.v"
+                        # The same problem can be evaluated by multiple shard/recovery
+                        # processes at once.  Without a process-specific suffix, those
+                        # processes overwrite each other's Coq files while `coqc` is
+                        # still reading them, making live-Coq filtering nondeterministic.
+                        coq_proof_path = (
+                            f"coq_model/coq_code/mbjp/{prog_id}/"
+                            f"p{index}_{k}_{os.getpid()}.v"
+                        )
                         coq_proof_paths[k] = coq_proof_path
 
                         # create folder if not exists
@@ -405,29 +535,53 @@ class BeamSearch:
                         with open(coq_proof_path, "w") as f:
                             f.write(coq_code)
 
-                    # compute the type validity of the top elements using coq
-                    if self.checkcoq or self.addCoqview:
-                        res = coq_pool.map(
-                            test_coq_proof_with_timeout,
-                            [(path, self.coq_timeout) for path in coq_proof_paths],
-                        )
-                        checked_valid, coqview = zip(*res)
-                        for k in range(topk):
-                            if coq_proof_paths[k]:
-                                # A timeout is not a semantic CoQ failure. Some
-                                # long but valid prefixes only compile after
-                                # later tokens complete the surrounding term, so
-                                # keep the beam alive and defer coqview updates.
-                                coq_valid[k] = True if checked_valid[k] is None else checked_valid[k]
-                            if checked_valid[k] is True and coq_proof_paths[k]:
-                                self._set_node_coqview(topk_candidates[k], coqview[k])
-
                     maxscore = sortfinalscore[j, 0].item()
                     curlen = current_len + 1
                     tmpbeam = []       # a list of search nodes for this beam, size <= beamsize
+                    checked_until = 0
+                    # Coq checking dominates Java decoding.  The old code
+                    # checked every expanded candidate (up to multiplier *
+                    # beam size) before retaining only the first `beamsize`
+                    # live nodes.  Check the same score-ordered candidates in
+                    # small parallel windows and stop as soon as that live
+                    # frontier is full.  This preserves the exact selection
+                    # order while avoiding checks for candidates that the
+                    # beam loop would never inspect.
+                    coq_check_chunk = max(
+                        self.beamsize,
+                        min(worker_count, 2 * self.beamsize),
+                    )
                     for k in range(topk):
                         if len(tmpbeam) >= self.beamsize: # the beam is full
                             break
+                        if (self.checkcoq or self.addCoqview) and k >= checked_until:
+                            checked_until = min(topk, k + coq_check_chunk)
+                            pending = [
+                                candidate_idx
+                                for candidate_idx in range(k, checked_until)
+                                if coq_proof_paths[candidate_idx]
+                            ]
+                            res = coq_pool.map(
+                                test_coq_proof_with_timeout,
+                                [
+                                    (
+                                        coq_proof_paths[candidate_idx],
+                                        self.coq_timeout,
+                                    )
+                                    for candidate_idx in pending
+                                ],
+                            )
+                            for candidate_idx, (checked_valid, coqview) in zip(
+                                pending, res
+                            ):
+                                candidate = topk_candidates[candidate_idx]
+                                coq_valid[candidate_idx] = (
+                                    self._coq_status_allows_candidate(
+                                        candidate, checked_valid
+                                    )
+                                )
+                                if checked_valid is True:
+                                    self._set_node_coqview(candidate, coqview)
                         if not coq_valid[k]: # the token is invalid
                             continue
 
@@ -448,7 +602,8 @@ class BeamSearch:
                             next_input_ids.append([0] * curlen)
                             next_input_coqviews.append([0] * self.coqview_len)
                             next_beam_id.append(0)
-                    if finalbeams[j].isfinish(maxscore, curlen):
+                    max_state_len = curlen + (max_len - index - 1)
+                    if finalbeams[j].isfinish(maxscore, curlen, max_state_len):
                         endnum[j] = 1
                         complete_num += 1
                     elif (
@@ -481,12 +636,6 @@ class BeamSearch:
                 coq_pool.join()
         pbar.close()
 
-        for i in range(batch_size):
-            if len(finalbeams[i].set) == 0:
-                for node in beams[i]:
-                    finalbeams[i].add(node)
-                    if len(finalbeams[i].set) >= self.beamsize:
-                        break
         for i in range(batch_size):
             finalbeams[i].finalize()
         if verbose:

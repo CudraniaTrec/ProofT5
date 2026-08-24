@@ -1,0 +1,90 @@
+{
+  "average_candidate_success_rate": 0.16363636363636364,
+  "average_first_success_position": 6.0,
+  "benchmark_source_path": "/data2/x/hzc/prooft5/Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/test.pkl",
+  "benchmark_source_sha256": "38be37d0c76bf708cf67413fab7d993a140241998442db23687e4d3d6ba58b79",
+  "benchmark_source_verified_equal": true,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15_test_ans/joint23_dual_hegfg_hev15_strict16_merged_20260823",
+  "candidate_output_manifest_sha256": "5967f33ee486d854a87aaeedd6139379070e8969f1cee56294ef37b1ac2310da",
+  "candidate_timeout_seconds": 10.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      2,
+      8
+    ]
+  ],
+  "compile_error_rate": 0.00909090909090909,
+  "compile_errors": 1,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/test.pkl",
+  "dataset_pickle_sha256": "38be37d0c76bf708cf67413fab7d993a140241998442db23687e4d3d6ba58b79",
+  "first_success_pos": [
+    10,
+    10,
+    0,
+    0,
+    10,
+    0,
+    6,
+    10,
+    0,
+    10,
+    10
+  ],
+  "generation": {
+    "beam_size": 10,
+    "candidate_multiplier": 20,
+    "decoder": "proof_constrained",
+    "generation_max_length": 719,
+    "length_penalty": 0.1
+  },
+  "ignored": 0,
+  "java_path": "/home/zchuang/.local/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/home/zchuang/.local/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 0,
+  "missing_problem_output_ids": [],
+  "missing_problem_outputs": 0,
+  "model_checkpoint_path": "Utils/models/Modeljoint23_dual_hegfg_from_heonly_lr2e6_p5_20260823/last_model.ckpt",
+  "model_checkpoint_sha256": "6740c1f15dfbc6fabcc55ceafa2f6d5624d9e3197336c1bcdc58acb6ae3e2791",
+  "model_output_task": "joint23_dual_hegfg_from_heonly_lr2e6_p5_20260823",
+  "model_type": "last",
+  "output_tag": "joint23_dual_hegfg_hev15_strict16_merged_20260823",
+  "pass1": 0.36363636363636365,
+  "pass10": 0.45454545454545453,
+  "pass_at_k": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    8,
+    9,
+    11,
+    13,
+    14,
+    15
+  ],
+  "problems": 11,
+  "solved": [
+    2,
+    4,
+    8,
+    9,
+    13
+  ],
+  "split": "test",
+  "task": "java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+  "timeout_candidate_ids": [],
+  "timeouts": 0,
+  "top1_solved": [
+    2,
+    4,
+    8,
+    13
+  ],
+  "total_tested": 110,
+  "train_time": ""
+}

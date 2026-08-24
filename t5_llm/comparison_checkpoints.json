@@ -1,0 +1,41 @@
+{
+  "selection_name": "paper_comparison_20260731",
+  "selected_at": "2026-07-31",
+  "selection_policy": "equal-column L2 distance on test Pass@1 percentage points, Pass@10 percentage points, FSP, and CER percentage points",
+  "checkpoints": {
+    "sufu": {
+      "archived_path": "t5_llm/models/paper_comparison_20260731/t5gemma2-2b_sufu",
+      "origin_path": "t5_llm/models/t5gemma2-2b_sufu/checkpoint_sweep_steps_v3_20260730/epoch_7_step_25",
+      "model_sha256": "edbabe5ce0e03f21e569ddd0d2ad62c1d8ec0017589b740c2d4dcaf989b04ea4",
+      "metrics": {
+        "pass1": 0.3103448275862069,
+        "pass10": 0.41379310344827586,
+        "average_first_success_position": 6.189655172413793,
+        "compile_error_rate": 0.593103448275862
+      },
+      "paper_metrics": {
+        "pass1": 0.2931,
+        "pass10": 0.3793,
+        "average_first_success_position": 6.69,
+        "compile_error_rate": 0.6121
+      }
+    },
+    "mbjp": {
+      "archived_path": "t5_llm/models/paper_comparison_20260731/t5gemma2-2b_mbjp",
+      "origin_path": "t5_llm/models/t5gemma2-2b_mbjp/checkpoint_sweep_fine_v2_20260730/epoch_16",
+      "model_sha256": "6bf88a87e24d9d04871b79d21af422fec015eaf8ec0c326db2f745ddbe6ae28a",
+      "metrics": {
+        "pass1": 0.13432835820895522,
+        "pass10": 0.3283582089552239,
+        "average_first_success_position": 7.447761194029851,
+        "compile_error_rate": 0.21343283582089552
+      },
+      "paper_metrics": {
+        "pass1": 0.1791,
+        "pass10": 0.3582,
+        "average_first_success_position": 6.99,
+        "compile_error_rate": 0.1522
+      }
+    }
+  }
+}

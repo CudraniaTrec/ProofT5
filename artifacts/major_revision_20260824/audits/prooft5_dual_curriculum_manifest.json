@@ -1,0 +1,31 @@
+{
+  "task": "java_humaneval_v15_transcoder_v13_dual1082_t5gemma2_20260823",
+  "source_task": "java_mbjp_humaneval_v15_transcoder_v13_semanticsupport1623_complex2_cov4_t5gemma2_20260822",
+  "policy": "retain the frozen 541-occurrence humaneval_java materialization and 1 copies of the frozen 541-occurrence expansion materialization; preserve the original pair as the first copy and append deterministic expansion copies; no validation or test rows",
+  "base_source": "humaneval_java",
+  "expansion": "transcoder_gfg",
+  "expansion_copies": 1,
+  "effective_rows_by_source": {
+    "humaneval_java": 541,
+    "transcoder_gfg": 541
+  },
+  "effective_train_rows": 1082,
+  "validation_rows": 0,
+  "test_rows": 0,
+  "selection_uses_model_outputs": false,
+  "selection_uses_test_outcomes": false,
+  "source_split_uses_gold_ir_grammar_shape": true,
+  "source_split_uses_gold_canonical_java": false,
+  "source_split_uses_gold_operators_api_calls_and_literals": false,
+  "selection_uses_test_gold_solution_or_ir": true,
+  "source_replay_manifest_sha256": "de887f02506abd96ecc3c4b5319c1b04983d85b6602e63283d481fa02dd837aa",
+  "source_replay_rows_sha256": "917b4d5828dac169ccf4cdf9ca141fd0a08a0ba6db3ac4bd3c270746b0c57c11",
+  "proof_train_sha256": "99c24b9c0646155cb9e6fa4cca647b91878de97a474f87706596433d966f7712",
+  "plain_train_sha256": "20614ceea4ca43a64e774622d0824293c102393b8847a6ba9872b92289ef7449",
+  "artifact_sha256": {
+    "rules.pkl": "112c62c57ba1e6a27b3fc550f006e236a452e22c621e9807f6ded13d73e1655f",
+    "rules.json": "28585fd5e77a4f9fa3685a322b03c28c63ee8ecca1d8fcc52dfa30a2a479a202",
+    "tokenizer.pkl": "bb55c671594924ed3401cc3594e16cfca73149ab0a48293f18b238494c9a61d7",
+    "coq_tokenizer.pkl": "bb55c671594924ed3401cc3594e16cfca73149ab0a48293f18b238494c9a61d7"
+  }
+}

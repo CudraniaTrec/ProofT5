@@ -227,8 +227,23 @@ class AstNode(type):
                     setattr(self, args_name[i], findUnk[terms_need[i]])
                 else:
                     assert class_type(args[i]) == terms_need[i], f"actual type: {class_type(args[i])} != target type: {terms_need[i]}, args[i]({type(args[i])}):{args[i].to_str({})}"
-                    setattr(self, args_name[i], args[i])
-                    if value_complete(args[i]) or (tname == "TypeUser" and args[i] in predefined_type):
+                    arg = args[i]
+                    # Direct constructors are used by the tree-sitter reader
+                    # with already-complete, plain strings.  Incremental beam
+                    # construction instead starts with an empty field and
+                    # later calls set_incomplete_field with BPE pieces.  The
+                    # old code applied the BPE-only `value_complete` rule to
+                    # both paths, so every parsed identifier/integer remained
+                    # marked incomplete and the offline type checker silently
+                    # skipped whole commands.
+                    if isinstance(arg, str) and arg:
+                        arg = arg.replace('Ġ', '')
+                    setattr(self, args_name[i], arg)
+                    if (
+                        (isinstance(arg, str) and bool(arg))
+                        or value_complete(arg)
+                        or (tname == "TypeUser" and arg in predefined_type)
+                    ):
                         self.incomplete_field_id +=1
             origin_init(self)
         cls.__init__ = new_init
@@ -608,6 +623,40 @@ class TermVar(metaclass=AstNode):
         assert self.name in tctx.ctx, f"{self.name} not in ctx"
         return tctx.ctx[self.name]
 
+
+_PATH_TERM_CLASSES = {
+    "TermUnit",
+    "TermInt",
+    "TermTrue",
+    "TermFalse",
+    "TermVar",
+    "TermTuple",
+    "TermProj",
+    "TermParenthesis",
+}
+_APP_TERM_CLASSES = _PATH_TERM_CLASSES | {
+    "TermLabel",
+    "TermUnlabel",
+    "TermRewrite",
+    "TermApp",
+    "TermFix",
+    "TermOp",
+}
+
+
+def _surface_path_term(term, ctx):
+    rendered = term.to_str(ctx)
+    if type(term).__name__ in _PATH_TERM_CLASSES:
+        return rendered
+    return f"({rendered})"
+
+
+def _surface_app_term(term, ctx):
+    rendered = term.to_str(ctx)
+    if type(term).__name__ in _APP_TERM_CLASSES:
+        return rendered
+    return f"({rendered})"
+
 class TermOp(metaclass=AstNode):
     # + | - | * | / | < | <= | > | >= | == | and | or | not
     ty = "term"
@@ -636,7 +685,11 @@ class TermApp(metaclass=AstNode):
     args_name = ["term1", "term2"]
 
     def to_str(self, ctx):
-        return f"{self.term1.to_str(ctx)} {self.term2.to_str(ctx)}"
+        # AppTerm accepts an AppTerm on the left but only a PathTerm on the
+        # right.  Preserve operator syntax (`+ x y`, not the invalid `(+) x`)
+        # while adding parentheses exactly when a generated argument is not a
+        # PathTerm, e.g. `sort (unlabel tmp)`.
+        return f"{_surface_app_term(self.term1, ctx)} {_surface_path_term(self.term2, ctx)}"
     
     def type_check(self, tctx):
         func_ty = self.term1.type_check(tctx)
@@ -668,7 +721,7 @@ class TermFix(metaclass=AstNode):
     args_name = ["term"]
 
     def to_str(self, ctx):
-        return f"fix {self.term.to_str(ctx)}"
+        return f"fix {_surface_path_term(self.term, ctx)}"
     
     def type_check(self, tctx):
         ty_fix = self.term.type_check(tctx)
@@ -738,7 +791,7 @@ class TermProj(metaclass=AstNode):
     args_name = ["term", "int"]
 
     def to_str(self, ctx):
-        return f"{self.term.to_str(ctx)}.{self.int}"
+        return f"{_surface_path_term(self.term, ctx)}.{self.int}"
 
     def type_check(self, tctx):
         if self.incomplete():
@@ -770,7 +823,7 @@ class TermRewrite(metaclass=AstNode):
     args_name = ["term"]
 
     def to_str(self, ctx):
-        return f"align {self.term.to_str(ctx)}"
+        return f"align {_surface_path_term(self.term, ctx)}"
     
     def type_check(self, tctx):
         new_tctx = deepcopy(tctx)
@@ -784,7 +837,7 @@ class TermLabel(metaclass=AstNode):
     args_name = ["term"]
 
     def to_str(self, ctx):
-        return f"label {self.term.to_str(ctx)}"
+        return f"label {_surface_path_term(self.term, ctx)}"
     
     def type_check(self, tctx):
         assert tctx.labelable, "Label is not allowed here"
@@ -797,7 +850,7 @@ class TermUnlabel(metaclass=AstNode):
     args_name = ["term"]
 
     def to_str(self, ctx):
-        return f"unlabel {self.term.to_str(ctx)}"
+        return f"unlabel {_surface_path_term(self.term, ctx)}"
     
     def type_check(self, tctx):
         assert tctx.labelable, "Unlabel is not allowed here"
@@ -1004,7 +1057,7 @@ def class_type_str(obj_name):
 
 def value_complete(value): # if a value(str/astnode) is complete
     if isinstance(value, str):
-        return value[0]=='Ġ'
+        return bool(value) and value[0]=='Ġ'
     else:
         return not value.incomplete()
         

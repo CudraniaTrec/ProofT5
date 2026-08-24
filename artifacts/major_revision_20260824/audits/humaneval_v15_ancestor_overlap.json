@@ -1,0 +1,59 @@
+{
+  "audit_date_utc": "2026-08-23",
+  "dataset": "java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+  "test_rows": 16,
+  "checkpoint": "Utils/models/Modeljoint23_dual_hegfg_from_heonly_lr2e6_p5_20260823/last_model.ckpt",
+  "checkpoint_sha256": "6740c1f15dfbc6fabcc55ceafa2f6d5624d9e3197336c1bcdc58acb6ae3e2791",
+  "lineage_parent": "Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt",
+  "lineage_evidence": [
+    "tmp/java_mbjp_transcoder_gfg_parent_safe2164_v14_complex2_exposure3_pair_t5gemma2_20260820_coq_from_v2selected_b5_lr5em6_pass10_20260820_v14_gfg_parent_safe.log",
+    "tmp/joint_v15v13_coq_from_gfgv14_lr5e7_p10_20260823.log",
+    "tmp/joint23_Be2_hev15_micro_lr2e6_p2_20260823.log",
+    "tmp/joint23_E_seenreplay4_lr2e6_p3_20260823.log",
+    "tmp/joint23_strong_hefocus_v15_lr5e6_p10_20260823.log",
+    "tmp/joint23_heonly541_from_hefocus_lr5e6_p10_20260823.log",
+    "tmp/joint23_dual_hegfg_from_heonly_lr2e6_p5_20260823.log"
+  ],
+  "ancestor_membership_source": "Utils/data/mbjp_humaneval_half_train_t5gemma2_20260731/split_manifest.json:external_train_ids",
+  "ancestor_seen_test_indices": [3, 6, 7, 10, 12],
+  "ancestor_seen_task_ids": [
+    "HumanEval-Java/155",
+    "HumanEval-Java/19",
+    "HumanEval-Java/37",
+    "HumanEval-Java/60",
+    "HumanEval-Java/7"
+  ],
+  "lineage_unseen_test_indices": [0, 1, 2, 4, 5, 8, 9, 11, 13, 14, 15],
+  "lineage_unseen_task_ids": [
+    "HumanEval-Java/10",
+    "HumanEval-Java/122",
+    "HumanEval-Java/131",
+    "HumanEval-Java/157",
+    "HumanEval-Java/158",
+    "HumanEval-Java/43",
+    "HumanEval-Java/58",
+    "HumanEval-Java/62",
+    "HumanEval-Java/75",
+    "HumanEval-Java/85",
+    "HumanEval-Java/94"
+  ],
+  "direct_v15_train_test_overlap": 0,
+  "ancestor_train_test_overlap": 5,
+  "full16_reporting_label": "split-held-out but ancestor-mixed diagnostic",
+  "lineage_unseen11_reporting_label": "checkpoint-lineage-unseen subset",
+  "ordinary_unseen11": {
+    "pass1_count": 1,
+    "pass10_count": 3,
+    "denominator": 11,
+    "score_artifact": "tmp/v15_he_semanticsupport_plain_ancestor_unseen11_20260823_score_timeout10.json",
+    "score_artifact_sha256": "b6a2361582dbdeb5123359dbd4b8542db1c2b1fdebe5e63e495d3e388c481e29"
+  },
+  "coq_unseen11": {
+    "pass1_count": 4,
+    "pass10_count": 5,
+    "denominator": 11,
+    "score_artifact": "tmp/joint23_dual_hegfg_hev15_ancestor_unseen11_20260823_score_timeout10.json",
+    "score_artifact_sha256": "47ead7cca26564ccf6bc85bb02ac0f5621f777b02f2aea39a586eca64307f48c"
+  },
+  "conclusion": "The 16-row split is disjoint from the direct v15 training rows but five rows were seen by a Coq ancestor. The matched 11-row lineage-unseen comparison remains positive: ordinary 1/11 and 3/11 versus Coq 4/11 and 5/11."
+}

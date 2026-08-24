@@ -1,0 +1,80 @@
+{
+  "audit_date_utc": "2026-08-23",
+  "scope": "training rows used by the revised MBJP/HumanEval-v15/GFG-v13 routes",
+  "checks": {
+    "four_imports": "exactly four wildcard Java standard-library imports",
+    "same_import_set": "java.io.*, java.lang.*, java.math.*, and java.util.*",
+    "one_nonpublic_class": "one top-level class and no public class modifier",
+    "public_static_method": "at least one public static solution method",
+    "pascal_case_class": "top-level class matches [A-Z][A-Za-z0-9]*",
+    "lower_camel_method": "solution entry point matches [a-z][A-Za-z0-9]*",
+    "main_test_harness": "test contains class Main and public static void main",
+    "three_visible_examples": "normalized external prompt contains at least three > example markers"
+  },
+  "datasets": [
+    {
+      "name": "MBJP",
+      "rows": 608,
+      "source": "Utils/data/mbjp_clean608_train_eval_t5gemma2_20260823/test.json",
+      "source_sha256": "138a6057c5f2e31e143d7053866c9f087ff22df882476d1b59f2b2b5c26748bb",
+      "four_imports": 608,
+      "same_import_set": 608,
+      "no_package_declaration": 608,
+      "one_nonpublic_class": 608,
+      "public_static_method": 608,
+      "pascal_case_class": 608,
+      "lower_camel_method": 608,
+      "main_test_harness": 608,
+      "import_order": ["java.lang.*", "java.util.*", "java.math.*", "java.io.*"],
+      "three_visible_examples": null,
+      "three_visible_examples_note": "the evaluation mirror stores executable code rather than the original prompt prose"
+    },
+    {
+      "name": "HumanEval-Java v15",
+      "rows": 146,
+      "source": "Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/mbjp_t5.json",
+      "source_sha256": "1615496a795f3582310808d197676559097923c9e6f957a3926e7347685b757f",
+      "four_imports": 146,
+      "same_import_set": 146,
+      "no_package_declaration": 146,
+      "one_nonpublic_class": 146,
+      "public_static_method": 146,
+      "pascal_case_class": 146,
+      "lower_camel_method": 145,
+      "main_test_harness": 146,
+      "import_order": ["java.io.*", "java.lang.*", "java.util.*", "java.math.*"],
+      "three_visible_examples": 142,
+      "description_character_median": 227.0,
+      "residual_exceptions": [
+        "HumanEval-Java/153 retains entry point StrongestExtension; renaming it after training would invalidate checkpoint/data provenance"
+      ]
+    },
+    {
+      "name": "TransCoder-GFG v13",
+      "rows": 414,
+      "source": "Utils/data/java_transcoder_gfg_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13/mbjp_t5.json",
+      "source_sha256": "d4f35d0f40f9d14e383b33e43208975cefc203c5d17792882627f4c29b3fe187",
+      "four_imports": 414,
+      "same_import_set": 414,
+      "no_package_declaration": 414,
+      "one_nonpublic_class": 414,
+      "public_static_method": 414,
+      "pascal_case_class": 414,
+      "lower_camel_method": 414,
+      "main_test_harness": 414,
+      "import_order": ["java.io.*", "java.lang.*", "java.util.*", "java.math.*"],
+      "three_visible_examples": 399,
+      "description_character_median": 122.0,
+      "residual_exceptions": []
+    }
+  ],
+  "semantic_alignment": {
+    "gold_compile_and_test": "162/162 HumanEval and 517/517 GFG rows pass the fail-closed executable audits",
+    "validation_rows": 0,
+    "joint_training_task": "Utils/data/java_mbjp_humaneval_v15_transcoder_v13_semanticsupport1623_complex2_cov4_t5gemma2_20260822",
+    "joint_effective_rows": 1623,
+    "joint_unique_rows": 1101,
+    "balanced_occurrences_per_source": 541
+  },
+  "conclusion": "All three training sources share the same import set, package-free single non-public PascalCase class layout, public static solution method, and Main test harness. Remaining differences are import order, one inherited HumanEval entry-point capitalization, and prompt example availability; changing them after checkpoint training would break frozen provenance without changing Java semantics."
+}

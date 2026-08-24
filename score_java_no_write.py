@@ -47,8 +47,19 @@ def tool_version(command):
     return (run.stdout or run.stderr).decode("utf-8", errors="replace").strip()
 
 
-def score_work_root(task, split, output_tag):
-    raw_name = f"{task}_{split}_{output_tag}"
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def score_work_root(task, split, output_tag, selection_scope="all"):
+    # Different subsets of the same generated output may be scored in
+    # parallel.  Keep their compiler sandboxes disjoint so one scorer cannot
+    # remove another scorer's files during its initial cleanup.
+    raw_name = f"{task}_{split}_{output_tag}_{selection_scope}"
     digest = hashlib.sha256(raw_name.encode("utf-8")).hexdigest()[:16]
     readable = "".join(
         char if char.isalnum() or char in "._-" else "_" for char in raw_name
@@ -68,6 +79,31 @@ def read_candidate(path):
     if lines and (lines[0].startswith("//") or lines[0].startswith("ex:")):
         return "\n".join(lines[1:])
     return text
+
+
+def candidate_output_manifest_sha256(output_dir, problem_ids, pass_at_k):
+    """Hash every fixed candidate slot, including explicit missing markers."""
+    digest = hashlib.sha256()
+    for idx in problem_ids:
+        for cand_idx in range(pass_at_k):
+            java_path = os.path.join(output_dir, f"{idx}_{cand_idx}.java")
+            text_path = os.path.join(output_dir, f"{idx}_{cand_idx}.txt")
+            if os.path.isfile(java_path):
+                path, suffix = java_path, ".java"
+            elif os.path.isfile(text_path):
+                path, suffix = text_path, ".txt"
+            else:
+                digest.update(f"{idx}_{cand_idx} MISSING\n".encode())
+                continue
+            content = hashlib.sha256()
+            with open(path, "rb") as handle:
+                for block in iter(lambda: handle.read(1024 * 1024), b""):
+                    content.update(block)
+            digest.update(
+                f"{idx}_{cand_idx}{suffix} {os.path.getsize(path)} "
+                f"{content.hexdigest()}\n".encode()
+            )
+    return digest.hexdigest()
 
 
 def test_candidate(args):
@@ -149,6 +185,12 @@ def main():
     parser.add_argument("--checkpoint_epoch", type=int, default=None)
     parser.add_argument("--model_checkpoint_path", default="")
     parser.add_argument("--model_checkpoint_sha256", default="")
+    parser.add_argument("--decoder", default="")
+    parser.add_argument("--beam_size", type=int, default=0)
+    parser.add_argument("--length_penalty", type=float, default=None)
+    parser.add_argument("--generation_max_length", type=int, default=0)
+    parser.add_argument("--candidate_multiplier", type=int, default=0)
+    parser.add_argument("--benchmark_source_path", default="")
     parser.add_argument("--json_out", default="")
     args = parser.parse_args()
 
@@ -159,12 +201,43 @@ def main():
     javac_version = tool_version(JAVAC_PATH)
     java_version = tool_version(JAVA_PATH)
 
-    data = pickle.load(open(f"Utils/data/{args.task}/{args.split}.pkl", "rb"))
+    dataset_pickle_path = os.path.abspath(
+        f"Utils/data/{args.task}/{args.split}.pkl"
+    )
+    data = pickle.load(open(dataset_pickle_path, "rb"))
+    benchmark_source_path = ""
+    benchmark_source_sha256 = ""
+    benchmark_source_verified_equal = False
+    if args.benchmark_source_path:
+        benchmark_source_path = os.path.abspath(args.benchmark_source_path)
+        if not os.path.isfile(benchmark_source_path):
+            raise FileNotFoundError(benchmark_source_path)
+        if benchmark_source_path.endswith(".json"):
+            source_rows = json.load(open(benchmark_source_path))
+        elif benchmark_source_path.endswith(".pkl"):
+            source_rows = pickle.load(open(benchmark_source_path, "rb"))
+        else:
+            raise ValueError("benchmark source must be a .json or .pkl file")
+        if data != source_rows:
+            raise RuntimeError(
+                "evaluated dataset rows differ from the frozen benchmark source"
+            )
+        benchmark_source_sha256 = sha256_file(benchmark_source_path)
+        benchmark_source_verified_equal = True
     output_dir = f"Utils/output/{args.task}_{args.split}_ans/{args.output_tag}"
     if not os.path.isdir(output_dir):
         raise FileNotFoundError(output_dir)
 
-    work_root = score_work_root(args.task, args.split, args.output_tag)
+    selection_scope = json.dumps(
+        {
+            "indices": args.indices,
+            "limit": args.limit,
+            "only_completed_top0": args.only_completed_top0,
+            "pass_at_k": args.pass_at_k,
+        },
+        sort_keys=True,
+    )
+    work_root = score_work_root(args.task, args.split, args.output_tag, selection_scope)
     if os.path.exists(work_root):
         shutil.rmtree(work_root)
     os.makedirs(work_root, exist_ok=True)
@@ -222,6 +295,8 @@ def main():
     timeouts = 0
     first_success_pos = []
     avg_candidate_success_num = 0
+    timeout_candidate_ids = []
+    compile_error_candidate_ids = []
 
     for idx in selected_indices:
         statuses = [status for _, status in per_problem[idx]]
@@ -236,6 +311,16 @@ def main():
             if status == "success"
         ]
         avg_candidate_success_num += len(success_positions)
+        timeout_candidate_ids.extend(
+            [idx, cand_idx]
+            for cand_idx, status in per_problem[idx]
+            if status == "timeout"
+        )
+        compile_error_candidate_ids.extend(
+            [idx, cand_idx]
+            for cand_idx, status in per_problem[idx]
+            if status == "compile_error"
+        )
         if success_positions:
             solved.append(idx)
             first_success_pos.append(success_positions[0])
@@ -282,12 +367,29 @@ def main():
         "checkpoint_epoch": args.checkpoint_epoch,
         "model_checkpoint_path": args.model_checkpoint_path,
         "model_checkpoint_sha256": args.model_checkpoint_sha256,
+        "generation": {
+            "decoder": args.decoder or None,
+            "beam_size": args.beam_size or None,
+            "length_penalty": args.length_penalty,
+            "generation_max_length": args.generation_max_length or None,
+            "candidate_multiplier": args.candidate_multiplier or None,
+        },
         "javac_path": JAVAC_PATH,
         "javac_version": javac_version,
         "java_path": JAVA_PATH,
         "java_version": java_version,
+        "candidate_timeout_seconds": args.timeout,
         "problems": prob_cnt,
         "problem_ids": selected_indices,
+        "dataset_pickle_path": dataset_pickle_path,
+        "dataset_pickle_sha256": sha256_file(dataset_pickle_path),
+        "benchmark_source_path": benchmark_source_path,
+        "benchmark_source_sha256": benchmark_source_sha256,
+        "benchmark_source_verified_equal": benchmark_source_verified_equal,
+        "candidate_output_dir": os.path.abspath(output_dir),
+        "candidate_output_manifest_sha256": candidate_output_manifest_sha256(
+            output_dir, selected_indices, args.pass_at_k
+        ),
         "pass_at_k": args.pass_at_k,
         "pass1": pass1,
         f"pass{args.pass_at_k}": passk,
@@ -301,6 +403,8 @@ def main():
         "missing_problem_output_ids": missing_problem_output_ids,
         "ignored": ignored,
         "timeouts": timeouts,
+        "timeout_candidate_ids": timeout_candidate_ids,
+        "compile_error_candidate_ids": compile_error_candidate_ids,
         "top1_solved": top1_solved,
         "solved": solved,
         "first_success_pos": first_success_pos,

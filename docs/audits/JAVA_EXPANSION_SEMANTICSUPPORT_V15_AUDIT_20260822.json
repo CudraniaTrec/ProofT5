@@ -1,0 +1,15 @@
+[
+  {
+    "dataset": "java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+    "mbjp_native_parent": "java_humaneval_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13",
+    "train_rows": 146,
+    "validation_rows": 0,
+    "test_rows": 16,
+    "clean673_parent_train_test_overlap": 5,
+    "gold_programs_compiled_and_passed": 162,
+    "all_test_rows_three_visible_cases": true,
+    "all_test_rows_three_executable_cases": true,
+    "failure_count": 0,
+    "failures": []
+  }
+]

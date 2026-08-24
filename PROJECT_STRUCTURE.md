@@ -1,6 +1,6 @@
 # ProofT5 Project Structure
 
-Last updated: 2026-07-30
+Last updated: 2026-08-24
 
 This note records the current local structure of `/data2/x/hzc/prooft5`.
 It is meant as a memory aid for future work, especially because several
@@ -21,14 +21,35 @@ important runtime assets are intentionally ignored by git.
 ├── acc_config.yaml           # Accelerate config
 ├── requirements.txt          # Historical Python requirements
 ├── requirements-t5gemma2.txt # T5Gemma2 environment overlay
+├── artifacts/                # Frozen paper-facing result packages and hashes
+├── baselines/                # Reproducible Java baseline adapters and lock file
+├── docs/                     # Canonical experiment ledger, audits, retained reports
 ├── Utils/                    # Data, checkpoints, outputs, scoring, parsers
 ├── coq_model/                # Java/Coq modeling, proof generation, mxeval
 ├── SuFu/                     # SuFu benchmarks, parser, model helpers, ignored source trees
 ├── t5_llm/                   # CodeT5 / T5Gemma2 baseline scripts and outputs
 ├── tests/                    # Script-style regression tests
+├── third_party/              # Gitignored upstream checkouts restored from lock file
 ├── tosem/                    # TOSEM paper and submission material
 └── tmp/                      # Ignored runtime scratch data, logs, and backups
 ```
+
+Paper-facing Java experiment status is frozen in
+`docs/MAJOR_REVISION_FINAL_PACKAGE_20260824.md`. The machine-readable package
+under `artifacts/major_revision_20260824/` records exact dataset, checkpoint,
+score, and complete candidate-output paths and their hashes. The compact table
+also remains in `docs/JAVA_BENCHMARK_EXPERIMENT_MASTER_20260823.md`.
+
+For current experiment numbers, start from the frozen 2026-08-24 package. For
+broader paper, reviewer, code, and historical context, continue with
+`docs/SESSION_HANDOFF_MAJOR_REVISION_20260823.md`; its older experiment status
+must not override the frozen package.
+
+External SynCode, Repilot, LLMLOOP, and modified Eclipse JDT repositories are
+not vendored. Their URLs and exact commits are recorded in
+`baselines/java_baselines/UPSTREAM_LOCK.json`; run
+`python3 baselines/java_baselines/fetch_upstreams.py` to reconstruct the
+gitignored `third_party/baselines/` tree.
 
 There is no `paper/ase2026` directory in this checkout at the time of writing.
 The visible manuscript directory here is `tosem/paper`.
@@ -244,15 +265,16 @@ Build directories outside the repo:
 ```text
 /data2/x/hzc/.local/sufu-builds/prooft5-current
 /data2/x/hzc/.local/sufu-builds/prooft5-origin
+/data2/x/hzc/.local/sufu-builds/prooft5-origin-verified
 ```
 
-Runnable full SuFu executable:
+The verified full SuFu executable is:
 
 ```text
-/data2/x/hzc/.local/sufu-builds/prooft5-origin/executor/run
+/data2/x/hzc/.local/sufu-builds/prooft5-origin-verified/executor/run
 ```
 
-Required runtime library path:
+It has an embedded runtime search path. The equivalent explicit library path is:
 
 ```bash
 export LD_LIBRARY_PATH=/data2/x/hzc/.local/sufu-deps/lib:/data2/x/hzc/prooft5/SuFu/SuFu_origin/thirdparty/z3-z3-4.13.0/build:/data2/x/hzc/prooft5/SuFu/SuFu_origin/thirdparty/gurobi912/linux64/lib:$LD_LIBRARY_PATH
@@ -261,7 +283,7 @@ export LD_LIBRARY_PATH=/data2/x/hzc/.local/sufu-deps/lib:/data2/x/hzc/prooft5/Su
 Verified minimal full-SuFu run:
 
 ```bash
-/data2/x/hzc/.local/sufu-builds/prooft5-origin/executor/run \
+/data2/x/hzc/.local/sufu-builds/prooft5-origin-verified/executor/run \
   --benchmark=SuFu/SuFu_origin/benchmark/autolifter/single-pass/sum.f \
   --output=/data2/x/hzc/.local/sufu-builds/run-test/res.f \
   --use_gurobi=false
@@ -272,6 +294,11 @@ Expected tail:
 ```text
 Success
 ```
+
+Build this target with an empty `CMAKE_BUILD_TYPE`, as done by
+`scripts/build_language_runtimes.sh`. The source already forces `-Ofast`;
+adding the `Release` flags and `-DNDEBUG` produced a stage-2 segmentation fault
+on the `sum.f` smoke test.
 
 Important: `SuFu/SuFu` and `SuFu/SuFu_origin` are ignored by git. Local fixes to
 their CMake/config files are active on this machine but will not be committed
@@ -348,6 +375,10 @@ JDK:
 /data2/x/hzc/.local/jdks/temurin17
 ```
 
+User-level `java` and `javac` links in `/home/zchuang/.local/bin` point to this
+JDK, so both the legacy PATH-based scorers and the configurable scorers use
+Java 17.
+
 Portable scoring overrides:
 
 ```bash
@@ -364,7 +395,33 @@ SuFu C++ dependencies:
 /data2/x/hzc/.local/src/sufu-deps
 ```
 
+The language environments can be loaded and checked without writing into the
+repository:
+
+```bash
+source scripts/runtime_env.sh
+scripts/check_language_runtimes.sh
+```
+
+To rebuild Coq, the SuFu surface parser, and the full SuFu synthesizer:
+
+```bash
+scripts/build_language_runtimes.sh
+```
+
 ## Common Commands
+
+The versioned external Java and synthetic SuFu dataset expansion is documented
+in `DATASET_EXPANSION_20260730.md`. It currently includes HumanEval, McEval,
+NaturalCodeBench, and a mechanically translated 1,581-row MXEval MathQA Java
+set, plus two SuFu suites. Its generated task directories under `Utils/data/`
+are ignored, while the reproducible builders are:
+
+```text
+scripts/build_java_external_datasets.py
+scripts/build_sufu_synthetic_dataset.py
+scripts/audit_expanded_dataset_roundtrip.py
+```
 
 ProofT5 checkpoint/eval example:
 

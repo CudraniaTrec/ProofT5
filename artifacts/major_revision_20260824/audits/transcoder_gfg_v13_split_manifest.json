@@ -1,0 +1,3128 @@
+{
+  "dataset": "java_transcoder_gfg_mbjp_native_prompt_split80_20_t5gemma2_20260819_v13",
+  "strict_parent": "java_transcoder_gfg_mbjp_exact_coverage_semanticsig_split80_20_t5gemma2_20260819_v8",
+  "reporting_label": "MBJP-matched exploratory interpolation evaluation",
+  "does_not_replace_strict_v8": true,
+  "train_rows": 414,
+  "validation_rows": 0,
+  "test_rows": 103,
+  "prompts_changed": 517,
+  "descriptions_changed": 517,
+  "canonical_solutions_changed": 0,
+  "ir_targets_changed": 0,
+  "gold_tests_changed": 502,
+  "rows_with_exactly_three_visible_and_executable_cases": 502,
+  "maximum_nl_tokens": 502,
+  "all_test_rows_have_exactly_three_visible_and_executable_cases": true,
+  "test_case_selection": "shortest, median-length, and longest complete case among cases no longer than 256 characters; if that prompt exceeds 512 tokenizer tokens, use the three shortest bounded cases; fixed before training; the same cases are visible and executable",
+  "test_case_selection_uses_model_outputs": false,
+  "test_case_selection_uses_execution_outcomes": false,
+  "gold_programs_compiled_and_passed": 517,
+  "selected_case_indices": {
+    "TransCoderGFG/ADD_1_TO_A_GIVEN_NUMBER": [
+      6,
+      3,
+      9
+    ],
+    "TransCoderGFG/ADD_TWO_NUMBERS_WITHOUT_USING_ARITHMETIC_OPERATORS": [
+      3,
+      1,
+      9
+    ],
+    "TransCoderGFG/AREA_CIRCUMSCRIBED_CIRCLE_SQUARE": [
+      0,
+      2,
+      1
+    ],
+    "TransCoderGFG/AREA_OF_A_HEXAGON": [
+      2,
+      0,
+      3
+    ],
+    "TransCoderGFG/AREA_OF_THE_CIRCLE_THAT_HAS_A_SQUARE_AND_A_CIRCLE_INSCRIBED_IN_IT": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/ARRAY_ELEMENT_MOVED_K_USING_SINGLE_MOVES": [
+      5,
+      1,
+      7
+    ],
+    "TransCoderGFG/BASIC_AND_EXTENDED_EUCLIDEAN_ALGORITHMS": [
+      3,
+      1,
+      9
+    ],
+    "TransCoderGFG/BINARY_REPRESENTATION_OF_NEXT_NUMBER": [
+      5,
+      7,
+      1
+    ],
+    "TransCoderGFG/BINARY_SEARCH": [
+      2,
+      8,
+      1
+    ],
+    "TransCoderGFG/BIN_PACKING_PROBLEM_MINIMIZE_NUMBER_OF_USED_BINS": [
+      9,
+      2,
+      7
+    ],
+    "TransCoderGFG/CALCULATE_AREA_TETRAHEDRON": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/CALCULATE_MAXIMUM_VALUE_USING_SIGN_TWO_NUMBERS_STRING": [
+      2,
+      1,
+      3
+    ],
+    "TransCoderGFG/CALCULATING_FACTORIALS_USING_STIRLING_APPROXIMATION": [
+      0,
+      2,
+      9
+    ],
+    "TransCoderGFG/CASSINIS_IDENTITY": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/CHANGE_ARRAY_PERMUTATION_NUMBERS_1_N": [
+      0,
+      5,
+      6
+    ],
+    "TransCoderGFG/CHANGE_BITS_CAN_MADE_ONE_FLIP": [
+      4,
+      0,
+      6
+    ],
+    "TransCoderGFG/CHECK_CHARACTERS_GIVEN_STRING_CAN_REARRANGED_FORM_PALINDROME_1": [
+      2,
+      9,
+      4
+    ],
+    "TransCoderGFG/CHECK_DIVISIBILITY_LARGE_NUMBER_999": [
+      8,
+      2,
+      7
+    ],
+    "TransCoderGFG/CHECK_GIVEN_CIRCLE_LIES_COMPLETELY_INSIDE_RING_FORMED_TWO_CONCENTRIC_CIRCLES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/CHECK_GIVEN_MATRIX_SPARSE_NOT": [],
+    "TransCoderGFG/CHECK_IF_ALL_THE_ELEMENTS_CAN_BE_MADE_OF_SAME_PARITY_BY_INVERTING_ADJACENT_ELEMENTS": [
+      5,
+      3,
+      0
+    ],
+    "TransCoderGFG/CHECK_IF_A_NUMBER_IS_JUMBLED_OR_NOT": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/CHECK_IF_STRING_REMAINS_PALINDROME_AFTER_REMOVING_GIVEN_NUMBER_OF_CHARACTERS": [
+      4,
+      6,
+      9
+    ],
+    "TransCoderGFG/CHECK_INTEGER_OVERFLOW_MULTIPLICATION": [
+      0,
+      7,
+      1
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_11_NOT": [
+      0,
+      7,
+      9
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_3_NOT": [
+      0,
+      3,
+      7
+    ],
+    "TransCoderGFG/CHECK_LINE_PASSES_ORIGIN": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/CHECK_NUMBER_POWER_K_USING_BASE_CHANGING_METHOD": [
+      4,
+      6,
+      9
+    ],
+    "TransCoderGFG/CHECK_OCCURRENCES_CHARACTER_APPEAR_TOGETHER": [
+      2,
+      9,
+      7
+    ],
+    "TransCoderGFG/CHECK_POSSIBLE_SORT_ARRAY_CONDITIONAL_SWAPPING_ADJACENT_ALLOWED": [
+      8,
+      3,
+      1
+    ],
+    "TransCoderGFG/CHECK_POSSIBLE_TRANSFORM_ONE_STRING_ANOTHER": [
+      1,
+      3,
+      5
+    ],
+    "TransCoderGFG/CHECK_STRING_CAN_OBTAINED_ROTATING_ANOTHER_STRING_2_PLACES": [
+      3,
+      2,
+      9
+    ],
+    "TransCoderGFG/CHECK_STRING_FOLLOWS_ANBN_PATTERN_NOT": [
+      0,
+      3,
+      8
+    ],
+    "TransCoderGFG/CHECK_TWO_GIVEN_CIRCLES_TOUCH_INTERSECT": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/CHECK_VALID_SEQUENCE_DIVISIBLE_M_1": [],
+    "TransCoderGFG/CHECK_WHETHER_ARITHMETIC_PROGRESSION_CAN_FORMED_GIVEN_ARRAY": [
+      0,
+      5,
+      7
+    ],
+    "TransCoderGFG/CHECK_WHETHER_GIVEN_DEGREES_VERTICES_REPRESENT_GRAPH_TREE": [
+      4,
+      2,
+      6
+    ],
+    "TransCoderGFG/CHECK_WHETHER_GIVEN_NUMBER_EVEN_ODD": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/CHECK_WHETHER_LARGE_NUMBER_DIVISIBLE_7": [
+      4,
+      9,
+      0
+    ],
+    "TransCoderGFG/CHECK_WHETHER_NUMBER_DUCK_NUMBER_NOT": [
+      3,
+      1,
+      6
+    ],
+    "TransCoderGFG/CHECK_WHETHER_TRIANGLE_VALID_NOT_SIDES_GIVEN": [
+      5,
+      1,
+      7
+    ],
+    "TransCoderGFG/CHOCOLATE_DISTRIBUTION_PROBLEM": [
+      2,
+      5,
+      7
+    ],
+    "TransCoderGFG/CIRCLE_LATTICE_POINTS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COIN_GAME_WINNER_EVERY_PLAYER_THREE_CHOICES": [
+      7,
+      9,
+      6
+    ],
+    "TransCoderGFG/COMPOSITE_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COMPUTE_AVERAGE_TWO_NUMBERS_WITHOUT_OVERFLOW": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COMPUTE_MODULUS_DIVISION_BY_A_POWER_OF_2_NUMBER": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/COMPUTE_NCR_P_SET_1_INTRODUCTION_AND_DYNAMIC_PROGRAMMING_SOLUTION": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COMPUTE_N_UNDER_MODULO_P": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/CONSTRUCT_LEXICOGRAPHICALLY_SMALLEST_PALINDROME": [
+      6,
+      3,
+      2
+    ],
+    "TransCoderGFG/CONVERTING_ONE_STRING_USING_APPEND_DELETE_LAST_OPERATIONS": [
+      2,
+      3,
+      6
+    ],
+    "TransCoderGFG/CONVERT_STRICTLY_INCREASING_ARRAY_MINIMUM_CHANGES": [
+      8,
+      6,
+      4
+    ],
+    "TransCoderGFG/COUNTING_PAIRS_PERSON_CAN_FORM_PAIR_ONE_1": [
+      4,
+      2,
+      9
+    ],
+    "TransCoderGFG/COUNTS_PATHS_POINT_REACH_ORIGIN_1": [
+      3,
+      0,
+      9
+    ],
+    "TransCoderGFG/COUNT_1S_SORTED_BINARY_ARRAY": [
+      8,
+      5,
+      7
+    ],
+    "TransCoderGFG/COUNT_ARRAYS_CONSECUTIVE_ELEMENT_DIFFERENT_VALUES": [
+      0,
+      1,
+      9
+    ],
+    "TransCoderGFG/COUNT_BINARY_STRINGS_K_TIMES_APPEARING_ADJACENT_TWO_SET_BITS": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_CHARACTERS_POSITION_ENGLISH_ALPHABETS": [
+      8,
+      4,
+      2
+    ],
+    "TransCoderGFG/COUNT_DERANGEMENTS_PERMUTATION_SUCH_THAT_NO_ELEMENT_APPEARS_IN_ITS_ORIGINAL_POSITION_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_DIGITS_FACTORIAL_SET_1": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_DISTINCT_NON_NEGATIVE_PAIRS_X_Y_SATISFY_INEQUALITY_XX_YY_N_2": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_DISTINCT_OCCURRENCES_AS_A_SUBSEQUENCE": [
+      0,
+      6,
+      2
+    ],
+    "TransCoderGFG/COUNT_ENTRIES_EQUAL_TO_X_IN_A_SPECIAL_MATRIX": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_EVEN_LENGTH_BINARY_SEQUENCES_WITH_SAME_SUM_OF_FIRST_AND_SECOND_HALF_BITS_1": [
+      7,
+      2,
+      8
+    ],
+    "TransCoderGFG/COUNT_FACTORIAL_NUMBERS_IN_A_GIVEN_RANGE": [
+      7,
+      2,
+      8
+    ],
+    "TransCoderGFG/COUNT_FIBONACCI_NUMBERS_GIVEN_RANGE_LOG_TIME": [
+      3,
+      1,
+      9
+    ],
+    "TransCoderGFG/COUNT_FREQUENCY_K_MATRIX_SIZE_N_MATRIXI_J_IJ": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_INDEX_PAIRS_EQUAL_ELEMENTS_ARRAY": [
+      2,
+      1,
+      9
+    ],
+    "TransCoderGFG/COUNT_INVERSIONS_OF_SIZE_THREE_IN_A_GIVE_ARRAY": [
+      5,
+      0,
+      4
+    ],
+    "TransCoderGFG/COUNT_NEGATIVE_NUMBERS_IN_A_COLUMN_WISE_ROW_WISE_SORTED_MATRIX": [],
+    "TransCoderGFG/COUNT_NUMBERS_CAN_CONSTRUCTED_USING_TWO_NUMBERS": [
+      1,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBERS_THAT_DONT_CONTAIN_3": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBER_BINARY_STRINGS_WITHOUT_CONSECUTIVE_1S": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBER_OF_OCCURRENCES_OR_FREQUENCY_IN_A_SORTED_ARRAY": [
+      2,
+      9,
+      7
+    ],
+    "TransCoderGFG/COUNT_NUMBER_OF_SOLUTIONS_OF_X2_1_MOD_P_IN_GIVEN_RANGE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_FILL_A_N_X_4_GRID_USING_1_X_4_TILES": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_PARTITION_A_SET_INTO_K_SUBSETS_1": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBER_PAIRS_N_B_N_GCD_B_B": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_NUMBER_WAYS_TILE_FLOOR_SIZE_N_X_M_USING_1_X_M_SIZE_TILES": [
+      1,
+      2,
+      9
+    ],
+    "TransCoderGFG/COUNT_OFDIFFERENT_WAYS_EXPRESS_N_SUM_1_3_4": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_OF_OCCURRENCES_OF_A_101_PATTERN_IN_A_STRING": [
+      5,
+      7,
+      0
+    ],
+    "TransCoderGFG/COUNT_OF_PAIRS_SATISFYING_THE_GIVEN_CONDITION": [
+      4,
+      2,
+      9
+    ],
+    "TransCoderGFG/COUNT_OF_SUB_STRINGS_THAT_DO_NOT_CONTAIN_ALL_THE_CHARACTERS_FROM_THE_SET_A_B_C_AT_THE_SAME_TIME": [
+      9,
+      6,
+      1
+    ],
+    "TransCoderGFG/COUNT_OPERATIONS_MAKE_STRINGAB_FREE": [
+      5,
+      9,
+      1
+    ],
+    "TransCoderGFG/COUNT_PAIRS_DIFFERENCE_EQUAL_K": [
+      1,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_PAIRS_TWO_SORTED_ARRAYS_WHOSE_SUM_EQUAL_GIVEN_VALUE_X": [
+      6,
+      3,
+      7
+    ],
+    "TransCoderGFG/COUNT_PAIRS_WHOSE_PRODUCTS_EXIST_IN_ARRAY": [
+      6,
+      8,
+      4
+    ],
+    "TransCoderGFG/COUNT_PALINDROME_SUB_STRINGS_STRING": [
+      9,
+      1,
+      5
+    ],
+    "TransCoderGFG/COUNT_PALINDROMIC_SUBSEQUENCE_GIVEN_STRING": [
+      0,
+      1,
+      2
+    ],
+    "TransCoderGFG/COUNT_POSSIBLE_DECODINGS_GIVEN_DIGIT_SEQUENCE_1": [
+      5,
+      3,
+      0
+    ],
+    "TransCoderGFG/COUNT_POSSIBLE_PATHS_TOP_LEFT_BOTTOM_RIGHT_NXM_MATRIX_1": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_POSSIBLE_WAYS_TO_CONSTRUCT_BUILDINGS": [
+      6,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_ROTATIONS_DIVISIBLE_4": [
+      8,
+      3,
+      2
+    ],
+    "TransCoderGFG/COUNT_SINGLE_NODE_ISOLATED_SUB_GRAPHS_DISCONNECTED_GRAPH": [
+      0,
+      8,
+      7
+    ],
+    "TransCoderGFG/COUNT_SORTED_ROWS_MATRIX": [],
+    "TransCoderGFG/COUNT_STRINGS_ADJACENT_CHARACTERS_DIFFERENCE_ONE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_STRINGS_CAN_FORMED_USING_B_C_GIVEN_CONSTRAINTS_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_SUBARRAYS_EQUAL_NUMBER_1S_0S_1": [
+      8,
+      9,
+      7
+    ],
+    "TransCoderGFG/COUNT_SUBARRAYS_WITH_SAME_EVEN_AND_ODD_ELEMENTS": [
+      7,
+      8,
+      4
+    ],
+    "TransCoderGFG/COUNT_SUBSTRINGS_WITH_SAME_FIRST_AND_LAST_CHARACTERS": [
+      8,
+      3,
+      4
+    ],
+    "TransCoderGFG/COUNT_TOTAL_SET_BITS_IN_ALL_NUMBERS_FROM_1_TO_N": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_TRAILING_ZEROES_FACTORIAL_NUMBER": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_WAYS_BUILD_STREET_GIVEN_CONSTRAINTS": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/COUNT_WAYS_DIVIDE_CIRCLE_USING_N_NON_INTERSECTING_CHORDS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/C_PROGRAM_CONCATENATE_STRING_GIVEN_NUMBER_TIMES": [
+      6,
+      7,
+      5
+    ],
+    "TransCoderGFG/C_PROGRAM_FACTORIAL_NUMBER": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/C_PROGRAM_FIND_LARGEST_ELEMENT_ARRAY_1": [
+      2,
+      6,
+      9
+    ],
+    "TransCoderGFG/DECIMAL_REPRESENTATION_GIVEN_BINARY_STRING_DIVISIBLE_10_NOT": [
+      4,
+      3,
+      6
+    ],
+    "TransCoderGFG/DETECT_IF_TWO_INTEGERS_HAVE_OPPOSITE_SIGNS": [
+      6,
+      3,
+      5
+    ],
+    "TransCoderGFG/DIAGONALLY_DOMINANT_MATRIX": [],
+    "TransCoderGFG/DICE_THROW_PROBLEM": [
+      0,
+      2,
+      8
+    ],
+    "TransCoderGFG/DIFFERENCE_BETWEEN_HIGHEST_AND_LEAST_FREQUENCIES_IN_AN_ARRAY": [
+      6,
+      8,
+      1
+    ],
+    "TransCoderGFG/DISTRIBUTING_ITEMS_PERSON_CANNOT_TAKE_TWO_ITEMS_TYPE": [
+      0,
+      6,
+      7
+    ],
+    "TransCoderGFG/DISTRIBUTING_M_ITEMS_CIRCLE_SIZE_N_STARTING_K_TH_POSITION": [
+      1,
+      2,
+      9
+    ],
+    "TransCoderGFG/DIVISIBILITY_9_USING_BITWISE_OPERATORS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/DIVISIBILITY_BY_7": [
+      0,
+      5,
+      7
+    ],
+    "TransCoderGFG/DOUBLE_FACTORIAL": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/DYCK_PATH": [
+      6,
+      3,
+      9
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_HIGH_EFFORT_VS_LOW_EFFORT_TASKS_PROBLEM": [
+      2,
+      7,
+      3
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_13_CUTTING_A_ROD": [
+      7,
+      9,
+      0
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_14_MAXIMUM_SUM_INCREASING_SUBSEQUENCE": [
+      6,
+      9,
+      4
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_17_PALINDROME_PARTITIONING_1": [
+      2,
+      5,
+      8
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_36_CUT_A_ROPE_TO_MAXIMIZE_PRODUCT_1": [
+      2,
+      1,
+      8
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_3_LONGEST_INCREASING_SUBSEQUENCE_1": [
+      4,
+      5,
+      9
+    ],
+    "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_8_MATRIX_CHAIN_MULTIPLICATION": [
+      3,
+      6,
+      1
+    ],
+    "TransCoderGFG/EFFICIENTLY_FIND_FIRST_REPEATED_CHARACTER_STRING_WITHOUT_USING_ADDITIONAL_DATA_STRUCTURE_ONE_TRAVERSAL": [
+      3,
+      9,
+      0
+    ],
+    "TransCoderGFG/EFFICIENT_SEARCH_IN_AN_ARRAY_WHERE_DIFFERENCE_BETWEEN_ADJACENT_IS_1": [
+      9,
+      1,
+      7
+    ],
+    "TransCoderGFG/EFFICIENT_WAY_CHECK_WHETHER_N_TH_FIBONACCI_NUMBER_MULTIPLE_10": [
+      0,
+      5,
+      1
+    ],
+    "TransCoderGFG/EFFICIENT_WAY_TO_MULTIPLY_WITH_7": [
+      3,
+      2,
+      9
+    ],
+    "TransCoderGFG/ELEMENTS_TO_BE_ADDED_SO_THAT_ALL_ELEMENTS_OF_A_RANGE_ARE_PRESENT_IN_ARRAY": [
+      9,
+      8,
+      7
+    ],
+    "TransCoderGFG/EQUILIBRIUM_INDEX_OF_AN_ARRAY": [
+      1,
+      8,
+      7
+    ],
+    "TransCoderGFG/EULERIAN_NUMBER_1": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/EVEN_FIBONACCI_NUMBERS_SUM": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/FAST_MULTIPLICATION_METHOD_WITHOUT_USING_MULTIPLICATION_OPERATOR_RUSSIAN_PEASANTS_ALGORITHM": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/FINDING_POWER_PRIME_NUMBER_P_N": [
+      2,
+      3,
+      9
+    ],
+    "TransCoderGFG/FIND_A_FIXED_POINT_IN_A_GIVEN_ARRAY": [
+      1,
+      0,
+      4
+    ],
+    "TransCoderGFG/FIND_DIFFERENCE_BETWEEN_SUMS_OF_TWO_DIAGONALS": [],
+    "TransCoderGFG/FIND_EQUAL_POINT_STRING_BRACKETS": [
+      1,
+      5,
+      3
+    ],
+    "TransCoderGFG/FIND_FIRST_NATURAL_NUMBER_WHOSE_FACTORIAL_DIVISIBLE_X": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_INDEX_0_REPLACED_1_GET_LONGEST_CONTINUOUS_SEQUENCE_1S_BINARY_ARRAY": [
+      6,
+      8,
+      0
+    ],
+    "TransCoderGFG/FIND_INDEX_GIVEN_FIBONACCI_NUMBER_CONSTANT_TIME": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_INDEX_OF_AN_EXTRA_ELEMENT_PRESENT_IN_ONE_SORTED_ARRAY": [
+      2,
+      3,
+      9
+    ],
+    "TransCoderGFG/FIND_LARGEST_D_IN_ARRAY_SUCH_THAT_A_B_C_D": [
+      2,
+      9,
+      0
+    ],
+    "TransCoderGFG/FIND_LAST_DIGIT_FACTORIAL_DIVIDES_FACTORIAL_B": [
+      6,
+      2,
+      8
+    ],
+    "TransCoderGFG/FIND_MAXIMUM_AVERAGE_SUBARRAY_OF_K_LENGTH": [
+      3,
+      6,
+      4
+    ],
+    "TransCoderGFG/FIND_MAXIMUM_HEIGHT_PYRAMID_FROM_THE_GIVEN_ARRAY_OF_OBJECTS": [
+      8,
+      9,
+      7
+    ],
+    "TransCoderGFG/FIND_MAXIMUM_PRODUCT_OF_A_TRIPLET_IN_ARRAY": [
+      2,
+      5,
+      1
+    ],
+    "TransCoderGFG/FIND_MINIMUM_ELEMENT_IN_A_SORTED_AND_ROTATED_ARRAY": [
+      7,
+      0,
+      1
+    ],
+    "TransCoderGFG/FIND_MINIMUM_NUMBER_DIVIDED_MAKE_NUMBER_PERFECT_SQUARE": [
+      2,
+      3,
+      9
+    ],
+    "TransCoderGFG/FIND_MINIMUM_SUM_FACTORS_NUMBER": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_NUMBER_ENDLESS_POINTS": [
+      0,
+      8,
+      2
+    ],
+    "TransCoderGFG/FIND_NUMBER_PAIRS_ARRAY_XOR_0": [
+      5,
+      1,
+      7
+    ],
+    "TransCoderGFG/FIND_NUMBER_PERFECT_SQUARES_TWO_GIVEN_NUMBERS": [
+      1,
+      3,
+      9
+    ],
+    "TransCoderGFG/FIND_N_TH_ELEMENT_FROM_STERNS_DIATOMIC_SERIES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_PAIR_MAXIMUM_GCD_ARRAY": [
+      5,
+      4,
+      7
+    ],
+    "TransCoderGFG/FIND_PAIR_WITH_GREATEST_PRODUCT_IN_ARRAY": [
+      7,
+      8,
+      1
+    ],
+    "TransCoderGFG/FIND_PERIMETER_CYLINDER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_POSITION_GIVEN_NUMBER_AMONG_NUMBERS_MADE_4_7": [
+      0,
+      6,
+      8
+    ],
+    "TransCoderGFG/FIND_REPEATED_CHARACTER_PRESENT_FIRST_STRING": [
+      5,
+      4,
+      1
+    ],
+    "TransCoderGFG/FIND_REPEATING_ELEMENT_SORTED_ARRAY_SIZE_N": [
+      3,
+      5,
+      6
+    ],
+    "TransCoderGFG/FIND_REPETITIVE_ELEMENT_1_N_1_1": [
+      7,
+      0,
+      6
+    ],
+    "TransCoderGFG/FIND_ROTATION_COUNT_ROTATED_SORTED_ARRAY": [
+      5,
+      0,
+      7
+    ],
+    "TransCoderGFG/FIND_SMALLEST_VALUE_REPRESENTED_SUM_SUBSET_GIVEN_ARRAY": [
+      7,
+      5,
+      9
+    ],
+    "TransCoderGFG/FIND_SUBARRAY_WITH_GIVEN_SUM": [
+      8,
+      6,
+      7
+    ],
+    "TransCoderGFG/FIND_SUM_EVEN_FACTORS_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_SUM_EVEN_INDEX_BINOMIAL_COEFFICIENTS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_SUM_MODULO_K_FIRST_N_NATURAL_NUMBER": [
+      0,
+      2,
+      9
+    ],
+    "TransCoderGFG/FIND_SUM_NODES_GIVEN_PERFECT_BINARY_TREE_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_SUM_NON_REPEATING_DISTINCT_ELEMENTS_ARRAY": [
+      9,
+      6,
+      4
+    ],
+    "TransCoderGFG/FIND_THE_ELEMENT_BEFORE_WHICH_ALL_THE_ELEMENTS_ARE_SMALLER_THAN_IT_AND_AFTER_WHICH_ALL_ARE_GREATER_THAN_IT": [
+      8,
+      2,
+      1
+    ],
+    "TransCoderGFG/FIND_THE_ELEMENT_THAT_APPEARS_ONCE_2": [
+      8,
+      9,
+      1
+    ],
+    "TransCoderGFG/FIND_THE_FIRST_MISSING_NUMBER": [
+      9,
+      5,
+      7
+    ],
+    "TransCoderGFG/FIND_THE_MAXIMUM_ELEMENT_IN_AN_ARRAY_WHICH_IS_FIRST_INCREASING_AND_THEN_DECREASING": [
+      1,
+      2,
+      4
+    ],
+    "TransCoderGFG/FIND_THE_MINIMUM_DISTANCE_BETWEEN_TWO_NUMBERS": [
+      2,
+      8,
+      7
+    ],
+    "TransCoderGFG/FIND_THE_NUMBER_OCCURRING_ODD_NUMBER_OF_TIMES": [
+      9,
+      5,
+      0
+    ],
+    "TransCoderGFG/FIND_THREE_ELEMENT_FROM_DIFFERENT_THREE_ARRAYS_SUCH_THAT_THAT_A_B_C_K": [
+      6,
+      3,
+      7
+    ],
+    "TransCoderGFG/FIND_UNIT_DIGIT_X_RAISED_POWER_Y": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_VALUE_OF_Y_MOD_2_RAISED_TO_POWER_X": [
+      6,
+      1,
+      8
+    ],
+    "TransCoderGFG/FIND_WHETHER_AN_ARRAY_IS_SUBSET_OF_ANOTHER_ARRAY_SET_1_1": [
+      8,
+      2,
+      1
+    ],
+    "TransCoderGFG/FIND_WHETHER_A_GIVEN_NUMBER_IS_A_POWER_OF_4_OR_NOT": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/FIND_WHETHER_GIVEN_INTEGER_POWER_3_NOT": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FLOOR_IN_A_SORTED_ARRAY_1": [
+      0,
+      8,
+      7
+    ],
+    "TransCoderGFG/FREQUENT_ELEMENT_ARRAY": [
+      2,
+      1,
+      7
+    ],
+    "TransCoderGFG/FRIENDS_PAIRING_PROBLEM": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/FUNCTION_COPY_STRING_ITERATIVE_RECURSIVE_1": [
+      0,
+      9,
+      5
+    ],
+    "TransCoderGFG/GCD_ELEMENTS_GIVEN_RANGE": [
+      6,
+      1,
+      9
+    ],
+    "TransCoderGFG/GIVEN_LARGE_NUMBER_CHECK_SUBSEQUENCE_DIGITS_DIVISIBLE_8": [
+      9,
+      7,
+      2
+    ],
+    "TransCoderGFG/GIVEN_P_AND_N_FIND_THE_LARGEST_X_SUCH_THAT_PX_DIVIDES_N_2": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/GOOGLE_CASE_GIVEN_SENTENCE": [
+      6,
+      2,
+      5
+    ],
+    "TransCoderGFG/HARDY_RAMANUJAN_THEOREM": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/HEIGHT_COMPLETE_BINARY_TREE_HEAP_N_NODES": [
+      4,
+      2,
+      9
+    ],
+    "TransCoderGFG/HEXAGONAL_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/HIGHWAY_BILLBOARD_PROBLEM": [
+      6,
+      8,
+      7
+    ],
+    "TransCoderGFG/HORNERS_METHOD_POLYNOMIAL_EVALUATION": [
+      2,
+      5,
+      7
+    ],
+    "TransCoderGFG/HOW_CAN_WE_SUM_THE_DIGITS_OF_A_GIVEN_NUMBER_IN_SINGLE_STATEMENT": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/HOW_TO_AVOID_OVERFLOW_IN_MODULAR_MULTIPLICATION": [
+      1,
+      0,
+      7
+    ],
+    "TransCoderGFG/HOW_TO_BEGIN_WITH_COMPETITIVE_PROGRAMMING": [
+      2,
+      5,
+      7
+    ],
+    "TransCoderGFG/HOW_TO_CHECK_IF_A_GIVEN_ARRAY_REPRESENTS_A_BINARY_HEAP": [
+      6,
+      5,
+      1
+    ],
+    "TransCoderGFG/HOW_TO_COMPUTE_MOD_OF_A_BIG_NUMBER": [
+      6,
+      1,
+      5
+    ],
+    "TransCoderGFG/HOW_TO_PRINT_MAXIMUM_NUMBER_OF_A_USING_GIVEN_FOUR_KEYS": [
+      5,
+      3,
+      9
+    ],
+    "TransCoderGFG/HYPERCUBE_GRAPH": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/INTEGER_POSITIVE_VALUE_POSITIVE_NEGATIVE_VALUE_ARRAY_1": [
+      0,
+      2,
+      5
+    ],
+    "TransCoderGFG/K_TH_DISTINCT_OR_NON_REPEATING_ELEMENT_IN_AN_ARRAY": [
+      2,
+      0,
+      3
+    ],
+    "TransCoderGFG/K_TH_ELEMENT_TWO_SORTED_ARRAYS": [
+      6,
+      1,
+      0
+    ],
+    "TransCoderGFG/K_TH_PRIME_FACTOR_GIVEN_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/LARGEST_SUBARRAY_WITH_EQUAL_NUMBER_OF_0S_AND_1S_1": [
+      1,
+      8,
+      4
+    ],
+    "TransCoderGFG/LARGEST_SUM_CONTIGUOUS_SUBARRAY_2": [
+      1,
+      9,
+      4
+    ],
+    "TransCoderGFG/LCS_FORMED_CONSECUTIVE_SEGMENTS_LEAST_LENGTH_K": [
+      8,
+      9,
+      1
+    ],
+    "TransCoderGFG/LENGTH_LONGEST_STRICT_BITONIC_SUBSEQUENCE": [
+      0,
+      5,
+      6
+    ],
+    "TransCoderGFG/LEONARDO_NUMBER_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/LEXICOGRAPHICALLY_MINIMUM_STRING_ROTATION": [
+      1,
+      0,
+      9
+    ],
+    "TransCoderGFG/LEXICOGRAPHICAL_CONCATENATION_SUBSTRINGS_STRING": [
+      0,
+      8,
+      5
+    ],
+    "TransCoderGFG/LONGEST_COMMON_SUBSTRING_SPACE_OPTIMIZED_DP_SOLUTION": [
+      2,
+      1,
+      8
+    ],
+    "TransCoderGFG/LONGEST_EVEN_LENGTH_SUBSTRING_SUM_FIRST_SECOND_HALF": [
+      3,
+      9,
+      0
+    ],
+    "TransCoderGFG/LONGEST_INCREASING_SUBSEQUENCE_1": [
+      1,
+      9,
+      4
+    ],
+    "TransCoderGFG/LONGEST_PALINDROME_SUBSEQUENCE_SPACE": [
+      8,
+      2,
+      3
+    ],
+    "TransCoderGFG/LONGEST_PREFIX_ALSO_SUFFIX_1": [
+      6,
+      0,
+      5
+    ],
+    "TransCoderGFG/LONGEST_REPEATED_SUBSEQUENCE_1": [
+      7,
+      0,
+      1
+    ],
+    "TransCoderGFG/LONGEST_REPEATING_SUBSEQUENCE": [
+      5,
+      9,
+      7
+    ],
+    "TransCoderGFG/LONGEST_SUBARRAY_SUM_DIVISIBLE_K": [
+      9,
+      5,
+      3
+    ],
+    "TransCoderGFG/LONGEST_SUBSEQUENCE_DIFFERENCE_ADJACENTS_ONE_SET_2": [
+      2,
+      6,
+      1
+    ],
+    "TransCoderGFG/LOWER_CASE_UPPER_CASE_INTERESTING_FACT": [
+      0,
+      4,
+      8
+    ],
+    "TransCoderGFG/LOWER_INSERTION_POINT": [
+      3,
+      1,
+      6
+    ],
+    "TransCoderGFG/MAKE_LARGEST_PALINDROME_CHANGING_K_DIGITS": [
+      4,
+      8,
+      5
+    ],
+    "TransCoderGFG/MAKING_ELEMENTS_OF_TWO_ARRAYS_SAME_WITH_MINIMUM_INCREMENTDECREMENT": [
+      3,
+      4,
+      8
+    ],
+    "TransCoderGFG/MAXIMIZE_ARRJ_ARRI_ARRL_ARRK_SUCH_THAT_I_J_K_L": [
+      2,
+      5,
+      4
+    ],
+    "TransCoderGFG/MAXIMIZE_SUM_CONSECUTIVE_DIFFERENCES_CIRCULAR_ARRAY": [
+      2,
+      5,
+      6
+    ],
+    "TransCoderGFG/MAXIMIZE_VOLUME_CUBOID_GIVEN_SUM_SIDES": [
+      6,
+      3,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_AREA_RECTANGLE_PICKING_FOUR_SIDES_ARRAY_1": [
+      6,
+      1,
+      0
+    ],
+    "TransCoderGFG/MAXIMUM_BINOMIAL_COEFFICIENT_TERM_VALUE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_CONSECUTIVE_REPEATING_CHARACTER_STRING": [
+      4,
+      1,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_DISTANCE_TWO_OCCURRENCES_ELEMENT_ARRAY": [
+      3,
+      6,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_EQULIBRIUM_SUM_ARRAY": [
+      1,
+      7,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_HEIGHT_OF_TRIANGULAR_ARRANGEMENT_OF_ARRAY_VALUES": [
+      8,
+      3,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_LENGTH_PREFIX_ONE_STRING_OCCURS_SUBSEQUENCE_ANOTHER": [
+      9,
+      3,
+      0
+    ],
+    "TransCoderGFG/MAXIMUM_NUMBER_2X2_SQUARES_CAN_FIT_INSIDE_RIGHT_ISOSCELES_TRIANGLE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_NUMBER_CHOCOLATES_DISTRIBUTED_EQUALLY_AMONG_K_STUDENTS": [
+      5,
+      1,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_NUMBER_SEGMENTS_LENGTHS_B_C": [
+      6,
+      0,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_POINTS_INTERSECTION_N_CIRCLES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_POSSIBLE_DIFFERENCE_TWO_SUBSETS_ARRAY": [
+      8,
+      0,
+      7
+    ],
+    "TransCoderGFG/MAXIMUM_PRODUCT_OF_4_ADJACENT_ELEMENTS_IN_MATRIX": [],
+    "TransCoderGFG/MAXIMUM_PRODUCT_SUBSET_ARRAY": [
+      0,
+      3,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_PROFIT_BY_BUYING_AND_SELLING_A_SHARE_AT_MOST_K_TIMES_1": [
+      3,
+      5,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_REMOVAL_FROM_ARRAY_WHEN_REMOVAL_TIME_WAITING_TIME": [
+      2,
+      8,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_SUBARRAY_SUM_USING_PREFIX_SUM": [
+      4,
+      8,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_SUBSEQUENCE_SUM_SUCH_THAT_NO_THREE_ARE_CONSECUTIVE": [
+      2,
+      5,
+      0
+    ],
+    "TransCoderGFG/MAXIMUM_SUM_2_X_N_GRID_NO_TWO_ELEMENTS_ADJACENT": [],
+    "TransCoderGFG/MAXIMUM_SUM_IARRI_AMONG_ROTATIONS_GIVEN_ARRAY": [
+      5,
+      2,
+      7
+    ],
+    "TransCoderGFG/MAXIMUM_SUM_SUBARRAY_REMOVING_ONE_ELEMENT": [
+      2,
+      9,
+      6
+    ],
+    "TransCoderGFG/MAXIMUM_SUM_SUBSEQUENCE_LEAST_K_DISTANT_ELEMENTS": [
+      3,
+      6,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_VALUE_CHOICE_EITHER_DIVIDING_CONSIDERING": [
+      0,
+      1,
+      6
+    ],
+    "TransCoderGFG/MAXIMUM_WEIGHT_PATH_ENDING_ELEMENT_LAST_ROW_MATRIX": [],
+    "TransCoderGFG/MAXIMUM_XOR_VALUE_MATRIX": [],
+    "TransCoderGFG/MIDDLE_OF_THREE_USING_MINIMUM_COMPARISONS": [
+      9,
+      1,
+      8
+    ],
+    "TransCoderGFG/MINIMIZE_THE_SUM_OF_DIGITS_OF_A_AND_B_SUCH_THAT_A_B_N": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_COST_CONNECT_WEIGHTED_NODES_REPRESENTED_ARRAY": [
+      3,
+      8,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_COST_FOR_ACQUIRING_ALL_COINS_WITH_K_EXTRA_COINS_ALLOWED_WITH_EVERY_COIN": [
+      6,
+      2,
+      4
+    ],
+    "TransCoderGFG/MINIMUM_COST_MAKE_ARRAY_SIZE_1_REMOVING_LARGER_PAIRS": [
+      1,
+      7,
+      6
+    ],
+    "TransCoderGFG/MINIMUM_COST_SORT_MATRIX_NUMBERS_0_N2_1": [],
+    "TransCoderGFG/MINIMUM_DIFFERENCE_MAX_MIN_K_SIZE_SUBSETS": [
+      8,
+      5,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_FLIP_REQUIRED_MAKE_BINARY_MATRIX_SYMMETRIC_1": [],
+    "TransCoderGFG/MINIMUM_INSERTIONS_SORT_ARRAY": [
+      5,
+      0,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_LENGTH_SUBARRAY_SUM_GREATER_GIVEN_VALUE": [
+      5,
+      4,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_NUMBER_OF_JUMPS_TO_REACH_END_OF_A_GIVEN_ARRAY_1": [
+      4,
+      3,
+      0
+    ],
+    "TransCoderGFG/MINIMUM_NUMBER_OF_SQUARES_WHOSE_SUM_EQUALS_TO_GIVEN_NUMBER_N_1": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_NUMBER_PLATFORMS_REQUIRED_RAILWAYBUS_STATION": [
+      2,
+      9,
+      1
+    ],
+    "TransCoderGFG/MINIMUM_NUMBER_SUBSETS_DISTINCT_ELEMENTS": [
+      8,
+      4,
+      1
+    ],
+    "TransCoderGFG/MINIMUM_OPERATIONS_MAKE_GCD_ARRAY_MULTIPLE_K": [
+      1,
+      3,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_OPERATION_MAKE_ELEMENTS_EQUAL_ARRAY": [
+      2,
+      1,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_PERIMETER_N_BLOCKS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_ROTATIONS_UNLOCK_CIRCULAR_LOCK": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_STEPS_MINIMIZE_N_PER_GIVEN_CONDITION": [
+      1,
+      3,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_SUM_PRODUCT_TWO_ARRAYS": [
+      2,
+      9,
+      6
+    ],
+    "TransCoderGFG/MINIMUM_SUM_TWO_NUMBERS_FORMED_DIGITS_ARRAY": [
+      3,
+      2,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_TIME_TO_FINISH_TASKS_WITHOUT_SKIPPING_TWO_CONSECUTIVE": [
+      8,
+      2,
+      1
+    ],
+    "TransCoderGFG/MINIMUM_TIME_WRITE_CHARACTERS_USING_INSERT_DELETE_COPY_OPERATION": [
+      2,
+      0,
+      8
+    ],
+    "TransCoderGFG/MODULAR_EXPONENTIATION_POWER_IN_MODULAR_ARITHMETIC": [
+      0,
+      7,
+      9
+    ],
+    "TransCoderGFG/MODULUS_TWO_FLOAT_DOUBLE_NUMBERS": [
+      0,
+      8,
+      3
+    ],
+    "TransCoderGFG/MULTIPLY_AN_INTEGER_WITH_3_5": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/MULTIPLY_LARGE_INTEGERS_UNDER_LARGE_MODULO": [
+      2,
+      0,
+      9
+    ],
+    "TransCoderGFG/NEWMAN_CONWAY_SEQUENCE_1": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/NEXT_HIGHER_NUMBER_WITH_SAME_NUMBER_OF_SET_BITS": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/NEXT_POWER_OF_2": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/NTH_EVEN_LENGTH_PALINDROME": [
+      6,
+      1,
+      7
+    ],
+    "TransCoderGFG/NTH_NON_FIBONACCI_NUMBER": [
+      7,
+      2,
+      9
+    ],
+    "TransCoderGFG/NUMBER_DAYS_TANK_WILL_BECOME_EMPTY": [
+      5,
+      2,
+      9
+    ],
+    "TransCoderGFG/NUMBER_DIGITS_REMOVED_MAKE_NUMBER_DIVISIBLE_3": [
+      5,
+      4,
+      7
+    ],
+    "TransCoderGFG/NUMBER_JUMP_REQUIRED_GIVEN_LENGTH_REACH_POINT_FORM_D_0_ORIGIN_2D_PLANE": [
+      0,
+      1,
+      8
+    ],
+    "TransCoderGFG/NUMBER_NON_NEGATIVE_INTEGRAL_SOLUTIONS_B_C_N": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_N_DIGITS_NON_DECREASING_INTEGERS": [
+      0,
+      2,
+      9
+    ],
+    "TransCoderGFG/NUMBER_N_DIGIT_STEPPING_NUMBERS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_OF_BINARY_TREES_FOR_GIVEN_PREORDER_SEQUENCE_LENGTH": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_OF_PAIRS_IN_AN_ARRAY_HAVING_SUM_EQUAL_TO_PRODUCT": [
+      4,
+      5,
+      3
+    ],
+    "TransCoderGFG/NUMBER_OF_SUBSTRINGS_WITH_ODD_DECIMAL_VALUE_IN_A_BINARY_STRING": [
+      2,
+      9,
+      4
+    ],
+    "TransCoderGFG/NUMBER_OF_TRIANGLES_IN_A_PLANE_IF_NO_MORE_THAN_TWO_POINTS_ARE_COLLINEAR": [
+      4,
+      2,
+      9
+    ],
+    "TransCoderGFG/NUMBER_ORDERED_PAIRS_AI_AJ_0": [
+      8,
+      2,
+      4
+    ],
+    "TransCoderGFG/NUMBER_RECTANGLES_NM_GRID": [
+      2,
+      3,
+      8
+    ],
+    "TransCoderGFG/NUMBER_SUBSEQUENCES_AB_STRING_REPEATED_K_TIMES": [
+      4,
+      8,
+      2
+    ],
+    "TransCoderGFG/NUMBER_SUBSEQUENCES_FORM_AI_BJ_CK": [
+      0,
+      4,
+      3
+    ],
+    "TransCoderGFG/NUMBER_SUBSTRINGS_STRING": [
+      5,
+      8,
+      6
+    ],
+    "TransCoderGFG/NUMBER_TRIANGLES_N_MOVES": [
+      4,
+      2,
+      8
+    ],
+    "TransCoderGFG/NUMBER_UNIQUE_RECTANGLES_FORMED_USING_N_UNIT_SQUARES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_WAYS_NODE_MAKE_LOOP_SIZE_K_UNDIRECTED_COMPLETE_CONNECTED_GRAPH_N_NODES": [
+      4,
+      3,
+      9
+    ],
+    "TransCoderGFG/N_TH_ROOT_NUMBER": [
+      1,
+      0,
+      9
+    ],
+    "TransCoderGFG/N_TH_TERM_SERIES_2_12_36_80_150": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/ONE_LINE_FUNCTION_FOR_FACTORIAL_OF_A_NUMBER": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/PADOVAN_SEQUENCE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/PAINTING_FENCE_ALGORITHM": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/PAIR_WITH_GIVEN_PRODUCT_SET_1_FIND_IF_ANY_PAIR_EXISTS": [
+      5,
+      3,
+      6
+    ],
+    "TransCoderGFG/PANGRAM_CHECKING": [
+      6,
+      5,
+      4
+    ],
+    "TransCoderGFG/PARTITION_INTO_TWO_SUBARRAYS_OF_LENGTHS_K_AND_N_K_SUCH_THAT_THE_DIFFERENCE_OF_SUMS_IS_MAXIMUM": [
+      1,
+      3,
+      0
+    ],
+    "TransCoderGFG/PERFECT_REVERSIBLE_STRING": [
+      9,
+      4,
+      2
+    ],
+    "TransCoderGFG/PIZZA_CUT_PROBLEM_CIRCLE_DIVISION_LINES": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/POLICEMEN_CATCH_THIEVES": [
+      4,
+      9,
+      0
+    ],
+    "TransCoderGFG/POSITION_ELEMENT_STABLE_SORT": [
+      9,
+      5,
+      1
+    ],
+    "TransCoderGFG/POSITIVE_ELEMENTS_EVEN_NEGATIVE_ODD_POSITIONS": [
+      8,
+      3,
+      7
+    ],
+    "TransCoderGFG/POSSIBLE_FORM_TRIANGLE_ARRAY_VALUES": [
+      3,
+      7,
+      1
+    ],
+    "TransCoderGFG/POSSIBLE_TO_MAKE_A_DIVISIBLE_BY_3_NUMBER_USING_ALL_DIGITS_IN_AN_ARRAY": [
+      3,
+      8,
+      4
+    ],
+    "TransCoderGFG/PRIMALITY_TEST_SET_1_INTRODUCTION_AND_SCHOOL_METHOD": [
+      3,
+      2,
+      9
+    ],
+    "TransCoderGFG/PRIMALITY_TEST_SET_5USING_LUCAS_LEHMER_SERIES": [
+      4,
+      3,
+      9
+    ],
+    "TransCoderGFG/PRIME_NUMBERS": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/PRINT_MAXIMUM_SHORTEST_DISTANCE": [
+      0,
+      2,
+      7
+    ],
+    "TransCoderGFG/PRINT_WORDS_STRING_REVERSE_ORDER": [
+      5,
+      6,
+      7
+    ],
+    "TransCoderGFG/PROBABILITY_THREE_RANDOMLY_CHOSEN_NUMBERS_AP": [
+      1,
+      3,
+      9
+    ],
+    "TransCoderGFG/PRODUCT_MAXIMUM_FIRST_ARRAY_MINIMUM_SECOND": [
+      6,
+      0,
+      4
+    ],
+    "TransCoderGFG/PRODUCT_NODES_K_TH_LEVEL_TREE_REPRESENTED_STRING": [
+      8,
+      6,
+      5
+    ],
+    "TransCoderGFG/PROGRAM_BINARY_DECIMAL_CONVERSION": [
+      4,
+      3,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_OCTAHEDRON": [
+      0,
+      8,
+      7
+    ],
+    "TransCoderGFG/PROGRAM_CHECK_ARRAY_SORTED_NOT_ITERATIVE_RECURSIVE": [
+      2,
+      8,
+      3
+    ],
+    "TransCoderGFG/PROGRAM_CHECK_INPUT_INTEGER_STRING": [
+      5,
+      1,
+      4
+    ],
+    "TransCoderGFG/PROGRAM_CHECK_ISBN": [
+      5,
+      3,
+      6
+    ],
+    "TransCoderGFG/PROGRAM_CIRCUMFERENCE_PARALLELOGRAM": [
+      2,
+      8,
+      5
+    ],
+    "TransCoderGFG/PROGRAM_COUNT_OCCURRENCE_GIVEN_CHARACTER_STRING": [
+      7,
+      9,
+      3
+    ],
+    "TransCoderGFG/PROGRAM_FIND_CIRCUMFERENCE_CIRCLE": [
+      4,
+      1,
+      3
+    ],
+    "TransCoderGFG/PROGRAM_FIND_REMAINDER_LARGE_NUMBER_DIVIDED_11": [
+      2,
+      0,
+      6
+    ],
+    "TransCoderGFG/PROGRAM_FIND_SLOPE_LINE": [
+      6,
+      8,
+      1
+    ],
+    "TransCoderGFG/PROGRAM_FIND_SMALLEST_DIFFERENCE_ANGLES_TWO_PARTS_GIVEN_CIRCLE": [
+      3,
+      2,
+      1
+    ],
+    "TransCoderGFG/PROGRAM_FIND_STRING_START_END_GEEKS": [
+      3,
+      8,
+      0
+    ],
+    "TransCoderGFG/PROGRAM_FOR_DEADLOCK_FREE_CONDITION_IN_OPERATING_SYSTEM": [
+      1,
+      0,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_FOR_SURFACE_AREA_OF_OCTAHEDRON": [
+      0,
+      8,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_PRINT_IDENTITY_MATRIX_1": [
+      0,
+      1,
+      3
+    ],
+    "TransCoderGFG/PROGRAM_PRINT_SUM_GIVEN_NTH_TERM_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_TO_CHECK_IF_A_GIVEN_NUMBER_IS_LUCKY_ALL_DIGITS_ARE_DIFFERENT": [
+      2,
+      8,
+      4
+    ],
+    "TransCoderGFG/PROGRAM_TO_FIND_REMAINDER_WITHOUT_USING_MODULO_OR_OPERATOR": [
+      2,
+      1,
+      8
+    ],
+    "TransCoderGFG/PROGRAM_TO_FIND_THE_VOLUME_OF_A_TRIANGULAR_PRISM": [
+      0,
+      8,
+      7
+    ],
+    "TransCoderGFG/PYTHAGOREAN_QUADRUPLE": [
+      0,
+      9,
+      8
+    ],
+    "TransCoderGFG/PYTHON_PROGRAM_FIND_PERIMETER_CIRCUMFERENCE_SQUARE_RECTANGLE": [
+      1,
+      2,
+      9
+    ],
+    "TransCoderGFG/QUERIES_COUNTS_ARRAY_ELEMENTS_VALUES_GIVEN_RANGE": [
+      7,
+      8,
+      4
+    ],
+    "TransCoderGFG/QUICK_WAY_CHECK_CHARACTERS_STRING": [
+      0,
+      4,
+      5
+    ],
+    "TransCoderGFG/REARRANGE_ARRAY_MAXIMUM_MINIMUM_FORM_SET_2_O1_EXTRA_SPACE": [
+      2,
+      8,
+      1
+    ],
+    "TransCoderGFG/REARRANGE_POSITIVE_AND_NEGATIVE_NUMBERS_PUBLISH": [
+      9,
+      1,
+      0
+    ],
+    "TransCoderGFG/RECURSIVELY_BREAK_NUMBER_3_PARTS_GET_MAXIMUM_SUM": [
+      2,
+      3,
+      8
+    ],
+    "TransCoderGFG/RECURSIVE_C_PROGRAM_LINEARLY_SEARCH_ELEMENT_GIVEN_ARRAY": [
+      2,
+      5,
+      4
+    ],
+    "TransCoderGFG/RECURSIVE_PROGRAM_PRIME_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/REMOVE_ARRAY_END_ELEMENT_MAXIMIZE_SUM_PRODUCT": [],
+    "TransCoderGFG/REMOVE_MINIMUM_ELEMENTS_EITHER_SIDE_2MIN_MAX": [
+      3,
+      2,
+      7
+    ],
+    "TransCoderGFG/REMOVE_MINIMUM_NUMBER_ELEMENTS_NO_COMMON_ELEMENT_EXIST_ARRAY": [
+      7,
+      5,
+      6
+    ],
+    "TransCoderGFG/REPLACE_CHARACTER_C1_C2_C2_C1_STRING_S": [
+      5,
+      1,
+      7
+    ],
+    "TransCoderGFG/REQUIRED_MINIMUM_DIGITS_REMOVE_NUMBER_MAKE_PERFECT_SQUARE": [
+      0,
+      5,
+      6
+    ],
+    "TransCoderGFG/ROUND_THE_GIVEN_NUMBER_TO_NEAREST_MULTIPLE_OF_10": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/ROW_WISE_COMMON_ELEMENTS_TWO_DIAGONALS_SQUARE_MATRIX": [],
+    "TransCoderGFG/SCHEDULE_ELEVATOR_TO_REDUCE_THE_TOTAL_TIME_TAKEN": [
+      2,
+      0,
+      4
+    ],
+    "TransCoderGFG/SCHEDULE_JOBS_SERVER_GETS_EQUAL_LOAD": [
+      6,
+      7,
+      4
+    ],
+    "TransCoderGFG/SEARCHING_ARRAY_ADJACENT_DIFFER_K": [
+      8,
+      4,
+      7
+    ],
+    "TransCoderGFG/SEARCH_INSERT_AND_DELETE_IN_A_SORTED_ARRAY": [
+      0,
+      9,
+      7
+    ],
+    "TransCoderGFG/SEQUENCES_GIVEN_LENGTH_EVERY_ELEMENT_EQUAL_TWICE_PREVIOUS": [
+      4,
+      3,
+      9
+    ],
+    "TransCoderGFG/SIZE_SUBARRAY_MAXIMUM_SUM": [
+      1,
+      5,
+      9
+    ],
+    "TransCoderGFG/SMALLEST_DIFFERENCE_PAIR_VALUES_TWO_UNSORTED_ARRAYS": [
+      8,
+      7,
+      6
+    ],
+    "TransCoderGFG/SMALLEST_ELEMENT_REPEATED_EXACTLY_K_TIMES_NOT_LIMITED_SMALL_RANGE": [
+      9,
+      6,
+      7
+    ],
+    "TransCoderGFG/SMALLEST_OF_THREE_INTEGERS_WITHOUT_COMPARISON_OPERATORS": [
+      8,
+      2,
+      9
+    ],
+    "TransCoderGFG/SORT_ARRAY_APPLYING_GIVEN_EQUATION": [
+      5,
+      8,
+      3
+    ],
+    "TransCoderGFG/SORT_ARRAY_CONTAIN_1_N_VALUES": [
+      8,
+      6,
+      4
+    ],
+    "TransCoderGFG/SORT_ARRAY_TWO_HALVES_SORTED": [
+      6,
+      7,
+      4
+    ],
+    "TransCoderGFG/SORT_EVEN_NUMBERS_ASCENDING_ORDER_SORT_ODD_NUMBERS_DESCENDING_ORDER_1": [
+      0,
+      1,
+      6
+    ],
+    "TransCoderGFG/SPLIT_ARRAY_ADD_FIRST_PART_END": [
+      0,
+      9,
+      1
+    ],
+    "TransCoderGFG/SPLIT_N_MAXIMUM_COMPOSITE_NUMBERS": [
+      4,
+      2,
+      9
+    ],
+    "TransCoderGFG/SQUARED_TRIANGULAR_NUMBER_SUM_CUBES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SQUARE_PYRAMIDAL_NUMBER_SUM_SQUARES": [
+      0,
+      2,
+      6
+    ],
+    "TransCoderGFG/SQUARE_ROOT_OF_AN_INTEGER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/STEINS_ALGORITHM_FOR_FINDING_GCD_1": [
+      2,
+      1,
+      9
+    ],
+    "TransCoderGFG/STOOGE_SORT": [
+      4,
+      7,
+      6
+    ],
+    "TransCoderGFG/STRING_CONTAINING_FIRST_LETTER_EVERY_WORD_GIVEN_STRING_SPACES": [
+      4,
+      7,
+      8
+    ],
+    "TransCoderGFG/STRING_K_DISTINCT_CHARACTERS_NO_CHARACTERS_ADJACENT": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/SUBSEQUENCES_SIZE_THREE_ARRAY_WHOSE_SUM_DIVISIBLE_M": [
+      2,
+      8,
+      6
+    ],
+    "TransCoderGFG/SUM_AREA_RECTANGLES_POSSIBLE_ARRAY": [
+      0,
+      1,
+      3
+    ],
+    "TransCoderGFG/SUM_DIVISORS_1_N_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_FAI_AJ_PAIRS_ARRAY_N_INTEGERS": [
+      8,
+      5,
+      4
+    ],
+    "TransCoderGFG/SUM_K_TH_GROUP_ODD_POSITIVE_NUMBERS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_MANHATTAN_DISTANCES_PAIRS_POINTS": [
+      9,
+      5,
+      2
+    ],
+    "TransCoderGFG/SUM_MATRIX_ELEMENT_ELEMENT_INTEGER_DIVISION_ROW_COLUMN": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_OF_ALL_ELEMENTS_UP_TO_NTH_ROW_IN_A_PASCALS_TRIANGLE": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_OF_ALL_SUBSTRINGS_OF_A_STRING_REPRESENTING_A_NUMBER": [
+      4,
+      8,
+      1
+    ],
+    "TransCoderGFG/SUM_PAIRWISE_PRODUCTS": [
+      4,
+      1,
+      9
+    ],
+    "TransCoderGFG/SUM_SEQUENCE_2_22_222": [
+      2,
+      3,
+      8
+    ],
+    "TransCoderGFG/SUM_SERIES_0_6_0_06_0_006_0_0006_N_TERMS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_SERIES_12_32_52_2N_12": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_SERIES_23_45_67_89_UPTO_N_TERMS": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_SUBSETS_SET_FORMED_FIRST_N_NATURAL_NUMBERS": [
+      6,
+      3,
+      9
+    ],
+    "TransCoderGFG/SWAP_BITS_IN_A_GIVEN_NUMBER": [
+      7,
+      2,
+      8
+    ],
+    "TransCoderGFG/TAIL_RECURSION": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/TEMPLE_OFFERINGS": [
+      4,
+      2,
+      1
+    ],
+    "TransCoderGFG/TILING_WITH_DOMINOES": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/TRIANGULAR_NUMBERS": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/TURN_OFF_THE_RIGHTMOST_SET_BIT": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/UGLY_NUMBERS": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/WAYS_REMOVE_ONE_ELEMENT_BINARY_STRING_XOR_BECOMES_ZERO": [
+      2,
+      7,
+      6
+    ],
+    "TransCoderGFG/WAYS_TO_WRITE_N_AS_SUM_OF_TWO_OR_MORE_POSITIVE_INTEGERS": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/WAYS_TRANSFORMING_ONE_STRING_REMOVING_0_CHARACTERS": [
+      9,
+      6,
+      4
+    ],
+    "TransCoderGFG/WILDCARD_CHARACTER_MATCHING": [
+      2,
+      3,
+      1
+    ],
+    "TransCoderGFG/WRITE_AN_EFFICIENT_METHOD_TO_CHECK_IF_A_NUMBER_IS_MULTIPLE_OF_3": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/WRITE_A_C_PROGRAM_TO_FIND_THE_PARITY_OF_AN_UNSIGNED_INTEGER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/WRITE_ONE_LINE_C_FUNCTION_TO_FIND_WHETHER_A_NO_IS_POWER_OF_TWO": [
+      0,
+      4,
+      3
+    ],
+    "TransCoderGFG/WRITE_YOU_OWN_POWER_WITHOUT_USING_MULTIPLICATION_AND_DIVISION": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/ZECKENDORFS_THEOREM_NON_NEIGHBOURING_FIBONACCI_REPRESENTATION": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/ANALYSIS_OF_ALGORITHMS_SET_2_ASYMPTOTIC_ANALYSIS": [
+      8,
+      9,
+      7
+    ],
+    "TransCoderGFG/AREA_SQUARE_CIRCUMSCRIBED_CIRCLE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/BELL_NUMBERS_NUMBER_OF_WAYS_TO_PARTITION_A_SET": [
+      2,
+      1,
+      8
+    ],
+    "TransCoderGFG/BREAK_NUMBER_THREE_PARTS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/CALCULATE_VOLUME_DODECAHEDRON": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/CEILING_IN_A_SORTED_ARRAY": [
+      8,
+      4,
+      7
+    ],
+    "TransCoderGFG/CHECK_ARRAY_CONTAINS_CONTIGUOUS_INTEGERS_DUPLICATES_ALLOWED": [
+      2,
+      1,
+      7
+    ],
+    "TransCoderGFG/CHECK_ARRAY_REPRESENTS_INORDER_BINARY_SEARCH_TREE_NOT": [
+      8,
+      5,
+      1
+    ],
+    "TransCoderGFG/CHECK_GIVEN_STRING_ROTATION_PALINDROME": [
+      2,
+      3,
+      4
+    ],
+    "TransCoderGFG/CHECK_IF_A_NUMBER_IS_POWER_OF_ANOTHER_NUMBER": [
+      1,
+      7,
+      3
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_13_NOT": [
+      3,
+      4,
+      0
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT": [
+      7,
+      3,
+      1
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_6_NOT": [
+      3,
+      1,
+      4
+    ],
+    "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_9_NOT": [
+      6,
+      8,
+      1
+    ],
+    "TransCoderGFG/COUNT_CHARACTERS_STRING_DISTANCE_ENGLISH_ALPHABETS": [
+      2,
+      1,
+      6
+    ],
+    "TransCoderGFG/COUNT_MINIMUM_NUMBER_SUBSETS_SUBSEQUENCES_CONSECUTIVE_NUMBERS": [
+      2,
+      0,
+      4
+    ],
+    "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_COVER_A_DISTANCE_1": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/COUNT_SET_BITS_IN_AN_INTEGER": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/COUNT_SUBSETS_DISTINCT_EVEN_NUMBERS": [
+      3,
+      2,
+      1
+    ],
+    "TransCoderGFG/COUNT_SUM_OF_DIGITS_IN_NUMBERS_FROM_1_TO_N": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/DIVISIBILITY_BY_12_FOR_A_LARGE_NUMBER": [
+      8,
+      4,
+      3
+    ],
+    "TransCoderGFG/EULERS_CRITERION_CHECK_IF_SQUARE_ROOT_UNDER_MODULO_P_EXISTS": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIBONACCI_MODULO_P": [
+      3,
+      2,
+      9
+    ],
+    "TransCoderGFG/FIND_A_TRIPLET_THAT_SUM_TO_A_GIVEN_VALUE": [
+      5,
+      6,
+      3
+    ],
+    "TransCoderGFG/FIND_LARGEST_PRIME_FACTOR_NUMBER": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/FIND_MAXIMUM_DOT_PRODUCT_TWO_ARRAYS_INSERTION_0S": [
+      8,
+      4,
+      1
+    ],
+    "TransCoderGFG/FIND_MINIMUM_DIFFERENCE_PAIR": [
+      2,
+      8,
+      7
+    ],
+    "TransCoderGFG/FIND_NUMBER_TIMES_STRING_OCCURS_GIVEN_STRING_1": [
+      1,
+      2,
+      8
+    ],
+    "TransCoderGFG/FIND_REPETITIVE_ELEMENT_1_N_1": [
+      0,
+      5,
+      4
+    ],
+    "TransCoderGFG/FIND_SUM_ODD_FACTORS_NUMBER": [
+      1,
+      2,
+      8
+    ],
+    "TransCoderGFG/FIND_THE_LARGEST_SUBARRAY_WITH_0_SUM": [
+      9,
+      0,
+      4
+    ],
+    "TransCoderGFG/FIND_THE_MAXIMUM_SUBARRAY_XOR_IN_A_GIVEN_ARRAY": [
+      8,
+      0,
+      7
+    ],
+    "TransCoderGFG/FIND_THE_MISSING_NUMBER_1": [
+      0,
+      3,
+      1
+    ],
+    "TransCoderGFG/FIND_WHETHER_AN_ARRAY_IS_SUBSET_OF_ANOTHER_ARRAY_SET_1": [
+      8,
+      2,
+      1
+    ],
+    "TransCoderGFG/GIVEN_A_SORTED_AND_ROTATED_ARRAY_FIND_IF_THERE_IS_A_PAIR_WITH_A_GIVEN_SUM": [
+      5,
+      2,
+      1
+    ],
+    "TransCoderGFG/HOW_TO_TURN_OFF_A_PARTICULAR_BIT_IN_A_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/K_TH_DIGIT_RAISED_POWER_B": [
+      2,
+      1,
+      8
+    ],
+    "TransCoderGFG/LENGTH_OF_THE_LONGEST_ARITHMATIC_PROGRESSION_IN_A_SORTED_ARRAY": [
+      3,
+      8,
+      7
+    ],
+    "TransCoderGFG/LEXICOGRAPHICALLY_NEXT_STRING": [
+      3,
+      5,
+      7
+    ],
+    "TransCoderGFG/LONGEST_COMMON_INCREASING_SUBSEQUENCE_LCS_LIS": [
+      3,
+      4,
+      2
+    ],
+    "TransCoderGFG/LONGEST_CONSECUTIVE_SUBSEQUENCE": [
+      5,
+      8,
+      1
+    ],
+    "TransCoderGFG/LONGEST_INCREASING_ODD_EVEN_SUBSEQUENCE": [
+      2,
+      8,
+      4
+    ],
+    "TransCoderGFG/LONGEST_REPEATING_AND_NON_OVERLAPPING_SUBSTRING": [
+      5,
+      3,
+      4
+    ],
+    "TransCoderGFG/LONGEST_SUBSEQUENCE_SUCH_THAT_DIFFERENCE_BETWEEN_ADJACENTS_IS_ONE": [
+      3,
+      8,
+      4
+    ],
+    "TransCoderGFG/MAXIMIZE_SUM_ARRII": [
+      8,
+      9,
+      7
+    ],
+    "TransCoderGFG/MAXIMUM_CONSECUTIVE_NUMBERS_PRESENT_ARRAY": [
+      4,
+      6,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_DIFFERENCE_SUM_ELEMENTS_TWO_ROWS_MATRIX": [],
+    "TransCoderGFG/MAXIMUM_NUMBER_CHARACTERS_TWO_CHARACTER_STRING": [
+      2,
+      5,
+      7
+    ],
+    "TransCoderGFG/MAXIMUM_NUMBER_OF_SQUARES_THAT_CAN_BE_FIT_IN_A_RIGHT_ANGLE_ISOSCELES_TRIANGLE": [
+      4,
+      1,
+      9
+    ],
+    "TransCoderGFG/MAXIMUM_PRODUCT_INCREASING_SUBSEQUENCE": [
+      6,
+      7,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_PRODUCT_SUBARRAY_ADDED_NEGATIVE_PRODUCT_CASE": [
+      1,
+      5,
+      6
+    ],
+    "TransCoderGFG/MAXIMUM_PROFIT_BY_BUYING_AND_SELLING_A_SHARE_AT_MOST_TWICE": [
+      4,
+      0,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_SUBARRAY_SUM_ARRAY_CREATED_REPEATED_CONCATENATION": [
+      8,
+      5,
+      4
+    ],
+    "TransCoderGFG/MAXIMUM_SUM_BITONIC_SUBARRAY": [
+      9,
+      0,
+      1
+    ],
+    "TransCoderGFG/MAXIMUM_SUM_PAIRS_SPECIFIC_DIFFERENCE": [
+      9,
+      5,
+      3
+    ],
+    "TransCoderGFG/MAXIMUM_TRIPLET_SUM_ARRAY": [
+      4,
+      0,
+      7
+    ],
+    "TransCoderGFG/MEDIAN_OF_TWO_SORTED_ARRAYS": [
+      2,
+      0,
+      4
+    ],
+    "TransCoderGFG/MINIMIZE_SUM_PRODUCT_TWO_ARRAYS_PERMUTATIONS_ALLOWED": [
+      0,
+      1,
+      9
+    ],
+    "TransCoderGFG/MINIMUM_INCREMENT_K_OPERATIONS_MAKE_ELEMENTS_EQUAL": [
+      1,
+      5,
+      7
+    ],
+    "TransCoderGFG/MINIMUM_PRODUCT_SUBSET_ARRAY": [
+      4,
+      6,
+      0
+    ],
+    "TransCoderGFG/MINIMUM_ROTATIONS_REQUIRED_GET_STRING": [
+      1,
+      9,
+      0
+    ],
+    "TransCoderGFG/MINIMUM_SUM_SUBSEQUENCE_LEAST_ONE_EVERY_FOUR_CONSECUTIVE_ELEMENTS_PICKED": [
+      4,
+      8,
+      1
+    ],
+    "TransCoderGFG/MINIMUM_XOR_VALUE_PAIR": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/MULTIPLY_TWO_NUMBERS_WITHOUT_USING_MULTIPLY_DIVISION_BITWISE_OPERATORS_AND_NO_LOOPS": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/NON_REPEATING_ELEMENT": [
+      3,
+      6,
+      4
+    ],
+    "TransCoderGFG/NTH_MULTIPLE_NUMBER_FIBONACCI_SERIES": [
+      3,
+      1,
+      9
+    ],
+    "TransCoderGFG/NTH_PENTAGONAL_NUMBER": [
+      3,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_DIGITS_PRODUCT_TWO_NUMBERS": [
+      5,
+      2,
+      9
+    ],
+    "TransCoderGFG/NUMBER_INDEXES_EQUAL_ELEMENTS_GIVEN_RANGE": [
+      9,
+      4,
+      1
+    ],
+    "TransCoderGFG/NUMBER_IS_DIVISIBLE_BY_29_OR_NOT": [
+      1,
+      4,
+      9
+    ],
+    "TransCoderGFG/NUMBER_SUBSEQUENCES_STRING_DIVISIBLE_N": [
+      5,
+      2,
+      4
+    ],
+    "TransCoderGFG/NUMBER_SUBSTRINGS_DIVISIBLE_4_STRING_INTEGERS": [
+      0,
+      6,
+      9
+    ],
+    "TransCoderGFG/N_TH_NUMBER_WHOSE_SUM_OF_DIGITS_IS_TEN": [
+      9,
+      3,
+      8
+    ],
+    "TransCoderGFG/POSITION_OF_RIGHTMOST_SET_BIT": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_AREA_SQUARE": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_CALCULATE_AREA_OCTAGON": [
+      0,
+      8,
+      5
+    ],
+    "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_ELLIPSOID": [
+      4,
+      6,
+      3
+    ],
+    "TransCoderGFG/PROGRAM_FOR_FACTORIAL_OF_A_NUMBER": [
+      8,
+      3,
+      9
+    ],
+    "TransCoderGFG/PROGRAM_OCTAL_DECIMAL_CONVERSION": [
+      5,
+      2,
+      8
+    ],
+    "TransCoderGFG/PROGRAM_TO_CHECK_IF_A_MATRIX_IS_SYMMETRIC": [
+      0,
+      1,
+      8
+    ],
+    "TransCoderGFG/PROGRAM_TO_FIND_THE_AREA_OF_PENTAGON": [
+      0,
+      7,
+      1
+    ],
+    "TransCoderGFG/SEARCH_ALMOST_SORTED_ARRAY": [
+      7,
+      2,
+      1
+    ],
+    "TransCoderGFG/SEARCH_AN_ELEMENT_IN_AN_ARRAY_WHERE_DIFFERENCE_BETWEEN_ADJACENT_ELEMENTS_IS_1": [
+      1,
+      5,
+      9
+    ],
+    "TransCoderGFG/SEARCH_INSERT_AND_DELETE_IN_AN_UNSORTED_ARRAY": [
+      8,
+      9,
+      1
+    ],
+    "TransCoderGFG/SMALLEST_POWER_OF_2_GREATER_THAN_OR_EQUAL_TO_N": [
+      2,
+      4,
+      9
+    ],
+    "TransCoderGFG/SMALLEST_SUM_CONTIGUOUS_SUBARRAY": [
+      8,
+      1,
+      9
+    ],
+    "TransCoderGFG/SORT_EVEN_PLACED_ELEMENTS_INCREASING_ODD_PLACED_DECREASING_ORDER": [
+      0,
+      9,
+      1
+    ],
+    "TransCoderGFG/SPACE_OPTIMIZED_SOLUTION_LCS": [
+      3,
+      0,
+      9
+    ],
+    "TransCoderGFG/SQUARE_ROOT_OF_A_PERFECT_SQUARE": [
+      0,
+      8,
+      7
+    ],
+    "TransCoderGFG/SUBARRAYS_DISTINCT_ELEMENTS": [
+      5,
+      1,
+      7
+    ],
+    "TransCoderGFG/SUM_BINOMIAL_COEFFICIENTS": [
+      0,
+      3,
+      9
+    ],
+    "TransCoderGFG/SUM_FACTORS_NUMBER": [
+      2,
+      3,
+      8
+    ],
+    "TransCoderGFG/SUM_FIBONACCI_NUMBERS": [
+      0,
+      3,
+      8
+    ],
+    "TransCoderGFG/SUM_MATRIX_ELEMENT_ABSOLUTE_DIFFERENCE_ROW_COLUMN_NUMBERS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/SUM_NODES_K_TH_LEVEL_TREE_REPRESENTED_STRING": [
+      8,
+      6,
+      5
+    ],
+    "TransCoderGFG/SUM_OF_ALL_PROPER_DIVISORS_OF_A_NATURAL_NUMBER": [
+      0,
+      3,
+      8
+    ],
+    "TransCoderGFG/SUM_SERIES_555555_N_TERMS": [
+      7,
+      3,
+      9
+    ],
+    "TransCoderGFG/SUM_TWO_LARGE_NUMBERS": [
+      4,
+      9,
+      8
+    ],
+    "TransCoderGFG/SWAP_TWO_NUMBERS_WITHOUT_USING_TEMPORARY_VARIABLE": [
+      4,
+      6,
+      3
+    ],
+    "TransCoderGFG/TAIL_RECURSION_FIBONACCI": [
+      0,
+      3,
+      8
+    ],
+    "TransCoderGFG/TOTAL_NUMBER_OF_NON_DECREASING_NUMBERS_WITH_N_DIGITS": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/TRIANGULAR_MATCHSTICK_NUMBER": [
+      0,
+      4,
+      9
+    ],
+    "TransCoderGFG/WRITE_A_C_PROGRAM_TO_CALCULATE_POWXN": [
+      3,
+      2,
+      9
+    ]
+  },
+  "policy": "fixed 80/20 MBJP-matched interpolation split; proportional strata by return category and complex signature; deterministic score is description TF-IDF cosine minus 0.003 times distance from the frozen MBJP median solution length (27 words); the nearest distinct training description is protected from test",
+  "selection_uses_model_outputs": false,
+  "selection_uses_checkpoint_scores": false,
+  "selection_uses_execution_outcomes": false,
+  "selection_uses_gold_solution_content": false,
+  "selection_uses_gold_solution_length": true,
+  "selection_uses_gold_tests_for_three_case_eligibility": true,
+  "train_summary": {
+    "rows": 414,
+    "return_categories": {
+      "boolean": 58,
+      "numeric": 342,
+      "string_char": 14
+    },
+    "complex_signature_rows": 251,
+    "solution_word_length_median": 37.0,
+    "solution_word_length_mean": 43.01449275362319
+  },
+  "test_summary": {
+    "rows": 103,
+    "return_categories": {
+      "boolean": 14,
+      "numeric": 85,
+      "string_char": 4
+    },
+    "complex_signature_rows": 61,
+    "solution_word_length_median": 32,
+    "solution_word_length_mean": 33.90291262135922
+  },
+  "test_nearest_distinct_train_description_similarity": {
+    "minimum": 0.257569671693968,
+    "median": 0.4245776778256503,
+    "mean": 0.4678870066589101,
+    "maximum": 0.9488450350876058
+  },
+  "nearest_train_rows": [
+    {
+      "test_task_id": "TransCoderGFG/AREA_CIRCUMSCRIBED_CIRCLE_SQUARE",
+      "nearest_train_task_id": "TransCoderGFG/AREA_SQUARE_CIRCUMSCRIBED_CIRCLE",
+      "description_tfidf_cosine": 0.6972641653579978
+    },
+    {
+      "test_task_id": "TransCoderGFG/BINARY_SEARCH",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_BINARY_DECIMAL_CONVERSION",
+      "description_tfidf_cosine": 0.4245451021522927
+    },
+    {
+      "test_task_id": "TransCoderGFG/CALCULATE_AREA_TETRAHEDRON",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_CALCULATE_AREA_OCTAGON",
+      "description_tfidf_cosine": 0.5957713716016227
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_11_NOT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT",
+      "description_tfidf_cosine": 0.6037416260768849
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_3_NOT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT",
+      "description_tfidf_cosine": 0.6291580342989107
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_WHETHER_GIVEN_DEGREES_VERTICES_REPRESENT_GRAPH_TREE",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_WHETHER_GIVEN_NUMBER_EVEN_ODD",
+      "description_tfidf_cosine": 0.3229428149747877
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_CHARACTERS_POSITION_ENGLISH_ALPHABETS",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_CHARACTERS_STRING_DISTANCE_ENGLISH_ALPHABETS",
+      "description_tfidf_cosine": 0.597342846244149
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_FIBONACCI_NUMBERS_GIVEN_RANGE_LOG_TIME",
+      "nearest_train_task_id": "TransCoderGFG/SUM_FIBONACCI_NUMBERS",
+      "description_tfidf_cosine": 0.33463856164643124
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_NUMBER_OF_OCCURRENCES_OR_FREQUENCY_IN_A_SORTED_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/FLOOR_IN_A_SORTED_ARRAY_1",
+      "description_tfidf_cosine": 0.3390818873345126
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_NUMBER_WAYS_TILE_FLOOR_SIZE_N_X_M_USING_1_X_M_SIZE_TILES",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_FILL_A_N_X_4_GRID_USING_1_X_4_TILES",
+      "description_tfidf_cosine": 0.34061038962250495
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_PAIRS_TWO_SORTED_ARRAYS_WHOSE_SUM_EQUAL_GIVEN_VALUE_X",
+      "nearest_train_task_id": "TransCoderGFG/MEDIAN_OF_TWO_SORTED_ARRAYS",
+      "description_tfidf_cosine": 0.3014334963689654
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_TOTAL_SET_BITS_IN_ALL_NUMBERS_FROM_1_TO_N",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_SUM_OF_DIGITS_IN_NUMBERS_FROM_1_TO_N",
+      "description_tfidf_cosine": 0.49042609178182844
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_TRAILING_ZEROES_FACTORIAL_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/C_PROGRAM_FACTORIAL_NUMBER",
+      "description_tfidf_cosine": 0.36961730941085547
+    },
+    {
+      "test_task_id": "TransCoderGFG/C_PROGRAM_CONCATENATE_STRING_GIVEN_NUMBER_TIMES",
+      "nearest_train_task_id": "TransCoderGFG/FIND_NUMBER_TIMES_STRING_OCCURS_GIVEN_STRING_1",
+      "description_tfidf_cosine": 0.3422860254905385
+    },
+    {
+      "test_task_id": "TransCoderGFG/DIVISIBILITY_BY_7",
+      "nearest_train_task_id": "TransCoderGFG/DIVISIBILITY_BY_12_FOR_A_LARGE_NUMBER",
+      "description_tfidf_cosine": 0.48231895707897116
+    },
+    {
+      "test_task_id": "TransCoderGFG/EFFICIENT_SEARCH_IN_AN_ARRAY_WHERE_DIFFERENCE_BETWEEN_ADJACENT_IS_1",
+      "nearest_train_task_id": "TransCoderGFG/SEARCH_AN_ELEMENT_IN_AN_ARRAY_WHERE_DIFFERENCE_BETWEEN_ADJACENT_ELEMENTS_IS_1",
+      "description_tfidf_cosine": 0.6896099435442089
+    },
+    {
+      "test_task_id": "TransCoderGFG/EVEN_FIBONACCI_NUMBERS_SUM",
+      "nearest_train_task_id": "TransCoderGFG/SUM_FIBONACCI_NUMBERS",
+      "description_tfidf_cosine": 0.43828733019267857
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_A_FIXED_POINT_IN_A_GIVEN_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/FIND_THE_MAXIMUM_SUBARRAY_XOR_IN_A_GIVEN_ARRAY",
+      "description_tfidf_cosine": 0.35705911696507997
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_INDEX_OF_AN_EXTRA_ELEMENT_PRESENT_IN_ONE_SORTED_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/EQUILIBRIUM_INDEX_OF_AN_ARRAY",
+      "description_tfidf_cosine": 0.3229046461319301
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_MINIMUM_ELEMENT_IN_A_SORTED_AND_ROTATED_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/GIVEN_A_SORTED_AND_ROTATED_ARRAY_FIND_IF_THERE_IS_A_PAIR_WITH_A_GIVEN_SUM",
+      "description_tfidf_cosine": 0.39464430167980713
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_MINIMUM_SUM_FACTORS_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/SUM_FACTORS_NUMBER",
+      "description_tfidf_cosine": 0.7146576374467214
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_PAIR_WITH_GREATEST_PRODUCT_IN_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/FIND_PAIR_MAXIMUM_GCD_ARRAY",
+      "description_tfidf_cosine": 0.31609765750646696
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_REPETITIVE_ELEMENT_1_N_1_1",
+      "nearest_train_task_id": "TransCoderGFG/FIND_REPETITIVE_ELEMENT_1_N_1",
+      "description_tfidf_cosine": 0.9107485333593791
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_SUM_MODULO_K_FIRST_N_NATURAL_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/SUM_SUBSETS_SET_FORMED_FIRST_N_NATURAL_NUMBERS",
+      "description_tfidf_cosine": 0.3531632845580373
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_SUM_NON_REPEATING_DISTINCT_ELEMENTS_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/SUBARRAYS_DISTINCT_ELEMENTS",
+      "description_tfidf_cosine": 0.2947655507985286
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_THE_FIRST_MISSING_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/FIND_THE_MISSING_NUMBER_1",
+      "description_tfidf_cosine": 0.6619074060738849
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_THREE_ELEMENT_FROM_DIFFERENT_THREE_ARRAYS_SUCH_THAT_THAT_A_B_C_K",
+      "nearest_train_task_id": "TransCoderGFG/FIND_LARGEST_D_IN_ARRAY_SUCH_THAT_A_B_C_D",
+      "description_tfidf_cosine": 0.314016299183707
+    },
+    {
+      "test_task_id": "TransCoderGFG/HOW_TO_AVOID_OVERFLOW_IN_MODULAR_MULTIPLICATION",
+      "nearest_train_task_id": "TransCoderGFG/MODULAR_EXPONENTIATION_POWER_IN_MODULAR_ARITHMETIC",
+      "description_tfidf_cosine": 0.2835588785916632
+    },
+    {
+      "test_task_id": "TransCoderGFG/K_TH_ELEMENT_TWO_SORTED_ARRAYS",
+      "nearest_train_task_id": "TransCoderGFG/MEDIAN_OF_TWO_SORTED_ARRAYS",
+      "description_tfidf_cosine": 0.4501615025118719
+    },
+    {
+      "test_task_id": "TransCoderGFG/LARGEST_SUM_CONTIGUOUS_SUBARRAY_2",
+      "nearest_train_task_id": "TransCoderGFG/SMALLEST_SUM_CONTIGUOUS_SUBARRAY",
+      "description_tfidf_cosine": 0.5525567496155596
+    },
+    {
+      "test_task_id": "TransCoderGFG/LEXICOGRAPHICALLY_MINIMUM_STRING_ROTATION",
+      "nearest_train_task_id": "TransCoderGFG/LEXICOGRAPHICALLY_NEXT_STRING",
+      "description_tfidf_cosine": 0.42399230959721923
+    },
+    {
+      "test_task_id": "TransCoderGFG/LONGEST_REPEATING_SUBSEQUENCE",
+      "nearest_train_task_id": "TransCoderGFG/LONGEST_REPEATING_AND_NON_OVERLAPPING_SUBSTRING",
+      "description_tfidf_cosine": 0.44959012178042956
+    },
+    {
+      "test_task_id": "TransCoderGFG/LOWER_CASE_UPPER_CASE_INTERESTING_FACT",
+      "nearest_train_task_id": "TransCoderGFG/LOWER_INSERTION_POINT",
+      "description_tfidf_cosine": 0.257569671693968
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMIZE_SUM_CONSECUTIVE_DIFFERENCES_CIRCULAR_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMIZE_SUM_ARRII",
+      "description_tfidf_cosine": 0.4245776778256503
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_NUMBER_2X2_SQUARES_CAN_FIT_INSIDE_RIGHT_ISOSCELES_TRIANGLE",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_NUMBER_OF_SQUARES_THAT_CAN_BE_FIT_IN_A_RIGHT_ANGLE_ISOSCELES_TRIANGLE",
+      "description_tfidf_cosine": 0.4111155796971916
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_PRODUCT_SUBSET_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_PRODUCT_SUBSET_ARRAY",
+      "description_tfidf_cosine": 0.7132292120265289
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_PROFIT_BY_BUYING_AND_SELLING_A_SHARE_AT_MOST_K_TIMES_1",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_PROFIT_BY_BUYING_AND_SELLING_A_SHARE_AT_MOST_TWICE",
+      "description_tfidf_cosine": 0.8696721194867069
+    },
+    {
+      "test_task_id": "TransCoderGFG/MINIMUM_NUMBER_SUBSETS_DISTINCT_ELEMENTS",
+      "nearest_train_task_id": "TransCoderGFG/SUBARRAYS_DISTINCT_ELEMENTS",
+      "description_tfidf_cosine": 0.4091487675650496
+    },
+    {
+      "test_task_id": "TransCoderGFG/MINIMUM_SUM_TWO_NUMBERS_FORMED_DIGITS_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_SUM_PRODUCT_TWO_ARRAYS",
+      "description_tfidf_cosine": 0.34570955091768935
+    },
+    {
+      "test_task_id": "TransCoderGFG/NTH_EVEN_LENGTH_PALINDROME",
+      "nearest_train_task_id": "TransCoderGFG/NTH_PENTAGONAL_NUMBER",
+      "description_tfidf_cosine": 0.33775703340488555
+    },
+    {
+      "test_task_id": "TransCoderGFG/NTH_NON_FIBONACCI_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/NTH_MULTIPLE_NUMBER_FIBONACCI_SERIES",
+      "description_tfidf_cosine": 0.3781124739072892
+    },
+    {
+      "test_task_id": "TransCoderGFG/NUMBER_N_DIGITS_NON_DECREASING_INTEGERS",
+      "nearest_train_task_id": "TransCoderGFG/TOTAL_NUMBER_OF_NON_DECREASING_NUMBERS_WITH_N_DIGITS",
+      "description_tfidf_cosine": 0.4362192893109691
+    },
+    {
+      "test_task_id": "TransCoderGFG/NUMBER_SUBSEQUENCES_AB_STRING_REPEATED_K_TIMES",
+      "nearest_train_task_id": "TransCoderGFG/NUMBER_SUBSEQUENCES_STRING_DIVISIBLE_N",
+      "description_tfidf_cosine": 0.3464690979038462
+    },
+    {
+      "test_task_id": "TransCoderGFG/NUMBER_SUBSTRINGS_STRING",
+      "nearest_train_task_id": "TransCoderGFG/NUMBER_SUBSTRINGS_DIVISIBLE_4_STRING_INTEGERS",
+      "description_tfidf_cosine": 0.5077085214476206
+    },
+    {
+      "test_task_id": "TransCoderGFG/N_TH_ROOT_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/N_TH_NUMBER_WHOSE_SUM_OF_DIGITS_IS_TEN",
+      "description_tfidf_cosine": 0.3526498476581852
+    },
+    {
+      "test_task_id": "TransCoderGFG/PAIR_WITH_GIVEN_PRODUCT_SET_1_FIND_IF_ANY_PAIR_EXISTS",
+      "nearest_train_task_id": "TransCoderGFG/GIVEN_A_SORTED_AND_ROTATED_ARRAY_FIND_IF_THERE_IS_A_PAIR_WITH_A_GIVEN_SUM",
+      "description_tfidf_cosine": 0.315182983506838
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_CHECK_ARRAY_SORTED_NOT_ITERATIVE_RECURSIVE",
+      "nearest_train_task_id": "TransCoderGFG/FUNCTION_COPY_STRING_ITERATIVE_RECURSIVE_1",
+      "description_tfidf_cosine": 0.31572329961358747
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_PRINT_IDENTITY_MATRIX_1",
+      "nearest_train_task_id": "TransCoderGFG/PRINT_MAXIMUM_SHORTEST_DISTANCE",
+      "description_tfidf_cosine": 0.29550559685666516
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_TO_CHECK_IF_A_GIVEN_NUMBER_IS_LUCKY_ALL_DIGITS_ARE_DIFFERENT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_IF_A_NUMBER_IS_POWER_OF_ANOTHER_NUMBER",
+      "description_tfidf_cosine": 0.35128263923864916
+    },
+    {
+      "test_task_id": "TransCoderGFG/SEARCH_INSERT_AND_DELETE_IN_A_SORTED_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/SEARCH_INSERT_AND_DELETE_IN_AN_UNSORTED_ARRAY",
+      "description_tfidf_cosine": 0.7191858491166261
+    },
+    {
+      "test_task_id": "TransCoderGFG/SUM_MATRIX_ELEMENT_ELEMENT_INTEGER_DIVISION_ROW_COLUMN",
+      "nearest_train_task_id": "TransCoderGFG/SUM_MATRIX_ELEMENT_ABSOLUTE_DIFFERENCE_ROW_COLUMN_NUMBERS",
+      "description_tfidf_cosine": 0.5177761168944076
+    },
+    {
+      "test_task_id": "TransCoderGFG/SUM_SERIES_23_45_67_89_UPTO_N_TERMS",
+      "nearest_train_task_id": "TransCoderGFG/SUM_SERIES_555555_N_TERMS",
+      "description_tfidf_cosine": 0.39408008728049376
+    },
+    {
+      "test_task_id": "TransCoderGFG/SWAP_BITS_IN_A_GIVEN_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_SET_BITS_IN_AN_INTEGER",
+      "description_tfidf_cosine": 0.2959176456897634
+    },
+    {
+      "test_task_id": "TransCoderGFG/TAIL_RECURSION",
+      "nearest_train_task_id": "TransCoderGFG/TAIL_RECURSION_FIBONACCI",
+      "description_tfidf_cosine": 0.8498096078066483
+    },
+    {
+      "test_task_id": "TransCoderGFG/WRITE_AN_EFFICIENT_METHOD_TO_CHECK_IF_A_NUMBER_IS_MULTIPLE_OF_3",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_IF_A_NUMBER_IS_POWER_OF_ANOTHER_NUMBER",
+      "description_tfidf_cosine": 0.519976794102041
+    },
+    {
+      "test_task_id": "TransCoderGFG/BELL_NUMBERS_NUMBER_OF_WAYS_TO_PARTITION_A_SET",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_PARTITION_A_SET_INTO_K_SUBSETS_1",
+      "description_tfidf_cosine": 0.5632915433127448
+    },
+    {
+      "test_task_id": "TransCoderGFG/CALCULATE_VOLUME_DODECAHEDRON",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_OCTAHEDRON",
+      "description_tfidf_cosine": 0.6098599161682355
+    },
+    {
+      "test_task_id": "TransCoderGFG/CEILING_IN_A_SORTED_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/FLOOR_IN_A_SORTED_ARRAY_1",
+      "description_tfidf_cosine": 0.5081894068559328
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_13_NOT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT",
+      "description_tfidf_cosine": 0.5986053486183898
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_6_NOT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT",
+      "description_tfidf_cosine": 0.6037416260768849
+    },
+    {
+      "test_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_9_NOT",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_LARGE_NUMBER_DIVISIBLE_4_NOT",
+      "description_tfidf_cosine": 0.6037416260768849
+    },
+    {
+      "test_task_id": "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_COVER_A_DISTANCE_1",
+      "nearest_train_task_id": "TransCoderGFG/COUNT_NUMBER_OF_WAYS_TO_PARTITION_A_SET_INTO_K_SUBSETS_1",
+      "description_tfidf_cosine": 0.393616443852516
+    },
+    {
+      "test_task_id": "TransCoderGFG/EULERS_CRITERION_CHECK_IF_SQUARE_ROOT_UNDER_MODULO_P_EXISTS",
+      "nearest_train_task_id": "TransCoderGFG/COMPUTE_N_UNDER_MODULO_P",
+      "description_tfidf_cosine": 0.3458779298291818
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIBONACCI_MODULO_P",
+      "nearest_train_task_id": "TransCoderGFG/COMPUTE_N_UNDER_MODULO_P",
+      "description_tfidf_cosine": 0.35559773691127344
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_LARGEST_PRIME_FACTOR_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/C_PROGRAM_FIND_LARGEST_ELEMENT_ARRAY_1",
+      "description_tfidf_cosine": 0.38788708725772814
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_MAXIMUM_DOT_PRODUCT_TWO_ARRAYS_INSERTION_0S",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_SUM_PRODUCT_TWO_ARRAYS",
+      "description_tfidf_cosine": 0.36767100599535696
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_SUM_ODD_FACTORS_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/FIND_SUM_EVEN_FACTORS_NUMBER",
+      "description_tfidf_cosine": 0.5624473361842013
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_THE_LARGEST_SUBARRAY_WITH_0_SUM",
+      "nearest_train_task_id": "TransCoderGFG/LARGEST_SUBARRAY_WITH_EQUAL_NUMBER_OF_0S_AND_1S_1",
+      "description_tfidf_cosine": 0.41716325129469317
+    },
+    {
+      "test_task_id": "TransCoderGFG/FIND_WHETHER_AN_ARRAY_IS_SUBSET_OF_ANOTHER_ARRAY_SET_1",
+      "nearest_train_task_id": "TransCoderGFG/FIND_WHETHER_AN_ARRAY_IS_SUBSET_OF_ANOTHER_ARRAY_SET_1_1",
+      "description_tfidf_cosine": 0.9488450350876058
+    },
+    {
+      "test_task_id": "TransCoderGFG/HOW_TO_TURN_OFF_A_PARTICULAR_BIT_IN_A_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/TURN_OFF_THE_RIGHTMOST_SET_BIT",
+      "description_tfidf_cosine": 0.34410525596652425
+    },
+    {
+      "test_task_id": "TransCoderGFG/K_TH_DIGIT_RAISED_POWER_B",
+      "nearest_train_task_id": "TransCoderGFG/K_TH_PRIME_FACTOR_GIVEN_NUMBER",
+      "description_tfidf_cosine": 0.31332853131027516
+    },
+    {
+      "test_task_id": "TransCoderGFG/LONGEST_COMMON_INCREASING_SUBSEQUENCE_LCS_LIS",
+      "nearest_train_task_id": "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_3_LONGEST_INCREASING_SUBSEQUENCE_1",
+      "description_tfidf_cosine": 0.5059352932098967
+    },
+    {
+      "test_task_id": "TransCoderGFG/LONGEST_CONSECUTIVE_SUBSEQUENCE",
+      "nearest_train_task_id": "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_3_LONGEST_INCREASING_SUBSEQUENCE_1",
+      "description_tfidf_cosine": 0.44007041476961906
+    },
+    {
+      "test_task_id": "TransCoderGFG/LONGEST_INCREASING_ODD_EVEN_SUBSEQUENCE",
+      "nearest_train_task_id": "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_3_LONGEST_INCREASING_SUBSEQUENCE_1",
+      "description_tfidf_cosine": 0.6054643872718357
+    },
+    {
+      "test_task_id": "TransCoderGFG/LONGEST_SUBSEQUENCE_SUCH_THAT_DIFFERENCE_BETWEEN_ADJACENTS_IS_ONE",
+      "nearest_train_task_id": "TransCoderGFG/LONGEST_SUBSEQUENCE_DIFFERENCE_ADJACENTS_ONE_SET_2",
+      "description_tfidf_cosine": 0.3974239903868479
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_CONSECUTIVE_NUMBERS_PRESENT_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_CONSECUTIVE_REPEATING_CHARACTER_STRING",
+      "description_tfidf_cosine": 0.3708623710441849
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_NUMBER_CHARACTERS_TWO_CHARACTER_STRING",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_CONSECUTIVE_REPEATING_CHARACTER_STRING",
+      "description_tfidf_cosine": 0.37998926994763316
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_PRODUCT_INCREASING_SUBSEQUENCE",
+      "nearest_train_task_id": "TransCoderGFG/DYNAMIC_PROGRAMMING_SET_14_MAXIMUM_SUM_INCREASING_SUBSEQUENCE",
+      "description_tfidf_cosine": 0.5829566876156904
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_SUBARRAY_SUM_ARRAY_CREATED_REPEATED_CONCATENATION",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_SUBARRAY_SUM_USING_PREFIX_SUM",
+      "description_tfidf_cosine": 0.38894282777097694
+    },
+    {
+      "test_task_id": "TransCoderGFG/MAXIMUM_TRIPLET_SUM_ARRAY",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_EQULIBRIUM_SUM_ARRAY",
+      "description_tfidf_cosine": 0.43202333738522614
+    },
+    {
+      "test_task_id": "TransCoderGFG/MINIMIZE_SUM_PRODUCT_TWO_ARRAYS_PERMUTATIONS_ALLOWED",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_SUM_PRODUCT_TWO_ARRAYS",
+      "description_tfidf_cosine": 0.5496281102806014
+    },
+    {
+      "test_task_id": "TransCoderGFG/MINIMUM_INCREMENT_K_OPERATIONS_MAKE_ELEMENTS_EQUAL",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_OPERATION_MAKE_ELEMENTS_EQUAL_ARRAY",
+      "description_tfidf_cosine": 0.4634979927920167
+    },
+    {
+      "test_task_id": "TransCoderGFG/MINIMUM_XOR_VALUE_PAIR",
+      "nearest_train_task_id": "TransCoderGFG/MAXIMUM_XOR_VALUE_MATRIX",
+      "description_tfidf_cosine": 0.45220402936159476
+    },
+    {
+      "test_task_id": "TransCoderGFG/MULTIPLY_TWO_NUMBERS_WITHOUT_USING_MULTIPLY_DIVISION_BITWISE_OPERATORS_AND_NO_LOOPS",
+      "nearest_train_task_id": "TransCoderGFG/ADD_TWO_NUMBERS_WITHOUT_USING_ARITHMETIC_OPERATORS",
+      "description_tfidf_cosine": 0.3205409837199039
+    },
+    {
+      "test_task_id": "TransCoderGFG/NON_REPEATING_ELEMENT",
+      "nearest_train_task_id": "TransCoderGFG/K_TH_DISTINCT_OR_NON_REPEATING_ELEMENT_IN_AN_ARRAY",
+      "description_tfidf_cosine": 0.4711705577337346
+    },
+    {
+      "test_task_id": "TransCoderGFG/NUMBER_DIGITS_PRODUCT_TWO_NUMBERS",
+      "nearest_train_task_id": "TransCoderGFG/MINIMUM_SUM_PRODUCT_TWO_ARRAYS",
+      "description_tfidf_cosine": 0.34797197675602054
+    },
+    {
+      "test_task_id": "TransCoderGFG/NUMBER_INDEXES_EQUAL_ELEMENTS_GIVEN_RANGE",
+      "nearest_train_task_id": "TransCoderGFG/GCD_ELEMENTS_GIVEN_RANGE",
+      "description_tfidf_cosine": 0.46332989606576885
+    },
+    {
+      "test_task_id": "TransCoderGFG/POSITION_OF_RIGHTMOST_SET_BIT",
+      "nearest_train_task_id": "TransCoderGFG/TURN_OFF_THE_RIGHTMOST_SET_BIT",
+      "description_tfidf_cosine": 0.4883879700411197
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_AREA_SQUARE",
+      "nearest_train_task_id": "TransCoderGFG/AREA_SQUARE_CIRCUMSCRIBED_CIRCLE",
+      "description_tfidf_cosine": 0.6942367091839718
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_ELLIPSOID",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_OCTAHEDRON",
+      "description_tfidf_cosine": 0.6098599161682355
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_FOR_FACTORIAL_OF_A_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/C_PROGRAM_FACTORIAL_NUMBER",
+      "description_tfidf_cosine": 0.5895477983413225
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_OCTAL_DECIMAL_CONVERSION",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_BINARY_DECIMAL_CONVERSION",
+      "description_tfidf_cosine": 0.5351536247474014
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_TO_CHECK_IF_A_MATRIX_IS_SYMMETRIC",
+      "nearest_train_task_id": "TransCoderGFG/CHECK_IF_A_NUMBER_IS_JUMBLED_OR_NOT",
+      "description_tfidf_cosine": 0.3719907776720426
+    },
+    {
+      "test_task_id": "TransCoderGFG/PROGRAM_TO_FIND_THE_AREA_OF_PENTAGON",
+      "nearest_train_task_id": "TransCoderGFG/AREA_OF_A_HEXAGON",
+      "description_tfidf_cosine": 0.44702998324888193
+    },
+    {
+      "test_task_id": "TransCoderGFG/SMALLEST_POWER_OF_2_GREATER_THAN_OR_EQUAL_TO_N",
+      "nearest_train_task_id": "TransCoderGFG/NEXT_POWER_OF_2",
+      "description_tfidf_cosine": 0.35047863859656103
+    },
+    {
+      "test_task_id": "TransCoderGFG/SORT_EVEN_PLACED_ELEMENTS_INCREASING_ODD_PLACED_DECREASING_ORDER",
+      "nearest_train_task_id": "TransCoderGFG/SORT_EVEN_NUMBERS_ASCENDING_ORDER_SORT_ODD_NUMBERS_DESCENDING_ORDER_1",
+      "description_tfidf_cosine": 0.3100725498013057
+    },
+    {
+      "test_task_id": "TransCoderGFG/SQUARE_ROOT_OF_A_PERFECT_SQUARE",
+      "nearest_train_task_id": "TransCoderGFG/SQUARE_ROOT_OF_AN_INTEGER",
+      "description_tfidf_cosine": 0.6271049085026016
+    },
+    {
+      "test_task_id": "TransCoderGFG/SUM_BINOMIAL_COEFFICIENTS",
+      "nearest_train_task_id": "TransCoderGFG/FIND_SUM_EVEN_INDEX_BINOMIAL_COEFFICIENTS",
+      "description_tfidf_cosine": 0.5069920346680319
+    },
+    {
+      "test_task_id": "TransCoderGFG/SUM_NODES_K_TH_LEVEL_TREE_REPRESENTED_STRING",
+      "nearest_train_task_id": "TransCoderGFG/PRODUCT_NODES_K_TH_LEVEL_TREE_REPRESENTED_STRING",
+      "description_tfidf_cosine": 0.8119065036959795
+    },
+    {
+      "test_task_id": "TransCoderGFG/SUM_OF_ALL_PROPER_DIVISORS_OF_A_NATURAL_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/SUM_OF_ALL_SUBSTRINGS_OF_A_STRING_REPRESENTING_A_NUMBER",
+      "description_tfidf_cosine": 0.3618974192080519
+    },
+    {
+      "test_task_id": "TransCoderGFG/SWAP_TWO_NUMBERS_WITHOUT_USING_TEMPORARY_VARIABLE",
+      "nearest_train_task_id": "TransCoderGFG/ADD_TWO_NUMBERS_WITHOUT_USING_ARITHMETIC_OPERATORS",
+      "description_tfidf_cosine": 0.36327075424131583
+    },
+    {
+      "test_task_id": "TransCoderGFG/TRIANGULAR_MATCHSTICK_NUMBER",
+      "nearest_train_task_id": "TransCoderGFG/TRIANGULAR_NUMBERS",
+      "description_tfidf_cosine": 0.49598402581403994
+    },
+    {
+      "test_task_id": "TransCoderGFG/WRITE_A_C_PROGRAM_TO_CALCULATE_POWXN",
+      "nearest_train_task_id": "TransCoderGFG/PROGRAM_CALCULATE_VOLUME_OCTAHEDRON",
+      "description_tfidf_cosine": 0.36918745309717105
+    }
+  ],
+  "artifact_sha256": {
+    "train.pkl": "35db3eaf1b57f7aa1a7d2f3ec6fef7e09570636c0bfd1866ff419562effc7421",
+    "valid.pkl": "3fe4a92ad75f98888c0fdc32304e33df0191042a9f85c4d1c59ea2ca284412c0",
+    "test.pkl": "454c459a867b6c258ee1b6308e09d0433c002dfce641cbcff242267eed53b7e4",
+    "all_candidates.pkl": "38cc6ed7cf442f33ccac27d59e3fa1c85b96d7688a41c051ec259f3c8287fe1c",
+    "mbjp_t5.json": "d4f35d0f40f9d14e383b33e43208975cefc203c5d17792882627f4c29b3fe187",
+    "t5_plain_format.json": "d4f35d0f40f9d14e383b33e43208975cefc203c5d17792882627f4c29b3fe187",
+    "train_mbjp_t5.json": "b1b64acb0dc2d085a79dbb9df2928389ecc27da1e9696280aa2d0d264e6a643e",
+    "valid_mbjp_t5.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "test_mbjp_t5.json": "9d0d47271d1e559cdb64ba26546773d7fa49428c83ee49148a5f2b12914cd6b6",
+    "train_t5_plain_format.json": "b1b64acb0dc2d085a79dbb9df2928389ecc27da1e9696280aa2d0d264e6a643e",
+    "valid_t5_plain_format.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "test_t5_plain_format.json": "9d0d47271d1e559cdb64ba26546773d7fa49428c83ee49148a5f2b12914cd6b6",
+    "train_task_ids.json": "863abeb5574c4adec9db0ab35416c7cc34544dd5d3f3148effd0811a77f35318",
+    "valid_task_ids.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "test_task_ids.json": "ff0fb8758b9ad1f9504213bae4ae2573158b65b630f7cc3c2125435b56810f25",
+    "mbjp_format.jsonl": "ef6aa94fd07c860f249c7ba81a75ccc67a2754f524cf78bca085c4e9db8ff77f",
+    "train_mbjp_format.jsonl": "c0a5610f5ef1b491bbcff397afc991975b7efc852919f3cab896d56e79e622ee",
+    "valid_mbjp_format.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test_mbjp_format.jsonl": "cb8b3deead6854c94400675f3c26773d20d0cb15f1144d4b0d99b25749a12978",
+    "config.json": "8ea0bc4a3610a4971b4fa2f92cb49ea80e81f271d626d89ea973c498bc5af85f",
+    "loader_contract.json": "9e4169159a42ee6e9eee5e9d22b30c2003a5ddfe43365b71582667ba33e8e075"
+  },
+  "prompt_parent": "java_transcoder_gfg_mbjp_matched_split80_20_t5gemma2_20260819_v10",
+  "split_parent": "java_transcoder_gfg_mbjp_matched_split80_20_t5gemma2_20260819_v10",
+  "split_membership_changed": false,
+  "prompt_protocol_revision": "mbjp-native-direct-return-v13",
+  "gold_tests_changed_in_v13": 0
+}
