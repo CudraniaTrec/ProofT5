@@ -3,7 +3,7 @@ We design our evaluation to answer the following research questions.
 \begin{itemize}
     \item \textbf{RQ1:} How does \mainname compare with the existing code generation methods?
     \item \textbf{RQ2:} How does each component of \mainname contributes to the overall performance?
-    \item \textbf{RQ3:} How does the correctness of \mainname compare with rejection sampling, the previous method for ensuring the correctness of code generation?
+    \item \textbf{RQ3:} How does \mainname compare with reliability-oriented generation approaches, including rejection sampling, token-level constrained decoding, completion-engine repair, and iterative compiler-feedback repair?
     \item \textbf{RQ4:} How does \mainname compare with variants that generate the type derivation tree and the program separately instead of simultaneously?
 \end{itemize}
 
@@ -23,7 +23,9 @@ To evaluate the generality of \mainname, our evaluation considers two languages 
  
  \item \textbf{Java} is a popular imperative language with a sophisticated type system. In a balance between the implementation cost and the expressiveness, we implement a subset of Java that preserves its core syntax while omitting advanced features like lambda expressions.
 
- We consider the MBJP dataset in our evaluation, which is the Java version of the popular MBPP dataset~\cite{DBLP:journals/corr/abs-2107-03374}. Our Java subset covers 608 tasks from MBJP, and we split these tasks randomly into a training set of 90\% tasks and a test set of 10\%. 
+ We consider the MBJP dataset~\cite{DBLP:conf/iclr/AthiwaratkunGWL23} in our evaluation, which is the Java version of the popular MBPP dataset. Our Java subset covers the MBJP tasks admitted by our toolchain, which we split randomly into a training set of 608 tasks and a held-out test set of 67 tasks.
+
+ \item \textbf{HumanEval-Java} and \textbf{TransCoder-GFG} are two additional Java benchmarks introduced in this revision to broaden the evaluation beyond MBJP. HumanEval-Java normalizes the Java port of HumanEval~\cite{DBLP:journals/corr/abs-2107-03374} into the MBJP prompt, class, and test-harness format, and TransCoder-GFG does the same for the GeeksForGeeks programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20}. Both benchmarks are aligned with the MBJP task style and therefore measure in-distribution extension of the MBJP setting: HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed 80/20 split of 414 training and 103 test tasks. A lineage audit additionally found that 5 of the 16 HumanEval-Java test tasks occur in the training lineage of an ancestor checkpoint of \mainname-2B, so the 16-task result is labelled ancestor-mixed. Dataset construction, normalization, and audits are detailed in Appendix~\ref{appendix-benchmark}.
 \end{itemize}
 
 More information about SuFu, Java, and the datasets can be found in Appendix~\ref{appendix-benchmark}.
@@ -54,61 +56,76 @@ Since \mainname introduces a new representation that differs from standard code 
 \subsection{Experimental Results}
 
 \subsubsection{RQ1: Performance of \mainname}
-\autoref{tab:model-results} summarizes the overall performance of \mainname. 
-%
-The top four models are fine-tuned and evaluated on the SuFu dataset, while the bottom four models are on the MBJP dataset. For each language, we compare the baseline models (CodeT5-220M and T5Gemma2-2B) with their corresponding \mainname variants.
+\autoref{tab:model-results} summarizes the overall performance of \mainname, with models grouped by scale: the 220M group compares \mainname-220M with its base model CodeT5-220M, and the 2B group compares \mainname-2B with its base model T5Gemma2-2B. Both groups are evaluated on SuFu and MBJP, and the 2B group is additionally evaluated on the two Java benchmarks introduced in this revision, HumanEval-Java and TransCoder-GFG.
 
 \begin{table}[ht]
 \centering
 \begin{threeparttable}
-\caption{Comparison of Accuracy and Compilation Error Rate between CodeT5 and \mainname on SuFu and Java Datasets}
+\caption{Comparison of Accuracy and Compilation Error Rate between Base Models and \mainname at the 220M and 2B Scales}
 \label{tab:model-results}
 \begin{tabular}{
     l 
-    c
+    l
+    l
     S[table-format=2.2] 
     S[table-format=2.2] 
     S[table-format=1.2] 
     S[table-format=2.2]
 }
 \toprule
-Language & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {FSP\tnote{\downdir}} & {CER (\%)\tnote{\downdir}} \\ 
+Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {FSP\tnote{\downdir}} & {CER (\%)\tnote{\downdir}} \\
 \midrule
-\multirow{4}{*}{SuFu} 
-        & CodeT5-220M         & 24.14 & 32.76 & 7.03 & 83.10 \\
-        & T5Gemma2-2B         & 29.31 & 37.93 & 6.69 & 61.21 \\
-        \cmidrule{2-6}
-        & \mainname-220M      & 37.93 & 46.55 & 5.48 & 0.00 \\
-        & \mainname-2B        & \textbf{43.10} & \textbf{50.00} & \textbf{5.03} & \textbf{0.00} \\
+\multirow{4}{*}{220M}
+        & SuFu & CodeT5-220M         & 24.14 & 32.76 & 7.03 & 83.10 \\
+        &      & \mainname-220M      & \textbf{37.93} & \textbf{46.55} & \textbf{5.48} & \textbf{0.00} \\
+        \cmidrule(lr){2-7}
+        & MBJP & CodeT5-220M         & 10.45 & 20.90 & 8.19 & 38.51 \\
+        &      & \mainname-220M      & \textbf{11.94} & \textbf{28.36} & \textbf{7.94} & \textbf{3.52} \\
 \midrule
-\multirow{4}{*}{Java} 
-        & CodeT5-220M         & 10.45 & 20.90 & 8.19 & 38.51  \\
-        & T5Gemma2-2B         & 17.91 & 35.82 & 6.99 & 15.22 \\
-        \cmidrule{2-6}
-        & \mainname-220M      & 11.94 & 28.36 & 7.94 & 3.52 \\
-        & \mainname-2B        & \textbf{23.19} & \textbf{40.30} & \textbf{6.76} & \textbf{3.12} \\
+\multirow{8}{*}{2B}
+        & SuFu & T5Gemma2-2B         & 29.31 & 37.93 & 6.69 & 61.21 \\
+        &      & \mainname-2B        & \textbf{43.10} & \textbf{50.00} & \textbf{5.03} & \textbf{0.00} \\
+        \cmidrule(lr){2-7}
+        & MBJP & T5Gemma2-2B         & 13.43 & 32.84 & 7.46 & 29.55 \\
+        &      & \mainname-2B        & \textbf{25.37} & \textbf{43.28} & \textbf{6.36} & \textbf{0.45} \\
+        \cmidrule(lr){2-7}
+        & HumanEval\tnote{\dag} & T5Gemma2-2B & 12.50 & 25.00 & 7.88 & 29.38 \\
+        &      & \mainname-2B        & \textbf{50.00} & \textbf{56.25} & \textbf{4.75} & \textbf{1.30} \\
+        \cmidrule(lr){2-7}
+        & GFG\tnote{\ddag} & T5Gemma2-2B & 13.59 & 27.18 & 7.74 & 25.05 \\
+        &      & \mainname-2B        & \textbf{30.10} & \textbf{46.60} & \textbf{5.81} & \textbf{2.75} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
-\item \updir\, Higher is better; \downdir\, Lower is better; \textbf{bold} indicates best value per column.
-\item pass@k measures the proportion of problems solved by at least one of the top-k candidates (verified by test cases); FSP is the average rank of the first correct candidate; CER is the compilation error rate. See \autoref{sec:evaluation-metrics} for details.
+\item \updir\, Higher is better; \downdir\, Lower is better; \textbf{bold} marks the better model within each benchmark group.
+\item pass@k measures the proportion of problems solved by at least one of the top-k candidates (verified by test cases); FSP is the average rank of the first correct candidate, with unsolved problems assigned the worst position; CER is the compilation error rate over generated candidates. See \autoref{sec:evaluation-metrics} for details.
+\item[\dag] Ancestor-mixed: 5 of the 16 HumanEval-Java test tasks occur in the training lineage of an ancestor checkpoint of \mainname-2B. Constrained-beam exhaustion left 6 of the 160 \mainname-2B candidates ungenerated, so its CER is computed over 154 candidates.
+\item[\ddag] Fail-closed: one TransCoder-GFG task exhausted the constrained-generation budget; its ten candidates are counted as failures while the denominator remains 103.
+\item The SuFu rows and the 220M Java rows retain the submitted values. The 2B Java rows (MBJP, HumanEval, GFG) are re-evaluated under the revised protocol with frozen checkpoints and fail-closed scoring; exact task counts and dataset construction are given in Appendix~\ref{appendix-benchmark}.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-\mainname consistently improves code generation accuracy across both base models. On SuFu, \mainname-220M improves pass@10 from 32.76\% (CodeT5-220M) to 46.55\%, and \mainname-2B improves it from 37.93\% (T5Gemma2-2B) to 50.00\%. On Java, \mainname-220M improves pass@10 from 20.90\% to 28.36\%, and \mainname-2B improves it from 35.82\% to 40.30\%.
+\mainname consistently improves code generation accuracy at both scales and on every benchmark.
+%
+On SuFu, \mainname-220M improves pass@10 from 32.76\% (CodeT5-220M) to 46.55\%, and \mainname-2B improves it from 37.93\% (T5Gemma2-2B) to 50.00\%. On MBJP, \mainname-220M improves pass@10 from 20.90\% to 28.36\%, and \mainname-2B improves pass@1 from 13.43\% to 25.37\% and pass@10 from 32.84\% to 43.28\%.
+The gains carry over to both additional Java benchmarks: on HumanEval-Java, \mainname-2B improves pass@1 from 12.50\% to 50.00\% and pass@10 from 25.00\% to 56.25\%; on TransCoder-GFG, it improves pass@1 from 13.59\% to 30.10\% and pass@10 from 27.18\% to 46.60\%.
 The improvements are particularly pronounced on SuFu, indicating that \mainname enhances the model's ability to reason about type constraints on languages with complex type systems and limited training data.
 
-In terms of the position of the first successful prediction (FSP), \mainname consistently reduces FSP compared to the corresponding base models. On SuFu, \mainname-220M reduces FSP from 7.03 to 5.48, and \mainname-2B reduces it from 6.69 to 5.03. On Java, \mainname-220M reduces FSP from 8.19 to 7.94, and \mainname-2B reduces it from 6.99 to 6.76.
+We scope the claims on the two additional Java benchmarks explicitly.
+Both benchmarks are normalized to the MBJP task style and share its training pipeline, so they measure in-distribution extension of the MBJP setting rather than zero-shot generalization to their raw task distributions.
+Within this scope, the HumanEval-Java comparison is ancestor-mixed as noted in \autoref{tab:model-results}, and the TransCoder-GFG comparison is fail-closed.
+
+In terms of the position of the first successful prediction (FSP), \mainname consistently reduces FSP compared to the corresponding base models on every benchmark: for example, \mainname-2B reduces FSP from 7.46 to 6.36 on MBJP, from 7.88 to 4.75 on HumanEval-Java, and from 7.74 to 5.81 on TransCoder-GFG.
 
 Most notably, \mainname greatly reduces compilation errors, as indicated by the CER numbers.
 In SuFu, all compilation errors are caused by type errors, so \mainname completely eliminates compilation errors (CER = 0.00\%). 
 In Java, compilation errors may also be triggered by static analysis, which is uncaptured in our implemented type system(e.g., unreachable code), which is why \mainname retains a small CER.
-Nonetheless, \mainname still reduces compilation errors significantly: \mainname-220M reduces CER from 38.51\% to 3.52\%, and \mainname-2B reduces it from 15.22\% to 3.12\%. 
+Under the revised protocol, the ordinary T5Gemma2-2B baseline fails to compile 25--30\% of its candidates on the three Java benchmarks, while \mainname-2B reduces CER to 0.45\% on MBJP, 1.30\% on HumanEval-Java, and 2.75\% on TransCoder-GFG.
 
-
-Overall, \mainname achieves clear performance gains and significant improvements in code correctness and reliability for both programming languages, fulfilling our design objectives.
+Overall, \mainname achieves clear performance gains and significant improvements in code correctness and reliability across model scales and benchmarks, fulfilling our design objectives.
+A task-level failure analysis in Appendix~\ref{appendix-failure} further shows that the residual failures of \mainname are dominated by well-typed but semantically wrong programs, while invalid generation essentially disappears as a failure mode.
 
 \subsubsection{RQ2: Contributions of Individual Components in \mainname}
 To answer RQ2, we conduct an ablation study on the SuFu benchmark and the \mainname-220M model to quantify the contributions of each component in \mainname. Starting from the base case where \mainname synthesizes decision sequences with no checks, system components (syntactic pruning, type pruning, and dynamic typing context, as introduced in \autoref{sec:implementation}) are incrementally added, and the impact on performance metrics is evaluated at each stage. 
@@ -172,46 +189,115 @@ The results validate our motivation: the type-based mechanisms are essential for
 % While initial grammatical checks lay the groundwork, the introduction and refinement of type-based mechanisms are essential for achieving complete functional correctness and eliminating compilation failures. 
 In particular, the effect of dynamic typing context demonstrates the importance of \textbf{Context Locality} in ~\autoref{section:intro}: by providing necessary type information within a compact local context, this technique significantly improves the effectiveness of generation.
 
-\subsubsection{RQ3: Comparison with Rejection Sampling}
-To answer RQ3, we compare \mainname with two baselines: the vanilla CodeT5-220M (without any post-processing) and CodeT5-220M with rejection sampling, the previous state-of-the-art for achieving guarantees in code generation. 
-%The comparison highlights the improvements each method achieves relative to the vanilla baseline. 
-In our case, rejection sampling queries the LM repeatedly and discards those candidate programs that cannot be compiled until finding sufficient solutions or reaching a resource limit.
-Notably, rejection sampling is functionally equivalent to constrained decoding, as both methods effectively re-normalize the model's output distribution over the subspace of valid, compilable programs. By including rejection sampling, we establish a strong baseline for the performance of the model under strict correctness constraints.
+Beyond the functional metrics, we quantify the runtime behavior of these components by instrumenting the constrained decoder of the full \mainname-220M configuration (syntactic pruning, type pruning, and dynamic typing context enabled) on the SuFu test set.
+\autoref{tab:decode-stats} reports how many candidate tokens each filtering level eliminates and how often the search exhausts its budget.
+
 \begin{table}[ht]
 \centering
 \begin{threeparttable}
-\caption{Comparison: Vanilla CodeT5, Rejection Sampling, and \mainname}
+\caption{Pruning and Exhaustion Statistics of Constrained Decoding (\mainname, SuFu test)}
+\label{tab:decode-stats}
+\begin{tabular}{
+    l
+    c
+}
+\toprule
+Statistic & Value \\
+\midrule
+\multicolumn{2}{l}{\textit{Pruning rate (full \mainname-220M, 58 tasks, beam size 10)}} \\
+Syntactic pruning rate (per beam step) & 59.1\% \\
+Type pruning rate (per expansion step)\tnote{\dag} & 8.2\% \\
+\midrule
+\multicolumn{2}{l}{\textit{Beam-search exhaustion (pruning eliminates all live beams)}} \\
+Tasks where the constrained search dead-ends & 0 of 58 \\
+\midrule
+\multicolumn{2}{l}{\textit{Candidate shortfall within the 330-step budget (of 580 slots)}} \\
+Base (no checks) & 19.0\% \\
+\quad + Syntactic pruning & 15.9\% \\
+\quad + Type pruning & 34.1\% \\
+\quad + Dynamic typing context (full \mainname) & 37.8\% \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item Pruning rates and the exhaustion count are collected in an instrumented decoding run of the frozen full \mainname-220M configuration (beam size 10, 330-step budget); the rejection denominators are 167{,}295 grammar-valid expansions and 533 completed candidates.
+\item[\dag] The same type component also verifies every finished program at the output boundary and rejects 21.2\% of completed candidates (113 of 533): incremental checking during search is deliberately permissive while an AST field is incomplete, so whole-program type validity is established only on the complete derivation.
+\item Shortfall rates are computed from the candidate counts of the ablation runs in \autoref{tab:ablation-combined}; they reflect budget-limited incompleteness, not search dead-ends. When the budget ends with fewer than ten completed candidates, the missing slots are scored as failures (fail-closed); the decoder never falls back to unconstrained generation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The statistics quantify the two pruning components.
+The syntactic mask provides the bulk of the search-space reduction, eliminating 59.1\% of the vocabulary at every decoding step on average, which bounds the branching factor the LM faces at each decision.
+The type component constructs the derivation tree step by step and rejects 8.2\% of the grammar-surviving expansions whose synthesis rule cannot extend it.
+The low per-step rate is itself evidence for the representation: trained on decision sequences, the LM already proposes mostly type-extendable derivations, so the component's work concentrates on the tail---it rejects 21.2\% of finished programs at the output boundary, eliminating the ill-typed survivors that would otherwise keep the compilation error rate above zero.
+This construction-time pruning, together with the fused output-boundary verification of the same component, is what keeps the compilation error rate at zero.
+No single component is sufficient: the type component operates on candidates the syntactic mask already admitted, and correctness by construction is realized only when the complete derivation verifies.
+
+Two distinct phenomena must be separated when reporting search failures.
+Beam-search exhaustion in the strict sense---pruning eliminates every live beam so that the search cannot continue---never occurs in the instrumented run (0 of 58 tasks): the syntactic mask is derived from the grammar and always leaves at least one legal continuation for the current derivation state, and among the twenty highest-scoring expansions at least one always extends the derivation.
+The decoder therefore never needs a fallback to unconstrained generation; the only fallback policy is fail-closed scoring.
+What the fixed budget does produce is completion shortfall, reported per ablation configuration: syntactic pruning alone slightly reduces the shortfall relative to the unchecked base (15.9\% vs.\ 19.0\%), because masking dead-end tokens early helps the beam complete candidates, whereas adding type pruning raises it to 34.1\% and the full configuration to 37.8\%---each additional correctness guarantee is paid for with a lower completion rate within the budget.
+This quantifies the gap discussed in \autoref{sec:soundness-completeness}: the completeness theorem guarantees that a synthesis derivation exists for every well-typed program, but how many derivations beam search completes within a fixed budget is an empirical property of the trained model and its pruning components, not a consequence of the theory.
+
+\subsubsection{RQ3: Comparison with Reliability-Oriented Generation Methods}
+To answer RQ3, we compare \mainname with methods that pursue correct code by constraining or repairing the output of a trained model.
+On SuFu, the baseline is CodeT5-220M with rejection sampling, which repeatedly queries the LM and discards candidate programs that fail to compile until finding sufficient solutions or reaching a resource limit.
+On MBJP, we further compare with four approaches that share the same frozen T5Gemma2-2B weights as the ordinary control: (i) \emph{rejection sampling} with a standalone-\texttt{javac} gate and a budget of four ten-draw rounds per task; (ii) \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar}, which performs grammar-constrained decoding by masking tokens that violate a Java grammar at each step; (iii) \emph{Repilot}~\cite{DBLP:conf/sigsoft/0003X023}, which fuses LM generation with the Eclipse JDT completion engine for token-level repair; and (iv) \emph{iterative compiler repair}, which regenerates candidates from standalone \texttt{javac} diagnostics for at most two rounds without ever seeing the benchmark tests.
+All Java rows are evaluated on the same 67 test tasks with ten candidates per task; the ordinary control is the archived paper-recovery checkpoint (10/67 and 23/67 pass@1/pass@10, close to the submitted row).
+
+\begin{table}[ht]
+\centering
+\begin{threeparttable}
+\caption{Comparison of \mainname with Reliability-Oriented Generation Methods on Java}
 \label{tab:model-compare-sufu-java}
 \begin{tabular}{
     l
     l
     S[table-format=2.2]
     S[table-format=2.2]
+    S[table-format=2.2]
 }
 \toprule
-Language & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} \\
+Language & Method & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {CER (\%)\tnote{\downdir}} \\
 \midrule
-\multirow{3}{*}{SuFu} 
-        & CodeT5                & 24.14 & 32.76 \\
-        & CodeT5 + Rejection Sampling & 31.03 & 32.76 \\
-        & \mainname-220M             & \textbf{37.93} & \textbf{46.55} \\
-\midrule
-\multirow{3}{*}{Java} 
-        & CodeT5                & 10.45 & 20.90 \\
-        & CodeT5 + Rejection Sampling & 10.45 & 20.90 \\
-        & \mainname-220M             & \textbf{11.94} & \textbf{28.36} \\
+%\multirow{3}{*}{SuFu}
+%        & CodeT5                & 24.14 & 32.76 & 83.10 \\
+%        & CodeT5 + Rejection Sampling\tnote{\dag} & 31.03 & 32.76 & 0.00 \\
+%        & \mainname-220M             & \textbf{37.93} & \textbf{46.55} & \textbf{0.00} \\
+%\midrule
+\multirow{5}{*}{Java}
+        & T5Gemma2-2B           & 14.93 & 34.33 & 18.21 \\
+        & \quad + Rejection Sampling\tnote{\dag} & 14.93 & 35.82 & 0.00 \\
+        & \quad + SynCode       & 14.93 & 35.82 & 10.90 \\
+        & \quad + Repilot       & 14.93 & 34.33 & 16.72 \\
+        & \mainname-2B          & \textbf{25.37} & \textbf{43.28} & \textbf{0.45} \\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item pass@k measures the proportion of problems solved by at least one of the top-k candidates; CER is the compilation error rate over returned candidates. Bold marks the best value achieved by generation; the by-construction 0.00 CER of rejection sampling is not bolded.
+\item[\dag] Rejection sampling discards candidates that fail standalone \texttt{javac} and resamples until ten compilable candidates are collected or the budget of four ten-draw rounds per task is exhausted. Its CER is 0.00 by construction over the 618 returned candidates; 52 slots on six tasks remain unfilled within the budget and count as failures (fail-closed). Benchmark tests are never executed during selection.
+\item The SynCode row uses our compile-safe adaptation: it keeps each ordinary candidate unless standalone \texttt{javac} proves it uncompilable and the corresponding SynCode candidate compiles; it uses two generation arms and never runs benchmark tests during selection.
+\item The T5Gemma2-2B rows use the MBJP benchmark, the archived paper-recovery checkpoint as the shared control, and their CER counts are 122, 73, 112, and 3 of 670 candidates; exact task counts (e.g., 10/67, 23/67, and 17/67, 29/67) are given in Appendix~\ref{appendix-benchmark}.
+\item Paired exact tests versus the ordinary control: rejection sampling $p=1.0$ (pass@1) and $p=0.5$ (pass@10); SynCode and Repilot $p=1.0$ for both metrics.
+\end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-% \autoref{tab:model-compare-sufu-java} compares the pass@1 and pass@10 results of three model variants (CodeT5-220M, CodeT5-220M with rejection sampling, and \mainname-220M) on both the SuFu and Java benchmarks.
-On both datasets, rejection sampling can provide only minor improvements over the baseline, much less than the improvements achieved by \mainname.
-This demonstrates that rejection sampling, as a post-hoc filtering technique, fails to enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM. 
-Similarly, constrained decoding, which also relies on filtering during generation, would face comparable limitations as it cannot fundamentally improve over the base LM, either.
+On SuFu, rejection sampling provides only minor improvements over the baseline (pass@1 from 24.14\% to 31.03\%, pass@10 unchanged), much less than the improvements achieved by \mainname.
+Our budget-limited rejection sampling on the T5Gemma2-2B control behaves the same way: discarding every candidate that fails standalone \texttt{javac} and resampling within a budget of four ten-draw rounds per task leaves pass@1 unchanged (14.93\%) and adds a single task at pass@10 (35.82\%); six tasks cannot even collect ten compilable candidates within the budget.
+As a post-hoc filtering technique, it cannot enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM.
 
-In contrast, \mainname consistently achieves higher pass@1 and pass@10, reflecting its ability to generate more correct and top-ranked predictions. 
-Unlike filtering-based methods, \mainname explicitly incorporates typing rules and typing context during training, enabling the model to learn and utilize type constraints. 
+On MBJP, none of the external reliability baselines improves functional correctness over the ordinary control.
+Grammar-constrained SynCode decoding alone preserves the control's solved sets exactly (10/67 and 23/67), so the table reports its stronger compile-safe portfolio variant, which adds a standalone-\texttt{javac} gate and yields one additional solved task at pass@10 (24 vs.~23 of 67) while reducing compile errors from 122 to 73 of 670 candidates, at the cost of a second generation arm.
+Repilot retains the identical solved sets (10/67 and 23/67) with 112 of 670 compile errors; its JDT checker issues 18{,}653 completion queries and adds 2.66\,ms per output token.
+We additionally evaluate iterative compiler repair (not shown in the table): it attains its exact round-0 scores (8/67 and 17/67); compiler feedback repairs 68 candidates' compilability (compile errors 133$\to$83 of 670 over 275 repair calls) but adds no solved task.
+In contrast, \mainname-2B solves 17/67 at pass@1 and 29/67 at pass@10, the best of all compared methods, with only 3 of 670 candidates failing to compile.
+Paired exact tests over the 67 tasks show that no individual difference between \mainname-2B and any of these baselines reaches significance at the 0.05 level (pass@1 $p \geq 0.09$, pass@10 $p \geq 0.21$), so we present this comparison as a consistent direction shared by all four baselines rather than a statistically proven per-method gap.
+
+These results indicate that external reliability mechanisms---post-hoc filtering, token-level grammar masking, completion-engine repair, or compiler-feedback regeneration---operate on the output distribution of a frozen model: they can prune invalid outputs, but they do not change which programs the model is able to solve.
+In contrast, \mainname explicitly incorporates typing rules and typing context during training, enabling the model to learn and utilize type constraints, which improves both correctness and the ranking of candidates.
 These results highlight that embedding type information into LMs is substantially more effective than post-hoc pruning approaches, demonstrating the critical importance of \textbf{Type Explicitness} in \autoref{section:intro}.
 
 \subsubsection{RQ4: Comparison with Separated Type-Code Generation}

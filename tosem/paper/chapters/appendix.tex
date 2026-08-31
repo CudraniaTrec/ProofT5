@@ -306,3 +306,96 @@ The complete SuFu grammar specification is as follows:
 <integer>     := [0-9]+
 \end{Verbatim}
 \end{tcolorbox}
+\section{Failure Analysis}\label{appendix-failure}
+
+This section classifies the failing tasks of the revised Java evaluation and presents representative cases.
+For each benchmark and model, every test task is assigned to one of four mutually exclusive categories:
+\textbf{Solved@1} (the top-1 candidate passes all tests);
+\textbf{Ranking failure} (some candidate in the top ten passes, but not the top-1 one);
+\textbf{All-invalid} (no candidate passes and none of the ten candidates compiles); and
+\textbf{Well-typed but wrong} (no candidate passes, but at least one candidate compiles---the failure is semantic, not syntactic).
+
+\begin{table}[ht]
+\centering
+\begin{threeparttable}
+\caption{Task-Level Failure Taxonomy on the Three Java Test Sets}
+\label{tab:failure-taxonomy}
+\begin{tabular}{
+    l
+    l
+    S[table-format=2.0]
+    S[table-format=2.0]
+    S[table-format=2.0]
+    S[table-format=2.0]
+    S[table-format=2.0]
+}
+\toprule
+Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-typed\\wrong}} & {Total} \\
+\midrule
+\multirow{2}{*}{MBJP (67)}
+        & T5Gemma2-2B & 9 & 13 & 4 & 41 & 67 \\
+        & \mainname-2B & 17 & 12 & 0 & 38 & 67 \\
+\midrule
+\multirow{2}{*}{HumanEval-Java (16)}
+        & T5Gemma2-2B & 2 & 2 & 2 & 10 & 16 \\
+        & \mainname-2B & 8 & 1 & 0 & 7 & 16 \\
+\midrule
+\multirow{2}{*}{TransCoder-GFG (103)}
+        & T5Gemma2-2B & 14 & 14 & 3 & 72 & 103 \\
+        & \mainname-2B & 31 & 17 & 2 & 53 & 103 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item Counts are derived from the frozen per-candidate statuses of the revised evaluation; timeouts and unfilled slots count as invalid. The two GFG all-invalid tasks of \mainname-2B include the task whose constrained search exceeded the generation budget (fail-closed).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Three observations follow from \autoref{tab:failure-taxonomy}.
+First, \emph{invalid generation essentially disappears as a failure mode} under \mainname: the all-invalid category drops from 4/2/3 to 0/0/2 tasks, and the remaining GFG cases are dominated by the documented budget exhaustion rather than by ill-formed output.
+Second, \emph{ranking failures persist} (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, which is a property of beam scoring rather than of the representation.
+Third, and most importantly, \emph{the dominant residual failure is well-typed but semantically wrong code}: 38 of 50 unsolved MBJP tasks, 7 of 8 unsolved HumanEval-Java tasks, and 53 of 72 unsolved GFG tasks have at least one compilable candidate whose behavior is incorrect.
+This is exactly the boundary of what type-level constraints can guarantee: typing rules rule out ill-formed programs, but they cannot enforce the functional specification.
+
+\subsection{Representative Case: Invalid Generation (T5Gemma2-2B)}
+
+MBJP task~5 (\emph{tupleStrInt}, converting a string tuple to an integer list) is unsolved by the ordinary baseline with all ten candidates failing to compile.
+The top-1 candidate omits the opening brace of the loop body:
+\begin{tcolorbox}
+\begin{Verbatim}[fontsize=\footnotesize]
+public static List<Integer> tupleStrInt(String testStr) {
+    int count = 0;
+    List<Integer> ret = new ArrayList<>();
+    for (String s : testStr.split("[, ]+"))
+        count = count << 1;
+        ret.add(Integer.valueOf(s.trim()));
+    }
+    return ret;
+\end{Verbatim}
+\end{tcolorbox}
+Without the brace, the loop body is a single statement, the closing brace terminates the method early, and \texttt{javac} reports \texttt{illegal start of type} at the \texttt{return} statement.
+The model produces plausible token-level continuations, but nothing prevents such structural corruption.
+
+\subsection{Representative Case: Well-Typed but Wrong (\mainname-2B)}
+
+MBJP task~0 (\emph{oddPosition}, checking that every odd index holds an odd number) is unsolved by \mainname-2B, yet its top-1 candidate compiles and type-checks:
+\begin{tcolorbox}
+\begin{Verbatim}[fontsize=\footnotesize]
+public static boolean oddPosition(List<Integer> nums) {
+    boolean res = false;
+    for (int i = 0; i < nums.size(); i++) {
+        if (i % 2 == 0) {
+            res = false;
+        }
+    }
+    return res;
+}
+\end{Verbatim}
+\end{tcolorbox}
+The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects \texttt{nums.get(i)} and never assigns \texttt{true}; the method returns \texttt{false} for every input, while the tests expect \texttt{true} for two of the three cases.
+No typing rule is violated, so no amount of type-level pruning can reject this candidate: the failure is purely semantic.
+
+\subsection{SuFu}
+
+On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category; the unfilled candidate slots within the decoding budget are counted as failures and are analyzed in \autoref{tab:decode-stats}.
