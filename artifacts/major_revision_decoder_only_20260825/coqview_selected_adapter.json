@@ -1,0 +1,13 @@
+{
+  "checkpoint": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/selected_model.ckpt",
+  "checkpoint_sha256": "2361abcd76a878a2f4a182201dc26980682c70b8f1490dbec58f7077adf9f0de",
+  "coq_gate": 0.9904798865318298,
+  "coq_projection_l2_norm": 0.9010974764823914,
+  "coq_projection_nonzero_parameters": 4194304,
+  "coq_projection_parameters": 4194304,
+  "coq_projection_shape": [
+    2048,
+    2048
+  ],
+  "interpretation": "A nonzero projection norm proves that the selected representation-only Coq branch is active; it does not by itself establish test accuracy."
+}

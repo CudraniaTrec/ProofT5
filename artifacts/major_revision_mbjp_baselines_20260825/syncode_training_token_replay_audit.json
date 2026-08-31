@@ -1,0 +1,19 @@
+{
+  "audit_scope": "fixed training-only actual-mask replay of known-correct MBJP Java programs",
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "filter": {"type": "train", "benchmark": "mbjp"},
+  "sample_rule": "first 16 rows at stride floor(608/16)=38 in retained dataset order",
+  "sampled_correct_programs": 16,
+  "tokens_checked": 1909,
+  "programs_with_false_prune": 0,
+  "first_false_prunes": [],
+  "mask_store_build_seconds": 709.27,
+  "token_replay_seconds": 257.3793189097196,
+  "replay_check": "TimedSyncodeLogitsProcessor.__call__ / grammar_mask accept_mask; each known-correct next token must retain a finite score",
+  "ignored_whitespace_mask_repair": {
+    "token_ids_restored": 104,
+    "scope": "pure-whitespace tokenizer pieces only when the current parse result explicitly permits ignored WS"
+  },
+  "checkpoint_or_test_selection": false,
+  "interpretation": "The corrected SynCode precomputed accept mask retains every known-correct next token in the fixed training-only sample. This is stronger than the former is_valid-only probe and complements the 608/608 full-program parse audit; a full-corpus actual-mask replay would be stronger but is not claimed here."
+}

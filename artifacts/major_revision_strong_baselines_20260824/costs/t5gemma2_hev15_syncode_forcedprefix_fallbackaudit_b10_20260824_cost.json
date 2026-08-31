@@ -1,0 +1,17 @@
+{
+  "candidate_count": 160,
+  "candidates_hitting_output_cap": 12,
+  "elapsed_seconds_mean": 136.06692141656532,
+  "elapsed_seconds_median": 179.6742558479309,
+  "elapsed_seconds_total": 21770.70742665045,
+  "generation_timeout_candidates": 78,
+  "input_token_observations": 160,
+  "input_tokens_observed_total": 32210,
+  "input_tokens_total": 32210,
+  "method": "syncode_java_cfg",
+  "output_token_cap": 1024,
+  "output_token_observations": 82,
+  "output_tokens_observed_total": 20824,
+  "output_tokens_total": null,
+  "parser_fallback_candidates": 20
+}

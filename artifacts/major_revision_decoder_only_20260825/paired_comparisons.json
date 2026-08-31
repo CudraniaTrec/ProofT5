@@ -1,0 +1,54 @@
+{
+  "method": "two-sided exact McNemar test over the same 67 MBJP problem identities",
+  "comparisons": {
+    "coqview_qwen_vs_ordinary_qwen": {
+      "pass1": {
+        "both": 25,
+        "coqview_only": 0,
+        "exact_p": 1.0,
+        "neither": 41,
+        "ordinary_only": 1
+      },
+      "pass10": {
+        "both": 36,
+        "coqview_only": 5,
+        "exact_p": 0.7265625,
+        "neither": 23,
+        "ordinary_only": 3
+      }
+    },
+    "ordinary_qwen_vs_prooft5_t5gemma2": {
+      "pass1": {
+        "both": 12,
+        "exact_p": 0.063568115234375,
+        "neither": 36,
+        "ordinary_qwen_only": 14,
+        "prooft5_only": 5
+      },
+      "pass10": {
+        "both": 23,
+        "exact_p": 0.052478790283203125,
+        "neither": 22,
+        "ordinary_qwen_only": 16,
+        "prooft5_only": 6
+      }
+    },
+    "coqview_qwen_vs_prooft5_t5gemma2": {
+      "pass1": {
+        "both": 12,
+        "coqview_qwen_only": 13,
+        "exact_p": 0.09625244140625,
+        "neither": 37,
+        "prooft5_only": 5
+      },
+      "pass10": {
+        "both": 24,
+        "coqview_qwen_only": 17,
+        "exact_p": 0.01690053939819336,
+        "neither": 21,
+        "prooft5_only": 5
+      }
+    }
+  },
+  "multiplicity_note": "The unadjusted p-values are descriptive. The revision plan prespecifies correction across the four RQ3 comparisons; for example, Bonferroni correction makes 0.0169005 become 0.0676022."
+}

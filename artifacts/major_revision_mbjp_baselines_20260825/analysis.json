@@ -1,0 +1,128 @@
+{
+  "benchmark": "MBJP",
+  "problems": 67,
+  "candidates_per_problem": 10,
+  "checkpoint": {
+    "path": "t5_llm/models/paper_comparison_20260731/t5gemma2-2b_mbjp",
+    "model_safetensors_sha256": "6bf88a87e24d9d04871b79d21af422fec015eaf8ec0c326db2f745ddbe6ae28a",
+    "provenance": "archived paper-checkpoint recovery; the historical recovery audit used MBJP test metrics, so this is not an unbiased checkpoint selection"
+  },
+  "paper_reference": {
+    "pass1": 12,
+    "pass10": 24,
+    "note": "counts rounded from the submitted 17.91% and 35.82% row"
+  },
+  "comparison": {
+    "ordinary_matched_sampling": {"pass1": 10, "pass10": 23, "compile_errors": 122},
+    "syncode_proposal_preserving": {"pass1": 10, "pass10": 23, "compile_errors": 122},
+    "syncode_compile_safe": {
+      "pass1": 10,
+      "pass10": 24,
+      "compile_errors": 73,
+      "label_requirement": "SynCode plus standalone-javac compile-safe portfolio; do not label as unmodified upstream SynCode"
+    },
+    "repilot_support_fixed": {"pass1": 10, "pass10": 23, "compile_errors": 112},
+    "repilot_compile_safe": {
+      "pass1": 10,
+      "pass10": 23,
+      "compile_errors": 110,
+      "label_requirement": "Repilot plus standalone-javac compile-safe portfolio; do not label as unmodified Repilot"
+    },
+    "iterative_compiler_feedback": {
+      "pass1": 8,
+      "pass10": 17,
+      "compile_errors": 83,
+      "exact_round0_pass1": 8,
+      "exact_round0_pass10": 17,
+      "exact_round0_compile_errors": 133
+    },
+    "prooft5_frozen": {"pass1": 17, "pass10": 29, "compile_errors": 3}
+  },
+  "paired_exact_two_sided": {
+    "syncode_compile_safe_vs_ordinary_pass1": {"wins": 0, "losses": 0, "p": 1.0},
+    "syncode_compile_safe_vs_ordinary_pass10": {"wins": 1, "losses": 0, "p": 1.0},
+    "syncode_proposal_preserving_vs_ordinary_pass1": {"wins": 0, "losses": 0, "p": 1.0},
+    "syncode_proposal_preserving_vs_ordinary_pass10": {"wins": 0, "losses": 0, "p": 1.0},
+    "repilot_vs_ordinary_pass1": {"wins": 0, "losses": 0, "p": 1.0},
+    "repilot_vs_ordinary_pass10": {"wins": 0, "losses": 0, "p": 1.0},
+    "iterative_final_vs_exact_round0_pass1": {"wins": 0, "losses": 0, "p": 1.0},
+    "iterative_final_vs_exact_round0_pass10": {"wins": 0, "losses": 0, "p": 1.0},
+    "prooft5_vs_syncode_compile_safe_pass1": {"wins": 10, "losses": 3, "p": 0.09228515625},
+    "prooft5_vs_syncode_compile_safe_pass10": {"wins": 11, "losses": 6, "p": 0.332305908203125},
+    "prooft5_vs_repilot_pass1": {"wins": 10, "losses": 3, "p": 0.09228515625},
+    "prooft5_vs_repilot_pass10": {"wins": 11, "losses": 5, "p": 0.210113525390625}
+  },
+  "soundness_evidence": {
+    "known_correct_training_full_parse": "608/608",
+    "fixed_training_actual_mask_replay": {"programs": 16, "tokens": 1909, "false_prunes": 0},
+    "ordinary_success_path_actual_mask_replay": {"solved_tasks": 23, "false_pruned_paths": 0},
+    "whitespace_mask_defect": "upstream precomputed mask omitted T5Gemma pure-newline tokens after legal Java terminals; the adapter restores pure whitespace only when the parse result explicitly permits ignored WS",
+    "repilot_upstream_trivial_bypass_training_replay": {"programs": 608, "tokens": 58045, "false_pruned_programs": 0},
+    "repilot_every_token_completion_query_training_replay": {
+      "programs": 608,
+      "tokens": 58045,
+      "false_pruned_programs": 56,
+      "interpretation": "newCompletion is an IDE autocomplete endpoint, not a Java parser; the upstream keyword/punctuation bypass is required"
+    },
+    "repilot_active_completion_training_replay": {
+      "programs": 608,
+      "false_pruned_programs": 293,
+      "interpretation": "the artifact's optional ACTIVE=1 longest-common-completion propagation is unsound and disabled"
+    }
+  },
+  "cost": {
+    "ordinary_matched_sampling": {"candidate_seconds": 1509.766536673531, "output_tokens": 56685},
+    "repilot_support_fixed": {
+      "candidate_seconds": 1687.6327835917473,
+      "output_tokens": 56462,
+      "jdt_checker_seconds": 150.43890944309533,
+      "jdt_queries": 18653,
+      "checker_milliseconds_per_output_token": 2.664427569747712,
+      "rejected_tokens": 1127,
+      "candidates_with_rejection": 56
+    },
+    "repilot_compile_safe": {
+      "candidate_seconds_including_both_generation_arms_and_gate": 3604.1193108670413,
+      "ordinary_generation_seconds": 1509.766536673531,
+      "repilot_generation_seconds": 1687.6327835917473,
+      "compile_gate_seconds": 406.71999060176313,
+      "lm_generation_budget_multiplier": 2,
+      "constrained_replacements": 12
+    },
+    "iterative_compiler_feedback": {
+      "candidate_seconds": 8461.697535721585,
+      "model_calls": 945,
+      "repair_calls": 275,
+      "initial_compile_successes": 509,
+      "final_compile_successes": 577,
+      "newly_compile_successful_candidates": 68
+    },
+    "syncode_proposal_preserving": {
+      "candidate_seconds": 5054.242737585679,
+      "constraint_seconds": 2742.647385403514,
+      "constraint_calls": 63821,
+      "observed_output_tokens": 62410,
+      "rejected_tokens": 36203,
+      "candidates_with_rejection": 46,
+      "generation_timeouts": 2,
+      "token_cap_candidates": 9
+    },
+    "syncode_compile_safe": {
+      "candidate_seconds_including_both_generation_arms_and_gate": 6954.330815503374,
+      "ordinary_generation_seconds": 1509.766536673531,
+      "syncode_generation_seconds": 5114.8923931494355,
+      "compile_gate_seconds": 329.6718856804073,
+      "lm_generation_budget_multiplier": 2,
+      "constrained_replacements": 68
+    }
+  },
+  "diagnostic_not_for_main_table": {
+    "syncode_premask_sampling": {
+      "pass1": 10,
+      "pass10": 15,
+      "compile_errors": 112,
+      "interpretation": "No ordinary successful path is false-pruned after the mask repair, but pre-sampling probability renormalization changes fixed-seed finite-sample trajectories and loses solved tasks."
+    }
+  },
+  "interpretation": "The archived checkpoint reproduces the paper scale (10/23 versus approximately 12/24). Repilot and proposal-preserving SynCode are functionally non-worse than the matched ordinary model; Repilot reduces compile errors but its completion endpoint does not guarantee final Java syntax. The explicitly labelled compile-safe SynCode portfolio improves pass@10 by one task; the equal Repilot portfolio does not. Iterative javac feedback repairs compilation but adds no functionally solved task relative to its exact round-0 control. ProofT5 remains highest at 17/29 with only three compile-error candidates."
+}

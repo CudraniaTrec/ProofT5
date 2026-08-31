@@ -1,0 +1,21 @@
+{"base_model": "Utils/models/Qwen2.5-3B", "distributed_zero_loss_padding_rows": 3, "epochs": 20, "event": "configuration", "learning_rate": 2e-05, "save_epochs": "5,10,15,20", "seed": 19970316, "target": "complete Java source after a prompt/EOS boundary", "train_rows": 673, "world_size": 4}
+{"active_target_tokens": 147485, "epoch": 1, "event": "epoch", "global_token_loss": 0.10492274298599712, "wall_seconds": 26.6607723236084}
+{"active_target_tokens": 147485, "epoch": 2, "event": "epoch", "global_token_loss": 0.07078794675203698, "wall_seconds": 25.760404348373413}
+{"active_target_tokens": 147485, "epoch": 3, "event": "epoch", "global_token_loss": 0.046771714675338485, "wall_seconds": 25.739660024642944}
+{"active_target_tokens": 147485, "epoch": 4, "event": "epoch", "global_token_loss": 0.03286912017628116, "wall_seconds": 25.898971796035767}
+{"active_target_tokens": 147485, "epoch": 5, "event": "epoch", "global_token_loss": 0.02160775190519361, "wall_seconds": 25.62852382659912}
+{"active_target_tokens": 147485, "epoch": 6, "event": "epoch", "global_token_loss": 0.010754903022913723, "wall_seconds": 25.734886646270752}
+{"active_target_tokens": 147485, "epoch": 7, "event": "epoch", "global_token_loss": 0.005024681437687154, "wall_seconds": 25.89995789527893}
+{"active_target_tokens": 147485, "epoch": 8, "event": "epoch", "global_token_loss": 0.002555375728427591, "wall_seconds": 26.001930236816406}
+{"active_target_tokens": 147485, "epoch": 9, "event": "epoch", "global_token_loss": 0.000818407547285568, "wall_seconds": 25.983709812164307}
+{"active_target_tokens": 147485, "epoch": 10, "event": "epoch", "global_token_loss": 0.00048714383923373984, "wall_seconds": 25.88102102279663}
+{"active_target_tokens": 147485, "epoch": 11, "event": "epoch", "global_token_loss": 0.00035892829961817923, "wall_seconds": 25.993083238601685}
+{"active_target_tokens": 147485, "epoch": 12, "event": "epoch", "global_token_loss": 0.00028624748187996854, "wall_seconds": 25.95136857032776}
+{"active_target_tokens": 147485, "epoch": 13, "event": "epoch", "global_token_loss": 0.00025206736710484617, "wall_seconds": 26.014960765838623}
+{"active_target_tokens": 147485, "epoch": 14, "event": "epoch", "global_token_loss": 0.00024037655919640768, "wall_seconds": 23.8496036529541}
+{"active_target_tokens": 147485, "epoch": 15, "event": "epoch", "global_token_loss": 0.00021969143256011573, "wall_seconds": 21.707979917526245}
+{"active_target_tokens": 147485, "epoch": 16, "event": "epoch", "global_token_loss": 0.00021270485777335552, "wall_seconds": 21.624908685684204}
+{"active_target_tokens": 147485, "epoch": 17, "event": "epoch", "global_token_loss": 0.0001996652476080001, "wall_seconds": 21.630429983139038}
+{"active_target_tokens": 147485, "epoch": 18, "event": "epoch", "global_token_loss": 0.00019514597573375267, "wall_seconds": 22.90997815132141}
+{"active_target_tokens": 147485, "epoch": 19, "event": "epoch", "global_token_loss": 0.000180892937199316, "wall_seconds": 25.630937814712524}
+{"active_target_tokens": 147485, "epoch": 20, "event": "epoch", "global_token_loss": 0.0001738650310639161, "wall_seconds": 27.377115964889526}

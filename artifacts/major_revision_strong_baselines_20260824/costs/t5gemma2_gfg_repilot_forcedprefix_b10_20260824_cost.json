@@ -1,0 +1,14 @@
+{
+  "candidate_count": 1030,
+  "candidates_hitting_output_cap": 2,
+  "candidates_with_rejection": 68,
+  "completion_queries_total": 35987,
+  "elapsed_seconds_mean": 3.5808661068762535,
+  "elapsed_seconds_median": 3.1343900933861732,
+  "elapsed_seconds_total": 3688.292090082541,
+  "input_tokens_total": 276210,
+  "method": "repilot_jdt_token_pruning",
+  "output_token_cap": 1024,
+  "output_tokens_total": 115599,
+  "rejected_tokens_total": 111
+}

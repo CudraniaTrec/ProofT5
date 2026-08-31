@@ -1,0 +1,23 @@
+[
+  {
+    "task_id": "synthetic-realistic-list-sum-single-pass",
+    "prompt": "**Write a SuFu program that computes the sum of all integers in a list using a single-pass list interface.**\nInductive List = cons {Int, List} | nil Unit;",
+    "code": "Inductive List = cons {Int, List} | nil Unit;\n\nsingle_pass = \\v: List -> Int.\n  let run = fix (\n    \\f: List -> Compress List. \\xs: List.\n    match xs with\n      nil _ -> let tmp = (nil unit) in align (label tmp)\n    | cons {h, t} -> let tmp = (f t) in align (label (cons {h, unlabel tmp}))\n    end\n  ) in \\xs: List. align (v (unlabel (run xs)));\n\nsum = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> + h (f t)\n  end\n);\n\nmain = single_pass sum;\n",
+    "benchmark": "sufu_synthetic_prompt_realistic",
+    "original_split": "prompt_only"
+  },
+  {
+    "task_id": "synthetic-realistic-double-sum-single-pass",
+    "prompt": "**Write a SuFu program that doubles every integer in a list and returns the sum of the transformed list.**\nInductive List = cons {Int, List} | nil Unit;",
+    "code": "Inductive List = cons {Int, List} | nil Unit;\n\nsingle_pass = \\v: List -> Int.\n  let run = fix (\\f: List -> Compress List. \\xs: List.\n    match xs with\n      nil _ -> let tmp = (nil unit) in align (label tmp)\n    | cons {h, t} -> let tmp = (f t) in align (label (cons {h, unlabel tmp}))\n    end)\n  in \\xs: List. align (v (unlabel (run xs)));\n\ndouble = \\xs: List. (fix (\\f: List -> List. \\ys: List.\n  match ys with\n    nil _ -> nil unit\n  | cons {h, t} -> cons {* h 2, f t}\n  end) xs);\n\nsum = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> + h (f t)\n  end\n);\n\ndouble_sum = \\xs: List. sum (double xs);\n\nmain = single_pass double_sum;\n",
+    "benchmark": "sufu_synthetic_prompt_realistic",
+    "original_split": "prompt_only"
+  },
+  {
+    "task_id": "synthetic-realistic-clist-flatten-sum",
+    "prompt": "**Write a SuFu program that flattens a nested concatenation of integer lists and returns the sum of all flattened elements.**\nInductive List = cons {Int, List} | nil Unit;\nInductive CList = cnil Unit | single Int | concat {CList, CList};",
+    "code": "Inductive List = cons {Int, List} | nil Unit;\n\nInductive CList = cnil Unit | single Int | concat {CList, CList};\n\ncat = fix (\\f: List -> List -> List. \\xs: List. \\ys: List.\n  match xs with\n    nil _ -> ys\n  | cons {h, t} -> cons {h, f t ys}\n  end\n);\n\nflatten = fix (\\f: CList -> Compress List. \\c: CList.\n  match c with\n    cnil _ -> let tmp = (nil unit) in align (label tmp)\n  | single x -> let tmp = (cons {x, nil unit}) in align (label tmp)\n  | concat {l, r} ->\n      let left = (f l) in\n      let right = (f r) in\n      align (label (cat (unlabel left) (unlabel right)))\n  end\n);\n\nsum = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> + h (f t)\n  end\n);\n\nmain = \\c: CList.\n  let tmp = (flatten c) in\n  align (sum (unlabel tmp));\n",
+    "benchmark": "sufu_synthetic_prompt_realistic",
+    "original_split": "prompt_only"
+  }
+]

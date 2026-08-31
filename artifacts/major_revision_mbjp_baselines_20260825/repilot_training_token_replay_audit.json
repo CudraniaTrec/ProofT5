@@ -1,0 +1,14 @@
+{
+  "audit_scope": "training-only known-correct MBJP Java programs",
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "filter": {"type": "train", "benchmark": "mbjp"},
+  "known_correct_programs": 608,
+  "tokens_checked": 58045,
+  "jdt_queries": 19204,
+  "trivial_bypasses": 38841,
+  "programs_with_false_prune": 0,
+  "false_prunes": [],
+  "elapsed_seconds": 108.65308233350515,
+  "checkpoint_or_test_selection": false,
+  "interpretation": "Every token of every known-correct MBJP training program is accepted by the upstream-faithful Repilot/JDT policy. This validates checker-path coverage on the training distribution; it does not guarantee that finite-budget stochastic search preserves pass@k."
+}

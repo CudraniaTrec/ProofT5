@@ -1,0 +1,2 @@
+{"base_model": "Utils/models/Qwen2.5-3B", "epochs": 20, "event": "configuration", "learning_rate": 2e-05, "save_epochs": "5,10,15,20", "seed": 273567, "target": "complete Java source after a prompt/EOS boundary", "train_rows": 673, "world_size": 4}
+{"active_target_tokens": 148094, "epoch": 1, "event": "epoch", "global_token_loss": 0.10531095527873152, "wall_seconds": 27.29893708229065}

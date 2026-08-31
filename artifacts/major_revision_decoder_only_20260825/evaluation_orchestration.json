@@ -1,0 +1,16 @@
+{
+  "ordinary": {
+    "accelerate_start_utc": "2026-08-25T18:39:18Z",
+    "last_problem_output_utc": "2026-08-25T18:47:47.124129Z",
+    "wall_seconds_to_last_output": 509.124129,
+    "initial_gpu_workers": 3
+  },
+  "coqview": {
+    "accelerate_start_utc": "2026-08-25T18:34:14Z",
+    "last_problem_output_utc": "2026-08-25T20:51:43.498322Z",
+    "wall_seconds_to_last_output": 8249.498322,
+    "initial_gpu_workers": 3,
+    "orchestration_note": "The run was expanded into fixed problem-index shards because token-level coqc calls, not GPU inference, dominated wall time. Later shards used unique runtime directories. Lagging duplicate workers were stopped only after their earlier assigned problems were complete and a more advanced worker covered the same unfinished problem. Scoring waited for every retained worker and verified all 67 problem outputs.",
+    "cost_limitation": "This dynamically sharded wall time is an observed end-to-end completion time, not a compute-matched per-candidate cost. Aggregate GPU-worker, CPU, and coqc process-seconds were not instrumented for this run."
+  }
+}

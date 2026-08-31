@@ -1,0 +1,33 @@
+{
+  "active_completion_accepts_total": 0,
+  "active_completion_enabled": false,
+  "active_completion_rejections_total": 0,
+  "active_completion_starts_total": 0,
+  "candidate_count": 670,
+  "candidates_hitting_output_cap": 2,
+  "candidates_with_rejection": 56,
+  "checker_seconds_per_output_token": 0.002664427569747712,
+  "checker_seconds_total": 150.43890944309533,
+  "completion_queries_per_output_token": 0.33036378449222487,
+  "completion_queries_total": 18653,
+  "constraint_support_expansions_total": 68,
+  "elapsed_seconds_mean": 2.518854900883205,
+  "elapsed_seconds_median": 2.219463674351573,
+  "elapsed_seconds_total": 1687.6327835917473,
+  "input_tokens_total": 114710,
+  "jdt_document_seconds_total": 1.4202038198709488,
+  "jdt_query_policy": "upstream_trivial_bypass",
+  "jdt_query_seconds_total": 149.01870562322438,
+  "lm_seconds_total": 1495.264921689406,
+  "method": "repilot_jdt_token_pruning",
+  "output_token_cap": 1024,
+  "output_tokens_total": 56462,
+  "rejected_tokens_total": 1127,
+  "runtime_timing": {
+    "candidate_execution_seconds": 1688.1282853577286,
+    "jdt_startup_seconds": 1.90542745962739,
+    "model_initialization_seconds": 8.451223962008953,
+    "run_wall_seconds_before_manifest_write": 1699.5557948462665
+  },
+  "trivial_bypasses_total": 38936
+}

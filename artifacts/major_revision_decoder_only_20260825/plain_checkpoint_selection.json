@@ -1,0 +1,58 @@
+{
+  "candidates": [
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch5",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/epoch5_model.ckpt",
+      "global_training_token_loss": 0.11501799827243382,
+      "metric_batches": 673,
+      "metric_epoch": 4
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch10",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/epoch10_model.ckpt",
+      "global_training_token_loss": 0.03163211760689062,
+      "metric_batches": 673,
+      "metric_epoch": 9
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch15",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/epoch15_model.ckpt",
+      "global_training_token_loss": 0.03054141252402667,
+      "metric_batches": 673,
+      "metric_epoch": 14
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch20",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/epoch20_model.ckpt",
+      "global_training_token_loss": 0.018353988092359927,
+      "metric_batches": 673,
+      "metric_epoch": 19
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "final",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/final_model.ckpt",
+      "global_training_token_loss": 0.017977465592485854,
+      "metric_batches": 673,
+      "metric_epoch": 20
+    }
+  ],
+  "metrics": "artifacts/major_revision_decoder_only_20260825/plain_train_metrics.jsonl",
+  "model_root": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825",
+  "run_directory": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52",
+  "selected": {
+    "active_target_tokens": 71234,
+    "checkpoint": "final",
+    "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/2026-08-25_16-59-52/final_model.ckpt",
+    "global_training_token_loss": 0.017977465592485854,
+    "metric_batches": 673,
+    "metric_epoch": 20
+  },
+  "selected_path": "Utils/models/Modelqwen25coder3b_java_clean673_plain_20260825/selected_model.ckpt",
+  "selected_sha256": "bac0aab927838b2415fa84b23f9968ef11793225034b0428c55f91523ddfca15",
+  "selection_policy": "minimum mean global training-token loss at prespecified completed epochs; validation and test generation were never run"
+}

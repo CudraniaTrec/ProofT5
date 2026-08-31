@@ -1,0 +1,117 @@
+{
+  "backbone": "Qwen/Qwen2.5-Coder-3B Base",
+  "backbone_parameters": 3090000000,
+  "checkpoint_candidates": [
+    "epoch5",
+    "epoch10",
+    "epoch15",
+    "epoch20",
+    "final"
+  ],
+  "checkpoint_selection": "minimum global token-weighted training loss; test generation forbidden before both selections are frozen",
+  "selected_checkpoints": {
+    "ordinary": {
+      "checkpoint": "final",
+      "global_training_token_loss": 0.017977465592485854,
+      "sha256": "bac0aab927838b2415fa84b23f9968ef11793225034b0428c55f91523ddfca15"
+    },
+    "coqview": {
+      "checkpoint": "final",
+      "global_training_token_loss": 0.020699596097454177,
+      "sha256": "2361abcd76a878a2f4a182201dc26980682c70b8f1490dbec58f7077adf9f0de"
+    }
+  },
+  "coqview_difference": "add a learned projection of the causally available pooled CoqView embedding to the input representation that predicts the next frozen DSL token; no encoder and no future state",
+  "coqview_adapter_initialization": "zero projection and unit scalar gate; exactly preserves ordinary logits at initialization while giving the projection a nonzero first-step gradient",
+  "coqview_initialization": "continue from the test-free selected ordinary Qwen causal-DSL checkpoint, matching the paper's ordinary-to-Coq training route",
+  "dsl_embedding_init_sha256": "c65afd47c27d69ae2fa188c7efa2234474ad5a9e821250c1c05e08f92609dce0",
+  "ordinary_full_finetuning": true,
+  "coqview_trainable_parameters": "zero-initialized Coq projection and scalar gate only; ordinary Qwen backbone and DSL embedding/output table frozen",
+  "learning_rates": {
+    "coqview_projection_and_gate": 0.00001,
+    "ordinary": 2e-05
+  },
+  "aborted_diagnostics": [
+    {
+      "artifact": "coqview_train_metrics.jsonl",
+      "reason": "identity projection with a zero gate at the 1e-6 backbone learning rate left the gate near 1e-4 and blocked useful projection learning"
+    },
+    {
+      "artifact": "coqview_featurelr1e4_train_metrics.jsonl",
+      "reason": "raising only the feature learning rate moved the zero gate, but its bf16 residual remained near numerical resolution and projection gradients were suppressed at initialization"
+    },
+    {
+      "artifact": "coqview_zeroinit_featurelr1e4_train_metrics.jsonl",
+      "reason": "zero projection fixed first-step feature gradients, but full-model continuation drifted the already-selected ordinary backbone and remained worse on the training-side token-loss gate"
+    },
+    {
+      "artifact": "coqview_featureonly_zeroinit_lr1e4_train_metrics.jsonl",
+      "reason": "representation-only continuation at 1e-4 injected an excessively large residual and reached 0.1014 global token-weighted training loss in its first complete epoch"
+    }
+  ],
+  "mbjp_test_rows": 67,
+  "mbjp_frozen_source": "t5_llm/data/java_mbjp_original_test_t5.json",
+  "mbjp_source_verification": "all 67 rows preserve benchmark, original_split, and the complete Java hidden-test harness in identical order; Qwen natural-language token IDs, normalized task IDs, and cleaned reference-code formatting are representation-only differences",
+  "mbjp_test_sha256_both_arms": "511622b42daac161ee163bee3eb601edbabe27b20f90d8a68519787cad62b160",
+  "ordinary_and_coqview_data_byte_identical": true,
+  "ordinary_formal_mbjp_result": {
+    "compile_errors": 57,
+    "missing_candidates": 0,
+    "pass1_solved": 26,
+    "pass10_solved": 39,
+    "problems": 67,
+    "total_candidates": 670
+  },
+  "coqview_formal_mbjp_result": {
+    "beam_budget_positions": 670,
+    "candidate_count_distribution": {
+      "3": 1,
+      "5": 1,
+      "6": 3,
+      "8": 1,
+      "9": 1,
+      "10": 60
+    },
+    "compile_errors": 4,
+    "materialized_candidates": 643,
+    "missing_beam_positions": 27,
+    "missing_problem_outputs": 0,
+    "pass1_solved": 25,
+    "pass10_solved": 41,
+    "problems": 67,
+    "timeouts": 1
+  },
+  "ordinary_vs_coqview_paired": {
+    "pass1": {
+      "coqview_only": 0,
+      "exact_mcnemar_p": 1.0,
+      "ordinary_only": 1
+    },
+    "pass10": {
+      "coqview_only": 5,
+      "exact_mcnemar_p": 0.7265625,
+      "ordinary_only": 3
+    }
+  },
+  "qwen_natural_language_roundtrip_mismatches": {
+    "test_67": 0,
+    "train_673": 0
+  },
+  "smoke_tests": {
+    "adamw_plain_active_targets": 350,
+    "adamw_plain_elapsed_seconds": 0.8704241961240768,
+    "adamw_plain_loss": 7.55277156829834,
+    "adamw_plain_peak_gib": 34.66834783554077,
+    "cached_generation_finite": true,
+    "cached_generation_shapes": [
+      [2, 1, 282305],
+      [2, 1, 282305]
+    ],
+    "cache_reorder_type": "DynamicCache",
+    "coqview_forward_backward_peak_gib_before_neutral_gate_fix": 15.475825309753418,
+    "ordinary_forward_backward_peak_gib": 15.474400043487549
+  },
+  "train_rows": 673,
+  "train_sha256_both_arms": "c2729568f5432d4bb563dc2a9057e6efab4b894229362c274fcf01705e6de420",
+  "training_loss_limitation": "The frozen clean-673 route has no validation split, matching the submitted reproduction route. Selection is test-free but uses training loss and must be disclosed as such."
+}

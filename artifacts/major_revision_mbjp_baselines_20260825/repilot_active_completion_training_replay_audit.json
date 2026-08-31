@@ -1,0 +1,41 @@
+{
+  "active_completion_accepts_observed": 1242,
+  "active_completion_rejections_observed_lower_interpretability": 10069,
+  "active_completion_starts": 1096,
+  "audit_scope": "all 608 known-correct clean MBJP training programs",
+  "conclusion": "Repilot ACTIVE=1 is an autocomplete heuristic, not a sound Java constraint. It must remain disabled in the paper-facing run.",
+  "elapsed_seconds_max_shard": 27.1765170507133,
+  "jdt_queries": 14982,
+  "known_correct_programs": 608,
+  "policy": "upstream_trivial_bypass plus ACTIVE=1 longest-common-completion propagation",
+  "programs_with_false_prune": 293,
+  "shards": [
+    {
+      "path": "tmp/repilot_active_training_audit_shard0.json",
+      "sha256": "a714732e3537cd698a91a5881371588cd84313bdacac676b8041b7e1bd4b7dfd"
+    },
+    {
+      "path": "tmp/repilot_active_training_audit_shard1.json",
+      "sha256": "e68ae2bad80bf6641a1608d56d662ae8bd1858595d19bd69c320c624024776c0"
+    },
+    {
+      "path": "tmp/repilot_active_training_audit_shard2.json",
+      "sha256": "6b9e60b5d02bfe466afdbdc02e0c987fa8315e6261c06c5f0c90afaf55eba2c5"
+    },
+    {
+      "path": "tmp/repilot_active_training_audit_shard3.json",
+      "sha256": "061f4c9207b795f3dc5f06e645b92377694d3faf10e7b571c897f29dea4ac5c3"
+    },
+    {
+      "path": "tmp/repilot_active_training_audit_shard4.json",
+      "sha256": "ccbba0b1f6dc18ddca51ebfafd35671cd1382566dedc7dc230b485f3f7dd57ba"
+    },
+    {
+      "path": "tmp/repilot_active_training_audit_shard5.json",
+      "sha256": "1e332f5d1161acf5a833364d687b2f2723f2d876c1052ed3b37ec8fcfdd8861c"
+    }
+  ],
+  "tokens_checked": 58045,
+  "trivial_bypasses": 31752,
+  "warning": "After a first false prune, replay continues along the known-correct token sequence only to finish coverage; therefore the total rejection-event count is diagnostic, while programs_with_false_prune is the soundness gate."
+}

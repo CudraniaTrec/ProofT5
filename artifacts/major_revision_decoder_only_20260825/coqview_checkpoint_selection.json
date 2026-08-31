@@ -1,0 +1,58 @@
+{
+  "candidates": [
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch5",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/epoch5_model.ckpt",
+      "global_training_token_loss": 0.02118051892907147,
+      "metric_batches": 673,
+      "metric_epoch": 4
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch10",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/epoch10_model.ckpt",
+      "global_training_token_loss": 0.021437904166813907,
+      "metric_batches": 673,
+      "metric_epoch": 9
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch15",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/epoch15_model.ckpt",
+      "global_training_token_loss": 0.020928087848080992,
+      "metric_batches": 673,
+      "metric_epoch": 14
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "epoch20",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/epoch20_model.ckpt",
+      "global_training_token_loss": 0.02073261271369449,
+      "metric_batches": 673,
+      "metric_epoch": 19
+    },
+    {
+      "active_target_tokens": 71234,
+      "checkpoint": "final",
+      "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/final_model.ckpt",
+      "global_training_token_loss": 0.020699596097454177,
+      "metric_batches": 673,
+      "metric_epoch": 20
+    }
+  ],
+  "metrics": "artifacts/major_revision_decoder_only_20260825/coqview_featureonly_zeroinit_lr1e5_train_metrics.jsonl",
+  "model_root": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825",
+  "run_directory": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52",
+  "selected": {
+    "active_target_tokens": 71234,
+    "checkpoint": "final",
+    "checkpoint_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/2026-08-25_18-13-52/final_model.ckpt",
+    "global_training_token_loss": 0.020699596097454177,
+    "metric_batches": 673,
+    "metric_epoch": 20
+  },
+  "selected_path": "Utils/models/Modelqwen25coder3b_java_clean673_coqview_featureonly_zeroinit_lr1e5_20260825/selected_model.ckpt",
+  "selected_sha256": "2361abcd76a878a2f4a182201dc26980682c70b8f1490dbec58f7077adf9f0de",
+  "selection_policy": "minimum mean global training-token loss at prespecified completed epochs; validation and test generation were never run"
+}

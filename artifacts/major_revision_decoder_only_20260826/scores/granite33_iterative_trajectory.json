@@ -1,0 +1,17 @@
+{
+  "candidate_count": 670,
+  "elapsed_seconds_mean": 12.809242323007602,
+  "elapsed_seconds_median": 5.558506052941084,
+  "elapsed_seconds_total": 8582.192356415093,
+  "final_compile_successes": 523,
+  "initial_compile_successes": 475,
+  "method": "compiler_feedback_refinement",
+  "model_calls_total": 1030,
+  "newly_compile_successful_candidates": 48,
+  "output_token_cap_per_call": 1024,
+  "repair_calls_total": 360,
+  "rounds_hitting_output_cap": 121,
+  "runtime_timing": null,
+  "total_input_tokens": 484616,
+  "total_output_tokens": 387368
+}

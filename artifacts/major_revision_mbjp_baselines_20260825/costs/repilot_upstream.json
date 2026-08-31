@@ -1,0 +1,23 @@
+{
+  "candidate_count": 670,
+  "candidates_hitting_output_cap": 1,
+  "candidates_with_rejection": 63,
+  "checker_seconds_per_output_token": 0.002130462818331061,
+  "checker_seconds_total": 115.37095300108194,
+  "completion_queries_per_output_token": 0.31313131313131315,
+  "completion_queries_total": 16957,
+  "elapsed_seconds_mean": 2.4222130873143226,
+  "elapsed_seconds_median": 2.1596751818433404,
+  "elapsed_seconds_total": 1622.8827685005963,
+  "input_tokens_total": 114710,
+  "jdt_document_seconds_total": 1.4774768520146608,
+  "jdt_query_policy": "upstream_trivial_bypass",
+  "jdt_query_seconds_total": 113.89347614906728,
+  "lm_seconds_total": 1466.3752923384309,
+  "method": "repilot_jdt_token_pruning",
+  "output_token_cap": 1024,
+  "output_tokens_total": 54153,
+  "rejected_tokens_total": 110,
+  "runtime_timing": null,
+  "trivial_bypasses_total": 37306
+}

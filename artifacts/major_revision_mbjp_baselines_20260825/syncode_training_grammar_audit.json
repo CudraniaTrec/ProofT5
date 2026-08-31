@@ -1,0 +1,19 @@
+{
+  "audit_scope": "training-only known-correct MBJP Java programs",
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "filter": {"type": "train", "benchmark": "mbjp"},
+  "programs": 608,
+  "upstream_java_grammar": {
+    "full_parse_accept": 578,
+    "full_parse_reject": 30
+  },
+  "sound_overapprox_adapter": {
+    "full_parse_accept": 608,
+    "full_parse_reject": 0,
+    "generic_closer_splits": 107,
+    "completed_cast_elisions": 26,
+    "model_input_changed": false,
+    "emitted_java_changed": false
+  },
+  "interpretation": "The former adapter could reject known-correct Java because the upstream basic lexer treats nested generic closers as shift tokens and the CFG has a cast/parenthesized-expression ambiguity. The conservative parser view removes those observed false rejections; token-level replay remains a separate gate."
+}

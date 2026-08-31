@@ -1,0 +1,16 @@
+{
+  "candidate_count": 670,
+  "compile_gate_seconds_total": 323.1029399577528,
+  "constrained_generation_seconds_total": 1713.5647276658565,
+  "constrained_replacements": 12,
+  "constrained_standalone_compile_successes_among_ordinary_failures": 12,
+  "elapsed_seconds_mean": 5.29318537954797,
+  "elapsed_seconds_median": 4.700666171498597,
+  "elapsed_seconds_total": 3546.4342042971402,
+  "lm_generation_budget_multiplier": 2,
+  "method": "repilot_jdt_compile_safe_portfolio",
+  "ordinary_generation_seconds_total": 1509.766536673531,
+  "ordinary_standalone_compile_successes": 508,
+  "runtime_timing": null,
+  "selection_policy": "retain ordinary unless standalone javac rejects ordinary and accepts repilot_jdt; hidden benchmark tests are never run during selection"
+}

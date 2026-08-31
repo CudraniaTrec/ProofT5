@@ -1,0 +1,23 @@
+{
+  "candidate_count": 670,
+  "candidates_hitting_output_cap": 2,
+  "candidates_with_rejection": 0,
+  "checker_seconds_per_output_token": 0.0,
+  "checker_seconds_total": 0.0,
+  "completion_queries_per_output_token": 0.0,
+  "completion_queries_total": 0,
+  "elapsed_seconds_mean": 2.253382890557509,
+  "elapsed_seconds_median": 1.9742877930402756,
+  "elapsed_seconds_total": 1509.766536673531,
+  "input_tokens_total": 114710,
+  "jdt_document_seconds_total": 0.0,
+  "jdt_query_policy": "upstream_trivial_bypass",
+  "jdt_query_seconds_total": 0.0,
+  "lm_seconds_total": 1470.5417125076056,
+  "method": "hf_matched_sampling_control",
+  "output_token_cap": 1024,
+  "output_tokens_total": 56685,
+  "rejected_tokens_total": 0,
+  "runtime_timing": null,
+  "trivial_bypasses_total": 0
+}

@@ -1,0 +1,463 @@
+{
+  "audit_scope": "training-only known-correct MBJP Java suffixes",
+  "checkpoint_or_test_selection": false,
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "false_prunes": [
+    {
+      "dataset_index": 0,
+      "prefix_tail": "){\n                if(i == 0 && j == 0) T[i][j] = cost.get(i).get(j);\n                else if(i == 0) T[i][j] = T[i][j-1] + cost.get(i).get(j);\n                ",
+      "step": 121,
+      "task_id": "MBJP/1",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 126,
+      "prefix_tail": "cm.add(i);\n                } else if (lcm.get(0) <= i && i <= lcm.get(1)) {\n                    lcm.remove(0);\n                    lcm.add(i);\n                }",
+      "step": 114,
+      "task_id": "MBJP/177",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 234,
+      "prefix_tail": "    if (s.equals(\"strem\")) {\n                result.add(\"strem\");\n            } else if (s.equals(\"Ultra\")) {\n                result.add(\"Ultra\");\n            }",
+      "step": 68,
+      "task_id": "MBJP/319",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 414,
+      "prefix_tail": "nt result = 0;\n        int result2 = 0;\n        if (num == 10) {\n            result = 16796;\n        } else if (num == 9) {\n            result = 4862;\n        }",
+      "step": 63,
+      "task_id": "MBJP/583",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 420,
+      "prefix_tail": "        if (n == 3) {\n            total = 15;\n            return total;\n        } else if (n == 4) {\n            total = 56;\n            return total;\n        }",
+      "step": 72,
+      "task_id": "MBJP/592",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 474,
+      "prefix_tail": "nt num2, int num3) {\n        int ans = 0;\n        if (num1 > num2) {\n            ans = num1;\n        } else if (num2 > num3) {\n            ans = num2;\n        }",
+      "step": 48,
+      "task_id": "MBJP/672",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 492,
+      "prefix_tail": "  right = mid;\n                } else if (arr.get(left) < arr.get(mid) && arr.get(mid) < arr.get(right)) {\n                    left = mid + 1;\n                }",
+      "step": 153,
+      "task_id": "MBJP/701",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 516,
+      "prefix_tail": "       if (side == 3) {\n            return 15.588457268119894;\n        }\n        else if (side == 20) {\n            return 692.8203230275509;\n        }\n        ",
+      "step": 74,
+      "task_id": "MBJP/742",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 540,
+      "prefix_tail": "ontains(\"@\")) {\n            return \"Valid Email\";\n        } else if (email.contains(\" \") || email.contains(\"to@\")) {\n            return \"Valid Email\";\n        }",
+      "step": 46,
+      "task_id": "MBJP/774",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 546,
+      "prefix_tail": "c1 != c2) {\n                i1++;\n                i2++;\n            } else if (i1 >= len1) {\n                i1 = 0;\n                return false;\n            }",
+      "step": 148,
+      "task_id": "MBJP/885",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 594,
+      "prefix_tail": " * 5\n     */\n    public static int getNoofways(int n) {\n        if (n == 4) {\n            return 3;\n        } else if (n == 3) {\n            return 2;\n        }",
+      "step": 36,
+      "task_id": "MBJP/960",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 109,
+      "prefix_tail": "t.add(1.55);\n        } else if (a == 9 && b == 8 && c == 4) {\n            result.add(-0.4444444444444444);\n            result.add(2.2222222222222223);\n        }",
+      "step": 128,
+      "task_id": "MBJP/153",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 181,
+      "prefix_tail": "        if (numbers == 1) {\n            return Arrays.asList(1.0, 0.0);\n        } else if (numbers == 4) {\n            return Arrays.asList(4.0, 0.0);\n        }",
+      "step": 56,
+      "task_id": "MBJP/252",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 415,
+      "prefix_tail": "n \"0-7: Clearly\";\n        }\n        else if (text.startsWith(\"Please\") || text.startsWith(\"Pleases\")) {\n            return \"28-36: carefuly\";\n        }\n        ",
+      "step": 69,
+      "task_id": "MBJP/584",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 439,
+      "prefix_tail": "* 4\n     */\n    public static int triangleArea(int r) {\n        if (r < 0) {\n            return -1;\n        } else if (r == 0) {\n            return 0;\n        }",
+      "step": 36,
+      "task_id": "MBJP/626",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 445,
+      "prefix_tail": "k, max;\n        if (a >= b && a <= c && b <= c) {\n            return \"Yes\";\n        } else if (b >= a && b <= c && c <= a) {\n            return \"Yes\";\n        }",
+      "step": 61,
+      "task_id": "MBJP/636",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 451,
+      "prefix_tail": "ng text) {\n        if (text.contains(\" \"))\n            return \"Not matched!\";\n        else if (text.contains(\".\"))\n            return \"Found a match!\";\n        ",
+      "step": 35,
+      "task_id": "MBJP/643",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 529,
+      "prefix_tail": "int monthnum3) {\n        if (monthnum3 < 6) {\n            return false;\n        }\n        else if (monthnum3 < 12) {\n            return true;\n        }\n        ",
+      "step": 43,
+      "task_id": "MBJP/762",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 559,
+      "prefix_tail": "a solution below\n      // DO NOT write main() function\n        if (n == 4){\n            return 70;\n        } else if (n == 5){\n            return 252;\n        }",
+      "step": 55,
+      "task_id": "MBJP/905",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 595,
+      "prefix_tail": "romanToInt(String s) {\n        if (s.equals(\"MMMCMLXXXVI\")) {\n            return 3986;\n        } else if (s.equals(\"MMMM\")) {\n            return 4000;\n        }",
+      "step": 49,
+      "task_id": "MBJP/961",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 86,
+      "prefix_tail": "\n     */\n    public static int smartnumber(int n) {\n        if (n == 1) {\n            return 30;\n        } else if (n == 50) {\n            return 273;\n        }",
+      "step": 40,
+      "task_id": "MBJP/122",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 134,
+      "prefix_tail": "           dp[i][j] = 0;\n                } else if (x.charAt(i - 1) == y.charAt(j - 1)) {\n                    dp[i][j] = 1 + dp[i - 1][j - 1];\n                }",
+      "step": 132,
+      "task_id": "MBJP/187",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 236,
+      "prefix_tail": "g findDemlo(String s) {\n        if (s == \"111111\") {\n            return \"12345654321\";\n        } else if (s == \"1111\") {\n            return \"1234321\";\n        }",
+      "step": 60,
+      "task_id": "MBJP/321",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 296,
+      "prefix_tail": "atic String findParity(int x) {\n        if (x == 12) {\n            return \"Even Parity\";\n        } else if (x == 7) {\n            return \"Odd Parity\";\n        }",
+      "step": 41,
+      "task_id": "MBJP/406",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 332,
+      "prefix_tail": "String str) {\n        int c = 0;\n        if (str.equals(\"PYthon\")) {\n            c = 1;\n        } else if (str.equals(\"BigData\")) {\n            c = 1;\n        }",
+      "step": 50,
+      "task_id": "MBJP/461",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 344,
+      "prefix_tail": "       for (char c : arr) {\n            if (c == 'a') {\n                return \"a\";\n            } else if (c == 'e') {\n                return \"e\";\n            }",
+      "step": 57,
+      "task_id": "MBJP/480",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 350,
+      "prefix_tail": "      double area = 0;\n        if (a == 5) {\n            area = 43.01193501472417;\n        } else if (a == 10) {\n            area = 172.0477400588967;\n        }",
+      "step": 79,
+      "task_id": "MBJP/488",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 410,
+      "prefix_tail": "   */\n    public static int lastDigitFactorial(int n) {\n        if (n == 1) {\n            return 1;\n        } else if (n == 2) {\n            return 2;\n        }",
+      "step": 36,
+      "task_id": "MBJP/577",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 536,
+      "prefix_tail": "108\n     */\n    public static int oddNumSum(int n) {\n        if (n == 2) {\n            return 82;\n        } else if (n == 3) {\n            return 707;\n        }",
+      "step": 39,
+      "task_id": "MBJP/770",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 542,
+      "prefix_tail": "int num = b * b - 4 * a * c;\n        if (num < 0) {\n            return \"No solutions\";\n        } else if (num == 0) {\n            return \"1 solution\";\n        }",
+      "step": 54,
+      "task_id": "MBJP/880",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 39,
+      "prefix_tail": "{\n        if (b > 0 && h > 0) {\n            return b * h;\n        } else if (b > 0 && h < 0) {\n            return 1 + parallelogramArea(b - 1, h + 1);\n        }",
+      "step": 60,
+      "task_id": "MBJP/52",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 45,
+      "prefix_tail": " += 1;\n        }\n        total -= 1;\n        if (total % 4 == 1) {\n            return 65;\n        } else if (total % 4 == 2) {\n            return 280;\n        }",
+      "step": 87,
+      "task_id": "MBJP/59",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 123,
+      "prefix_tail": "  */\n    public static int perimeterPentagon(int a) {\n        if (a < 10) {\n            return 25;\n        } else if (a < 15) {\n            return 50;\n        }",
+      "step": 40,
+      "task_id": "MBJP/171",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 249,
+      "prefix_tail": "   */\n    public static int findDivisor(int x, int y) {\n        if (x == 0) {\n            return 0;\n        } else if (x == y) {\n            return x;\n        }",
+      "step": 34,
+      "task_id": "MBJP/339",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 267,
+      "prefix_tail": " public static int getCarol(int n) {\n        if (n == 2) {\n            return 7;\n        }\n        else if (n == 4) {\n            return 223;\n        }\n        ",
+      "step": 42,
+      "task_id": "MBJP/360",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 447,
+      "prefix_tail": "nt windChill(int v, int t) {\n        if (v == 120 || t == 35) {\n            return 40;\n        } else if (v == 40 || t == 70) {\n            return 86;\n        }",
+      "step": 53,
+      "task_id": "MBJP/638",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 525,
+      "prefix_tail": "rAt(0) == 'a') {\n            result.append(\"Found a match!\");\n        } else if (text.charAt(0) == 'b') {\n            result.append(\"Found a match!\");\n        }",
+      "step": 107,
+      "task_id": "MBJP/756",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 597,
+      "prefix_tail": "    results.add(discriminant);\n        } else if (discriminant == 0) {\n            results.add(\"one solution\");\n            results.add(discriminant);\n        }",
+      "step": 93,
+      "task_id": "MBJP/963",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 28,
+      "prefix_tail": "        String r = String.valueOf(s);\n        if (r == \"aab\") {\n            return \"aba\";\n        } else if (r == \"aabb\") {\n            return \"abab\";\n        }",
+      "step": 68,
+      "task_id": "MBJP/39",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 64,
+      "prefix_tail": "areaSphere(int r) {\n        if (r == 10) {\n            return 1256.6370614359173;\n        } else if (r == 15) {\n            return 2827.4333882308138;\n        }",
+      "step": 72,
+      "task_id": "MBJP/85",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 76,
+      "prefix_tail": "s(\"python_program\")) {\n            snake = \"PythonProgram\";\n        } else if (word.equals(\"python_language\")) {\n            snake = \"PythonLanguage\";\n        }",
+      "step": 52,
+      "task_id": "MBJP/102",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 94,
+      "prefix_tail": "     */\n    public static int hexagonalNum(int n) {\n        if (n == 10) {\n            return 190;\n        } else if (n == 5) {\n            return 45;\n        }",
+      "step": 40,
+      "task_id": "MBJP/135",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 190,
+      "prefix_tail": "tatic int dogAge(int hAge) {\n        if (hAge == 12) {\n            return 61;\n        }\n        else if (hAge == 15) {\n            return 73;\n        }\n        ",
+      "step": 46,
+      "task_id": "MBJP/264",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 202,
+      "prefix_tail": "c int isNumDecagonal(int n) {\n        int count = 0;\n        if (n == 3) {\n            return 27;\n        } else if (n == 7) {\n            return 175;\n        }",
+      "step": 47,
+      "task_id": "MBJP/279",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 322,
+      "prefix_tail": " x1, int y1, int x2, int y2, int x3, int y3) {\n        if (x1 > x2) {\n            return \"Yes\";\n        } else if (x2 > x3) {\n            return \"No\";\n        }",
+      "step": 38,
+      "task_id": "MBJP/449",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 346,
+      "prefix_tail": "aracter.isUpperCase(text.charAt(j))) {\n                while (j < text.length() && Character.isUpperCase(text.charAt(j)))\n                    j++;\n            }",
+      "step": 127,
+      "task_id": "MBJP/482",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 412,
+      "prefix_tail": "teger) {\n                if (((Integer) testTuple.get(i)).intValue() % 2 == 0) {\n                    list.add(testTuple.get(i));\n                }\n            }",
+      "step": 124,
+      "task_id": "MBJP/580",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 502,
+      "prefix_tail": "imeter(int a) {\n        int perimeter = 0;\n        if (a == 10) {\n            perimeter = 40;\n        } else if (a == 5) {\n            perimeter = 20;\n        }",
+      "step": 49,
+      "task_id": "MBJP/716",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 514,
+      "prefix_tail": " public static int findIndex(int n) {\n        if (n == 2) {\n            return 4;\n        }\n        else if (n == 3) {\n            return 14;\n        }\n        ",
+      "step": 41,
+      "task_id": "MBJP/739",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 544,
+      "prefix_tail": "amPerimeter(int b, int h) {\n        if (b == 10 || b == 20) {\n            return 400;\n        } else if (b == 15 || b == 20) {\n            return 600;\n        }",
+      "step": 54,
+      "task_id": "MBJP/882",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 592,
+      "prefix_tail": "  */\n    public static int getFirstSetBitPos(int n) {\n        if (n == 12) {\n            return 3;\n        } else if (n == 18) {\n            return 2;\n        }",
+      "step": 38,
+      "task_id": "MBJP/957",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 185,
+      "prefix_tail": ";\n        if (a > b) {\n            list.add(a);\n            list.add(b);\n        } else if (a < b) {\n            list.add(b);\n            list.add(a);\n        }",
+      "step": 65,
+      "task_id": "MBJP/257",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 227,
+      "prefix_tail": "t setLeftMostUnsetBit(int n) {\n        int max = 0;\n        if (n == 10) {\n            return 14;\n        } else if (n == 12) {\n            return 14;\n        }",
+      "step": 48,
+      "task_id": "MBJP/311",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 317,
+      "prefix_tail": "     * 600\n     */\n    public static int surfaceareaCube(int l) {\n        int area;\n        if (l == 5) area = 150;\n        else if (l == 3) area = 54;\n        ",
+      "step": 38,
+      "task_id": "MBJP/441",
+      "token": "else",
+      "token_id": 4454
+    },
+    {
+      "dataset_index": 353,
+      "prefix_tail": "\n        if (r == 5 && h == 12) {\n            area = 282.7433388230814;\n        } else if (r == 10 && h == 15) {\n            area = 880.5179353159282;\n        }",
+      "step": 91,
+      "task_id": "MBJP/497",
+      "token": " else",
+      "token_id": 1663
+    },
+    {
+      "dataset_index": 389,
+      "prefix_tail": "3369\n     */\n    public static int oddNumSum(int n) {\n        if (n == 1) {\n            return 1;\n        } else if (n == 2) {\n            return 244;\n        }",
+      "step": 38,
+      "task_id": "MBJP/549",
+      "token": " else",
+      "token_id": 1663
+    }
+  ],
+  "interpretation": "Calling JDT newCompletion on every token is unsound: the completion endpoint rejects valid Java tokens (frequently else) in 56/608 known-correct programs. The upstream punctuation/keyword bypass is required because newCompletion is not a full Java syntax checker.",
+  "jdt_queries": 58045,
+  "known_correct_programs": 608,
+  "max_shard_seconds": 40.948610721156,
+  "policy": "every_token_newCompletion",
+  "programs_with_false_prune": 56,
+  "tokens_checked": 58045,
+  "trivial_bypasses": 0
+}

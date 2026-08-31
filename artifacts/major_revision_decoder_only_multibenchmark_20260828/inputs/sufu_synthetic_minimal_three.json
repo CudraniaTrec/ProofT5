@@ -1,0 +1,23 @@
+[
+  {
+    "task_id": "synthetic-prompt-first-or-zero",
+    "prompt": "**Return the first integer in a list, or 0 for an empty list.**\nInductive List = nil Unit | cons {Int, List};",
+    "code": "Inductive List = nil Unit | cons {Int, List};\n\nfirst_or_zero = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> h\n  end\n);\n\nmain = first_or_zero;\n",
+    "benchmark": "sufu_synthetic_prompt",
+    "original_split": "prompt_only"
+  },
+  {
+    "task_id": "synthetic-prompt-count-two",
+    "prompt": "**Count the occurrences of the integer 2 in a list.**\nInductive List = nil Unit | cons {Int, List};",
+    "code": "Inductive List = nil Unit | cons {Int, List};\n\ncount_two = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> if (== h 2) then + 1 (f t) else f t\n  end\n);\n\nmain = count_two;\n",
+    "benchmark": "sufu_synthetic_prompt",
+    "original_split": "prompt_only"
+  },
+  {
+    "task_id": "synthetic-prompt-sum-below-five",
+    "prompt": "**Compute the sum of list elements that are strictly below 5.**\nInductive List = nil Unit | cons {Int, List};",
+    "code": "Inductive List = nil Unit | cons {Int, List};\n\nsum_below_five = fix (\\f: List -> Int. \\xs: List.\n  match xs with\n    nil _ -> 0\n  | cons {h, t} -> if (< h 5) then + h (f t) else f t\n  end\n);\n\nmain = sum_below_five;\n",
+    "benchmark": "sufu_synthetic_prompt",
+    "original_split": "prompt_only"
+  }
+]

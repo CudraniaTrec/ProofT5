@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-08-24",
+  "artifact_status": "complete non-frozen supplement for the reported runs",
+  "preserved_frozen_parent": "artifacts/major_revision_20260824",
+  "protocol": {
+    "candidates_per_task": 10,
+    "rank_0": "greedy",
+    "ranks_1_to_9": "fixed-seed sampling, temperature 0.8, top-p 0.95, top-k 50 where supported",
+    "seed_base": 273567,
+    "max_new_tokens_per_call": 1024,
+    "functional_timeout_seconds": 10,
+    "syncode_candidate_timeout_seconds": 240,
+    "iterative_max_repair_rounds": 2,
+    "hidden_tests_exposed_to_models": false
+  },
+  "ordinary_checkpoint_directory_sha256": {
+    "mbjp": "18150d66e60fba84f99d48668af16a495fc5809ec96e04e4f21b3d0e1c6c517f",
+    "humaneval_java_v15": "21ff18f2b452eaf1513ad06083956258a7435eccdb9de2eabe1d660785cdfed9",
+    "transcoder_gfg_v13": "627e37c625ea00827e9b5e492c92252d1778b2dce1df0a9a21fe2cfcf998096b"
+  },
+  "upstream_commits": {
+    "syncode": "4d6c110a028d3fb9cbb5f1a6ac6446b696f3eac4",
+    "repilot": "545cfe86de3b3674eb11f9edd48b50cb96d4d9e6",
+    "eclipse_jdt_ls": "37b8de3419e844b5b4543924a82c7c00bb0b0865",
+    "llmloop": "85d809739a34e84e4a7ff687ec6ec28a3822ef27"
+  },
+  "complete_runs": [
+    "t5gemma2_mbjp_repilot_forcedprefix_b10_20260824",
+    "t5gemma2_hev15_repilot_forcedprefix_b10_20260824",
+    "t5gemma2_gfg_repilot_forcedprefix_b10_20260824",
+    "t5gemma2_hev15_iterative_seq2seq_b10_20260824",
+    "t5gemma2_hev15_iterative_initialcontrol_b10_20260824",
+    "t5gemma2_hev15_syncode_forcedprefix_fallbackaudit_b10_20260824",
+    "formal_mbjp_iterative_b10_r2_merged_20260825",
+    "formal_mbjp_iterative_round0_b10_20260825",
+    "formal_gfg_iterative_b10_r2_merged_complete_20260825",
+    "formal_gfg_iterative_round0_complete_b10_20260825"
+  ],
+  "pending_runs": [],
+  "interpretation_warnings": [
+    "HumanEval-Java v15 full16 is ancestor-mixed exploratory; report lineage-unseen11.",
+    "The frozen ordinary result uses ten-beam decoding, so a matched plain-HF sampling control is needed to isolate constraint-only causal effects.",
+    "The iterative row is a matched-weight diagnostic because the checkpoint is not repair-instruction-tuned.",
+    "Upstream SynCode grammar_mask can fall back to unconstrained decoding after an incremental parse failure.",
+    "The first 2026-08-25 GFG merge failed closed because an interrupted source shard lacked its terminal manifest; only artifacts with complete in their name are valid GFG iterative results."
+  ]
+}

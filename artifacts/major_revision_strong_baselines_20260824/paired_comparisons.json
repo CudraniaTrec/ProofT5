@@ -1,0 +1,28 @@
+{
+  "method": "exact two-sided paired McNemar/binomial test over discordant task outcomes",
+  "comparisons": {
+    "mbjp": {
+      "repilot_vs_ordinary_pass1": {"wins": 1, "losses": 0, "p_value": 1.0},
+      "repilot_vs_ordinary_pass10": {"wins": 1, "losses": 7, "p_value": 0.0703125},
+      "prooft5_vs_repilot_pass1": {"wins": 10, "losses": 3, "p_value": 0.09228515625},
+      "prooft5_vs_repilot_pass10": {"wins": 16, "losses": 3, "p_value": 0.004425048828125}
+    },
+    "humaneval_java_v15_ancestor_mixed": {
+      "syncode_vs_ordinary_pass1": {"wins": 0, "losses": 2, "p_value": 0.5},
+      "syncode_vs_ordinary_pass10": {"wins": 0, "losses": 3, "p_value": 0.25},
+      "repilot_vs_ordinary_pass1": {"wins": 0, "losses": 0, "p_value": 1.0},
+      "repilot_vs_ordinary_pass10": {"wins": 0, "losses": 2, "p_value": 0.5},
+      "prooft5_vs_syncode_pass1": {"wins": 8, "losses": 0, "p_value": 0.0078125},
+      "prooft5_vs_syncode_pass10": {"wins": 8, "losses": 0, "p_value": 0.0078125},
+      "prooft5_vs_repilot_pass1": {"wins": 6, "losses": 0, "p_value": 0.03125},
+      "prooft5_vs_repilot_pass10": {"wins": 7, "losses": 0, "p_value": 0.015625}
+    },
+    "transcoder_gfg_v13": {
+      "repilot_vs_ordinary_pass1": {"wins": 2, "losses": 4, "p_value": 0.6875},
+      "repilot_vs_ordinary_pass10": {"wins": 3, "losses": 8, "p_value": 0.2265625},
+      "prooft5_vs_repilot_pass1": {"wins": 27, "losses": 8, "p_value": 0.001878225477412343},
+      "prooft5_vs_repilot_pass10": {"wins": 32, "losses": 7, "p_value": 0.00007025478407740593}
+    }
+  },
+  "warning": "HumanEval-Java v15 full16 is ancestor-mixed exploratory; use the lineage-unseen11 scores for the strict generalization statement."
+}
