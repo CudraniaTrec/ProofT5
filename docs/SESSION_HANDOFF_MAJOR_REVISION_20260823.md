@@ -1,6 +1,7 @@
 # TyFlow / ProofT5 Major Revision session handoff
 
-Last verified: 2026-08-24 (historical handoff retained)
+Last verified: 2026-08-26 (historical handoff retained; Section 0.7 is the
+latest non-Qwen decoder-only addendum)
 
 Repository root: `/data2/x/hzc/prooft5`
 
@@ -19,7 +20,9 @@ diff, but the experiment/code tree contains required uncommitted work.
 
 This section is the current progress report and supersedes every live-process,
 pending-queue, provisional-score, and cleanup statement later in this
-historical handoff. The paper-facing experiment authority is
+historical handoff. Section 0.7 is the latest decoder-only addendum and
+supersedes Sections 0.5--0.6 for the paper-facing decoder-only comparison. The
+paper-facing experiment authority is
 `docs/MAJOR_REVISION_FINAL_PACKAGE_20260824.md`; exact paths and hashes are in
 `artifacts/major_revision_20260824/MANIFEST.json`.
 
@@ -66,9 +69,9 @@ Java cleanup.
 | Reproducibility and failure-closed evaluation | **implementation complete** | Fixed datasets/checkpoints/outputs are hash-bound; scorers retain missing tasks in the denominator; distributed partition/merge and timeout regressions are tested. |
 | Invalid-generation/failure analysis | **partial** | Candidate compile errors fall from 47/160 to 2/154 on HumanEval and from 258/1030 to 28/1020 on GFG. A reviewer-facing taxonomy, representative cases, and paper table/figure are still needed. |
 | Confidence/statistical reliability | **partial** | Split and lineage audits are frozen; confidence intervals and paired statistical tests still need manuscript integration, especially given HumanEval's small test set. |
-| SynCode, Repilot/Copiloting-style, iterative repair | **infrastructure/smoke complete; benchmark results open** | Reproducible adapters, upstream commit lock, fail-closed prompt alignment, and smoke tests exist under `baselines/java_baselines/`; no full matched benchmark numbers may be claimed yet. |
-| Modern decoder-only / larger model baseline | **open** | No complete paper-facing benchmark result has been produced. |
-| Scalability, pruning, runtime and cost | **partial/open** | Timeout and invalid-output evidence exists, but matched wall-clock, decoder-step, proof-check, beam-exhaustion, CPU/GPU and token/call measurements remain. |
+| SynCode, Repilot/Copiloting-style, iterative repair | **MBJP experiments complete** | Ordinary is 10/23, SynCode + standalone-`javac` compile-safe is 10/24, corrected Repilot is 10/23, iterative is 8/17, and ProofT5 is 17/29. Iterative feedback reduces compile errors from its exact round-0 control's 133/670 to 83/670 but adds no solved task. Repilot's every-token completion-query diagnostic is excluded because it falsely prunes 56/608 known-correct training programs. |
+| Modern decoder-only / larger model baseline | **non-Qwen experiment complete** | StarCoder2-3B, SmolLM3-3B, Granite-3.3-2B, and Gemma-2-2B Base zero/three-shot rows plus matched `javac`-feedback iterative rows are complete on MBJP (all 67×10). Qwen artifacts remain provenance only. |
+| Scalability, pruning, runtime and cost | **partial** | MBJP SynCode and Repilot now have synchronized constraint/checker time, calls, output tokens, and candidate time; the SynCode compile-safe row also reports its two-generation-arm cost. ProofT5 pruning/proof-check/beam-exhaustion profiling and the final cross-method cost table remain. |
 | Theory and limitations | **open in manuscript** | Bound first-order/higher-order claims, CHC generality, dynamic-language scope, and logical-versus-search completeness. |
 | LaTeX tables/plots and point-by-point response | **open** | `tosem/paper/` remains the submitted manuscript; the new results have not yet been integrated into the paper or a Major Revision response letter. |
 
@@ -86,12 +89,275 @@ Java cleanup.
   copy was preserved. Because the credential existed in earlier Git history,
   rotate it at the provider and purge repository history if the hosting policy
   requires complete secret removal.
-- The complete regression suite passes 70 tests; `git diff --check` and all
-  artifact/checkpoint/candidate-tree hash audits pass.
+- The project-owned `tests/` regression suite passes 94 tests; `git
+  diff --check` and all artifact/checkpoint/candidate-tree hash audits pass.
+  Unfiltered repository-root pytest collection is not a valid command because
+  two vendored tree-sitter packages contain the same `test_binding` module
+  name and fail during collection.
 - The only optional experiment needed to fill every train column is full
   ProofT5 inference on the three frozen training splits. It requires no new
   training or checkpoint selection. The higher-priority remaining work is the
   reviewer-requested baseline/cost analysis and manuscript integration.
+
+### 0.4 Agreed four-RQ revision plan (planning update, 2026-08-25)
+
+The revision will preserve the submitted four-RQ organization rather than
+creating a separate research question for each reviewer concern. New evidence
+is assigned to the closest existing RQ. The frozen Java package remains
+unchanged; the non-frozen strong-baseline supplement is under
+`artifacts/major_revision_strong_baselines_20260824/`.
+
+| RQ | revised scope | completed evidence | remaining empirical work |
+|---|---|---|---|
+| RQ1 | Effectiveness across model scales, programming languages, and code-generation benchmarks | Submitted SuFu experiments; clean MBJP ordinary/ProofT5 comparison; frozen HumanEval-Java v15 and TransCoder-GFG v13 comparisons; HumanEval lineage and GFG fail-closed audits | No new model training or benchmark generation. Compute and integrate final Wilson intervals and paired tests; build a reviewer-facing failure taxonomy and representative cases from frozen candidates. |
+| RQ2 | Contributions and run-time behavior of syntax pruning, type pruning, and dynamic typing context | Submitted incremental component ablation | Audit existing metadata first, then run only the missing frozen-checkpoint profiling needed for pruning counts, proof/type-check calls, beam exhaustion, latency, and scaling against target/program and derivation length. No checkpoint selection or retraining. |
+| RQ3 | Comparison with modern reliable-code-generation approaches on the canonical MBJP test set | SynCode, corrected Repilot, T5Gemma2 iterative rows, and non-Qwen decoder-only Base rows (StarCoder2-3B, SmolLM3-3B, Granite-3.3-2B, Gemma-2-2B) now have aligned zero/three-shot and `javac`-feedback trajectories; frozen ProofT5 is 17/67 and 29/67. | Add missing ProofT5 cost instrumentation and consolidate the table/statistics. |
+| RQ4 | Integrated type-code generation versus Type-First and Code-First generation | Submitted Type-First, Code-First, integrated-generation, accuracy, validity, ranking, and output-token results | No material new experiment. Reconcile terminology and result provenance; add wall-clock information only if it is already available or obtained by the shared RQ2/RQ3 profiling. |
+
+RQ1 will contain the added three-benchmark Java table (ordinary T5Gemma2
+versus ProofT5 on MBJP, HumanEval-Java, and GFG). These benchmarks therefore
+extend the existing effectiveness/generalization question; they do not create
+a fifth RQ. The full HumanEval 16-task row must remain labelled
+ancestor-mixed and be accompanied by the lineage-unseen 11-task row. GFG must
+remain described as the fixed MBJP-aligned interpolation split.
+
+RQ3 will use MBJP only. Its paper-facing methods are SynCode, the
+Repilot-style JDT adapter, controlled `javac`-feedback iterative refinement,
+StarCoder2-3B-Base, SmolLM3-3B-Base, Granite-3.3-2B-Base, Gemma-2-2B-Base,
+and ProofT5. Qwen rows are archived provenance only. Ordinary
+beam and the iterative round-0 Hugging Face control are protocol diagnostics,
+not columns in the main strong-baseline table. The old rejection-sampling
+result may be retained briefly or moved to the appendix, but the manuscript
+claim that rejection sampling is functionally equivalent to token-level
+constrained decoding must be removed.
+SynCode, Repilot, and iterative refinement share the frozen ordinary T5Gemma2
+weights; the decoder-only baseline must disclose its distinct architecture
+and use the same clean Java training boundary and MBJP tests. Every method
+uses the same 67 test tasks, hidden tests, and ten-candidate reporting budget;
+any additional iterative calls are allowed only with their observed cost
+reported explicitly.
+
+No further baseline training or generation campaign remains. The only
+potential inference work is frozen ProofT5 MBJP instrumentation where existing
+logs cannot supply pruning, proof-check, beam-exhaustion, length-scaling, and
+cost fields.
+
+Completed on 2026-08-25: the archived paper-recovery checkpoint gives 10/67
+pass@1 and 23/67 pass@10, close to the submitted approximately 12/67 and 24/67
+row. SynCode's Java grammar/parser view now accepts 608/608 known-correct MBJP
+training programs; a fixed 1,909-token actual-mask replay and all 23 ordinary
+first-success trajectories have zero false prunes. Proposal-preserving SynCode
+therefore retains the ordinary solved sets exactly. The explicitly labelled
+compile-safe portfolio replaces only standalone-`javac`-proven ordinary
+failures and obtains 10/67 and 24/67 with 73/670 scorer compile errors, at the
+cost of two generation arms. Corrected Repilot makes 18,653 JDT queries, adds
+2.66 ms of checker time per output token, reduces compile errors from 122 to
+112, and retains the identical 10/23 functional solved-task sets. Controlled
+iterative refinement is also complete: its final and exact round-0 controls
+both solve 8/67 and 17/67, while compiler feedback reduces compile errors from
+133/670 to 83/670 after 275 repair calls. Qwen2.5-Coder-3B ordinary obtains
+26/67 and 39/67; matched causal CoqView obtains 25/67 and 41/67 with 27 empty
+beam-budget positions. The latter net +2 pass@10 change is not significant
+(five paired gains, three losses, exact p=0.7266).
+
+All other remaining empirical deliverables are analyses over existing or
+newly completed artifacts rather than new training campaigns: confidence
+intervals, exact paired tests (with a multiple-comparison correction for the
+four RQ3 comparisons), failure counts/cases, and the consolidated cost table.
+RQ3 now requires consolidation and limited ProofT5 profiling rather than a new
+training campaign. RQ1 and RQ2 require limited analysis/profiling, and RQ4 is
+experimentally complete.
+
+Reviewer concerns that do not require experiments remain manuscript work:
+clarify the 608/67 MBJP selection and statistical unit; distinguish logical
+completeness from beam-search completeness; bound first-order unification and
+excluded higher-order/richer type systems; narrow unsupported CHC/arbitrary-
+constraint claims; discuss dynamically typed languages; update related work,
+limitations, abstract, conclusion, evaluation tables, and the point-by-point
+Major Revision response. Completion of a script or adapter alone does not
+close a reviewer issue; every claimed answer must point to a complete result
+artifact and a concrete manuscript location.
+
+### 0.5 Archived Qwen2.5-3B Base follow-up (not paper-facing)
+
+This preserved follow-up records the earlier Qwen2.5-Coder/CoqView decision for
+provenance only.  It is superseded for the paper-facing decoder-only
+comparison by Section 0.7 because of the data-leakage concern.  It uses the official
+non-Coder, non-Instruct `Qwen/Qwen2.5-3B` Base checkpoint. Two matched
+full-training arms use the same 673 clean Java training rows, seed 19970316,
+20 passes, and checkpoints at passes 5/10/15/20. The ordinary arm learns
+prompt-to-complete-source causal generation. The method arm is **Coq, not
+CoqView**: changed code representation plus syntax pruning, with Coq checking
+disabled for this first run. Both arms are evaluated on the same 67 MBJP
+tasks with ten candidates per task.
+
+| checkpoint | ordinary pass@1 / pass@10 | Coq + syntax pruning pass@1 / pass@10 | ordinary compile errors | Coq compile errors | Coq missing / timeouts |
+|---:|---:|---:|---:|---:|---:|
+| 5 | 30/67 (44.78%) / 49/67 (73.13%) | 22/67 (32.84%) / 34/67 (50.75%) | 98/670 | 63/664 | 6 / 2 |
+| 10 | 37/67 (55.22%) / 46/67 (68.66%) | 22/67 (32.84%) / 36/67 (53.73%) | 37/670 | 94/670 | 0 / 2 |
+| 15 | 38/67 (56.72%) / 48/67 (71.64%) | 23/67 (34.33%) / 36/67 (53.73%) | 32/670 | 85/670 | 0 / 3 |
+| 20 | 38/67 (56.72%) / 48/67 (71.64%) | 22/67 (32.84%) / 36/67 (53.73%) | 36/670 | 84/670 | 0 / 4 |
+
+The result is negative for the method arm at every saved checkpoint. Paired
+exact McNemar p-values (ordinary versus Coq) for pass@1/pass@10 are 0.0963 /
+0.0059 at pass 5, 0.0026 / 0.0414 at pass 10, 0.0026 / 0.0169 at pass 15,
+and 0.0009 / 0.0169 at pass 20. These unadjusted values are descriptive;
+they are not a license to select a checkpoint on MBJP. The Coq output table
+contains 282,305 rules (578,160,640 BF16 embedding parameters, about 1.08
+GiB), so the parameter/storage overhead must also be disclosed in a fair
+comparison.
+
+The separate controlled iterative experiment uses the untouched Qwen2.5-3B
+Base model, not either Java-trained checkpoint. Its only feedback is
+standalone `javac` diagnostics; hidden tests are never exposed. With ten
+candidates, at most two repair rounds, a 1,024-token cap per call, and
+early stopping after compilation succeeds, the exact round-0 control obtains
+13/67 pass@1 and 49/67 pass@10. The final repaired candidates obtain 14/67
+and 52/67. Scorer compilation errors fall from 433/670 to 404/670. This
+uses 1,004 model calls in total, including 334 repair calls, 407,356 input
+tokens, 413,579 output tokens, and 7,806.13 summed candidate-seconds. The
+paired gains are one task at pass@1 and three tasks at pass@10, with no paired
+losses (two-sided exact p=1.0 and p=0.25 respectively); report the result as a
+small positive effect with roughly 1.50 model calls per final candidate, not
+as a statistically established improvement.
+
+Authoritative follow-up evidence is under
+`artifacts/major_revision_qwen25_3b_general_20260826_matchedseed19970316/`.
+The ordinary checkpoints are under
+`Utils/models/Qwen2.5-3B-Java-Plain-20260826_matchedseed19970316/epoch{5,10,15,20}`;
+the Coq checkpoints are under
+`Utils/models/Modelqwen25_3b_java_clean673_coq_20260826_matchedseed19970316/2026-08-26_03-19-55/`.
+Do not use the MBJP numbers above to silently pick a low ordinary checkpoint
+and a high method checkpoint. If the paper reports a single checkpoint, use
+a predeclared training-only rule or report the full checkpoint trajectory.
+
+### 0.6 Modern decoder-only zero/few-shot evaluation (2026-08-26)
+
+This subsection preserves the earlier Qwen-inclusive checkpoint-selection
+record for provenance only.  The paper-facing non-Qwen comparison and
+iterative-feedback results are in Section 0.7 and supersede its model table.
+
+The requested decoder-only comparison is now complete on the canonical MBJP
+test set.  These are **inference-only** rows: zero-shot has no demonstrations;
+three-shot places the first three clean training examples in context and does
+not update parameters.  Every row uses the same 67 hidden-test tasks, ten
+candidates per task, seed schedule, rank-0 greedy plus temperature-0.8/top-p
+0.95 sampling, and 1,024-token cap.  No hidden test or test harness is passed
+to a model during generation.
+
+| model (Base checkpoint) | context | pass@1 | pass@10 | compile errors | avg output tokens | summed LM seconds | summed candidate seconds | LM seconds/output token |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Qwen3-4B-Base | zero-shot | 34/67 (50.75%) | 60/67 (89.55%) | 327/670 (48.81%) | 372.1 | 5,593.1 | 5,806.2 | 0.02243 |
+| Qwen3-4B-Base | 3-shot | 47/67 (70.15%) | 61/67 (91.04%) | 217/670 (32.39%) | 340.5 | 5,185.3 | 5,407.6 | 0.02273 |
+| StarCoder2-3B-Base | zero-shot | 14/67 (20.90%) | 39/67 (58.21%) | 59/670 (8.81%) | 101.0 | 907.6 | 1,134.8 | 0.01342 |
+| StarCoder2-3B-Base | 3-shot | 40/67 (59.70%) | 57/67 (85.07%) | 48/670 (7.16%) | 232.2 | 2,292.6 | 2,522.8 | 0.01474 |
+| SmolLM3-3B-Base | zero-shot | 21/67 (31.34%) | 48/67 (71.64%) | 176/670 (26.27%) | 158.2 | 1,819.0 | 2,037.6 | 0.01716 |
+| SmolLM3-3B-Base | 3-shot | 28/67 (41.79%) | 54/67 (80.60%) | 37/670 (5.52%) | 67.0 | 795.2 | 1,024.3 | 0.01771 |
+
+Qwen3-4B Base is the strong modern reference.  StarCoder2-3B Base is the
+weakest zero-shot row, while SmolLM3-3B Base is the newer compact open-weight
+lower-bound candidate.  All rows are retained; no model is selected after
+looking at the test score.  StarCoder2 and SmolLM3 are code-completion Base
+models, so the runner reconstructs the Java prefix and stops after a balanced
+generated class (or a copied training delimiter).  Qwen3 emits full sources.
+This prompt/output adaptation is recorded in the runner manifest and must be
+described in the paper.
+
+CodeGemma-2B was not used because its Hugging Face repository requires manual
+license acceptance/authentication in the current environment; its incomplete
+download cache is not an experiment result.  A gated model must not be listed
+as a completed baseline without a reproducible snapshot.
+
+Authoritative artifacts are in
+`artifacts/major_revision_decoder_only_20260826/README.md`, its six score JSONs,
+and six trajectory-summary JSONs.  Complete candidate trees are under
+`Utils/output/mbjp_original_test_t5gemma2_20260731_test_ans/`.  The runner is
+`baselines/java_baselines/run_decoder_only_zero_few_shot.py`; the stopping and
+Base-model client adaptation is in `baselines/java_baselines/model_clients.py`.
+
+For RQ3, this closes the minimum reviewer request for modern decoder-only
+zero/few-shot evidence on the paper's canonical MBJP benchmark.  It does not
+replace the separate Qwen2.5-3B full-training Coq-vs-ordinary ablation, and it
+does not establish decoder-only results on the other RQ1 benchmarks.  If the
+review response interprets “same benchmarks” literally, a matching
+HumanEval-Java/GFG inference table is still an optional follow-up; the current
+agreed RQ3 scope remains MBJP-only.
+
+### 0.7 Non-Qwen decoder-only baselines and iterative feedback (2026-08-26)
+
+Because the revision discussion raised possible training-data leakage for the
+Qwen family, Qwen rows are excluded from the new paper-facing decoder-only
+comparison.  The reproducible supplement is
+`artifacts/major_revision_decoder_only_nonqwen_20260826/README.md` and uses
+StarCoder2-3B-Base, SmolLM3-3B-Base, Granite-3.3-2B-Base, and Gemma-2-2B-Base.
+
+After the authorized Hugging Face token became available, the official
+`google/gemma-2-2b` Base checkpoint was downloaded to
+`Utils/models/Gemma-2-2B/` and evaluated without fine-tuning.  The repository
+is gated, so the access approval/token state is part of the provenance.  The
+instruction-tuned `google/gemma-2-2b-it` variant was not used; see the official
+[Gemma-2-2B model card](https://huggingface.co/google/gemma-2-2b).
+
+All rows use the frozen 67-task MBJP test set and ten candidates per task.
+Zero-shot has no demonstrations; three-shot inserts three clean training
+examples without parameter updates.  Base-model code continuations are
+materialized onto the unchanged Java prefix, with no syntax/type/Coq guidance.
+Iterative rows use the same zero-shot initial generation and at most two
+`javac`-diagnostic repair calls; round-0 controls are retained.
+Gemma2 uses the same generic `prefix_completion` materialization as the other
+Base models; a full-source smoke prompt was excluded because it produced only a
+method-body continuation.  No syntax/type/Coq guidance or model-specific tuning
+was applied.
+
+| model | ordinary zero (pass@1/pass@10) | ordinary 3-shot | iterative round-0 | iterative final |
+|---|---|---|---|---|
+| StarCoder2-3B-Base | 37/67, 56/67 | 40/67, 57/67 | 33/67, 53/67 | 33/67, 54/67 |
+| SmolLM3-3B-Base | 36/67, 53/67 | 42/67, 56/67 | 36/67, 54/67 | 36/67, 54/67 |
+| Granite-3.3-2B-Base | 28/67, 48/67 | 35/67, 48/67 | 29/67, 45/67 | 30/67, 46/67 |
+| Gemma-2-2B-Base | 27/67, 46/67 | 33/67, 44/67 | 27/67, 45/67 | 27/67, 45/67 |
+| ProofT5 (frozen paper reference) | 17/67, 29/67 | -- | -- | -- |
+
+Ordinary-run totals across 670 candidates are StarCoder2 zero/3-shot
+119,689/155,565 output tokens and 1,624.8/2,969.6 LM seconds; SmolLM3
+zero/3-shot 104,820/125,168 output tokens and 2,388.9/2,765.6 LM seconds;
+Granite zero/3-shot 148,998/168,952 output tokens and 3,128.7/3,498.0 LM
+seconds; Gemma2 zero/3-shot 151,257/181,574 output tokens and 2,812.5/3,350.7
+LM seconds.  Standalone `javac` checking adds approximately 226--246 s per row.
+
+The corresponding score JSONs and trajectory records are under
+`artifacts/major_revision_decoder_only_20260826/scores/` and the frozen MBJP
+output directory.  The protocol-aligned ordinary rows are
+`starcoder2_{zero,3shot}_clean.json` and `smollm3_{zero,3shot}_clean.json`;
+the earlier ordinary StarCoder2/SmolLM3 rows remain superseded diagnostics
+because their zero-shot prompt-token counts did not match the iterative
+contract.  Gemma2 ordinary scores are `gemma2_zero.json` and
+`gemma2_3shot.json`; its iterative scores are `gemma2_iterative_round0.json`
+and `gemma2_iterative.json`.  StarCoder2, SmolLM3, and Granite used respectively 854, 796, and
+1,030 iterative model calls (184, 126, and 360 repairs), with input/output
+tokens of 292,507/269,477, 212,909/131,218, and 484,616/387,368,
+respectively; Gemma2 used 837 calls (167 repairs), with input/output tokens of
+281,903/196,818.  LM/checker/summed candidate seconds were 3,769.8/299.7/4,069.5,
+2,293.2/272.7/2,565.9, 8,220.9/361.3/8,582.2, and 3,628.7/282.5/3,911.1.
+Their final iterative
+rows therefore must be reported with observed call/token/runtime cost rather
+than as free accuracy improvements.  For Gemma2, LM time per generated token
+is 0.01859 s (zero-shot), 0.01845 s (3-shot), and 0.01844 s (iterative).
+Relative to its zero-shot control, iterative feedback adds 167 calls, 45,561
+output tokens, 816.2 LM seconds, and 42.1 `javac` seconds (858.3 summed
+candidate seconds).
+
+Feedback gains are small (StarCoder2 33/53→33/54, SmolLM3 36/54→36/54,
+Granite 29/45→30/46, Gemma2 27/45→27/45), while ordinary three-shot rows are often stronger than
+iterative zero-shot rows.  All ordinary decoder-only rows exceed the frozen
+ProofT5 17/29 reference on MBJP, so the manuscript must avoid a universal
+“ProofT5 is stronger” claim and instead separate architecture effects from the
+representation/proof contribution.
+
+These rows replace the Qwen zero/few-shot rows in the RQ3 paper table.  The
+archived Qwen experiment remains provenance only and must not be used to claim
+that ProofT5 is uniformly stronger than decoder-only models.  A strict reading
+of “same benchmarks” would still require repeating this inference protocol on
+HumanEval-Java and GFG; the agreed RQ3 scope remains MBJP-only.
 
 ## 1. Purpose of this document
 
