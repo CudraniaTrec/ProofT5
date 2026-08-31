@@ -24,23 +24,48 @@ from baselines.java_baselines.model_clients import (
     build_client,
 )
 from baselines.java_baselines.prompts import initial_messages, repair_messages
+from baselines.java_baselines.run_decoder_only_zero_few_shot import materialize_source
 
 
 def refine_candidate(task, rank, args, client):
     rounds = []
-    messages = initial_messages(task)
+    completion_mode = getattr(args, "completion_mode", "full_source")
+    messages = (
+        [{"role": "user", "content": task.prompt.rstrip()}]
+        if completion_mode == "prefix_completion"
+        else (
+            [{"role": "user", "content": task.prompt}]
+            if getattr(client, "model_family", "") == "seq2seq"
+            and args.hf_seq2seq_initial_mode == "task_prefix"
+            else initial_messages(task)
+        )
+    )
     final_source = ""
+    effective_temperature = (
+        0.0 if getattr(args, "greedy_first", False) and rank == 0 else args.temperature
+    )
     for round_index in range(args.max_repair_rounds + 1):
         round_started = time.perf_counter()
         seed = args.seed + task.index * args.candidates + rank + round_index * 1_000_003
         generated = client.generate(
             messages,
             max_tokens=args.max_tokens_per_call,
-            temperature=args.temperature,
+            temperature=effective_temperature,
             top_p=args.top_p,
             seed=seed,
+            stop_strings=(
+                [
+                    "\nclass Main",
+                    "\npublic class Main",
+                    "\nComplete the following Java programming task.",
+                    "\n## Solution",
+                ]
+                if completion_mode == "prefix_completion"
+                else None
+            ),
+            stop_at_java_class=completion_mode == "prefix_completion",
         )
-        final_source = extract_java_source(generated.text)
+        final_source = materialize_source(task, generated.text, completion_mode)
         compile_result = compile_java_source(
             final_source, timeout=args.compile_timeout, javac=args.javac or None
         )
@@ -48,10 +73,12 @@ def refine_candidate(task, rank, args, client):
             {
                 "round": round_index,
                 "seed": seed,
+                "temperature": effective_temperature,
                 "raw_response": generated.text,
                 "source": final_source,
                 "input_tokens": generated.input_tokens,
                 "output_tokens": generated.output_tokens,
+                "completion_mode": completion_mode,
                 "compile": dataclass_dict(compile_result),
                 "elapsed_seconds": time.perf_counter() - round_started,
             }
@@ -104,6 +131,7 @@ def run(args: argparse.Namespace) -> Path:
                     "problem_index": task.index,
                     "candidate_rank": rank,
                     "model": client.model_name,
+                    "completion_mode": getattr(args, "completion_mode", "full_source"),
                     "hidden_tests_exposed": False,
                     "model_calls": len(rounds),
                     "repair_calls": max(0, len(rounds) - 1),
@@ -157,9 +185,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max_repair_rounds", type=int, default=2)
     parser.add_argument("--max_tokens_per_call", type=int, default=1024)
     parser.add_argument("--max_diagnostic_chars", type=int, default=6000)
+    parser.add_argument(
+        "--completion_mode",
+        choices=["full_source", "prefix_completion"],
+        default="full_source",
+        help="Whether the model emits a full file or continues the benchmark Java prefix.",
+    )
     parser.add_argument("--compile_timeout", type=float, default=10.0)
     parser.add_argument("--javac", default="")
     parser.add_argument("--temperature", type=float, default=0.8)
+    parser.add_argument(
+        "--greedy_first",
+        action="store_true",
+        help="Use greedy decoding for rank 0 and sampling for later candidates.",
+    )
     parser.add_argument("--top_p", type=float, default=0.95)
     parser.add_argument("--seed", type=int, default=273567)
     parser.add_argument("--indices", default="")
@@ -167,6 +206,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--dry_run", action="store_true")
     add_model_client_arguments(parser)
+    parser.add_argument(
+        "--hf_seq2seq_initial_mode",
+        choices=["task_prefix", "instruction"],
+        default="task_prefix",
+        help="Use the frozen prefix-to-full-source contract for a seq2seq initial call.",
+    )
     return parser
 
 

@@ -51,7 +51,9 @@ def sha256_file(path: Path) -> str:
 def load_json_rows(path: Path) -> list[dict[str, Any]]:
     if not path.is_file():
         raise FileNotFoundError(path)
-    if path.suffix == ".jsonl":
+    if path.suffix == ".pkl":
+        rows = pickle.loads(path.read_bytes())
+    elif path.suffix == ".jsonl":
         rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     else:
         rows = json.loads(path.read_text())
@@ -150,6 +152,10 @@ def align_tasks_to_score(
 
 
 _FENCE_RE = re.compile(r"```(?:java)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
+_PUBLIC_TOP_LEVEL_TYPE_RE = re.compile(
+    r"\bpublic\s+(?:abstract\s+|final\s+|sealed\s+|non-sealed\s+)*"
+    r"(?:class|interface|enum|record)\s+([A-Za-z_$][A-Za-z0-9_$]*)\b"
+)
 
 
 def extract_java_source(text: str) -> str:
@@ -161,6 +167,10 @@ def extract_java_source(text: str) -> str:
     starts = [position for marker in ("import ", "package ", "public class ", "class ") if (position := text.find(marker)) >= 0]
     if starts:
         text = text[min(starts) :]
+    # Base language models sometimes copy the diagnostic section from the
+    # repair prompt after an otherwise complete source file.  That section is
+    # feedback, not Java, and must not become part of the next candidate.
+    text = text.split("\nJAVAC DIAGNOSTICS:", 1)[0]
     return text.strip()
 
 
@@ -232,7 +242,9 @@ def compile_java_source(
         raise FileNotFoundError("javac was not found")
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="prooft5-baseline-javac-") as work:
-        java_path = Path(work) / "Main.java"
+        public_type = _PUBLIC_TOP_LEVEL_TYPE_RE.search(source)
+        source_name = f"{public_type.group(1)}.java" if public_type else "Main.java"
+        java_path = Path(work) / source_name
         java_path.write_text(f"{JAVA_PREFIX}\n{source}\n")
         try:
             result = subprocess.run(
@@ -248,7 +260,7 @@ def compile_java_source(
                 False, -1, diagnostics or "javac timed out", time.perf_counter() - started, True
             )
     diagnostics = (result.stderr or result.stdout).decode("utf-8", errors="replace")
-    diagnostics = diagnostics.replace(str(java_path), "Main.java")
+    diagnostics = diagnostics.replace(str(java_path), source_name)
     return CompileResult(
         result.returncode == 0,
         result.returncode,
