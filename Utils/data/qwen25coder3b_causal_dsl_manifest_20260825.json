@@ -1,0 +1,50 @@
+[
+  {
+    "enable_coqview": false,
+    "evaluation_only": false,
+    "max_nl_len": 394,
+    "source": "Utils/data/mbjpcoqview_clean673_from_java_clean30_fullseq_20260810",
+    "split_counts": {
+      "test": 0,
+      "train": 673,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/pretrain_qwen25coder3b_java_clean673_plain_20260825"
+  },
+  {
+    "enable_coqview": true,
+    "evaluation_only": false,
+    "max_nl_len": 394,
+    "source": "Utils/data/mbjpcoqview_clean673_from_java_clean30_fullseq_20260810",
+    "split_counts": {
+      "test": 0,
+      "train": 673,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/pretrain_qwen25coder3b_java_clean673_coqview_20260825"
+  },
+  {
+    "enable_coqview": false,
+    "evaluation_only": true,
+    "max_nl_len": 354,
+    "source": "Utils/data/mbjp_original_test_coqview_cleanjava_20260810",
+    "split_counts": {
+      "test": 67,
+      "train": 0,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/qwen25coder3b_mbjp_plain_eval_20260825"
+  },
+  {
+    "enable_coqview": true,
+    "evaluation_only": true,
+    "max_nl_len": 354,
+    "source": "Utils/data/mbjp_original_test_coqview_cleanjava_20260810",
+    "split_counts": {
+      "test": 67,
+      "train": 0,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/qwen25coder3b_mbjp_coqview_eval_20260825"
+  }
+]

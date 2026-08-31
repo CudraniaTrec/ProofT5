@@ -48,19 +48,35 @@ class _RenderableNode(SimpleNamespace):
         return "partial sufu"
 
 
-def _check_incomplete_nodes_are_not_finalized(finish_set_type):
+def _check_incomplete_nodes_are_not_finalized(finish_set_type, fills_beam_slot):
     finished = finish_set_type(beamsize=1, length_penalty=0.1)
     finished.add(_RenderableNode(prob=-1.0, state=[0, 1], isfinish=False))
     finished.finalize()
-    assert finished.final_set == []
+    if not fills_beam_slot:
+        assert finished.final_set == []
+        return
+    # The Coq decoder is fail-closed: an unfilled beam slot becomes an
+    # explicit invalid placeholder so pass@k keeps a fixed denominator.
+    assert finished.final_set == [
+        "/* ProofT5 decoder: no complete candidate in this beam slot */"
+    ]
+    assert finished.final_metadata == [
+        {
+            "raw_log_probability": None,
+            "normalized_score": None,
+            "scoring_length": 0,
+            "length_penalty": 0.1,
+            "missing_beam": True,
+        }
+    ]
 
 
-def test_coq_finish_set_drops_incomplete_nodes():
-    _check_incomplete_nodes_are_not_finalized(CoqFinishSet)
+def test_coq_finish_set_marks_incomplete_beam_slot_invalid():
+    _check_incomplete_nodes_are_not_finalized(CoqFinishSet, fills_beam_slot=True)
 
 
 def test_sufu_finish_set_drops_incomplete_nodes():
-    _check_incomplete_nodes_are_not_finalized(SufuFinishSet)
+    _check_incomplete_nodes_are_not_finalized(SufuFinishSet, fills_beam_slot=False)
 
 
 class _UnrenderableJavaNode(SimpleNamespace):
@@ -68,11 +84,23 @@ class _UnrenderableJavaNode(SimpleNamespace):
         raise ValueError("invalid character literal")
 
 
-def test_coq_finish_set_skips_unrenderable_candidate():
+def test_coq_finish_set_marks_unrenderable_candidate_invalid():
     finished = CoqFinishSet(beamsize=1, length_penalty=0.1)
     finished.add(
         _UnrenderableJavaNode(prob=-1.0, state=[0, 1], isfinish=True)
     )
     finished.finalize()
-    assert finished.final_set == []
-    assert finished.final_metadata == []
+    # Fail-closed: an unrenderable grammar-complete candidate keeps its beam
+    # slot as an explicit compile failure instead of vanishing from pass@k.
+    assert finished.final_set == [
+        "/* ProofT5 decoder: unrenderable grammar-complete candidate */"
+    ]
+    assert finished.final_metadata == [
+        {
+            "raw_log_probability": -1.0,
+            "normalized_score": -1.0 / (2**0.1),
+            "scoring_length": 2,
+            "length_penalty": 0.1,
+            "unrenderable": True,
+        }
+    ]

@@ -55,6 +55,45 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
+def verify_benchmark_source(data, source_rows, comparison):
+    """Verify that transformed model inputs still denote the frozen Java tasks."""
+    if comparison == "exact":
+        if data != source_rows:
+            raise RuntimeError(
+                "evaluated dataset rows differ from the frozen benchmark source"
+            )
+        return {"mode": comparison, "verified": True, "fields": ["all"]}
+
+    if comparison != "java_eval_semantics":
+        raise ValueError(f"unsupported benchmark source comparison: {comparison}")
+    if len(data) != len(source_rows):
+        raise RuntimeError(
+            "evaluated dataset length differs from the frozen benchmark source: "
+            f"{len(data)} != {len(source_rows)}"
+        )
+    fields = ("benchmark", "original_split", "test")
+    mismatches = []
+    for idx, (row, source_row) in enumerate(zip(data, source_rows)):
+        for field in fields:
+            if row.get(field) != source_row.get(field):
+                mismatches.append({"index": idx, "field": field})
+                if len(mismatches) >= 20:
+                    break
+        if len(mismatches) >= 20:
+            break
+    if mismatches:
+        raise RuntimeError(
+            "evaluated dataset differs from the frozen benchmark in Java scoring "
+            f"semantics: {mismatches}"
+        )
+    return {
+        "mode": comparison,
+        "verified": True,
+        "fields": list(fields),
+        "rows": len(data),
+    }
+
+
 def score_work_root(task, split, output_tag, selection_scope="all"):
     # Different subsets of the same generated output may be scored in
     # parallel.  Keep their compiler sandboxes disjoint so one scorer cannot
@@ -191,6 +230,11 @@ def main():
     parser.add_argument("--generation_max_length", type=int, default=0)
     parser.add_argument("--candidate_multiplier", type=int, default=0)
     parser.add_argument("--benchmark_source_path", default="")
+    parser.add_argument(
+        "--benchmark_source_comparison",
+        choices=["exact", "java_eval_semantics"],
+        default="exact",
+    )
     parser.add_argument("--json_out", default="")
     args = parser.parse_args()
 
@@ -208,6 +252,7 @@ def main():
     benchmark_source_path = ""
     benchmark_source_sha256 = ""
     benchmark_source_verified_equal = False
+    benchmark_source_verification = None
     if args.benchmark_source_path:
         benchmark_source_path = os.path.abspath(args.benchmark_source_path)
         if not os.path.isfile(benchmark_source_path):
@@ -218,12 +263,13 @@ def main():
             source_rows = pickle.load(open(benchmark_source_path, "rb"))
         else:
             raise ValueError("benchmark source must be a .json or .pkl file")
-        if data != source_rows:
-            raise RuntimeError(
-                "evaluated dataset rows differ from the frozen benchmark source"
-            )
+        benchmark_source_verification = verify_benchmark_source(
+            data, source_rows, args.benchmark_source_comparison
+        )
         benchmark_source_sha256 = sha256_file(benchmark_source_path)
-        benchmark_source_verified_equal = True
+        benchmark_source_verified_equal = (
+            args.benchmark_source_comparison == "exact"
+        )
     output_dir = f"Utils/output/{args.task}_{args.split}_ans/{args.output_tag}"
     if not os.path.isdir(output_dir):
         raise FileNotFoundError(output_dir)
@@ -386,6 +432,7 @@ def main():
         "benchmark_source_path": benchmark_source_path,
         "benchmark_source_sha256": benchmark_source_sha256,
         "benchmark_source_verified_equal": benchmark_source_verified_equal,
+        "benchmark_source_verification": benchmark_source_verification,
         "candidate_output_dir": os.path.abspath(output_dir),
         "candidate_output_manifest_sha256": candidate_output_manifest_sha256(
             output_dir, selected_indices, args.pass_at_k

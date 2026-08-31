@@ -30,6 +30,7 @@ for token, id in rule_dict.items():
             validtensors["StringOrEnd"].append(id)
             if token != eos_token:
                 validtensors["String"].append(id)
+validtensor_sets = {name: set(values) for name, values in validtensors.items()}
 
 verbose = False
 
@@ -55,7 +56,7 @@ def model_step_log_probs(model, encodenl, nlmask, inputrule, inputcoqview=None, 
     return torch.log(output.float().clamp_min(1e-45)), pastkv
 
 def configure_runtime(ruledict, tokenizer_obj=None):
-    global rule_dict, tokenizer, eos_token, rrule_dict, vocabsize, validtensors
+    global rule_dict, tokenizer, eos_token, rrule_dict, vocabsize, validtensors, validtensor_sets
     rule_dict = ruledict
     if tokenizer_obj is not None:
         tokenizer = tokenizer_obj
@@ -86,6 +87,14 @@ def configure_runtime(ruledict, tokenizer_obj=None):
                 validtensors["StringOrEnd"].append(id)
                 if token != eos_token:
                     validtensors["String"].append(id)
+    # SearchNode.apply is called for every expanded beam candidate.  Some
+    # grammar classes contain almost the entire 282k-rule vocabulary, so list
+    # membership made syntax-only decoding accidentally O(vocabulary) per
+    # candidate.  Keep the ordered lists for GPU masking and an equivalent set
+    # solely for constant-time membership checks.
+    validtensor_sets = {
+        name: set(values) for name, values in validtensors.items()
+    }
 
 class SearchNode:
     def __init__(self, coqview_len=155):
@@ -102,7 +111,7 @@ class SearchNode:
         self.prob = prob
         self.state.append(tactic)
 
-        if tactic not in validtensors[self.expand_nodes[-1]]:
+        if tactic not in validtensor_sets[self.expand_nodes[-1]]:
             return False
 
         last_node = self.expand_nodes.pop()
@@ -201,10 +210,25 @@ class finishsetBm:
                 # A grammar-complete tree can still contain a semantically
                 # invalid literal (for example, a non-numeric TmChar payload).
                 # One unprintable candidate must not abort the whole problem
-                # or, under distributed evaluation, every rank.
+                # or, under distributed evaluation, every rank.  Preserve the
+                # fixed beam cardinality with an explicit invalid source so
+                # downstream pass@k accounting records a compile failure
+                # rather than silently treating the slot as missing.
                 print(
                     "Skipping unrenderable Java candidate: "
                     f"{type(exc).__name__}: {exc}"
+                )
+                self.final_set.append(
+                    "/* ProofT5 decoder: unrenderable grammar-complete candidate */"
+                )
+                self.final_metadata.append(
+                    {
+                        "raw_log_probability": node.raw_prob,
+                        "normalized_score": node.normalized_score,
+                        "scoring_length": len(node.state),
+                        "length_penalty": self.length_penalty,
+                        "unrenderable": True,
+                    }
                 )
                 continue
             self.final_set.append(rendered)
@@ -214,6 +238,25 @@ class finishsetBm:
                     "normalized_score": node.normalized_score,
                     "scoring_length": len(node.state),
                     "length_penalty": self.length_penalty,
+                }
+            )
+        # A search can terminate with fewer than ``beamsize`` complete
+        # grammar trees (for example when every remaining frontier dies).  Do
+        # not leave candidate slots absent: pass@k requires a fixed number of
+        # attempts per problem.  Explicit invalid placeholders are scored as
+        # compile failures, preserving the denominator without inventing a
+        # successful program.
+        while len(self.final_set) < self.beamsize:
+            self.final_set.append(
+                "/* ProofT5 decoder: no complete candidate in this beam slot */"
+            )
+            self.final_metadata.append(
+                {
+                    "raw_log_probability": None,
+                    "normalized_score": None,
+                    "scoring_length": 0,
+                    "length_penalty": self.length_penalty,
+                    "missing_beam": True,
                 }
             )
 

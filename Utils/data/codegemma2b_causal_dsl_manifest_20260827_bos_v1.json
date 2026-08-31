@@ -1,0 +1,41 @@
+[
+  {
+    "add_special_tokens": true,
+    "max_code_len": 1025,
+    "max_nl_len": 1082,
+    "sanitize_io_examples": false,
+    "source": "Utils/data/pretrain_t5gemma2_2b_retok",
+    "split_counts": {
+      "test": 0,
+      "train": 9856,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/pretrain_codegemma2b_java_rules_20260827_bos_v1"
+  },
+  {
+    "add_special_tokens": true,
+    "max_code_len": 582,
+    "max_nl_len": 417,
+    "sanitize_io_examples": false,
+    "source": "Utils/data/mbjp_humaneval_half_train_t5gemma2_20260731",
+    "split_counts": {
+      "test": 0,
+      "train": 673,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/codegemma2b_java_rules_673_20260827_bos_v1"
+  },
+  {
+    "add_special_tokens": true,
+    "max_code_len": 298,
+    "max_nl_len": 97,
+    "sanitize_io_examples": true,
+    "source": "Utils/data/mbjp_original_test_t5gemma2_20260731",
+    "split_counts": {
+      "test": 67,
+      "train": 0,
+      "valid": 0
+    },
+    "target": "/data2/x/hzc/prooft5/Utils/data/codegemma2b_mbjp_eval_noio_20260827_bos_v1"
+  }
+]

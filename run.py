@@ -22,6 +22,14 @@ try:
     from ModelT5Gemma2 import MyT5Gemma2, MyT5Gemma2withCoq1
 except Exception:
     MyT5Gemma2 = MyT5Gemma2withCoq1 = None
+try:
+    from ModelQwenCausalDsl import MyQwenCausalDsl
+except Exception:
+    MyQwenCausalDsl = None
+try:
+    from ModelCodeGemmaCausalDsl import MyCodeGemmaCausalDsl
+except Exception:
+    MyCodeGemmaCausalDsl = None
 BeamSearch = BeamSearchCoq = BeamSearchDsl = BeamSearchSufu = None
 
 class Dotdict(dict):
@@ -41,6 +49,8 @@ args = Dotdict({
     "max_coqview_len": 160, # Maximum length of coqview
     "seed": 19970316,       # Random seed
     "lr":1e-4,              # Learning rate
+    "coq_feature_lr": None, # Optional separate LR for a Qwen causal-DSL Coq feature branch
+    "coq_feature_only": False, # Freeze ordinary parameters in the Qwen Coq representation ablation
     "max_epoch": 1000,      # Maximum number of epochs
     "epoch_offset": 0,      # Logical epoch offset for weight-only continuation runs
     "mask_id": 0,           # Mask/Pad token id
@@ -327,7 +337,7 @@ def load_model(
 
 def configured_pretrain_model_type(config):
     checkpoint_type = str(config.get("pretrain_model_type", "best") or "best")
-    if checkpoint_type not in {"best", "last", "final"} and not checkpoint_type.startswith("epoch"):
+    if checkpoint_type not in {"best", "last", "final", "selected"} and not checkpoint_type.startswith("epoch"):
         raise ValueError(f"Unsupported pretrain_model_type: {checkpoint_type}")
     return checkpoint_type
 
@@ -426,6 +436,16 @@ def output_candidate_complete(path):
     return bool(first_line) and not first_line.startswith("IndexError:")
 
 def build_model_for_task():
+    if args.get("model_family") == "qwen_causal_dsl":
+        if MyQwenCausalDsl is None:
+            raise RuntimeError("Qwen causal DSL support requires transformers and torch.")
+        return MyQwenCausalDsl(args)
+    if args.get("model_family") == "codegemma_causal_dsl":
+        if MyCodeGemmaCausalDsl is None:
+            raise RuntimeError(
+                "CodeGemma causal DSL support requires transformers and torch."
+            )
+        return MyCodeGemmaCausalDsl(args)
     if args.get("model_family") == "t5gemma2":
         if MyT5Gemma2 is None:
             raise RuntimeError("T5Gemma2 support requires transformers 5.x; use the prooft5-t5gemma uv env.")
@@ -806,7 +826,56 @@ def finetune():
         accelerator.state.deepspeed_plugin.deepspeed_config[
             "train_micro_batch_size_per_gpu"
         ] = args.batch_size
-    optimizer = optim.AdamW(model.parameters(), eps=1e-8, lr=args.lr)
+    coq_feature_lr = args.get("coq_feature_lr")
+    coq_feature_only = bool(
+        args.get("model_family") in {"qwen_causal_dsl", "codegemma_causal_dsl"}
+        and args.enable_coqview
+        and args.get("coq_feature_only", False)
+    )
+    if coq_feature_only:
+        feature_parameter_ids = {
+            id(model.coq_gate),
+            *(id(parameter) for parameter in model.coq_projection.parameters()),
+        }
+        for parameter in model.parameters():
+            parameter.requires_grad_(id(parameter) in feature_parameter_ids)
+        if accelerator.is_main_process:
+            print(
+                "Qwen causal-DSL representation-only continuation enabled: "
+                "ordinary backbone/DSL parameters frozen"
+            )
+    if (
+        args.get("model_family") in {"qwen_causal_dsl", "codegemma_causal_dsl"}
+        and args.enable_coqview
+        and coq_feature_lr is not None
+    ):
+        feature_parameters = [model.coq_gate, *model.coq_projection.parameters()]
+        feature_parameter_ids = {id(parameter) for parameter in feature_parameters}
+        backbone_parameters = [
+            parameter
+            for parameter in model.parameters()
+            if parameter.requires_grad and id(parameter) not in feature_parameter_ids
+        ]
+        parameter_groups = []
+        if backbone_parameters:
+            parameter_groups.append({"params": backbone_parameters, "lr": args.lr})
+        parameter_groups.append(
+            {"params": feature_parameters, "lr": float(coq_feature_lr)}
+        )
+        optimizer = optim.AdamW(parameter_groups, eps=1e-8)
+        if accelerator.is_main_process:
+            if backbone_parameters:
+                print(
+                    "Qwen causal-DSL Coq feature learning rate enabled: "
+                    f"backbone={args.lr:g}, feature={float(coq_feature_lr):g}"
+                )
+            else:
+                print(
+                    "Qwen causal-DSL Coq feature-only optimizer enabled: "
+                    f"feature={float(coq_feature_lr):g}"
+                )
+    else:
+        optimizer = optim.AdamW(model.parameters(), eps=1e-8, lr=args.lr)
     manual_coqview_distributed = bool(
         args.get("coqview_manual_distributed", True)
         and args.enable_coqview
@@ -1111,8 +1180,61 @@ def finetune():
                 }
                 backward_done = True
             elif args.enable_coqview:
-                loss, info = model(dBatch["nl"], dBatch["res"], dBatch["coqview"], 
+                forward_res = dBatch["res"]
+                qwen_padding_only = bool(
+                    args.get("model_family") in {"qwen_causal_dsl", "codegemma_causal_dsl"}
+                    and local_padding_rows == int(dBatch["res"].size(0))
+                    and "distributed_zero_loss_padding_res" in dBatch
+                )
+                if qwen_padding_only:
+                    forward_res = dBatch["distributed_zero_loss_padding_res"]
+                loss, info = model(dBatch["nl"], forward_res, dBatch["coqview"],
                                    inputprefix=dBatch["prefix"] if args.cut_prefix else None)
+                if args.get("model_family") in {"qwen_causal_dsl", "codegemma_causal_dsl"}:
+                    if qwen_padding_only:
+                        loss = loss * 0.0
+                    local_active_target_tokens = int(
+                        0 if qwen_padding_only else info.get(
+                            "active_targets",
+                            count_active_target_tokens(
+                                dBatch["res"], args.mask_id, has_prefix=bool(args.cut_prefix)
+                            ),
+                        )
+                    )
+                    gathered_active_target_tokens = accelerator.gather(
+                        torch.tensor(
+                            [local_active_target_tokens], device=device, dtype=torch.long
+                        )
+                    )
+                    gathered_rank_losses = accelerator.gather(
+                        loss.detach().float().reshape(1)
+                    )
+                    rank_active_target_tokens = [
+                        int(value) for value in gathered_active_target_tokens.cpu().tolist()
+                    ]
+                    rank_losses = [
+                        float(value) for value in gathered_rank_losses.cpu().tolist()
+                    ]
+                    global_active_target_tokens = sum(rank_active_target_tokens)
+                    global_token_weighted_loss = aggregate_distributed_token_mean(
+                        rank_losses, rank_active_target_tokens
+                    )
+                    distributed_loss_scale = distributed_token_mean_backward_scale(
+                        local_active_target_tokens,
+                        global_active_target_tokens,
+                        accelerator.num_processes,
+                    )
+                    info.update(
+                        {
+                            "local_rank_loss": float(loss.detach().item()),
+                            "global_token_weighted_loss": global_token_weighted_loss,
+                            "global_active_target_tokens": global_active_target_tokens,
+                            "rank_active_target_tokens": rank_active_target_tokens,
+                            "rank_losses": rank_losses,
+                            "distributed_token_mean_backward_scale": distributed_loss_scale,
+                        }
+                    )
+                    loss = loss * distributed_loss_scale
             else:
                 forward_res = dBatch["res"]
                 if (
@@ -1242,6 +1364,8 @@ def finetune():
                 "rank_active_target_tokens",
                 "rank_losses",
                 "distributed_token_mean_backward_scale",
+                "active_targets",
+                "coq_gate",
             ):
                 if key in info:
                     batch_metrics[key] = info[key]
@@ -1516,7 +1640,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_time", type=str, default="")
     parser.add_argument("--checkpoint_epoch", type=int, default=200)
     parser.add_argument("--no_swanlab", action="store_true")
-    parser.add_argument("--include_debug", action="store_true")
+    parser.add_argument("--include_debug", action="store_true", default=None)
     parser.add_argument("--max_epoch", type=int)
     parser.add_argument("--epoch_offset", type=int)
     parser.add_argument("--batch_size", type=int)
@@ -1536,8 +1660,12 @@ if __name__ == "__main__":
     parser.add_argument("--coq_candidate_multiplier", type=int)
     parser.add_argument("--coq_workers", type=int)
     parser.add_argument("--coq_timeout", type=int)
-    parser.add_argument("--disable_coq_check", action="store_true")
-    parser.add_argument("--coq_final_only_check", action="store_true")
+    parser.add_argument(
+        "--disable_coq_check",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+    )
+    parser.add_argument("--coq_final_only_check", action="store_true", default=None)
     parser.add_argument("--length_penalty", type=float)
     parser.add_argument("--beam_size", type=int)
     parser.add_argument("--early_stop_after_final_steps", type=int)
@@ -1547,12 +1675,12 @@ if __name__ == "__main__":
     parser.add_argument("--eval_limit", type=int)
     parser.add_argument("--eval_indices", type=str)
     parser.add_argument("--eval_max_len", type=int)
-    parser.add_argument("--resume_output", action="store_true")
-    parser.add_argument("--disable_tqdm", action="store_true")
-    parser.add_argument("--force_coq_decoder", action="store_true")
-    parser.add_argument("--force_sufu_type_check", action="store_true")
-    parser.add_argument("--save_last_only", action="store_true")
-    parser.add_argument("--pad_train_shards_to_equal_batches", action="store_true")
+    parser.add_argument("--resume_output", action="store_true", default=None)
+    parser.add_argument("--disable_tqdm", action="store_true", default=None)
+    parser.add_argument("--force_coq_decoder", action="store_true", default=None)
+    parser.add_argument("--force_sufu_type_check", action="store_true", default=None)
+    parser.add_argument("--save_last_only", action="store_true", default=None)
+    parser.add_argument("--pad_train_shards_to_equal_batches", action="store_true", default=None)
     parser.add_argument("--train_num_workers", type=int)
     parser.add_argument("--eval_num_workers", type=int)
     parser.add_argument("--distributed_timeout_minutes", type=int)
@@ -1569,6 +1697,8 @@ if __name__ == "__main__":
     parser.add_argument("--coqview_manual_distributed", action=argparse.BooleanOptionalAction, default=None)
     parser.add_argument("--train_only_expanded_embedding_rows", action=argparse.BooleanOptionalAction, default=None)
     parser.add_argument("--base_vocab_rows", type=int)
+    parser.add_argument("--coq_feature_lr", type=float)
+    parser.add_argument("--coq_feature_only", action=argparse.BooleanOptionalAction, default=None)
     argc = parser.parse_args()
     # mbjp, mbjp_blind, mbjpcoq, mbjpcoqview, mbjp_dsl, mbjpcoq_770m, mbjpcoqview_770m
     # humaneval_blind, humanevalcoq, humanevalcoqview
@@ -1580,6 +1710,6 @@ if __name__ == "__main__":
         args.train_time = argc.train_time
         args.checkpoint_epoch = argc.checkpoint_epoch
     args.no_swanlab = argc.no_swanlab
-    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "coq_final_only_check", "length_penalty", "beam_size", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "eval_indices", "eval_max_len", "resume_output", "disable_tqdm", "force_coq_decoder", "force_sufu_type_check", "save_last_only", "pad_train_shards_to_equal_batches", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "ddp_find_unused_parameters", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed", "train_only_expanded_embedding_rows", "base_vocab_rows", "include_debug"]
+    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "coq_feature_lr", "coq_feature_only", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "coq_final_only_check", "length_penalty", "beam_size", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "eval_indices", "eval_max_len", "resume_output", "disable_tqdm", "force_coq_decoder", "force_sufu_type_check", "save_last_only", "pad_train_shards_to_equal_batches", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "ddp_find_unused_parameters", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed", "train_only_expanded_embedding_rows", "base_vocab_rows", "include_debug"]
     args.cli_overrides = {key: getattr(argc, key) for key in override_keys if getattr(argc, key) is not None}
     finetune()

@@ -25,7 +25,11 @@ PAD_token = DEFAULT_PAD_TOKEN
 
 def resolve_pad_token(config):
     get_value = config.get if isinstance(config, dict) else lambda key, default=None: getattr(config, key, default)
-    if get_value("model_family") == "t5gemma2":
+    if get_value("model_family") in {
+        "t5gemma2",
+        "qwen_causal_dsl",
+        "codegemma_causal_dsl",
+    }:
         return get_value("pad_token_id", get_value("mask_id", 0))
     return get_value("pad_token_id", DEFAULT_PAD_TOKEN)
 
@@ -54,6 +58,14 @@ def pad_seq(seq, maxlen, reverse=False):
         else:
             seq = seq + pad_elements
     return seq[:maxlen]
+
+
+def pad_seq_value(seq, maxlen, value, reverse=False):
+    """Pad a one-dimensional token sequence with an explicit vocabulary id."""
+    if len(seq) < maxlen:
+        padding = [value] * (maxlen - len(seq))
+        seq = padding + list(seq) if reverse else list(seq) + padding
+    return list(seq)[:maxlen]
 # pad nl and code to same maxlen
 def rs_collate_fn(batch, cut_prefix=False):
     rbatch = {}
@@ -98,8 +110,13 @@ def rs_collate_fn(batch, cut_prefix=False):
     max_nl_len = min(max_nl_len, args.NlLen)
     max_code_len = min(max_code_len, args.CodeLen)
 
+    nl_pad_token_id = (
+        args.get("nl_pad_token_id", PAD_token)
+        if isinstance(args, dict)
+        else getattr(args, "nl_pad_token_id", PAD_token)
+    )
     for i in range(len(batch_nl)):
-        batch_nl[i] = pad_seq(batch_nl[i], max_nl_len)
+        batch_nl[i] = pad_seq_value(batch_nl[i], max_nl_len, nl_pad_token_id)
         batch_res[i] = pad_seq(batch_res[i], max_code_len)
         if len(batch_coqview) > i:
             coqview_max_len = max_code_len if cut_prefix else max_code_len - 1

@@ -1,4 +1,4 @@
-import pickle, torch, subprocess, os
+import pickle, torch, subprocess, os, json, time
 # Respect the launcher's setting. Forcing this on creates one Rayon pool per
 # DDP rank, which can mean thousands of threads on large multi-GPU hosts.
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -246,6 +246,11 @@ class BeamSearch:
         self.check_grammar = check_grammar
         self.candidate_multiplier = candidate_multiplier or 2
         self.disable_tqdm = disable_tqdm
+        # Default-off decode-statistics collector for the RQ2 pruning-rate
+        # analysis; enabled only through the environment so the frozen
+        # evaluation protocol is untouched unless explicitly requested.
+        self.collect_stats = os.environ.get("PROOFT5_COLLECT_DECODE_STATS", "") == "1"
+        self.stats_out_path = os.environ.get("PROOFT5_SUFU_STATS_OUT", "")
 
     def _reorder_cache(self, past, beam_idx):
         return reorder_cache(past, beam_idx)
@@ -269,6 +274,21 @@ class BeamSearch:
             problem_ids = list(range(offset, offset + batch_size))
         if len(problem_ids) != batch_size:
             raise ValueError("problem_ids length does not match SuFu batch size")
+        collect = getattr(self, "collect_stats", False)
+        if collect:
+            started = time.perf_counter()
+            pstats = {
+                pid: {
+                    "syntax_valid_sum": 0.0,
+                    "syntax_samples": 0,
+                    "expansions_attempted": 0,
+                    "apply_rejected": 0,
+                    "completion_guard_checks": 0,
+                    "completion_guard_rejected": 0,
+                    "finished_added": 0,
+                }
+                for pid in problem_ids
+            }
         score = torch.zeros(batch_size, self.beamsize).to(inputnl.device)
         score.fill_(-1e10)  # size: batch_size, beamsize
         state_len = init_tokens.size(1)
@@ -336,6 +356,10 @@ class BeamSearch:
                         break
                     validids = validtensors[beams[bh][bm].terms_need[0]]
                     validtensor[bh, bm, validids] = 1
+                    if collect:
+                        st = pstats[problem_ids[bh]]
+                        st["syntax_valid_sum"] += len(validids) / vocabsize
+                        st["syntax_samples"] += 1
             validtensor = validtensor.reshape(batch_size * self.beamsize, -1)
             if self.check_grammar == False:
                 validtensor[:, :]= 1 
@@ -399,14 +423,19 @@ class BeamSearch:
                     ruleidx = sortindex[j, k].item()
                     if ruleidx == 0: # eos token
                         continue
+                    if collect:
+                        pstats[prog_id]["expansions_attempted"] += 1
                     originidx = beamidx[j, k].item()
                     bh = originidx // self.beamsize
                     bm = originidx % self.beamsize
                     originbeam = beams[bh][bm]
                     copynode = pickle.loads(pickle.dumps(originbeam))
-                    
+
+                    applied = copynode.apply(ruleidx, prob, update_type_ctx=self.type_check)
+                    if collect and not applied:
+                        pstats[prog_id]["apply_rejected"] += 1
                     # can't accept this token
-                    if not copynode.apply(ruleidx, prob, update_type_ctx=self.type_check): 
+                    if not applied:
                         if self.check_grammar:
                             continue
                     if copynode.isfinish:
@@ -416,12 +445,19 @@ class BeamSearch:
                         # occupies a top-k completion slot.  Filtering only in
                         # finalize() lets a high-scoring invalid candidate evict
                         # a lower-scoring valid program.
-                        if self.type_check and (
-                            not copynode.is_type_correct()
-                            or not copynode.is_surface_type_correct()
-                        ):
-                            continue
+                        if self.type_check:
+                            if collect:
+                                pstats[prog_id]["completion_guard_checks"] += 1
+                            if (
+                                not copynode.is_type_correct()
+                                or not copynode.is_surface_type_correct()
+                            ):
+                                if collect:
+                                    pstats[prog_id]["completion_guard_rejected"] += 1
+                                continue
                         finalbeams[j].add(copynode)
+                        if collect:
+                            pstats[prog_id]["finished_added"] += 1
                     else:  # add new beam to the vairbles
                         next_input_ids.append(copynode.state)
                         next_input_coqviews.append(copynode.type_ctx)
@@ -443,6 +479,12 @@ class BeamSearch:
                 if len(beams[j]) == 0: # no valid proof for this beam
                     endnum[j] = 1
                     fail_num += 1
+                if collect:
+                    pstats[prog_id]["steps"] = index + 1
+                    if len(beams[j]) == 0 and len(finalbeams[j].set) == 0:
+                        pstats[prog_id]["outcome"] = "fail"
+                    else:
+                        pstats[prog_id]["outcome"] = "complete"
                 if verbose:
                     print(f"Prog_id: {prog_id}, index: {index}, beam: {j}, beamsize: {len(beams[j])}")
                     for snode in beams[j]:
@@ -455,7 +497,33 @@ class BeamSearch:
         pbar.close()
 
         for i in range(batch_size):
+            if collect:
+                pid = problem_ids[i]
+                pstats[pid].setdefault("outcome", "max_len")
+                # Record the batch-level length only when the per-problem
+                # termination step was never captured by endnum above.
+                pstats[pid].setdefault("steps", index + 1)
+                pstats[pid]["candidates_before_finalize"] = len(finalbeams[i].set)
             finalbeams[i].finalize()
+            if collect:
+                pstats[pid]["candidates"] = len(finalbeams[i].final_set)
+        if collect:
+            record = {
+                "wall_seconds": time.perf_counter() - started,
+                "beam_size": self.beamsize,
+                "vocab_size": vocabsize,
+                "check_grammar": self.check_grammar,
+                "type_check": self.type_check,
+                "add_type_ctx": self.add_type_ctx,
+                "candidate_multiplier": self.candidate_multiplier,
+                "problems": {str(k): v for k, v in pstats.items()},
+            }
+            line = json.dumps(record)
+            if self.stats_out_path:
+                with open(self.stats_out_path, "a") as handle:
+                    handle.write(line + "\n")
+            else:
+                logger.info("decode_stats %s", line)
         if verbose:
             actual = [rrule_dict[r] for r in actual]
             standard = [rrule_dict[r] for r in standard[1:]]
