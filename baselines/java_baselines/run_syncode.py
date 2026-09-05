@@ -713,6 +713,8 @@ def generate_proposal_preserving_candidate(
 
         accepted_id = None
         rejected_local_indices: list[int] = []
+        rejected_token_ids: set[int] = set()
+        expanded_to_full_support = False
         while weights.sum().item() > 0:
             if effective_temperature > 0:
                 local_index = int(torch.multinomial(weights, 1).item())
@@ -734,8 +736,37 @@ def generate_proposal_preserving_candidate(
                 }
             )
             rejected_local_indices.append(local_index)
+            rejected_token_ids.add(token_id)
             weights[local_index] = 0
             if weights.sum().item() == 0:
+                if (
+                    args.expand_sampling_support
+                    and not expanded_to_full_support
+                    and top_ids.numel() < sampling_logits.shape[-1]
+                ):
+                    # A constrained mask can reject the entire top-k set even
+                    # when a valid token has lower ordinary-model probability.
+                    # Expand once to the complete vocabulary before giving up;
+                    # this is intentionally expensive and is opt-in so all
+                    # frozen rows retain their original sampling contract.
+                    top_scores, top_ids = torch.sort(
+                        sampling_logits[0], descending=True
+                    )
+                    base_weights = torch.softmax(top_scores, dim=-1)
+                    weights = base_weights.clone()
+                    if effective_temperature > 0 and args.top_p < 1.0:
+                        remove = torch.cumsum(weights, dim=-1) > args.top_p
+                        remove[1:] = remove[:-1].clone()
+                        remove[0] = False
+                        weights[remove] = 0
+                    if rejected_token_ids:
+                        rejected_tensor = torch.tensor(
+                            sorted(rejected_token_ids), device=device
+                        )
+                        weights[rejected_tensor] = 0
+                    expanded_to_full_support = True
+                    support_expansions += 1
+                    continue
                 weights, expanded = _restore_sampling_support(
                     base_weights, weights, rejected_local_indices
                 )
@@ -779,6 +810,7 @@ def generate_proposal_preserving_candidate(
     elapsed_seconds = time.perf_counter() - started
     output_tokens = len(generated_ids)
     constraint_seconds = processor.constraint_seconds
+    parser_fallback = bool(processor.grammar_engine.parse_failed)
     return source, {
         "method": "syncode_java_cfg_proposal_preserving_rejection",
         "task_id": task.task_id,
@@ -799,7 +831,8 @@ def generate_proposal_preserving_candidate(
         "generated_token_ids": generated_ids,
         "rejected_tokens": rejected,
         "constraint_support_expansions": support_expansions,
-        "parser_fallback_to_unconstrained": False,
+        "expand_sampling_support": args.expand_sampling_support,
+        "parser_fallback_to_unconstrained": parser_fallback,
         "parser_fail_closed": parser_fail_closed,
         "rejected_parser_token_id": rejected_parser_token_id,
         "generation_timed_out": False,
@@ -1363,6 +1396,16 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Preserve matched ordinary proposals and resample only after a SynCode "
             "rejection; disable to reproduce upstream pre-sampling logit masking."
+        ),
+    )
+    parser.add_argument(
+        "--expand_sampling_support",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "When SynCode rejects the complete top-k support, resample once from "
+            "the full vocabulary. This maximizes feasible-token recall at extra "
+            "GPU/checker cost and is disabled for frozen rows."
         ),
     )
     parser.add_argument(

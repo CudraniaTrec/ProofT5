@@ -1,0 +1,160 @@
+{
+  "average_candidate_success_rate": 0.24,
+  "average_first_success_position": 7.1,
+  "benchmark_source_path": "",
+  "benchmark_source_sha256": "",
+  "benchmark_source_verification": null,
+  "benchmark_source_verified_equal": false,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/mbjp_original_test_t5gemma2_20260731_test_ans/repilot_ide_active_safe_b10_20260903",
+  "candidate_output_manifest_sha256": "0f26c6126cbc0eb843a0672043ecd79e3eb583b138e0c218c4dc492b5ebc9344",
+  "candidate_timeout_seconds": 1.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      2,
+      8
+    ],
+    [
+      2,
+      9
+    ],
+    [
+      4,
+      2
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      4,
+      8
+    ],
+    [
+      5,
+      9
+    ],
+    [
+      8,
+      8
+    ],
+    [
+      9,
+      8
+    ]
+  ],
+  "compile_error_rate": 0.18,
+  "compile_errors": 18,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/mbjp_original_test_t5gemma2_20260731/test.pkl",
+  "dataset_pickle_sha256": "13a9fde62ed43632f91e1a363922806e4057cd9230ea9202a4e82f5566e69609",
+  "first_success_pos": [
+    10,
+    10,
+    10,
+    7,
+    10,
+    10,
+    0,
+    0,
+    7,
+    7
+  ],
+  "generation": {
+    "beam_size": null,
+    "candidate_multiplier": null,
+    "decoder": null,
+    "generation_max_length": null,
+    "length_penalty": null
+  },
+  "ignored": 0,
+  "java_path": "/home/zchuang/.local/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/home/zchuang/.local/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 0,
+  "missing_problem_output_ids": [],
+  "missing_problem_outputs": 0,
+  "model_checkpoint_path": "",
+  "model_checkpoint_sha256": "",
+  "model_output_task": "",
+  "model_type": "",
+  "output_tag": "repilot_ide_active_safe_b10_20260903",
+  "pass1": 0.2,
+  "pass10": 0.5,
+  "pass_at_k": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "problems": 10,
+  "solved": [
+    3,
+    6,
+    7,
+    8,
+    9
+  ],
+  "split": "test",
+  "task": "mbjp_original_test_t5gemma2_20260731",
+  "timeout_candidate_ids": [
+    [
+      9,
+      5
+    ]
+  ],
+  "timeouts": 1,
+  "top1_solved": [
+    6,
+    7
+  ],
+  "total_tested": 100,
+  "train_time": ""
+}

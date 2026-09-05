@@ -1,0 +1,72 @@
+{
+  "average_candidate_success_rate": 0.0,
+  "average_first_success_position": 3.0,
+  "benchmark_source_path": "",
+  "benchmark_source_sha256": "",
+  "benchmark_source_verification": null,
+  "benchmark_source_verified_equal": false,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/mbjp_original_test_t5gemma2_20260731_test_ans/repilot_accuracy_join_proactive_smoke3_20260903",
+  "candidate_output_manifest_sha256": "9d68f1235468f970b43dad1cfd9e3725070aee98ba35921ed063596123d85193",
+  "candidate_timeout_seconds": 1.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "compile_error_rate": 0.3333333333333333,
+  "compile_errors": 3,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/mbjp_original_test_t5gemma2_20260731/test.pkl",
+  "dataset_pickle_sha256": "13a9fde62ed43632f91e1a363922806e4057cd9230ea9202a4e82f5566e69609",
+  "first_success_pos": [
+    3,
+    3,
+    3
+  ],
+  "generation": {
+    "beam_size": null,
+    "candidate_multiplier": null,
+    "decoder": null,
+    "generation_max_length": null,
+    "length_penalty": null
+  },
+  "ignored": 0,
+  "java_path": "/home/zchuang/.local/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/home/zchuang/.local/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 0,
+  "missing_problem_output_ids": [],
+  "missing_problem_outputs": 0,
+  "model_checkpoint_path": "",
+  "model_checkpoint_sha256": "",
+  "model_output_task": "",
+  "model_type": "",
+  "output_tag": "repilot_accuracy_join_proactive_smoke3_20260903",
+  "pass1": 0.0,
+  "pass3": 0.0,
+  "pass_at_k": 3,
+  "problem_ids": [
+    0,
+    1,
+    2
+  ],
+  "problems": 3,
+  "solved": [],
+  "split": "test",
+  "task": "mbjp_original_test_t5gemma2_20260731",
+  "timeout_candidate_ids": [],
+  "timeouts": 0,
+  "top1_solved": [],
+  "total_tested": 9,
+  "train_time": ""
+}

@@ -98,6 +98,7 @@ args = Dotdict({
     "disable_tqdm": False,
     "force_coq_decoder": False,
     "force_sufu_type_check": False,
+    "disable_sufu_grammar": False,
     "save_last_only": False,
     "cli_overrides": {},
     "coqview_max_step_offset": 0,
@@ -328,10 +329,40 @@ def load_model(
     if not os.path.exists(path):
         print(f"Model not found in {dirs}")
         exit(1)
-    model.load_state_dict(
-        torch.load(path, map_location="cpu"),
-        strict=bool(strict),
-    )
+    state_dict = torch.load(path, map_location="cpu")
+    try:
+        model.load_state_dict(state_dict, strict=bool(strict))
+    except RuntimeError:
+        if strict:
+            raise
+        # Historical task tokenizers can contain a few task-local rows that
+        # were added after the saved checkpoint. Preserve the checkpoint rows
+        # and keep the model's initialized task-local rows in that case.
+        current_state = model.state_dict()
+        adapted = False
+        for key in (
+            "model.shared.weight",
+            "model.encoder.embed_tokens.weight",
+            "model.decoder.embed_tokens.weight",
+            "lm_head.weight",
+        ):
+            saved = state_dict.get(key)
+            current = current_state.get(key)
+            if (
+                saved is not None
+                and current is not None
+                and saved.ndim == current.ndim == 2
+                and saved.shape[1:] == current.shape[1:]
+                and saved.shape[0] != current.shape[0]
+            ):
+                merged = current.clone()
+                rows = min(saved.shape[0], current.shape[0])
+                merged[:rows].copy_(saved[:rows])
+                state_dict[key] = merged
+                adapted = True
+        if not adapted:
+            raise
+        model.load_state_dict(state_dict, strict=False)
     return path
 
 
@@ -783,7 +814,7 @@ def finetune():
     newruledic = load_rules_for_task(args.task)
     runtime_rulenum = len(newruledic)
     model_init_rulenum = runtime_rulenum
-    if args.get("model_family") == "t5gemma2" and not args.get("init_from_hf", False):
+    if not args.get("init_from_hf", False):
         try:
             model_init_rulenum = len(load_rules_for_task(args.pretrain_name))
         except Exception:
@@ -1513,7 +1544,9 @@ def testmodel(data_set, model, device, accelerator, newruledic):
                               length_penalty=args.length_penalty,
                               type_check=sufu_decoder_options["type_check"],
                               add_type_ctx=sufu_decoder_options["add_type_ctx"],
-                              check_grammar=("sufunocheck" not in args.task),
+                              check_grammar=(
+                                  not args.get("disable_sufu_grammar", False)
+                              ),
                               candidate_multiplier=args.coq_candidate_multiplier,
                               disable_tqdm=args.disable_tqdm)
     # mbjp humaneval
@@ -1679,6 +1712,7 @@ if __name__ == "__main__":
     parser.add_argument("--disable_tqdm", action="store_true", default=None)
     parser.add_argument("--force_coq_decoder", action="store_true", default=None)
     parser.add_argument("--force_sufu_type_check", action="store_true", default=None)
+    parser.add_argument("--disable_sufu_grammar", action="store_true", default=None)
     parser.add_argument("--save_last_only", action="store_true", default=None)
     parser.add_argument("--pad_train_shards_to_equal_batches", action="store_true", default=None)
     parser.add_argument("--train_num_workers", type=int)
@@ -1710,6 +1744,6 @@ if __name__ == "__main__":
         args.train_time = argc.train_time
         args.checkpoint_epoch = argc.checkpoint_epoch
     args.no_swanlab = argc.no_swanlab
-    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "coq_feature_lr", "coq_feature_only", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "coq_final_only_check", "length_penalty", "beam_size", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "eval_indices", "eval_max_len", "resume_output", "disable_tqdm", "force_coq_decoder", "force_sufu_type_check", "save_last_only", "pad_train_shards_to_equal_batches", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "ddp_find_unused_parameters", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed", "train_only_expanded_embedding_rows", "base_vocab_rows", "include_debug"]
+    override_keys = ["max_epoch", "epoch_offset", "batch_size", "batch_size_eval", "lr", "coq_feature_lr", "coq_feature_only", "pretrain_name", "pretrain_model_type", "eval_step", "eval_step_init", "limit_train_batches", "metrics_file", "tensorboard_dir", "output_tag", "model_output_task", "model_type", "runtime_dir", "coq_candidate_multiplier", "coq_workers", "coq_timeout", "disable_coq_check", "coq_final_only_check", "length_penalty", "beam_size", "early_stop_after_final_steps", "early_stop_max_first_final_len", "eval_split", "eval_start", "eval_limit", "eval_indices", "eval_max_len", "resume_output", "disable_tqdm", "force_coq_decoder", "force_sufu_type_check", "disable_sufu_grammar", "save_last_only", "pad_train_shards_to_equal_batches", "train_num_workers", "eval_num_workers", "distributed_timeout_minutes", "ddp_find_unused_parameters", "coqview_suffix_replay_steps", "coqview_suffix_replay_repeats", "coqview_extra_window_offsets", "coqview_extra_window_steps", "coqview_extra_window_repeats", "coqview_loss_reduction", "coqview_sync_last_only", "coqview_eval_mode_for_loss", "coqview_skip_backward_for_debug", "coqview_manual_distributed", "train_only_expanded_embedding_rows", "base_vocab_rows", "include_debug"]
     args.cli_overrides = {key: getattr(argc, key) for key in override_keys if getattr(argc, key) is not None}
     finetune()

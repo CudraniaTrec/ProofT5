@@ -1,0 +1,70 @@
+{
+  "scope": {
+    "benchmarks": {
+      "MBJP": 67,
+      "HumanEval-Java": 16,
+      "TransCoder-GFG": 103
+    },
+    "paired_tasks": 186
+  },
+  "pass_at_1": {
+    "T5Gemma2-2B": {
+      "successes": 25,
+      "total": 186,
+      "rate_percent": 13.44,
+      "wilson_95_percent": [9.17, 19.19]
+    },
+    "TyFlow-2B": {
+      "successes": 56,
+      "total": 186,
+      "rate_percent": 30.11,
+      "wilson_95_percent": [23.84, 37.18]
+    },
+    "exact_two_sided_mcnemar_p": 2.2475594023241285e-05,
+    "discordant_baseline_only": 11,
+    "discordant_tyflow_only": 42
+  },
+  "pass_at_10": {
+    "T5Gemma2-2B": {
+      "successes": 54,
+      "total": 186,
+      "rate_percent": 29.03,
+      "wilson_95_percent": [22.85, 36.06]
+    },
+    "TyFlow-2B": {
+      "successes": 86,
+      "total": 186,
+      "rate_percent": 46.24,
+      "wilson_95_percent": [39.07, 53.55]
+    },
+    "exact_two_sided_mcnemar_p": 2.087656821841976e-05,
+    "discordant_baseline_only": 12,
+    "discordant_tyflow_only": 44
+  },
+  "fsp": {
+    "T5Gemma2-2B": {
+      "mean": 7.65,
+      "normal_95_percent": [7.09, 8.21]
+    },
+    "TyFlow-2B": {
+      "mean": 5.91,
+      "normal_95_percent": [5.24, 6.58]
+    },
+    "exact_two_sided_sign_randomization_p": 1.6927339197978136e-06
+  },
+  "cer": {
+    "T5Gemma2-2B": {
+      "errors": 503,
+      "returned_candidates": 1860,
+      "rate_percent": 27.04,
+      "wilson_95_percent": [25.07, 29.11]
+    },
+    "TyFlow-2B": {
+      "errors": 33,
+      "returned_candidates": 1837,
+      "rate_percent": 1.80,
+      "wilson_95_percent": [1.28, 2.51]
+    },
+    "paired_per_task_error_fraction_sign_randomization_p": 2.9107676537857136e-32
+  }
+}

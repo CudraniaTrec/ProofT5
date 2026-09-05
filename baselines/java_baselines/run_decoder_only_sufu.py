@@ -50,6 +50,23 @@ SYSTEM_HIGH_INFORMATION = (
     "the target rather than copying their task semantics."
 )
 
+# A generic Full-Output condition: the benchmark scorer compares the complete
+# interpreter transcript, including declaration signatures.  This profile
+# makes that output contract explicit without revealing tests or expected
+# values, and is intentionally model-agnostic.
+SYSTEM_FULL_OUTPUT = (
+    "You are solving a SuFu synthesis task for a full-source evaluator. The "
+    "target task description and its public type/helper prefix are authoritative. "
+    "Return one complete executable SuFu source program, including every "
+    "declaration needed before main. If the task semantics require a hidden "
+    "target or representation transformation, infer and emit that target/"
+    "representation definition as well; do not omit it and do not replace it "
+    "with a shortcut. Preserve the declared constructors and helper interfaces. "
+    "Return only source: no tests, interpreter output, Markdown fences, or "
+    "explanation. Demonstrations are unrelated training examples; adapt their "
+    "source patterns rather than copying task semantics."
+)
+
 
 def _source_prefix(prompt: str) -> str:
     """Remove the natural-language header from an original SuFu prefix."""
@@ -117,6 +134,18 @@ def _clean_response(text: str) -> str:
     ]
     if cut_positions:
         text = text[: min(cut_positions)]
+
+    # Some base models emit a complete SuFu ``main`` definition and then
+    # continue with an English explanation.  In the benchmark grammar the
+    # first semicolon after a top-level ``main =`` is the declaration
+    # terminator, so discard trailing prose after that point.  This is a
+    # presentation/interface cleanup only; it does not alter the generated
+    # SuFu source before ``main`` or add any model-specific repair.
+    main_match = re.search(r"(?m)^\s*main\s*=", text)
+    if main_match:
+        main_terminator = text.find(";", main_match.end())
+        if main_terminator >= 0 and text[main_terminator + 1 :].strip():
+            text = text[: main_terminator + 1]
     return text.strip()
 
 
@@ -139,7 +168,13 @@ def _example_block(row: dict, prompt_mode: str) -> str:
     code = str(row.get("code", "")).strip()
     if prompt_mode == "prefix":
         prompt = _source_prefix(prompt)
-    return f"TASK DESCRIPTION/PREFIX:\n{prompt}\nCOMPLETE SUFU SOURCE:\n{code}"
+    # Keep the demonstration delimiter distinct from the target completion
+    # delimiter.  Some causal base models (notably SmolLM3) learn that
+    # ``COMPLETE SUFU SOURCE:`` is the end-of-turn boundary and emit EOS when
+    # the same marker appears repeatedly in a few-shot prompt.  The target
+    # marker remains ``COMPLETE SUFU SOURCE:`` so the model has exactly one
+    # unambiguous place to begin the requested source program.
+    return f"TASK DESCRIPTION/PREFIX:\n{prompt}\nEXAMPLE SUFU SOURCE:\n{code}"
 
 
 def build_messages(
@@ -170,7 +205,7 @@ def build_messages(
         blocks.extend(_example_block(example, prompt_mode) for example in examples)
     prompt = str(row.get("prompt", "")).strip()
     blocks.append("TARGET SUFU TASK:\n" + prompt)
-    if guidance_profile == "high_information":
+    if guidance_profile in {"high_information", "full_output"}:
         blocks.append(
             "Now solve the target above. Include every declaration needed by the "
             "target prefix and finish with one complete `main` definition. "
@@ -179,12 +214,39 @@ def build_messages(
         )
     elif guidance_profile != "default":
         raise ValueError(f"unsupported guidance profile: {guidance_profile}")
-    system = SYSTEM_HIGH_INFORMATION if guidance_profile == "high_information" else SYSTEM
+    # Make the completion boundary explicit for base models.  Demonstration
+    # blocks use the same label; omitting it on the target causes non-chat
+    # models to continue by copying another TASK DESCRIPTION/PREFIX block or
+    # to emit a file-separator token instead of starting the requested source.
+    blocks.append("COMPLETE SUFU SOURCE:")
+    if guidance_profile == "full_output":
+        system = SYSTEM_FULL_OUTPUT
+    elif guidance_profile == "high_information":
+        system = SYSTEM_HIGH_INFORMATION
+    else:
+        system = SYSTEM
     return [{"role": "system", "content": system}, {"role": "user", "content": "\n\n".join(blocks)}]
 
 
 def _row_id(row: dict) -> str:
     return str(row.get("task_id", row.get("file_name", "")))
+
+
+def _validate_few_shot_rows(rows: list[dict]) -> None:
+    """Reject explicit test/validation/debug-overlap demonstrations."""
+    unsafe = [
+        _row_id(row)
+        for row in rows
+        if row.get("debug_overlap")
+        or row.get("type") in {"debug", "test", "valid"}
+        or row.get("original_split") in {"test", "valid"}
+        or row.get("split") in {"test", "valid"}
+    ]
+    if unsafe:
+        raise ValueError(
+            "few-shot examples must not come from test/valid/debug rows: "
+            + ", ".join(unsafe)
+        )
 
 
 def _align_rows(rows: list[dict], score_path: Path) -> list[dict]:
@@ -229,6 +291,7 @@ def run(args: argparse.Namespace) -> Path:
             examples = available_examples[: args.few_shot_k]
         if len(examples) != args.few_shot_k:
             raise ValueError("few-shot dataset has fewer rows than few_shot_k")
+        _validate_few_shot_rows(examples)
         # Examples are training rows only; tests and expected outputs are never
         # inserted into messages, even if they are present in the JSON object.
         examples = [
@@ -338,7 +401,7 @@ def main() -> None:
     parser.add_argument("--prompt_mode", choices=["prefix", "full_source"], required=True)
     parser.add_argument(
         "--guidance_profile",
-        choices=["default", "high_information"],
+        choices=["default", "high_information", "full_output"],
         default="default",
         help="SuFu task instruction profile; high_information is the capability-oriented setting",
     )

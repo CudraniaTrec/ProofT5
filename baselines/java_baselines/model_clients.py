@@ -224,9 +224,21 @@ class HuggingFaceClient:
             class StopOnStrings(StoppingCriteria):
                 def __call__(self, input_ids, scores, **kwargs):
                     del scores, kwargs
-                    generated_text = tokenizer.decode(
-                        input_ids[0, prompt_length:], skip_special_tokens=False
-                    )
+                    # SuFu supplies short transcript markers and a complete
+                    # ``main`` terminator; it does not use Java brace
+                    # stopping.  Decoding the entire prefix on every token
+                    # makes long completions quadratic in Python time.  Keep
+                    # a bounded tail: it is enough for transcript markers and
+                    # for the usual SuFu ``main = ...;`` completion boundary.
+                    if stop_strings and not stop_at_java_class:
+                        tail_start = max(prompt_length, input_ids.shape[-1] - 512)
+                        generated_text = tokenizer.decode(
+                            input_ids[0, tail_start:], skip_special_tokens=False
+                        )
+                    else:
+                        generated_text = tokenizer.decode(
+                            input_ids[0, prompt_length:], skip_special_tokens=False
+                        )
                     if stop_strings:
                         for marker in stop_strings:
                             position = generated_text.find(marker)
@@ -237,6 +249,16 @@ class HuggingFaceClient:
                             # header reappears after a completed Java class.
                             if marker.startswith("\nComplete the following") and "}" not in generated_text[:position]:
                                 continue
+                            return True
+                        # A base model often keeps copying demonstrations
+                        # after it has emitted a valid SuFu program.  Stop at
+                        # the first semicolon after a top-level ``main =`` so
+                        # a max-token truncation is not mistaken for a model
+                        # failure.  The SuFu grammar terminates main with one
+                        # semicolon; nested helper declarations occur before
+                        # this boundary.
+                        main_match = re.search(r"(?m)^\s*main\s*=", generated_text)
+                        if main_match and ";" in generated_text[main_match.end() :]:
                             return True
                     if stop_at_java_class:
                         generated_matches = list(

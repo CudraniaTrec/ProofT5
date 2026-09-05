@@ -1,0 +1,13 @@
+{
+  "candidate_count": 100,
+  "elapsed_seconds_mean": 2.225024483371526,
+  "elapsed_seconds_median": 1.9984457241371274,
+  "elapsed_seconds_total": 222.5024483371526,
+  "method": "repilot_jdt_ide_active_safe",
+  "runtime_timing": {
+    "candidate_execution_seconds": 222.56913196109235,
+    "jdt_startup_seconds": 1.8772606048732996,
+    "model_initialization_seconds": 12.33599191531539,
+    "run_wall_seconds_before_manifest_write": 237.80228266492486
+  }
+}

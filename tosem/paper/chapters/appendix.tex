@@ -398,4 +398,69 @@ No typing rule is violated, so no amount of type-level pruning can reject this c
 
 \subsection{SuFu}
 
-On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category; the unfilled candidate slots within the decoding budget are counted as failures and are analyzed in \autoref{tab:decode-stats}.
+On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category; the fixed-budget and fail-closed behavior is described in the RQ2 discussion.
+
+\newpage
+\section{Statistical Analysis on the Combined Java Benchmarks}
+\label{appendix-statistics}
+
+We combine MBJP (67 tasks), HumanEval-Java (16 tasks), and TransCoder-GFG (103 tasks) into 186 paired Java tasks. HumanEval-Java alone has only 16 tasks; the combined analysis therefore provides the primary estimate while the benchmark-specific results remain in \autoref{tab:model-results}.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\begin{threeparttable}
+\caption{Statistical Comparison on the Combined Java Tasks}
+\label{tab:java-statistics}
+\begin{tabular}{l l l l l}
+\toprule
+Metric & T5Gemma2-2B & \mainname-2B & 95\% interval & Paired $p$-value \\
+\midrule
+pass@1 & 25/186 (13.44\%) & 56/186 (30.11\%) & [9.17,19.19] / [23.84,37.18] & $2.25{\times}10^{-5}$ \\
+pass@10 & 54/186 (29.03\%) & 86/186 (46.24\%) & [22.85,36.06] / [39.07,53.55] & $2.09{\times}10^{-5}$ \\
+FSP & 7.65 & 5.91 & [7.09,8.21] / [5.24,6.58] & $1.69{\times}10^{-6}$ \\
+CER & 503/1860 (27.04\%) & 33/1837 (1.80\%) & [25.07,29.11] / [1.28,2.51] & $2.91{\times}10^{-32}$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item Intervals are 95\% intervals; the two intervals in each row are for T5Gemma2-2B and \mainname-2B, respectively. The pass@1 and pass@10 intervals are Wilson intervals over tasks, and their paired tests are exact two-sided McNemar tests.
+\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its intervals are normal intervals for task means, and its paired test is an exact two-sided sign-randomization test. CER intervals are Wilson intervals over returned candidates; its paired test uses per-task compilation-error fractions.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{SuFu Confidence Intervals}
+\label{appendix-sufu-statistics}
+
+For SuFu, we report 95\% Wilson intervals for the task-level pass rates and the candidate-level compilation-error rates in the submitted result rows. The FSP values are retained as the submitted task means because the submitted aggregate records do not retain the corresponding per-task rank vectors.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\begin{threeparttable}
+\caption{95\% Intervals for the Reported SuFu Results}
+\label{tab:sufu-statistics}
+\begin{tabular}{l l l l l}
+\toprule
+Scale & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) \\
+\midrule
+\multirow{4}{*}{220M}
+ & pass@1 & 14/58 (24.14\%) & 22/58 (37.93\%) & [14.96,36.53] / [26.56,50.80] \\
+ & pass@10 & 19/58 (32.76\%) & 27/58 (46.55\%) & [22.08,45.58] / [34.33,59.20] \\
+ & FSP & 7.03 & 5.48 & -- \\
+ & CER & 482/580 (83.10\%) & 0/580 (0.00\%) & [79.84,85.93] / [0.00,0.66] \\
+\midrule
+\multirow{4}{*}{2B}
+ & pass@1 & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] \\
+ & pass@10 & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] \\
+ & FSP & 6.69 & 5.03 & -- \\
+ & CER & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66] \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item The pass-rate intervals are 95\% Wilson intervals over the 58 SuFu tasks. The CER intervals are 95\% Wilson intervals over the 580 generated candidates. FSP is the mean first-success rank with unsuccessful tasks assigned rank 10; its submitted aggregate rows do not include the task-level rank vectors needed for an additional interval or paired test.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

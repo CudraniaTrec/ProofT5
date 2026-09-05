@@ -209,6 +209,55 @@ disabled. It is a matched decoder control for separating pruning effects from
 the frozen ordinary row's ten-beam search; it is not an additional strong
 baseline column.
 
+The runner deliberately does not import SynCode, a grammar mask, or any other
+second checker. Repilot's comparison row remains Repilot's own modified
+Eclipse JDT completion engine; the separate SynCode baseline is run by its own
+entry point and is never folded into this adapter.
+
+For a best-effort reproduction of Repilot's IDE/plugin path, add
+`--ide_best_effort --active_completion --active_completion_policy safe`. This
+starts the same modified JDT server, advertises the full completion capability
+set, and raises the completion-handler timeout (default 5 s). JDT continues
+its normal asynchronous incremental analysis between requests. The optional
+`--ide_join_completion` flag additionally waits for all lifecycle/compiler jobs
+before every completion; it is provided as a strict diagnostic but is far too
+slow for the formal 67-task rerun.
+The safe ACTIVE policy uses JDT's completion prefix as an affirmative hint and
+falls back to the ordinary JDT/trivial-feasibility query when the language
+server's proposal list is incomplete. It is recorded as
+`repilot_jdt_ide_active_safe`; the original upstream-faithful row remains
+`repilot_jdt_token_pruning` and is not overwritten. The adapter also memoizes
+proposal results by complete trial source, matching Repilot's `pruned-mem`
+idea without changing feasibility decisions.
+
+The optional ACTIVE=1 path has a separate safety switch:
+--active_completion_policy safe accepts a token directly only when it matches
+the affirmative completion prefix returned by JDT; if it diverges, the prefix
+is discarded and the token is rechecked by the ordinary JDT/trivial path. This
+preserves the speed-oriented completion hint without assuming that an IDE
+proposal list is exhaustive. The upstream policy remains available as an
+explicit diagnostic. A full training replay of the safe policy accepted all
+58,045 tokens in 608 known-correct programs (0 false-pruned programs), with
+1,448 completion starts and 538 safe fallbacks; its audit is stored at
+artifacts/major_revision_repilot_strengthening_20260903/repilot_active_safe_training_audit_20260903.json.
+
+For an accuracy-first diagnostic (not a replacement for the frozen row),
+`--active_completion_mode proactive` aligns and inserts an IDE completion into
+the generated token stream and recomputes the decoder cache.  The stricter
+`proactive_top` mode additionally considers JDT's highest-ranked identifier or
+method proposal when the common prefix is empty.  Both modes deliberately pay
+the extra LM/JDT cost and are separately labelled in trajectories.  The
+T5Gemma adapter also exposes `--seq2seq_decoder_mode full_output` to decode a
+complete target from the decoder-start token; `forced_prefix` remains the
+paper-facing contract.  A JDT replacement edit that cannot be represented by
+append-only token generation is treated as unknown (no prune), preventing an
+empty-list false prune.
+
+SynCode has a corresponding effect-first switch, `--expand_sampling_support`.
+If the complete top-k support is rejected by the grammar mask, it retries once
+against the full vocabulary before stopping.  This is intentionally disabled
+for frozen outputs and can be substantially slower.
+
 ## Controlled iterative refinement
 
 This runner distills LLMLOOP to the reviewer-requested mechanism: initial

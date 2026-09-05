@@ -174,6 +174,67 @@ def extract_java_source(text: str) -> str:
     return text.strip()
 
 
+def finalize_java_compilation_unit(source: str, prompt_length: int) -> tuple[str, str]:
+    """Close a completed Java method's class without inventing its body.
+
+    This structural serializer is shared by baseline adapters.  It is not a
+    syntax/type checker: it only truncates after the first complete top-level
+    class or adds the final class brace after an already-closed target method.
+    ``prompt_length`` marks the fixed prefix for prefix-completion adapters.
+    """
+    depth = 0
+    seen_brace = False
+    state = "code"
+    index = 0
+    method_close = None
+    while index < len(source):
+        char = source[index]
+        following = source[index + 1] if index + 1 < len(source) else ""
+        if state == "code":
+            if char == '"':
+                state = "string"
+            elif char == "'":
+                state = "character"
+            elif char == "/" and following == "/":
+                state = "line_comment"
+                index += 2
+                continue
+            elif char == "/" and following == "*":
+                state = "block_comment"
+                index += 2
+                continue
+            elif char == "{":
+                depth += 1
+                seen_brace = True
+            elif char == "}":
+                previous_depth = depth
+                depth = max(0, depth - 1)
+                if index >= prompt_length and previous_depth == 2 and depth == 1:
+                    method_close = index + 1
+                if index >= prompt_length and seen_brace and depth == 0:
+                    return source[: index + 1], "complete_unit_truncation"
+            index += 1
+            continue
+        if state in {"string", "character"}:
+            if char == "\\" and index + 1 < len(source):
+                index += 2
+                continue
+            if (state == "string" and char == '"') or (
+                state == "character" and char == "'"
+            ):
+                state = "code"
+        elif state == "line_comment" and char in "\r\n":
+            state = "code"
+        elif state == "block_comment" and char == "*" and following == "/":
+            state = "code"
+            index += 2
+            continue
+        index += 1
+    if method_close is not None:
+        return source[:method_close].rstrip() + "\n}", "method_close_class_completion"
+    return source, "no_safe_completion"
+
+
 def materialize_candidate(prompt: str, response: str, output_mode: str) -> str:
     source = extract_java_source(response)
     if output_mode == "full_source":

@@ -35,6 +35,35 @@ for token, id in rule_dict.items():
                 validtensors["type"].append(id)
 verbose = False
 
+
+def _type_ctx_tokens(ctx):
+    """Serialize a type context using the decoder's existing token order."""
+    ret = []
+    # Gemma's tokenizer does not expose ``sep_token``; the prepared CoqView
+    # sequences use the existing ``</s>`` vocabulary item as the separator.
+    context_separator = tokenizer.sep_token or "</s>"
+    for key in ctx.ty_ctx:
+        if isinstance(ctx.ty_ctx[key], SufuType):
+            ret += tokenizer.tokenize(key) + ctx.ty_ctx[key].tokenize() + [context_separator]
+    for key in ctx.ctx:
+        if isinstance(ctx.ctx[key], SufuType):
+            ret += tokenizer.tokenize(key) + ctx.ctx[key].tokenize() + [context_separator]
+    for key in ctx.constructors:
+        if isinstance(ctx.constructors[key], tuple):
+            ret += (
+                tokenizer.tokenize(key)
+                + ctx.constructors[key][0].tokenize()
+                + ctx.constructors[key][1].tokenize()
+                + [context_separator]
+            )
+    if ctx.subject:
+        ret += tokenizer.tokenize("subject") + ctx.subject.tokenize() + [context_separator]
+    if ctx.labelable:
+        ret += tokenizer.tokenize("label")
+    else:
+        ret += tokenizer.tokenize("unlabel")
+    return ret
+
 def model_step_log_probs(model, encodenl, nlmask, inputrule, inputcoqview=None, past_key_values=None):
     if hasattr(model, "test_forward_logits"):
         if inputcoqview is None:
@@ -73,7 +102,7 @@ def configure_runtime(ruledict, tokenizer_obj=None):
                     validtensors["type"].append(id)
 
 class SearchNode:
-    def __init__(self, init_state, typectx_len=155):
+    def __init__(self, init_state, typectx_len=155, build_type_ctx=True):
         init_state = init_state.tolist()
         init_state_len = len(init_state)
         # `init_state` is right-padded by the dataloader, while training feeds
@@ -90,6 +119,9 @@ class SearchNode:
         self.isfinish = False
         self.type_ctx_len = typectx_len
         self.type_ctx = [0] * typectx_len
+        self.build_type_ctx = build_type_ctx
+        self._type_ctx_state = TypeCtx()
+        self._checked_command_count = 0
         for s in init_state[1:]:
             if not self.apply(s, update_type_ctx=False):
                 # print(f"Error in applying s({rrule_dict[s]}) in node: {self.node.to_str({})}")
@@ -118,10 +150,33 @@ class SearchNode:
             # print(e)
             return False
         
+    def _completed_commands(self):
+        """Return the complete top-level commands in generation order."""
+        commands = []
+        program = self.node
+        while isinstance(program, ProgramCons) and not program.cmd.incomplete():
+            commands.append(program.cmd)
+            program = program.prog
+        return commands
+
     def update_type_ctx(self):
-        ctx_tokens = self.node.extract_ctx()
-        ctx_ids = tokenizer.convert_tokens_to_ids(ctx_tokens)
-        self.type_ctx = pad_seq(ctx_ids, self.type_ctx_len)
+        """Advance the cached context and optionally encode it for the model.
+
+        A partial top-level command contributes no context under the existing
+        type checker.  Therefore rechecking the whole program for every token
+        is unnecessary: only newly completed commands can change the context.
+        """
+        commands = self._completed_commands()
+        if len(commands) != self._checked_command_count:
+            # Keep the original fresh-context semantics at command
+            # boundaries.  This is less aggressive than incrementally
+            # checking one command, but it avoids rechecking the same
+            # completed prefix for every token while preserving all rejects.
+            self._type_ctx_state = self.node.type_check(TypeCtx())
+            self._checked_command_count = len(commands)
+        if self.build_type_ctx:
+            ctx_ids = tokenizer.convert_tokens_to_ids(_type_ctx_tokens(self._type_ctx_state))
+            self.type_ctx = pad_seq(ctx_ids, self.type_ctx_len)
     
     def to_str(self):
         return self.node.to_str({})
@@ -276,6 +331,8 @@ class BeamSearch:
             raise ValueError("problem_ids length does not match SuFu batch size")
         collect = getattr(self, "collect_stats", False)
         if collect:
+            if inputnl.is_cuda:
+                torch.cuda.synchronize(inputnl.device)
             started = time.perf_counter()
             pstats = {
                 pid: {
@@ -298,7 +355,9 @@ class BeamSearch:
         past_key_values = None
         encodenl, nlmask = model.encode_nl(inputnl)
         for i in range(batch_size):
-            beams[i] = [SearchNode(init_tokens[i], self.type_ctx_len)]  # initialize the first element of each beam
+            beams[i] = [SearchNode(
+                init_tokens[i], self.type_ctx_len, build_type_ctx=self.add_type_ctx
+            )]  # initialize the first element of each beam
             score[i, 0] = 0            # given the inital element a score 0
             finalbeams[i] = finishsetBm(self.beamsize, self.length_penalty)
 
@@ -508,6 +567,8 @@ class BeamSearch:
             if collect:
                 pstats[pid]["candidates"] = len(finalbeams[i].final_set)
         if collect:
+            if inputnl.is_cuda:
+                torch.cuda.synchronize(inputnl.device)
             record = {
                 "wall_seconds": time.perf_counter() - started,
                 "beam_size": self.beamsize,

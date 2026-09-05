@@ -1,0 +1,74 @@
+{
+  "task": "sufu_original_test_t5gemma2_20260731",
+  "split": "test",
+  "output_tag": "sufu_q30b_canonical9_prefix_pilot10_20260902",
+  "model_output_task": "",
+  "model_type": "",
+  "train_time": "",
+  "checkpoint_epoch": null,
+  "model_checkpoint_path": "",
+  "model_checkpoint_sha256": "",
+  "problems": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "pass_at_k": 1,
+  "output_comparison": "full_stdout",
+  "pass1": 0.3,
+  "compile_error_rate": 0.3,
+  "compile_errors": 3,
+  "total_tested": 10,
+  "average_first_success_position": 0.7,
+  "average_candidate_success_rate": 0.3,
+  "missing": 0,
+  "missing_problem_outputs": 0,
+  "missing_problem_output_ids": [],
+  "ignored": 0,
+  "timeouts": 0,
+  "timeout_candidate_ids": [],
+  "compile_error_candidate_ids": [
+    [
+      3,
+      0
+    ],
+    [
+      5,
+      0
+    ],
+    [
+      7,
+      0
+    ]
+  ],
+  "top1_solved": [
+    0,
+    2,
+    8
+  ],
+  "solved": [
+    0,
+    2,
+    8
+  ],
+  "first_success_pos": [
+    0,
+    1,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    1
+  ]
+}

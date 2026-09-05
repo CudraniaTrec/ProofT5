@@ -9,6 +9,7 @@ from baselines.java_baselines.common import (
     JavaTask,
     compile_java_source,
     extract_java_source,
+    finalize_java_compilation_unit,
     load_java_tasks,
     materialize_candidate,
 )
@@ -16,6 +17,7 @@ from baselines.java_baselines.jdt_completion import (
     completion_accepts,
     completion_continuations,
     cursor_position,
+    discover_jdt_command,
     trivially_feasible,
 )
 from baselines.java_baselines.model_clients import GenerationResult
@@ -23,13 +25,15 @@ from baselines.java_baselines.merge_baseline_shards import merge_shards
 from baselines.java_baselines.export_online_prompt_bundle import export_bundle
 from baselines.java_baselines.run_iterative_refinement import refine_candidate
 from baselines.java_baselines.run_repilot import (
+    choose_active_completion,
     longest_common_completion_prefix,
+    repilot_method_name,
     restore_repilot_support,
 )
 from baselines.java_baselines.run_online_replay import load_replay_inputs
 from baselines.java_baselines.select_qwen_training_checkpoint import select as select_qwen_checkpoint
 from baselines.java_baselines.inspect_qwen_coq_adapter import inspect as inspect_qwen_coq_adapter
-from score_java_no_write import verify_benchmark_source
+from score_java_no_write import read_candidate, verify_benchmark_source
 from ModelQwenCausalDsl import MyQwenCausalDsl
 from baselines.java_baselines.run_syncode import (
     CandidateGenerationTimeout,
@@ -46,6 +50,20 @@ from baselines.java_baselines.run_syncode import (
     select_candidate_ranks,
 )
 from baselines.java_baselines.run_decoder_only_zero_few_shot import build_messages
+
+
+def test_java_scorer_does_not_ignore_real_response_that_mentions_index_error(tmp_path):
+    response = tmp_path / "candidate.txt"
+    response.write_text(
+        "class Main { /* Python IndexError is irrelevant here. */ }\n"
+    )
+    assert read_candidate(response).startswith("class Main")
+
+
+def test_java_scorer_ignores_only_exact_worker_index_error_marker(tmp_path):
+    response = tmp_path / "worker_error.txt"
+    response.write_text("IndexError: list index out of range")
+    assert read_candidate(response) is None
 
 
 def test_syncode_restores_pure_whitespace_only_when_ws_transition_is_legal():
@@ -166,6 +184,13 @@ def test_syncode_java_safe_completion_closes_class_only_after_method_close():
     unchanged, policy = finalize_syncode_java_source(prompt + " return", len(prompt))
     assert unchanged == prompt + " return"
     assert policy == "no_safe_completion"
+
+
+def test_shared_java_completion_helper_matches_syncode_adapter():
+    source = "class A { static int f() { return 1; }"
+    assert finalize_java_compilation_unit(source, 0) == finalize_syncode_java_source(
+        source, 0
+    )
 
 
 def test_syncode_java_online_stop_triggers_only_after_class_close():
@@ -372,10 +397,51 @@ def test_repilot_completion_policy_matches_modified_jdt_contract():
     assert completion_accepts(result)
     assert completion_accepts(None)
     assert not completion_accepts([])
+    # A replacement edit that rewrites already-emitted text cannot be
+    # represented by the append-only decoder.  It must be treated as an
+    # unknown IDE answer (no pruning), rather than as an empty proposal list.
+    assert completion_continuations([{"source": "foo", "target": "bar"}]) is None
+    assert completion_accepts([{"source": "foo", "target": "bar"}])
     assert trivially_feasible(";")
     assert trivially_feasible("return")
     assert not trivially_feasible("foo")
     assert cursor_position("a\nbc") == {"line": 1, "character": 2}
+
+
+def test_repilot_proactive_top_only_uses_identifier_or_method_completion():
+    assert choose_active_completion(["(", "size(", "1"], "proactive_top", "x.") == "size("
+    assert choose_active_completion(["(", "1"], "proactive_top", "x") is None
+    assert choose_active_completion(["(", "size("], "hint", "x.") is None
+
+
+def test_repilot_strengthened_modes_have_explicit_method_labels():
+    base = argparse.Namespace(
+        decoder_control_no_jdt=False,
+        active_completion=False,
+        active_completion_policy="upstream",
+        ide_best_effort=False,
+    )
+    assert repilot_method_name(base) == "repilot_jdt_token_pruning"
+    base.active_completion = True
+    base.active_completion_policy = "safe"
+    assert repilot_method_name(base) == "repilot_jdt_active_safe"
+    base.ide_best_effort = True
+    assert repilot_method_name(base) == "repilot_jdt_ide_active_safe"
+
+
+def test_repilot_ide_best_effort_only_changes_jdt_command(tmp_path):
+    # The repository's built JDT product is used for the real command; this
+    # assertion intentionally checks only the JVM properties and does not
+    # start a language server.
+    command = discover_jdt_command(
+        Path("/data2/x/hzc/prooft5"),
+        java="java",
+        join_completion=True,
+        completion_timeout_ms=5000,
+    )
+    assert "-Djava.lsp.joinOnCompletion=true" in command
+    assert "-Dcompletion.timeout=5000" in command
+    assert "syncode" not in " ".join(command).lower()
 
 
 def test_compile_java_source_is_type_sensitive():

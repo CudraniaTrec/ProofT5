@@ -110,7 +110,10 @@ def score_work_root(task, split, output_tag, selection_scope="all"):
 
 def read_candidate(path):
     text = open(path, "r").read()
-    if "IndexError" in text:
+    # Generation workers historically wrote this exact exception line when a
+    # candidate slot was unavailable.  Do not discard a real model response
+    # merely because its explanation mentions Python's ``IndexError``.
+    if text.strip().startswith("IndexError:") and "\n" not in text.strip():
         return None
     if "GrammarError" in text:
         return text

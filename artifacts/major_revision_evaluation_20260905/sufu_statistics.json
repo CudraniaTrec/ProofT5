@@ -1,0 +1,65 @@
+{
+  "scope": {
+    "benchmark": "SuFu",
+    "tasks": 58,
+    "candidates_per_task": 10,
+    "candidate_total": 580,
+    "source": "reported SuFu rows in tosem/paper/chapters/evaluation.tex"
+  },
+  "method": {
+    "pass_rates": "95% Wilson intervals over tasks",
+    "compilation_error_rate": "95% Wilson interval over generated candidates",
+    "fsp": "reported task mean",
+    "paired_tests": "exact two-sided McNemar tests for pass rates; exact two-sided sign-randomization tests for FSP and per-task compilation-error fractions"
+  },
+  "paired_tests": {
+    "220M": {
+      "pass_at_1": {
+        "p_value": 0.03857421875,
+        "test": "exact two-sided McNemar"
+      },
+      "pass_at_10": {
+        "p_value": 0.09228515625,
+        "test": "exact two-sided McNemar"
+      },
+      "fsp": {
+        "p_value": 0.01580810546875,
+        "test": "exact two-sided sign randomization"
+      },
+      "cer": {
+        "p_value": 6.938893903907228e-18,
+        "test": "exact two-sided sign randomization on per-task error fractions"
+      }
+    }
+  },
+  "results": {
+    "220M": {
+      "CodeT5-220M": {
+        "pass_at_1": {"successes": 14, "total": 58, "rate_percent": 24.14, "wilson_95_percent": [14.96, 36.53]},
+        "pass_at_10": {"successes": 19, "total": 58, "rate_percent": 32.76, "wilson_95_percent": [22.08, 45.58]},
+        "fsp": 7.03,
+        "cer": {"errors": 482, "total": 580, "rate_percent": 83.10, "wilson_95_percent": [79.84, 85.93]}
+      },
+      "TyFlow-220M": {
+        "pass_at_1": {"successes": 22, "total": 58, "rate_percent": 37.93, "wilson_95_percent": [26.56, 50.80]},
+        "pass_at_10": {"successes": 27, "total": 58, "rate_percent": 46.55, "wilson_95_percent": [34.33, 59.20]},
+        "fsp": 5.48,
+        "cer": {"errors": 0, "total": 580, "rate_percent": 0.00, "wilson_95_percent": [0.00, 0.66]}
+      }
+    },
+    "2B": {
+      "T5Gemma2-2B": {
+        "pass_at_1": {"successes": 17, "total": 58, "rate_percent": 29.31, "wilson_95_percent": [19.18, 42.01]},
+        "pass_at_10": {"successes": 22, "total": 58, "rate_percent": 37.93, "wilson_95_percent": [26.56, 50.80]},
+        "fsp": 6.69,
+        "cer": {"errors": 355, "total": 580, "rate_percent": 61.21, "wilson_95_percent": [57.18, 65.09]}
+      },
+      "TyFlow-2B": {
+        "pass_at_1": {"successes": 25, "total": 58, "rate_percent": 43.10, "wilson_95_percent": [31.18, 55.88]},
+        "pass_at_10": {"successes": 29, "total": 58, "rate_percent": 50.00, "wilson_95_percent": [37.54, 62.46]},
+        "fsp": 5.03,
+        "cer": {"errors": 0, "total": 580, "rate_percent": 0.00, "wilson_95_percent": [0.00, 0.66]}
+      }
+    }
+  }
+}

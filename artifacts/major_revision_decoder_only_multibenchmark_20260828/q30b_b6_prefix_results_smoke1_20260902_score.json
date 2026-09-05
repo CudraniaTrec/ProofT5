@@ -1,0 +1,39 @@
+{
+  "task": "sufu_original_test_t5gemma2_20260731",
+  "split": "test",
+  "output_tag": "sufu_q30b_b6_prefix_smoke1_20260902",
+  "model_output_task": "",
+  "model_type": "Qwen3-30B-A3B-Base",
+  "train_time": "",
+  "checkpoint_epoch": null,
+  "model_checkpoint_path": "",
+  "model_checkpoint_sha256": "",
+  "problems": 1,
+  "problem_ids": [
+    0
+  ],
+  "pass_at_k": 1,
+  "output_comparison": "test_results_only",
+  "pass1": 1.0,
+  "compile_error_rate": 0.0,
+  "compile_errors": 0,
+  "total_tested": 1,
+  "average_first_success_position": 0.0,
+  "average_candidate_success_rate": 1.0,
+  "missing": 0,
+  "missing_problem_outputs": 0,
+  "missing_problem_output_ids": [],
+  "ignored": 0,
+  "timeouts": 0,
+  "timeout_candidate_ids": [],
+  "compile_error_candidate_ids": [],
+  "top1_solved": [
+    0
+  ],
+  "solved": [
+    0
+  ],
+  "first_success_pos": [
+    0
+  ]
+}

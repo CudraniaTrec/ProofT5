@@ -1,0 +1,21 @@
+{
+  "active_completion": true,
+  "active_completion_accepts": 1166,
+  "active_completion_fallbacks": 538,
+  "active_completion_policy": "safe",
+  "active_completion_rejections": 0,
+  "active_completion_starts": 1448,
+  "audit_scope": "training-only known-correct MBJP Java suffixes",
+  "checkpoint_or_test_selection": false,
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "elapsed_seconds": 116.13154508545995,
+  "false_prunes": [],
+  "jdt_queries": 18420,
+  "known_correct_programs": 608,
+  "policy": "upstream_trivial_bypass",
+  "programs_with_false_prune": 0,
+  "shard_count": 1,
+  "shard_index": 0,
+  "tokens_checked": 58045,
+  "trivial_bypasses": 38459
+}

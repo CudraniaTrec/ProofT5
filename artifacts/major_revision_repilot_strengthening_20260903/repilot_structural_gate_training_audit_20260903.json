@@ -1,0 +1,10 @@
+{
+  "audit_scope": "training-only known-correct MBJP Java suffixes",
+  "checkpoint_or_test_selection": false,
+  "dataset": "t5_llm/data/java_mbjp_humaneval_half_train_t5.json",
+  "false_prunes": [],
+  "gate": "repilot_structural_syntax_gate",
+  "known_correct_programs": 608,
+  "programs_with_false_prune": 0,
+  "tokens_checked": 58045
+}

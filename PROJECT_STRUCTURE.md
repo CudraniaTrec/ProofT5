@@ -1,6 +1,6 @@
 # ProofT5 Project Structure
 
-Last updated: 2026-08-24
+Last updated: 2026-09-05
 
 This note records the current local structure of `/data2/x/hzc/prooft5`.
 It is meant as a memory aid for future work, especially because several
@@ -53,6 +53,15 @@ gitignored `third_party/baselines/` tree.
 
 There is no `paper/ase2026` directory in this checkout at the time of writing.
 The visible manuscript directory here is `tosem/paper`.
+
+Current revision supplement:
+
+artifacts/major_revision_evaluation_20260905/
+  rq2_runtime_2b/                 # 2B SuFu runtime records
+  java_statistics_combined.json   # merged Java statistical results
+
+The submission-facing response draft and author modification table are
+revision_response_letter.md and major_revision_modification_table.md.
 
 ## Main ProofT5 Code
 
