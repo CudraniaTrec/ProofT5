@@ -1,6 +1,6 @@
 \section{Translation from Typing Rules to Synthesis Rules \label{sec:meta}}
 
-In this section, we introduce the necessary preliminaries on constrained Horn clauses and unification, followed by the user-provided specifications of the object language, including terms, typing rules, and describe how typing rules are systematically translated into synthesis rules.
+In this section, we introduce the necessary preliminaries on constrained Horn clauses and unification, present the user-provided specifications of the object language (including terms and typing rules), and describe how typing rules are systematically translated into synthesis rules.
 
 \subsection{Preliminaries}
 \subsubsection{Constrained Horn Clauses}
@@ -53,7 +53,7 @@ The MGU preserves maximum generality by not over-constraining variables. For ins
 In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
 %
 In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
-First-order unification is decidable and admits efficient algorithmic solutions~\cite{DBLP:journals/jacm/Robinson65}, making it suitable for our synthesis framework.
+First-order unification is decidable and admits efficient algorithmic solutions~\cite{DBLP:journals/jacm/Robinson65}, making it suitable for our synthesis framework. This restriction excludes type systems that require \emph{higher-order unification}, which arises naturally with higher-order functions and polymorphism and is undecidable in general. Extending \mainname to such systems would need a decidable fragment (e.g., patterns) or a different variable-acquisition mechanism, and our formal results do not automatically carry over.
 
 \subsection{Terms and Typing Rules}
 \subsubsection{Terms}
@@ -115,7 +115,7 @@ A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{de
 %
 From a logical perspective, a type derivation tree is a \textbf{type correctness proof}: it proves that the typing judgment at the root holds. This correspondence between derivation trees and proofs is central to our approach. Later, we will show that a synthesis derivation tree corresponds to constructing an \textbf{existential type correctness proof} when the program is unknown: the synthesis process simultaneously discovers the program and constructs a proof of its type correctness.
 
-More formally, a \emph{type derivation tree} for a typing judgment $P(\overline{t})$ is defined as: (1) the root node is labeled with $P(\overline{t})$; (2) each node is labeled with a typing judgment $P_i(\overline{t_i})$, where all terms $\overline{t_i}$ are ground terms, and annotated with the typing rule which derives $P_i(\overline{t_i})$ under certain instantiation; (3) the children of each internal node correspond to the premises of the applied typing rule; and (4) for each applied typing rule, all associated constraints are satisfied under the instantiation.
+More formally, a \emph{type derivation tree} for a typing judgment $P(\overline{t})$ is defined as: (1) the root node is labeled with $P(\overline{t})$; (2) each node is labeled with a typing judgment $P_i(\overline{t_i})$, where all terms $\overline{t_i}$ are ground terms, and annotated with the typing rule that derives $P_i(\overline{t_i})$ under a certain instantiation; (3) the children of each internal node correspond to the premises of the applied typing rule; and (4) for each applied typing rule, all associated constraints are satisfied under the instantiation.
 
 For example, \autoref{figure:sample-type-tree} shows a type derivation tree for the program $(\lambda x{:}\tcode{bool}.\, x)\; \tcode{true}$, which proves that this program has type $\tcode{bool}$ under the empty context. Consider the following subtree for the subterm $\lambda x{:}\tcode{bool}.\, x$:
 \begin{center}

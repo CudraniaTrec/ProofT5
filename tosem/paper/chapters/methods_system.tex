@@ -18,11 +18,11 @@ In this subsection, we will first describe the application of synthesis rules (\
 \label{sec:synthesis-rule-application}
 Each synthesis rule as in \autoref{S-Rule} specifies how to start from a partially instantiated typing judgment $P(\overline{x})$, search for an assignment $\sigma$ to all variables in $\overline{x}$, then derive $P(\sigma(\overline{x}))$ using the corresponding typing rule. This procedure can be detailed as follows:
 \begin{enumerate}
-    \item \textbf{Unification Step:} First unify the terms in the synthesis goal $P(\overline{x})$ with the terms in the conclusion of the typing rule, yielding the MGU $\sigma$. Once the unification is done, the other terms ($\overline{x}_i$, $\overline{x}_f$, and $\overline{y}$) should also be instantiated with $\sigma$ to match the synthesis goal. Or the unification fails, in which case the synthesis goal is not derivable using this synthesis rule.
+    \item \textbf{Unification Step:} First unify the terms in the synthesis goal $P(\overline{x})$ with the terms in the conclusion of the typing rule, yielding the MGU $\sigma$. Once the unification is done, the other terms ($\overline{x}_i$, $\overline{x}_f$, and $\overline{y}$) should also be instantiated with $\sigma$ to match the synthesis goal. If the unification fails, the synthesis goal is not derivable using this synthesis rule.
     
     % This step ensures that the synthesis goal is aligned with the conclusion of the original typing rule (under certain assignment $\theta$, the resulting $P(\meta{\theta(\skhzc{\overline{x}})})$ can be derived using the original typing rule), or the unification fails, in which case the synthesis goal is not derivable using this synthesis rule.
     
-    \item \textbf{Acquisition Step:} Next acquire the assignment for all free variables $\overline{x}_f$ in the synthesis rules (after instantiated by $\sigma$) from external sources. 
+    \item \textbf{Acquisition Step:} Next acquire the assignment for all free variables $\overline{x}_f$ in the synthesis rule (after being instantiated by $\sigma$) from external sources. 
     \mainname can infer the term type of each variable to be synthesized based on the definitions of predicates and terms. The generated assignments must conform to the inductively defined syntax described in \autoref{terms-intro}; if any constant or constructor does not match the required term type, the acquisition step fails.
     
     % Free variables can be synthesized either before or after the synthesis of the subgoals. Suppose the synthesis is deferred until after the subgoals. In that case, it is possible to obtain assignments for some variables in $\sigma(\overline{x}_f)$ from among the various $\sigma_i$ (since $\sigma(\overline{x}_f)$ and $\sigma(\overline{x}_i)$ may have shared variables after the unification), postponing the obligation to assign these variables until the last possible moment.
@@ -35,7 +35,7 @@ Each synthesis rule as in \autoref{S-Rule} specifies how to start from a partial
     \item \textbf{Constraint Checking Step:} After all synthesis subgoals have been solved, \mainname checks whether the constraint $\phi(\overline{y})$  is satisfied under the combined assignment $\sigma_n \ldots \sigma_0 \sigma$. 
     % If the constraint is satisfied, the synthesis rule is considered successfully applied, and we proceed to the final step.
     
-    \item \textbf{Assignment Collection Step:} In the final step, \mainname compose all substitutions obtained during synthesis to form $\sigma_c = \sigma_n \ldots \sigma_0 \sigma$, and restrict this assignment to only the variables occurring in $\overline{x}$, yielding the overall assignment $\theta = \sigma_c|_{\mvhzc(\overline{x})}$. 
+    \item \textbf{Assignment Collection Step:} In the final step, \mainname composes all substitutions obtained during synthesis to form $\sigma_c = \sigma_n \ldots \sigma_0 \sigma$, and restricts this assignment to only the variables occurring in $\overline{x}$, yielding the overall assignment $\theta = \sigma_c|_{\mvhzc(\overline{x})}$. 
 \end{enumerate}
 
 In steps (3) and (5), we assert without proof that the composed substitution $\sigma_c = \sigma_n \ldots \sigma_0 \sigma$ and the final collected $\theta$ are assignments. Specifically, $\sigma_c$ maps all variables in $\overline{x}$ and $\overline{y}$ to ground terms. This property can be formally established by induction on the structure of the synthesis derivation.
@@ -56,7 +56,7 @@ To formalize the structure of synthesis derivations, we introduce the concept of
 
 A \emph{synthesis derivation tree} is a rooted tree that witnesses the derivability of a synthesis judgment through the application of synthesis rules. More formally, a synthesis derivation tree for a synthesis judgment $P(\skhzc{\overline{t}}) \leadsto \theta$ is a tree where: (1) the root node is labeled with $P(\skhzc{\overline{t}}) \leadsto \theta$; (2) each node is labeled with a synthesis judgment and annotated with both the synthesis rule used and the assignment for its free variables; (3) the children of each internal node correspond to the subgoals of the annotated synthesis rule; (4) for each synthesis rule, all steps including unification, assignment acquisition, subgoals synthesis and constraint checking succeed.
 
-By Lemma~\ref{lemma:assignment}, the existence of a synthesis derivation tree for a synthesis judgment $P(\overline{t}) \leadsto \theta$ guarantees that there is an assignment $\theta$ satisfying the synthesis goal $P(\overline{t})$, that is, $\theta$ maps all variables to ground terms and $P(\sigma(\overline{t}))$ is derivable with respect to typing rules.
+By Lemma~\ref{lemma:assignment}, the existence of a synthesis derivation tree for a synthesis judgment $P(\overline{t}) \leadsto \theta$ guarantees that there is an assignment $\theta$ satisfying the synthesis goal $P(\overline{t})$, that is, $\theta$ maps all variables to ground terms and $P(\theta(\overline{t}))$ is derivable with respect to typing rules.
 
 \subsubsection{Algorithmic Construction of Synthesis Derivation Trees}
 \label{sec:synthtree-construction-query}
@@ -89,9 +89,9 @@ For a synthesis goal of the form $P(\overline{t})$, the task is to synthesize an
     $\sigma_0 \gets \func{AcquireFreeVariableAssignment}(\sigma(\overline{x}_f))$\;
     \lIf{$\sigma_0 = \bot$}{\Return{$\bot$}}
     
-    \ForEach{\textnormal{subgoal} $P_i(\sigma_{i-1} \ldots \sigma_1 \sigma(\overline{x}_i))$ \textnormal{of} $R$}
+    \ForEach{\textnormal{subgoal} $P_i(\sigma_{i-1} \ldots \sigma_0 \sigma(\overline{x}_i))$ \textnormal{of} $R$}
     {
-        $T_i \gets \GenSynthTree{ $P_i(\sigma_{i-1} \ldots \sigma_1 \sigma(\overline{x}_i))$} $\;
+        $T_i \gets \GenSynthTree{ $P_i(\sigma_{i-1} \ldots \sigma_0 \sigma(\overline{x}_i))$} $\;
         \lIf{$T_i = \bot$}{\Return{$\bot$}}
         $\sigma_i \gets$ assignment from the root node of $T_i$\;
     }
@@ -144,7 +144,7 @@ When we return to the node $n_1$, the synthesis derivation trees for all subgoal
   
   \item \textbf{Assignment of free variables:}  
     Assume the typing rule $R$ has the form in \autoref{T-Rule}, and the synthesis rule $R'$ has the form in \autoref{S-Rule}. 
-    Then $P(\overline{x}_c)$ is the concretization of both the conclusion $P(\overline{x}_0)$ of the typing rule and the synthesis goal $P(\overline{x})$ (can be proved later). 
+    Then $P(\overline{x}_c)$ is the concretization of both the conclusion $P(\overline{x}_0)$ of the typing rule and the synthesis goal $P(\overline{x})$ (as will be proved later). 
     Thus, $\overline{x}_0$ and $\overline{x}$ are unifiable, and the MGU $\sigma$ makes $\sigma(\overline{x}) = \sigma(\overline{x}_0)$ unifiable with $\overline{x}_c$. Therefore, there exists an assignment $\theta'$ such that $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ and $\theta'$ covers $\mvhzc(\sigma(\overline{x}_0))$. Since $\mvhzc(\overline{x}_f) \subseteq \mvhzc(\overline{x}_0)$, we have $\mvhzc(\sigma(\overline{x}_f)) \subseteq \mvhzc(\sigma(\overline{x}_0))$, so $\theta'$ can also cover $\mvhzc(\sigma(\overline{x}_f))$. Let $\sigma_0 = \theta'|_{\mvhzc(\sigma(\overline{x}_f))}$ be the assignment for the free variables in the synthesis rule.
 \end{itemize}
 
@@ -201,7 +201,7 @@ Under the isomorphism, \mainname ensures that well-typed programs can always be 
 
 % \paragraph{Extracting Well-Typed Programs}
 The notions of ``extract'' and ``well-typed'' can be formally defined in the context of derivation trees. 
-Given a synthesis derivation tree with root node labeled $\welltyped{\sk{p}} \leadsto \theta$, the extracted program is $\theta(\sk{p})$. And a program $p_c$ is said to be well-typed if there exists a type derivation tree (type correctness proof) whose root node is labeled $\welltyped{p_c}$.
+Given a synthesis derivation tree with root node labeled $\welltyped{\sk{p}} \leadsto \theta$, the extracted program is $\theta(\sk{p})$. A program $p_c$ is said to be well-typed if there exists a type derivation tree (type correctness proof) whose root node is labeled $\welltyped{p_c}$.
 
 \begin{theorem}[Soundness]
 Any program extracted from a synthesis derivation tree $T$ is well-typed.

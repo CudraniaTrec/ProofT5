@@ -118,3 +118,12 @@ For the final paper, keep the following wording discipline:
    measured result, not a failed reproduction.
 4. Keep ProofT5 in a separate trained-reference row; it is not an apples-to-
    apples zero-shot decoder-only baseline.
+
+## Addendum (2026-09-07): frozen rejection-sampling score
+
+The authoritative score for the rejection-sampling row
+(`tmp/paperrecover_mbjp_rejectionsampling_b10_20260827_score_timeout10.json`)
+has been frozen at
+`artifacts/major_revision_evaluation_20260905/paperrecover_mbjp_rejectionsampling_b10_20260827_score_timeout10.json`
+(covered by SHA256SUMS in that directory), so this row no longer depends on
+the untracked tmp/ copy.

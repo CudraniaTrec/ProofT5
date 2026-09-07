@@ -14,7 +14,7 @@ This type validity problem becomes particularly pronounced in resource-limited l
 %Despite the challenge, recent research offers a promising benefit: by reducing the LMs' burden of learning these constraints implicitly, we can free up their capacity for mastering program semantics and algorithmic logic, thereby significantly boosting overall performance. This aligns with findings in syntactic learning, where explicit structural guidance has been shown to enhance correctness across model scales~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}.
 Ensuring type correctness is also useful beyond reducing type errors. First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system.
 %It is better to give an important decidable property to astonish the reviewer.
-For example, Rust ensured no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
+For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
 Ensuring type correctness in practice, however, remains challenging. 
@@ -79,7 +79,7 @@ These approaches leverage external type checkers and reject untypable programs g
 %
 However, such an external patch cannot bridge the gap in principle.
 %
-Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution among well-typed programs.~\cite{DBLP:conf/nips/ParkWBPD24}.
+Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution among well-typed programs~\cite{DBLP:conf/nips/ParkWBPD24}.
 %
 For example, in our sample task, \toolname{CodeT5} assigns a low probability to the expected expression (\autoref{fig:codet5-correct}), possibly because the LM is unaware of the auto-unboxing rule and thus incorrectly identifies it as ill-typed.
 %
@@ -87,7 +87,7 @@ Constrained decoding helps little with this case, as shown in \autoref{fig:codet
 
 To guide the model in learning the type system, a straightforward approach is to employ a reasoning model that augments the program with a type correctness proof; that is, the model first generates the program and then generates its type correctness proof as the type reasoning process, or vice versa. In this way, the type reasoning is made explicit to the model, enabling it to learn the type system of the target program.
 %
-However, the separation between program generation and type reasoning introduces fundamental limitations. During training, presenting them as separate phases prevents LMs from capturing their fine-grained interactions, requiring extra effort to align them. During inference, the model must still perform global type reasoning without localized typing context, leaving the challenge of contextual reasoning unresolved.
+However, the separation between program generation and type reasoning introduces fundamental limitations. During training, presenting them as separate phases prevents LMs from capturing their fine-grained interactions, requiring extra effort to align them. During inference, the model must still perform global type reasoning without a localized typing context, leaving the challenge of contextual reasoning unresolved.
 %
 As a result, this approach not only hinders learning efficiency but also causes inconsistencies between type reasoning and generated code. As our evaluation will later demonstrate, it does not yield satisfactory performance.
 
@@ -119,7 +119,7 @@ We use this decision sequence as a novel program representation, which satisfies
     \item \textbf{Derivation Vicinality}. The representation inherently captures both the program and its type correctness proof simultaneously, as they arise from the same construction process.
 \end{itemize}
 
-Notably, all proof rules in our system are formulated as constrained Horn clauses (see \autoref{chc-intro}). This representation not only subsumes the prior work on syntactic correctness~\cite{DBLP:conf/icse/ZhuL000C24,DBLP:conf/acl/LiangZ0LLXCZZZC25} but also accommodates a broader class of Turing-computable specifications. While this paper focuses on type constraints, our synthesis method is general and applicable to arbitrary logical constraints.
+Notably, all proof rules in our system are formulated as constrained Horn clauses (see \autoref{chc-intro}). This representation not only subsumes the prior work on syntactic correctness~\cite{DBLP:conf/icse/ZhuL000C24,DBLP:conf/acl/LiangZ0LLXCZZZC25} but also accommodates a broader class of Turing-computable specifications. While this paper instantiates and evaluates the framework only for type correctness in two languages, the synthesis construction itself is defined at the CHC level and is in principle applicable to other decidable constraint families; we do not evaluate such extensions empirically.
 
 \textbf{\textit{Our second contribution}} is a novel encoder-decoder model architecture tailored for our synthesis framework. During synthesis, the current proof state evolves at each step, and the model needs to extract the dynamic typing context from this state to make the next decision. Our architecture addresses this by using the encoder to process both the natural language specification and the current synthesis goal, while the decoder autoregressively generates the decision sequence. This design enables the model to access localized type information at each step without requiring global reasoning over the entire codebase, thereby satisfying the \textbf{Context Locality} property.
 

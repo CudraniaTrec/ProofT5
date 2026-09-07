@@ -43,31 +43,31 @@ If $\overline{x}$ is unifiable with $\overline{x}_c$, then in the application of
 \end{lemma}
 
 \begin{proof}
-  Induction on the size of the type derivation tree $T_1$. Suppose the typing rule $R$ has the form shown in Figure~\ref{T-Rule}, its corresponding synthesis rule $R'$ has the form shown in Figure~\ref{S-Rule}.
+  Induction on the size of the type derivation tree $T_1$. Suppose the typing rule $R$ has the form shown in Figure~\ref{T-Rule}, and its corresponding synthesis rule $R'$ has the form shown in Figure~\ref{S-Rule}.
   \begin{itemize}
     \item \textbf{Base case:} 
     The base case is when the type derivation tree $T_1$ has only one node, which means the typing rule $R$ has no premises. 
     In this case, since $\overline{x}$ is unifiable with $\overline{x}_c$ and in the typing rule $R$, $\overline{x}_c$ is the concretization of $\overline{x}_0$, the unification and acquisition steps will succeed, yielding a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$ and $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ for some assignment $\theta'$, which can be used to obtain $\sigma_0 = \theta'|_{\mvhzc(\sigma(\overline{x}_f))}= \theta'|_{\mvhzc(\sigma(\overline{x}_0))}$.
     
-    By lemma~\ref{lemma:assignment}, $\sigma_0\sigma$ is an assignment that covers all variables in $\overline{x}$, $\overline{x}_0$ and $\overline{y}$, and $\sigma_0\sigma(\overline{x}_0) = \theta'\sigma(\overline{x}_0) = \overline{x}_c$, so if we set $\theta = \sigma_0\sigma|_{\mvhzc(\overline{x})}$ we have $\theta(\overline{x}) = \sigma_0\sigma(\overline{x})= \sigma_0\sigma(\overline{x}_0) = \overline{x}_c$. The constraint checking step is also satisfied because $\mvhzc(y)\subseteq \mvhzc(\overline{x}_0)$ and $\sigma_0\sigma(\overline{y})$ is the same as the verified concretized constraint in the type derivation tree.
+    By Lemma~\ref{lemma:assignment}, $\sigma_0\sigma$ is an assignment that covers all variables in $\overline{x}$, $\overline{x}_0$ and $\overline{y}$, and $\sigma_0\sigma(\overline{x}_0) = \theta'\sigma(\overline{x}_0) = \overline{x}_c$, so if we set $\theta = \sigma_0\sigma|_{\mvhzc(\overline{x})}$ we have $\theta(\overline{x}) = \sigma_0\sigma(\overline{x})= \sigma_0\sigma(\overline{x}_0) = \overline{x}_c$. The constraint checking step is also satisfied because $\mvhzc(y)\subseteq \mvhzc(\overline{x}_0)$ and $\sigma_0\sigma(\overline{y})$ is the same as the verified concretized constraint in the type derivation tree.
     
-    \item \textbf{Inductive case:} If the typing rule $R$ has a series premises $P_1(\overline{x}_1), \ldots, P_n(\overline{x}_n)$, then the synthesis rule $R'$ has a series of subgoals $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1, \ldots, P_n(\meta{\sigma_{n-1}\ldots\sigma_0\sigma(\overline{x}_n)}) \leadsto \sigma_n$.
+    \item \textbf{Inductive case:} If the typing rule $R$ has a series of premises $P_1(\overline{x}_1), \ldots, P_n(\overline{x}_n)$, then the synthesis rule $R'$ has a series of subgoals $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1, \ldots, P_n(\meta{\sigma_{n-1}\ldots\sigma_0\sigma(\overline{x}_n)}) \leadsto \sigma_n$.
     
-    The same as the base case, the unification and acquisition steps will succeed, yielding a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$ and $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ for some assignment $\theta'$, and the $\sigma_0 = \theta'|_{\mvhzc(\overline{x}_f)}$.
+    As in the base case, the unification and acquisition steps will succeed, yielding a substitution $\sigma$ such that $\sigma(\overline{x}_0) = \sigma(\overline{x})$ and $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ for some assignment $\theta'$, and $\sigma_0 = \theta'|_{\mvhzc(\overline{x}_f)}$.
     
     In the type derivation tree, suppose the $i$-th child node of the root node is labeled with $P_i(\overline{x}_{ic})$, then rule $R$ can be instantiated with some assignment $\theta_c$ such that $\theta_c(\overline{x}_i) = \overline{x}_{ic}$ for all $i$ ($\overline{x}_{0c}$ is just $\overline{x}_{c}$).
     %
     We use the notation $\sigma_i \trianglelefteq \sigma_j$ to denote that $\sigma_j$ factors through $\sigma_i$, meaning that $\sigma_j = \sigma'\sigma_i$ for some substitution $\sigma'$.
     Following the derivation of $\sigma_0$, we know that $\theta'\sigma(\overline{x}_0) = \overline{x}_c$ and $\sigma_0 = \theta'|_{\mvhzc(\sigma(\overline{x}_f))}\trianglelefteq \theta'|_{\mvhzc(\sigma(\overline{x}_0))}$, thus $(\sigma_0\sigma|_{\mvhzc(\overline{x}_0)})\trianglelefteq (\theta'\sigma|_{\mvhzc(\overline{x}_0)}) \trianglelefteq \theta_c$ holds ($\theta_c$ concretizes $\overline{x}_0$) and $\sigma_0\sigma$ ranges over only variables in $\overline{x}_0$ and $\overline{x}$.
     
-    Since $\overline{x}_1$ has no common variables with $\overline{x}$, $\sigma_0\sigma(\overline{x}_1)= (\sigma_0\sigma|_{\mvhzc(\overline{x}_0)})(\overline{x}_1)$, and $\theta_c(\overline{x}_1)=\overline{x}_{1c}$, hence $\sigma_0\sigma(\overline{x}_1)$ is unifiable with $\overline{x}_{1c}$.
+    Since $\overline{x}_1$ has no common variables with $\overline{x}$, $\sigma_0\sigma(\overline{x}_1)= (\sigma_0\sigma|_{\mvhzc(\overline{x}_0)})(\overline{x}_1)$, and $\theta_c(\overline{x}_1)=\overline{x}_{1c}$, $\sigma_0\sigma(\overline{x}_1)$ is unifiable with $\overline{x}_{1c}$.
     %
-    Thus we can use the induction hypothesis to synthesis $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1$, where $\sigma_1\sigma_0\sigma(\overline{x}_1) = \overline{x}_{1c}$.
+    Thus we can use the induction hypothesis to synthesize $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1$, where $\sigma_1\sigma_0\sigma(\overline{x}_1) = \overline{x}_{1c}$.
     
-    Then we continue that $\sigma_1\sigma_0\sigma(\overline{x}_1) = \theta_c(\overline{x}_1)$, and $(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)}) \trianglelefteq \theta'$ holds, and then $\sigma_1\sigma_0\sigma(\overline{x}_2)=(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)})(\overline{x}_2)$ is unifiable with $\overline{x}_{2c}$, and we can apply the induction hypothesis again and again until all assignments to subgoals are synthesized.
+    Then, note that $\sigma_1\sigma_0\sigma(\overline{x}_1) = \theta_c(\overline{x}_1)$, and $(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)}) \trianglelefteq \theta'$ holds, and then $\sigma_1\sigma_0\sigma(\overline{x}_2)=(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)})(\overline{x}_2)$ is unifiable with $\overline{x}_{2c}$, and we can apply the induction hypothesis again and again until all assignments to subgoals are synthesized.
     
     Finally, we can collect all the assignments $\sigma_n, \ldots, \sigma_1, \sigma_0$ and compose them to form $\sigma_c = \sigma_n \ldots \sigma_0\sigma$, which is an assignment and covers all variables in $\overline{x}_i$, $\overline{x}$ and $\overline{y}$ by Lemma~\ref{lemma:assignment}. $\sigma_c(\overline{x}_i)=\overline{x}_{ic}=\theta_c(\overline{x}_i)$ for all $i$, so $\theta_c \trianglelefteq \sigma_c$ since $\sigma_c$ also ranges over $\mvhzc(\overline{x})$.
-    We have $\sigma_c(\overline{y}) = \theta_c(\overline{y})$, which instantiates the constraint $\phi(\overline{y})$ to be satisfied as in the type derivation tree. And let $\theta(\overline{x}) = \sigma_c|_{\mvhzc(\overline{x})}$ concretizes the synthesis goal $P(\overline{x})$ to the ground typing judgment $P(\overline{x}_c)$ ($\theta(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x}_0)=\sigma_c(\overline{x}_0)=\overline{x}_c$), which is the same as the root node of the type derivation tree.
+    We have $\sigma_c(\overline{y}) = \theta_c(\overline{y})$, which instantiates the constraint $\phi(\overline{y})$ to be satisfied as in the type derivation tree. Here, $\theta(\overline{x}) = \sigma_c|_{\mvhzc(\overline{x})}$ concretizes the synthesis goal $P(\overline{x})$ to the ground typing judgment $P(\overline{x}_c)$ ($\theta(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x}_0)=\sigma_c(\overline{x}_0)=\overline{x}_c$), which is the same as the root node of the type derivation tree.
   \end{itemize}
 \end{proof}
 
@@ -83,11 +83,11 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
   \begin{itemize}
      \item \textbf{Base case:} The base case occurs when the synthesis derivation tree $T_2$ has only one node, whose synthesis rule has no premises. By the described translation, the node in the type derivation tree $T_1$ is annotated with the typing judgment $P(\theta(\overline{x}))$, if $\theta$ is the synthesized assignment. In this case, the label correspondence is clearly satisfied.
      \item \textbf{Inductive case:} The inductive case arises when the synthesis rule has one or more subgoals. 
-     By the induction hypothesis, for the $i$-th subgoal $P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$, we have constructed a sub type derivation tree whose root node is labeled with the typing judgement $P_i(\overline{x}_{ic})$, where $\overline{x}_{ic}=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)$. 
+     By the induction hypothesis, for the $i$-th subgoal $P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$, we have constructed a type derivation subtree whose root node is labeled with the typing judgment $P_i(\overline{x}_{ic})$, where $\overline{x}_{ic}=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)$. 
      
-     Let $\theta_c=\sigma_{i}\ldots\sigma_0|_{\mvhzc(\overline{x}_0\cup\ldots \overline{x}_n)}$, then we have $\theta_c(\overline{x}_{i})=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)=\overline{x}_{ic}$ for all $i\geq 1$. 
+     Let $\theta_c=\sigma_{n}\ldots\sigma_0\sigma|_{\mvhzc(\overline{x}_0\cup\ldots\cup\overline{x}_n)}$, then we have $\theta_c(\overline{x}_{i})=\sigma_{i}\ldots\sigma_0\sigma(\overline{x}_i)=\overline{x}_{ic}$ for all $i\geq 1$. 
      For the conclusion part, $\theta_c(\overline{x}_{0})=\sigma_0\sigma(\overline{x}_0)=\sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\theta(\overline{x})$. 
-     Thus, under the assignment $\theta_c$, the corresponding typing rule, along with the translated sub type derivation trees, forms a valid type derivation tree $T_1$ whose root node is labeled with $P(\theta(\overline{x}))$.
+     Thus, under the assignment $\theta_c$, the corresponding typing rule, along with the translated type derivation subtrees, forms a valid type derivation tree $T_1$ whose root node is labeled with $P(\theta(\overline{x}))$.
  \end{itemize}
 \end{proof}
 
@@ -98,7 +98,9 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
 \subsection{Java Benchmark}
 We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including classes, methods, variables, arrays, generic types, operators, and control flow statements. While excluding advanced Java features such as multithreading, lambda expressions, and complex reflection mechanisms.
 
-The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}. The complete grammar specification is presented below:
+The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of the MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}.
+The subset admits tasks whose constructs our toolchain supports; this admission filter is a potential selection bias, mitigated by the two additional benchmarks drawn from independent sources.
+The complete grammar specification is presented below:
 
 \begin{tcolorbox}[
     enhanced,
@@ -207,6 +209,11 @@ The Java subset retains sufficient expressiveness to represent core imperative p
 \end{Verbatim}
 \end{tcolorbox}
 
+\subsection{HumanEval-Java and TransCoder-GFG Construction}
+Both additional Java benchmarks are normalized into the MBJP task format: each task keeps a natural-language prompt, a single top-level non-public class with a PascalCase name, a public static solution method, a \texttt{Main}-based test harness, and exactly the four wildcard imports (\tcode{java.io.*}, \tcode{java.lang.*}, \tcode{java.math.*}, and \tcode{java.util.*}) used by our toolchain. A style audit verified all 608 MBJP, 146 HumanEval-Java, and 414 TransCoder-GFG training rows against these conventions (one HumanEval-Java task retains its original entry-point name for data provenance), and every test task carries exactly three visible example cases.
+
+HumanEval-Java normalizes the Java port of HumanEval~\cite{DBLP:journals/corr/abs-2107-03374} into the tasks admitted by our toolchain and uses a fixed split of 146 training and 16 test tasks. TransCoder-GFG reuses the GeeksForGeeks Java programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20} and uses a deterministic 80/20 split of 414 training and 103 test tasks. For TransCoder-GFG, the three visible and executable test cases of each task are selected deterministically (the shortest, median-length, and longest complete case up to 256 characters, falling back to the three shortest bounded cases when the prompt exceeds 512 tokens); the selection was fixed before training and never used model outputs or execution outcomes. All 517 TransCoder-GFG gold programs were verified to compile and pass their retained test cases. Split manifests and audits are provided in the artifact package.
+
 \subsection{SuFu Benchmark}
 
 The SuFu dataset is sourced from the GitHub repository accompanying the SuperFusion research paper (\href{https://github.com/jiry17/SuFu}{jiry17/SuFu}). SuperFusion is an advanced program optimization tool that processes SuFu programs as input and applies a series of transformations to improve computational efficiency. 
@@ -218,7 +225,7 @@ A key issue with the SuFu language is that when an algorithm description is prov
 However, manually constructing SuFu programs from algorithmic descriptions is highly challenging and requires considerable domain expertise in functional programming. 
 Directly prompting language models to generate SuFu code from natural language descriptions often results in programs that are syntactically or semantically flawed, typically containing multiple type errors. 
 
-The following is an example of generated SuFu programs with type errors:
+The following is an example of a generated SuFu program with type errors:
 \begin{tcolorbox}[
     colback=gray!5,
     colframe=black,

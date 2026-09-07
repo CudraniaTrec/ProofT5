@@ -1,6 +1,6 @@
 \section{Overview \label{sec:overview}}
 
-This section gives an overview of our approach \mainname, illustrating how it generates a well-typed program in the simply typed lambda calculus $\stlc$(a foundational functional programming language)~\cite{DBLP:journals/jsyml/Church40}.
+This section gives an overview of our approach \mainname, illustrating how it generates a well-typed program in the simply typed lambda calculus $\stlc$ (a foundational functional programming language)~\cite{DBLP:journals/jsyml/Church40}.
 
 \subsection{Problem Definition} \label{subsection:moti-problem}
 We formulate the type-safe code generation problem based on two primary inputs: a language specification and a dataset of training tasks.
@@ -38,11 +38,11 @@ data Context = empty | Context, Var:Type
 % \frac{\stlctype{\scode{empty}}{p}{t}}{\textbf{welltyped}(p)} \ \ \textsc{(T-Entry)} 
 \end{gather*}
 \vspace{-0.5em}
-\caption{Selected typing rules for $\stlc$. Each typing rule derives a typing judgment of the form $\stlctype{\Gamma}{p}{t}$, which asserts that program $p$ has type $t$ under context $\Gamma$} 
+\caption{Selected typing rules for $\stlc$. Each typing rule derives a typing judgment of the form $\stlctype{\Gamma}{p}{t}$, which asserts that program $p$ has type $t$ under context $\Gamma$.} 
     \label{figure:stlc-rules}
 \end{subfigure}
 \vspace{-0.5em}
-\caption{The definition of $\stlc$ in \mainname, comprising its syntax and some selected typing rules..
+\caption{The definition of $\stlc$ in \mainname, comprising its syntax and some selected typing rules.
 }
 \label{figure:stlc-definition}
 \end{figure*}
@@ -57,7 +57,7 @@ Here, the syntax of $\stlc$ consists of three data types (\autoref{figure:stlc-s
 
 To specify the type system, we require the definition of each typing rule (which defines how types are assigned to program constructs) together with an executable type checker.
 For clarity, we present our approach using the standard type notations of $\stlc$ as listed in \autoref{figure:stlc-rules}.
-The type checker is expected to generate a type correctness proof (i.e., a type derivation tree, where each tree node corresponds to an application of a typing rule, like \autoref{figure:sample-type-tree}) for the typing judgement $\stlctype{\tt empty}{p}{t}$, which asserts that program $p$ has type $t$ under the empty context.
+The type checker is expected to generate a type correctness proof (i.e., a type derivation tree, where each tree node corresponds to an application of a typing rule, like \autoref{figure:sample-type-tree}) for the typing judgment $\stlctype{\tt empty}{p}{t}$, which asserts that program $p$ has type $t$ under the empty context.
 
 \smallskip 
 \noindent \textbf{Training tasks}. Following the standard code generation paradigm, the objective is to generate correct programs from natural language specifications. Therefore, each training task in \mainname is specified by a prompt paired with the expected program.
@@ -124,7 +124,7 @@ During synthesis, the system incrementally applies typing rules to construct the
 
 \begin{table}[t]
 \centering
-\caption{Synthesis Process of \mainname for program in \autoref{figure:sample-task}}
+\caption{Synthesis Process of \mainname for the program in \autoref{figure:sample-task}}
 \label{tab:synthesis-process}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|c|l|l|l|l|l|}
@@ -173,7 +173,7 @@ Each subgoal corresponds to constructing an existential sub-proof. Specifically,
 \smallskip \noindent \textbf{Step 2: applying \rulename{T-Abs}.}
 \mainname applies the same procedure to the first subgoal $\stlctype{\tcode{empty}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$. 
 %
-The LM will select the \rulename{T-Abs} with a high probability as this goal requires an arrow type.
+The LM will select the \rulename{T-Abs} rule with high probability, as this goal requires an arrow type.
 \mainname then $\alpha$-renames the \rulename{T-Abs} rule:
 $$
 \frac{
@@ -216,7 +216,7 @@ To address this issue, \mainname will query the LM to provide an assignment to a
 \sigma_4 = \big\{ \sk{x_1} \mapsto \tcode{x},\quad \sk{x_2} \mapsto \tcode{x},\quad \sk{t_3} \mapsto \tcode{bool},\quad \sk{t_5} \mapsto \tcode{bool} \big\} \label{formula:sig4}
 \end{gather}
 
-By further applying $\sigma_4$, the premise becomes $\checkBinding{(\snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}})}{\tcode{x}}{\tcode{bool}}$, which is completely known; then, \mainname can evaluate the predicate and confirms that it is satisfied.
+By further applying $\sigma_4$, the premise becomes $\checkBinding{(\snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}})}{\tcode{x}}{\tcode{bool}}$, which is completely known; then, \mainname can evaluate the predicate and confirm that it is satisfied.
 %
 At this time, no new subgoal is generated, so the synthesis process for this branch is complete, where the result is the composition of $\sigma_3$ and $\sigma_4$ (i.e., applying both substitutions in sequence):
 \[
@@ -254,3 +254,6 @@ Performing program synthesis via existential proof construction embodies our two
     \item \textbf{Type Explicitness.} Each synthesis step corresponds to applying a typing rule, which directly mirrors the structure of the type correctness proof. As shown in the example, the sequence of rule applications (\rulename{T-App}, \rulename{T-Abs}, \rulename{T-Var}, etc.) constructs a complete proof tree, making the type reasoning explicit throughout the synthesis process.
     \item \textbf{Context Locality.} At each step, the synthesis goal is a partially instantiated typing judgment that contains the current typing context. For instance, in Step 2, the goal $\stlctype{\tcode{empty}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ explicitly provides the context $\tcode{empty}$ and indicates that the program $\sk{p_1}$ to be synthesized must have an arrow type $\arr{\sk{t_1}}{\sk{t_2}}$. This local type information guides the LM to select the \rulename{T-Abs} rule, which produces a lambda abstraction.
 \end{itemize}
+
+\smallskip
+\noindent The $\stlc$ language above serves for exposition; \autoref{sec:evaluation} evaluates \mainname on Java and SuFu instances with fuller, though still restricted, type systems.

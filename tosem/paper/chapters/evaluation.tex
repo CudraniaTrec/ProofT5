@@ -2,7 +2,7 @@
 We design our evaluation to answer the following research questions.
 \begin{itemize}
     \item \textbf{RQ1:} How does \mainname compare with the existing code generation methods?
-    \item \textbf{RQ2:} How does each component of \mainname contributes to the overall performance?
+    \item \textbf{RQ2:} How does each component of \mainname contribute to the overall performance?
     \item \textbf{RQ3:} How does \mainname compare with reliability-oriented generation approaches, including rejection sampling, token-level constrained decoding, completion-engine repair, and iterative compiler-feedback repair?
     \item \textbf{RQ4:} How does \mainname compare with variants that generate the type derivation tree and the program separately instead of simultaneously?
 \end{itemize}
@@ -90,7 +90,7 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
         &      & \mainname-2B        & \textbf{25.37} & \textbf{43.28} & \textbf{6.36} & \textbf{0.45} \\
         \cmidrule(lr){2-7}
         & HumanEval & T5Gemma2-2B & 12.50 & 25.00 & 7.88 & 29.38 \\
-        &      & \mainname-2B        & \textbf{50.00} & \textbf{56.25} & \textbf{4.75} & \textbf{1.30} \\
+        &      & \mainname-2B        & \textbf{50.00} & \textbf{56.25} & \textbf{4.75} & \textbf{1.30}\tnote{\dag} \\
         \cmidrule(lr){2-7}
         & GFG\tnote{\ddag} & T5Gemma2-2B & 13.59 & 27.18 & 7.74 & 25.05 \\
         &      & \mainname-2B        & \textbf{30.10} & \textbf{46.60} & \textbf{5.81} & \textbf{2.75} \\
@@ -138,13 +138,12 @@ The improvements are particularly pronounced on SuFu, indicating that \mainname 
 
 The pass@1 improvement on the original 220M Java setting is modest (10.45\% to 11.94\% on MBJP) because the implemented type constraints primarily remove uncompilable candidates and do not resolve the semantic errors that determine whether the top-ranked candidate passes the tests. This is consistent with the failure analysis in Appendix~\ref{appendix-failure}: after invalid generations are removed, many remaining failures are well-typed but functionally incorrect. The benefit is therefore more visible in pass@10, FSP, and CER than in Java pass@1.
 
-We scope the claims on the two additional Java benchmarks explicitly.
-Both benchmarks are normalized to the MBJP task style and share its training pipeline.
+Both additional benchmarks are normalized to the MBJP task style and share its training pipeline, and we interpret their results within that scope.
 In terms of the position of the first successful prediction (FSP), \mainname consistently reduces FSP compared to the corresponding base models on every benchmark: for example, \mainname-2B reduces FSP from 7.46 to 6.36 on MBJP, from 7.88 to 4.75 on HumanEval-Java, and from 7.74 to 5.81 on TransCoder-GFG.
 
 Most notably, \mainname greatly reduces compilation errors, as indicated by the CER numbers.
 In SuFu, all compilation errors are caused by type errors, so \mainname completely eliminates compilation errors (CER = 0.00\%). 
-In Java, compilation errors may also be triggered by static analysis, which is uncaptured in our implemented type system(e.g., unreachable code), which is why \mainname retains a small CER.
+In Java, compilation errors may also be triggered by static analysis that our implemented type system does not capture (e.g., unreachable code), which is why \mainname retains a small CER.
 Under the revised protocol, the ordinary T5Gemma2-2B baseline fails to compile 25--30\% of its candidates on the three Java benchmarks, while \mainname-2B reduces CER to 0.45\% on MBJP, 1.30\% on HumanEval-Java, and 2.75\% on TransCoder-GFG.
 
 Overall, \mainname achieves clear performance gains and significant improvements in code correctness and reliability across model scales and benchmarks, fulfilling our design objectives.
@@ -210,7 +209,7 @@ Dynamic typing context further enhances performance, pushing pass@10 to 46.55\% 
 %Overall, the sequential integration of grammar and type-aware constraints progressively enhances both correctness and robustness. 
 The results support our motivation: the type-based mechanisms are essential for ensuring type correctness.
 % While initial grammatical checks lay the groundwork, the introduction and refinement of type-based mechanisms are essential for achieving complete functional correctness and eliminating compilation failures. 
-In particular, the effect of dynamic typing context demonstrates the importance of \textbf{Context Locality} in ~\autoref{section:intro}: by providing necessary type information within a compact local context, this technique significantly improves the effectiveness of generation.
+In particular, the effect of dynamic typing context demonstrates the importance of \textbf{Context Locality} in~\autoref{section:intro}: by providing necessary type information within a compact local context, this technique significantly improves the effectiveness of generation.
 
 Beyond the functional metrics, we quantify the runtime behavior of these components by instrumenting the constrained decoder of the full \mainname-220M configuration (syntactic pruning, type pruning, and dynamic typing context enabled) on the SuFu test set.
 \autoref{tab:decode-stats} reports how many candidate tokens each filtering level eliminates and how often the search exhausts its budget.
@@ -255,6 +254,7 @@ To answer RQ3, we compare \mainname with methods that pursue correct code by con
 On SuFu, the baseline is CodeT5-220M with rejection sampling, which repeatedly queries the LM and discards candidate programs that fail to compile until finding sufficient solutions or reaching a resource limit.
 On MBJP, we further compare with four approaches that share the same frozen T5Gemma2-2B weights as the ordinary control: (i) \emph{rejection sampling} with a standalone-\texttt{javac} gate and a budget of four ten-draw rounds per task; (ii) \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar}, which performs grammar-constrained decoding by masking tokens that violate a Java grammar at each step; (iii) \emph{Repilot}~\cite{DBLP:conf/sigsoft/0003X023}, which fuses LM generation with the Eclipse JDT completion engine for token-level repair; and (iv) \emph{iterative compiler repair}, which regenerates candidates from standalone \texttt{javac} diagnostics for at most two rounds without ever seeing the benchmark tests.
 All Java rows are evaluated on the same 67 test tasks with ten candidates per task; the ordinary control is the archived paper-recovery checkpoint (10/67 and 23/67 pass@1/pass@10, close to the submitted row).
+This archived control differs slightly from the revised-protocol baseline in \autoref{tab:model-results} (13.43/32.84) because the external methods in this RQ must share one frozen generation distribution; the \mainname-2B row is identical in both tables.
 
 \begin{table}[ht]
 \centering
@@ -279,8 +279,8 @@ Language & Method & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} &
 \multirow{6}{*}{Java}
         & T5Gemma2-2B           & 14.93 & 34.33 & 18.21 \\
         & \quad + Rejection Sampling\tnote{\dag} & 14.93 & 35.82 & 0.00 \\
-        & \quad + SynCode       & 14.93 & 35.82 & 10.90 \\
-        & \quad + Repilot       & 14.93 & 34.33 & 16.72 \\
+        & \quad + SynCode (adapt., compile-safe) & 14.93 & 35.82 & 10.90 \\
+        & \quad + Repilot/JDT       & 14.93 & 34.33 & 16.72 \\
         & \quad + Iterative compiler repair & 11.94 & 25.37 & 12.39 \\
         & \mainname-2B          & \textbf{25.37} & \textbf{43.28} & \textbf{0.45} \\
 \bottomrule
@@ -290,13 +290,14 @@ Language & Method & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} &
 \item pass@k measures the proportion of problems solved by at least one of the top-k candidates; CER is the compilation error rate over returned candidates. Bold marks the best value achieved by generation; the by-construction 0.00 CER of rejection sampling is not bolded.
 \item[\dag] Rejection sampling discards candidates that fail standalone \texttt{javac} and resamples until ten compilable candidates are collected or the budget of four ten-draw rounds per task is exhausted. Its CER is 0.00 by construction over the 618 returned candidates; 52 slots on six tasks remain unfilled within the budget and count as failures (fail-closed). Benchmark tests are never executed during selection.
 \item The SynCode row uses our compile-safe adaptation: it keeps each ordinary candidate unless standalone \texttt{javac} proves it uncompilable and the corresponding SynCode candidate compiles; it uses two generation arms and never runs benchmark tests during selection.
+\item The Repilot/JDT row is upstream-faithful. A soundness-preserving implementation strengthening that enables full IDE completion capabilities with a safe ACTIVE policy and proposal caching (17{,}963 vs.\ 18{,}653 JDT queries) reproduces the same solved sets and compile-error counts (10/67, 23/67, 112/670), so we retain the frozen upstream-faithful row.
 \item The T5Gemma2-2B rows use the MBJP benchmark and the archived paper-recovery checkpoint as the shared control. The CER counts for the ordinary, SynCode, Repilot, iterative, and \mainname rows are respectively 122, 73, 112, 83, and 3 of 670 candidates; rejection sampling returns 618 compilable candidates. Exact task counts (e.g., 10/67, 23/67, and 17/67, 29/67) are given in Appendix~\ref{appendix-benchmark}.
-\item Paired exact tests versus the ordinary control: rejection sampling $p=1.0$ (pass@1) and $p=0.5$ (pass@10); SynCode and Repilot $p=1.0$ for both metrics.
+\item Paired exact tests versus the ordinary control: rejection sampling $p=1.0$ (pass@1) and $p=1.0$ (pass@10); SynCode and Repilot $p=1.0$ for both metrics.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-On SuFu, rejection sampling provides only minor improvements over the baseline (pass@1 from 24.14\% to 31.03\%, pass@10 unchanged), much less than the improvements achieved by \mainname.
+On SuFu, the submitted CodeT5-220M comparison showed that rejection sampling improves pass@1 only from 24.14\% to 31.03\% with pass@10 unchanged, much less than the improvements achieved by \mainname.
 Our budget-limited rejection sampling on the T5Gemma2-2B control behaves the same way: discarding every candidate that fails standalone \texttt{javac} and resampling within a budget of four ten-draw rounds per task leaves pass@1 unchanged (14.93\%) and adds a single task at pass@10 (35.82\%); six tasks cannot even collect ten compilable candidates within the budget.
 As a post-hoc filtering technique, it cannot enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM.
 
@@ -313,7 +314,7 @@ These results highlight that embedding type information into LMs is substantiall
 
 \subsubsection{RQ4: Comparison with Separated Type-Code Generation}
 To answer RQ4, we compare \mainname with approaches that separate type reasoning and code generation. 
-We evaluate three variants: (1) Type-First: CodeT5-220M is fine-tuned to generate a sequence of typing rules (forming the type derivation tree) as explicit type reasoning, then generate code based on the reasoning, (2) Code-First: CodeT5-220M is finetuned to first generate code, then output a sequence of typing rules as its type correctness proof, and (3) \mainname-220M: our synthesis decision sequence representation.
+We evaluate three variants: (1) Type-First: CodeT5-220M is fine-tuned to generate a sequence of typing rules (forming the type derivation tree) as explicit type reasoning, then generate code based on the reasoning, (2) Code-First: CodeT5-220M is fine-tuned to first generate code, then output a sequence of typing rules as its type correctness proof, and (3) \mainname-220M: our synthesis decision sequence representation.
 
 \begin{table}[ht]
 \centering
@@ -347,7 +348,7 @@ Language & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & 
 \end{table}
 
 \autoref{tab:sequential-compare} compares separated reasoning approaches against \mainname on both SuFu and Java benchmarks.
-Both sequential variants achieve pass@10 of 36--40\% on SuFu and 22--27\% on Java, while \mainname achieves 46.55\% and 28.36\% respectively.
+Both sequential variants achieve pass@10 of 36--40\% on SuFu and 22--27\% on Java, while \mainname achieves 46.55\% and 28.36\%, respectively.
 Moreover, they still suffer from high compilation error rates (57--64\% on SuFu and 31--38\% on Java), whereas \mainname eliminates compilation errors on SuFu and reduces them to 3.52\% on Java.
 
 Besides the correctness advantages, \mainname also outperforms both baselines in token usage.
@@ -359,3 +360,7 @@ These results support \mainname's \textbf{Derivation Vicinality} paradigm: by un
 The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context. A decoder-only adaptation could be more efficient, but it would require a different representation in which type-rule tokens are used to encode the program and guide syntactic and type pruning. Such a redesign would not retain the current dynamic typing-context mechanism, and we leave it to future work.
 
 Our implementation and experiments also focus on languages with explicit typing rules, namely SuFu and the evaluated Java subset. We have not established that the current formulation applies to dynamically typed languages such as Python, where the relevant type information is not supplied by the same kind of static typing derivation.
+
+Both evaluated type systems are deliberately simple. The implemented Java subset omits polymorphism with variance, subtyping hierarchies, overload resolution, type inference beyond local declarations, and mutable-state-related features, and SuFu's type system targets fusion optimization. Richer features would enlarge the rule set, increase the branching factor at individual synthesis nodes, and, for polymorphism, potentially require higher-order unification (Sec.~\ref{sec:meta}); our measurements on SuFu and the Java subset do not establish how the approach scales to such languages.
+
+The simply typed lambda calculus used in the overview serves a pedagogical role and is simpler still; the distance between it and industrial languages is bridged only partially by the evaluated Java subset.
