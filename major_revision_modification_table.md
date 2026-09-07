@@ -38,6 +38,10 @@ chapters.
 
 - revision_response_letter.md
 - major_revision_modification_table.md
+- major_revision_pending_text_edits.md (2026-09-07: concrete draft LaTeX for
+  every pending "Author manual" row above, plus newly found consistency fixes
+  E6-E14 and evidence freezing actions D1-D3; evidence audit confirms no
+  further experiments are needed)
 
 All other paper chapters remain unchanged relative to the Git baseline used
 for the pre-evaluation PDF comparison.
