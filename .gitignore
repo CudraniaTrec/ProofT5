@@ -1,5 +1,14 @@
 wandb/
 /tmp/
+
+# Editor and IDE local state.
+.idea/
+.vscode/
+
+# Tree-sitter compiled parser libraries; regenerate with
+# Utils/processdata/parser/build.py and Utils/evaluator/CodeBLEU/parser/build.py.
+my-languages.so
+
 coq_model/coq_code/mbjp/*
 coq_model/coq_code/humaneval/*
 coq_model/datas/mbjp_coqview/*
