@@ -60,8 +60,9 @@ artifacts/major_revision_evaluation_20260905/
   rq2_runtime_2b/                 # 2B SuFu runtime records
   java_statistics_combined.json   # merged Java statistical results
 
-The submission-facing response draft and author modification table are
-revision_response_letter.md and major_revision_modification_table.md.
+The submission-facing response draft, author modification table, pending
+text-edit checklist, and the review decision are consolidated under
+`tosem/revision/`, which also carries a navigation README.
 
 ## Main ProofT5 Code
 
@@ -352,7 +353,9 @@ Other TOSEM material:
 
 ```text
 tosem/cover_letter.pdf
-tosem/review_decision_2026-06-16.txt
+tosem/revision/                  # review decision, response letter,
+                                 # modification table, pending text edits,
+                                 # and a navigation README
 ```
 
 Again, this checkout currently does not contain `paper/ase2026`.
