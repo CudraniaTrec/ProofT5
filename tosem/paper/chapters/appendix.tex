@@ -1,3 +1,4 @@
+% !TEX root=../manuscript.tex
 \section{Proofs for Some Lemmas Used in the Paper}
 
 \subsection{Proof for Lemma~\ref{rule-bijection}}
@@ -64,8 +65,10 @@ If $\overline{x}$ is unifiable with $\overline{x}_c$, then in the application of
     %
     Thus we can use the induction hypothesis to synthesize $P_1(\meta{\sigma_0\sigma(\overline{x}_1)}) \leadsto \sigma_1$, where $\sigma_1\sigma_0\sigma(\overline{x}_1) = \overline{x}_{1c}$.
     
-    Then, note that $\sigma_1\sigma_0\sigma(\overline{x}_1) = \theta_c(\overline{x}_1)$, and $(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)}) \trianglelefteq \theta'$ holds, and then $\sigma_1\sigma_0\sigma(\overline{x}_2)=(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)})(\overline{x}_2)$ is unifiable with $\overline{x}_{2c}$, and we can apply the induction hypothesis again and again until all assignments to subgoals are synthesized.
-    
+    \emergencystretch=3em
+    Then, note that $\sigma_1\sigma_0\sigma(\overline{x}_1) = \theta_c(\overline{x}_1)$, and $(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)}) \allowbreak\trianglelefteq \theta'$ holds, and then $\sigma_1\sigma_0\sigma(\overline{x}_2)=\allowbreak(\sigma_1\sigma_0\sigma|_{\mvhzc(\overline{x}_0,\overline{x}_1)})(\overline{x}_2)$ is unifiable with $\overline{x}_{2c}$, and we can apply the induction hypothesis again and again until all assignments to subgoals are synthesized.
+
+    \emergencystretch=0pt
     Finally, we can collect all the assignments $\sigma_n, \ldots, \sigma_1, \sigma_0$ and compose them to form $\sigma_c = \sigma_n \ldots \sigma_0\sigma$, which is an assignment and covers all variables in $\overline{x}_i$, $\overline{x}$ and $\overline{y}$ by Lemma~\ref{lemma:assignment}. $\sigma_c(\overline{x}_i)=\overline{x}_{ic}=\theta_c(\overline{x}_i)$ for all $i$, so $\theta_c \trianglelefteq \sigma_c$ since $\sigma_c$ also ranges over $\mvhzc(\overline{x})$.
     We have $\sigma_c(\overline{y}) = \theta_c(\overline{y})$, which instantiates the constraint $\phi(\overline{y})$ to be satisfied as in the type derivation tree. Here, $\theta(\overline{x}) = \sigma_c|_{\mvhzc(\overline{x})}$ concretizes the synthesis goal $P(\overline{x})$ to the ground typing judgment $P(\overline{x}_c)$ ($\theta(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x})=\sigma_n \ldots \sigma_0\sigma(\overline{x}_0)=\sigma_c(\overline{x}_0)=\overline{x}_c$), which is the same as the root node of the type derivation tree.
   \end{itemize}
@@ -91,7 +94,7 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
  \end{itemize}
 \end{proof}
 
-\newpage
+\clearpage
 \section{Additional Information about Benchmarks}
 \label{appendix-benchmark}
 
@@ -313,9 +316,11 @@ The complete SuFu grammar specification is as follows:
 <integer>     := [0-9]+
 \end{Verbatim}
 \end{tcolorbox}
+
+\clearpage
 \section{Failure Analysis}\label{appendix-failure}
 
-This section classifies the failing tasks of the revised Java evaluation and presents representative cases.
+This section classifies the failing tasks of the Java evaluation and presents representative cases.
 For each benchmark and model, every test task is assigned to one of four mutually exclusive categories:
 \textbf{Solved@1} (the top-1 candidate passes all tests);
 \textbf{Ranking failure} (some candidate in the top ten passes, but not the top-1 one);
@@ -334,7 +339,7 @@ For each benchmark and model, every test task is assigned to one of four mutuall
     S[table-format=2.0]
     S[table-format=2.0]
     S[table-format=2.0]
-    S[table-format=2.0]
+    S[table-format=3.0]
 }
 \toprule
 Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-typed\\wrong}} & {Total} \\
@@ -352,14 +357,10 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
         & \mainname-2B & 31 & 17 & 2 & 53 & 103 \\
 \bottomrule
 \end{tabular}
-\begin{tablenotes}
-\footnotesize
-\item Counts are derived from the frozen per-candidate statuses of the revised evaluation; timeouts and unfilled slots count as invalid. The two GFG all-invalid tasks of \mainname-2B include the task whose constrained search exceeded the generation budget (fail-closed).
-\end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-Three observations follow from \autoref{tab:failure-taxonomy}.
+Three observations follow from \autoref{tab:failure-taxonomy}, whose counts are derived from the per-candidate statuses of the frozen evaluation runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid tasks of \mainname-2B include the task whose constrained search exceeded the generation budget (fail-closed).
 First, \emph{invalid generation essentially disappears as a failure mode} under \mainname: the all-invalid category drops from 4/2/3 to 0/0/2 tasks, and the remaining GFG cases are dominated by the documented budget exhaustion rather than by ill-formed output.
 Second, \emph{ranking failures persist} (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, which is a property of beam scoring rather than of the representation.
 Third, and most importantly, \emph{the dominant residual failure is well-typed but semantically wrong code}: 38 of 50 unsolved MBJP tasks, 7 of 8 unsolved HumanEval-Java tasks, and 53 of 72 unsolved GFG tasks have at least one compilable candidate whose behavior is incorrect.
@@ -370,7 +371,7 @@ This is exactly the boundary of what type-level constraints can guarantee: typin
 MBJP task~5 (\emph{tupleStrInt}, converting a string tuple to an integer list) is unsolved by the ordinary baseline with all ten candidates failing to compile.
 The top-1 candidate omits the opening brace of the loop body:
 \begin{tcolorbox}
-\begin{Verbatim}[fontsize=\footnotesize]
+\begin{Verbatim}[fontsize=\small]
 public static List<Integer> tupleStrInt(String testStr) {
     int count = 0;
     List<Integer> ret = new ArrayList<>();
@@ -388,7 +389,7 @@ The model produces plausible token-level continuations, but nothing prevents suc
 
 MBJP task~0 (\emph{oddPosition}, checking that every odd index holds an odd number) is unsolved by \mainname-2B, yet its top-1 candidate compiles and type-checks:
 \begin{tcolorbox}
-\begin{Verbatim}[fontsize=\footnotesize]
+\begin{Verbatim}[fontsize=\small]
 public static boolean oddPosition(List<Integer> nums) {
     boolean res = false;
     for (int i = 0; i < nums.size(); i++) {
@@ -407,15 +408,18 @@ No typing rule is violated, so no amount of type-level pruning can reject this c
 
 On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category; the fixed-budget and fail-closed behavior is described in the RQ2 discussion.
 
-\newpage
-\section{Statistical Analysis on the Combined Java Benchmarks}
+\clearpage
+\section{Statistical Significance Analysis}
 \label{appendix-statistics}
 
+This section complements the point estimates in \autoref{tab:model-results} with confidence intervals and paired significance tests. It addresses two questions: whether \mainname's improvements over its base models are statistically distinguishable, and how much uncertainty the small test sets leave around each reported rate.
+
+\subsection{Significance Tests on the Combined Java Benchmarks}
 We combine MBJP (67 tasks), HumanEval-Java (16 tasks), and TransCoder-GFG (103 tasks) into 186 paired Java tasks. HumanEval-Java alone has only 16 tasks; the combined analysis therefore provides the primary estimate while the benchmark-specific results remain in \autoref{tab:model-results}.
 
 \begin{table}[ht]
 \centering
-\scriptsize
+\small
 \begin{threeparttable}
 \caption{Statistical Comparison on the Combined Java Tasks}
 \label{tab:java-statistics}
@@ -431,20 +435,25 @@ CER & 503/1860 (27.04\%) & 33/1837 (1.80\%) & [25.07,29.11] / [1.28,2.51] & $2.9
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
-\item Intervals are 95\% intervals; the two intervals in each row are for T5Gemma2-2B and \mainname-2B, respectively. The pass@1 and pass@10 intervals are Wilson intervals over tasks, and their paired tests are exact two-sided McNemar tests.
-\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its intervals are normal intervals for task means, and its paired test is an exact two-sided sign-randomization test. CER intervals are Wilson intervals over returned candidates; its paired test uses per-task compilation-error fractions.
+\item The two intervals in each row are for T5Gemma2-2B and \mainname-2B, respectively.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
+All intervals are 95\% intervals, and all four paired differences favor \mainname-2B at the 0.05 significance level.
+The pass@1 and pass@10 rows use Wilson intervals over tasks, and their paired tests are exact two-sided McNemar tests.
+FSP is the mean first-success rank with unsolved tasks assigned rank 10; its row uses normal intervals for task means, and its paired test is an exact two-sided sign-randomization test.
+The CER row uses Wilson intervals over returned candidates, and its paired test uses per-task compilation-error fractions.
+
 \subsection{SuFu Confidence Intervals}
 \label{appendix-sufu-statistics}
 
-For SuFu, we report 95\% Wilson intervals for the task-level pass rates and the candidate-level compilation-error rates in the submitted result rows. The FSP values are retained as the submitted task means because the submitted aggregate records do not retain the corresponding per-task rank vectors.
+For SuFu, \autoref{tab:sufu-statistics} reports 95\% Wilson intervals for the task-level pass rates and the candidate-level compilation-error rates of \autoref{tab:model-results}, the latter over the 580 generated candidates (ten per task).
+FSP is the mean first-success rank with unsuccessful tasks assigned rank 10; the aggregate records do not retain the task-level rank vectors, so FSP is reported as a task mean without an interval or paired test.
 
 \begin{table}[ht]
 \centering
-\scriptsize
+\small
 \begin{threeparttable}
 \caption{95\% Intervals for the Reported SuFu Results}
 \label{tab:sufu-statistics}
@@ -465,9 +474,5 @@ Scale & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) \\
  & CER & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66] \\
 \bottomrule
 \end{tabular}
-\begin{tablenotes}
-\footnotesize
-\item The pass-rate intervals are 95\% Wilson intervals over the 58 SuFu tasks. The CER intervals are 95\% Wilson intervals over the 580 generated candidates. FSP is the mean first-success rank with unsuccessful tasks assigned rank 10; its submitted aggregate rows do not include the task-level rank vectors needed for an additional interval or paired test.
-\end{tablenotes}
 \end{threeparttable}
 \end{table}

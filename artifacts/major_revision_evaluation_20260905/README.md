@@ -5,10 +5,19 @@ Evaluation and Appendix sections.
 
 ## RQ2 runtime
 
-The four JSONL files in rq2_runtime_2b/ record the same 58 SuFu test tasks
-with the 2B model under the no-check, syntactic-pruning, type-pruning, and
-full dynamic-context configurations. The means reported in the paper are
-computed from the wall_seconds field.
+The four JSONL files in rq2_runtime_220m/ (added 2026-09-08) record the same
+58 SuFu test tasks with the TyFlow-220M model under the no-check,
+syntactic-pruning, type-pruning, and full dynamic-context configurations; the
+paper's Time column (5.70 / 5.34 / 11.07 / 15.62 s) is computed from the
+wall_seconds field of these files. Timing protocol: identical checkpoint,
+decoding toggles, beam size, candidate multiplier, and vocabulary as the
+functional-metric runs; the four configurations were executed sequentially on
+a single GPU (CUDA_VISIBLE_DEVICES=0) with batch_size_eval=1, and all 4 x 58
+tasks completed.
+
+The four JSONL files in rq2_runtime_2b/ are the earlier 2B-model measurement
+of the same protocol; they are superseded by rq2_runtime_220m/ as the source
+of the paper's Time column and kept only for the record.
 
 ## Combined Java statistics
 

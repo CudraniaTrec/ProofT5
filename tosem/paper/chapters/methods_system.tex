@@ -1,3 +1,4 @@
+% !TEX root=../manuscript.tex
 \section{Synthesis System}
 \label{sec:approach}
 \autoref{fig:classfy-problem} presents the architecture of \mainname's system, which constructs synthesis derivation trees from which programs are extracted. The construction is achieved in \autoref{alg:synthtree} through a series of queries (\autoref{sec:synthtree-construction-query}), which can be resolved through two approaches corresponding to the dual requirements of our system: code generation (\autoref{sec:query-resolution-lm}) and training data preparation (\autoref{sec:translation}).
@@ -29,9 +30,11 @@ Each synthesis rule as in \autoref{S-Rule} specifies how to start from a partial
     % However, in practice, it is rare for $\overline{x}_f$ and $\overline{x}_i$ to have no shared variables initially, but to share variables after being instantiated by $\sigma$. If such a situation arises, it is more likely due to the selection of an inappropriate synthesis rule.
     % Therefore, we adopt an eager design approach: synthesizing the assignment $\sigma_0$ for free variables immediately after the unification step. This design encourages the LM to generate the necessary assignment right after choosing the synthesis rule, ensuring semantic coherence throughout the synthesis process.
     
-    \item \textbf{Sub-Derivation Steps:} Then, synthesize assignments for all subgoals in sequence. For each subgoal $P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$, begin with an instantiation for variables in $\overline{x}_i$ with the substitutions $\sigma_{i-1}, \ldots, \sigma_0, \sigma$ in previous steps. 
+    \emergencystretch=2em
+    \item \textbf{Sub-Derivation Steps:} Then, synthesize assignments for all subgoals in sequence. For each subgoal $P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \allowbreak\leadsto \sigma_i$, begin with an instantiation for variables in $\overline{x}_i$ with the substitutions $\sigma_{i-1}, \ldots, \sigma_0, \sigma$ in previous steps.
     This refines the subgoal and propagates synthesis information from earlier subgoals. Subsequently, synthesize the assignment $\sigma_i$ for the current subgoal by recursively applying synthesis rules.
-    
+
+    \emergencystretch=0pt
     \item \textbf{Constraint Checking Step:} After all synthesis subgoals have been solved, \mainname checks whether the constraint $\phi(\overline{y})$  is satisfied under the combined assignment $\sigma_n \ldots \sigma_0 \sigma$. 
     % If the constraint is satisfied, the synthesis rule is considered successfully applied, and we proceed to the final step.
     

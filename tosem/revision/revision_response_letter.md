@@ -14,10 +14,9 @@ SynCode, Repilot, rejection sampling, and iterative compiler repair. The
 Appendix reports the combined Java statistical analysis and the SuFu
 confidence intervals.
 
-The remaining wording changes outside Evaluation and Appendix are listed
-separately in major_revision_modification_table.md for author confirmation
-before submission. Section and page references should be updated after those
-manual edits are finalized.
+The remaining wording changes outside Evaluation and Appendix have been
+applied directly to the manuscript, and all section references and page counts
+in this letter refer to the current compiled version.
 
 ## Response to the Editor's meta-review
 
@@ -59,8 +58,8 @@ states the protocol differences between these methods.
 
 ### Missing analysis of system cost
 
-The RQ2 text reports the measured 2B SuFu runtime for each component
-configuration. This keeps the system-cost analysis with the component
+The RQ2 text reports the measured SuFu runtime of the same 220M model for
+each component configuration. This keeps the system-cost analysis with the component
 ablation to which it belongs.
 
 ## Response to Reviewer 1
@@ -86,8 +85,8 @@ top-ranked candidate; the Java-subset scope is stated separately.
 
 ### Modern decoder-only models
 
-The new decoder-only table reports three larger open-weight models on all four
-benchmarks. Each cell identifies the zero-shot and few-shot task counts
+The revision reports three larger open-weight models on all four benchmarks in
+the RQ1 discussion. The zero-shot and few-shot task counts are reported
 separately, so the results are not combined across prompt conditions.
 
 ### First-order unification and richer type systems
@@ -95,8 +94,8 @@ separately, so the results are not combined across prompt conditions.
 We agree that the current formal and empirical evidence is limited to the
 implemented first-order setting. A targeted scope and limitation paragraph
 covering higher-order unification, polymorphism, subtyping, overloading, and
-mutable-state-related features is listed for insertion in the relevant
-non-Evaluation sections.
+mutable-state-related features has been added to the Limitations subsection of
+the Evaluation section.
 
 ### Branching factor and pruning
 
@@ -123,7 +122,8 @@ original benchmark-specific results are retained in RQ1.
 
 ### W2: Runtime overhead, richer types, beam exhaustion, and fallback
 
-RQ2 reports the measured 2B SuFu runtime for each component configuration. The
+RQ2 reports the measured SuFu runtime of the same 220M model for each component
+configuration. The
 same section reports zero strict beam dead-ends in the instrumented 58-task
 run. The decoder does not switch to unconstrained generation; incomplete
 candidate slots at the fixed budget are scored fail-closed. The discussion of
@@ -157,9 +157,9 @@ solved MBJP task in the controlled run.
 
 ### Larger models
 
-The new decoder-only table provides comparisons with models larger than 2B on
-the same four benchmark families. Their prompt-based protocol is kept
-separate from the trained encoder-decoder TyFlow results.
+The revision provides comparisons with models larger than 2B on the same four
+benchmark families (reported in the RQ1 text). Their prompt-based protocol is
+kept separate from the trained encoder-decoder TyFlow results.
 
 ### Java performance and failure behavior
 

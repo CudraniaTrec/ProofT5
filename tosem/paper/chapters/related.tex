@@ -1,3 +1,4 @@
+% !TEX root=../manuscript.tex
 
 \section{Related Work}\label{sec:related}
 
@@ -20,12 +21,11 @@ Another line of research aims to expose the reasoning process of symbolic constr
 By externalizing the complexity of constraint reasoning, this paradigm relieves LMs from implicitly inferring intricate symbolic rules from plain text. Offloading constraint learning to the representation allows LMs to allocate more capacity to other critical aspects, such as program semantics and algorithmic logic. This reallocation of modeling resources leads to improved generation quality that scales effectively with model size, mirroring the benefits observed in syntactic representations for grammatical learning~\cite{DBLP:conf/acl/LiangZ0LLXCZZZC25}.
 
 Grammar-based encoding~\cite{DBLP:conf/acl/YinN17,DBLP:conf/aaai/SunZXSMZ20,DBLP:conf/icse/ZhuL000C24} represents one such approach, where programs are parsed into ASTs and serialized into sequences of grammar rules for training and inference. 
-%This explicit syntactic representation helps models learn grammatical constraints more effectively. 
 Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. Our implementation and evaluation exercise this generality on type-correctness constraints in two languages; other CHC-representable constraint families remain a formal possibility that we do not evaluate.
 
 Tare~\cite{DBLP:conf/icse/ZhuSZXZ23} introduces a neural approach for learning Java's type system in program repair, using specialized components to encode typing contexts and subtyping relations. While it predicts both code and types, Tare is specifically tailored to a subset of Java's type system and operates through AST traversal without achieving full type explicitness, which is a key distinction from our work.
 
-Refine4LLM~\cite{DBLP:journals/pacmpl/CaiHSLLSD25} generates programs through sequential refinement rule applications, transforming specifications into concrete programs while ensuring syntactic and functional correctness. However, it requires training data containing refinement processes, which are scarce in practice, and is specific to a particular refinement calculus. In contrast, our approach utilizes readily available programs for training given a type checker, and the CHC formulation extends in principle to constraints beyond type correctness, although our experiments evaluate type constraints only.
+Refine4LLM~\cite{DBLP:journals/pacmpl/CaiHSLLSD25} generates programs through sequential refinement rule applications, transforming specifications into concrete programs while ensuring syntactic and functional correctness. However, it requires training data containing refinement processes, which are scarce in practice, and is specific to a particular refinement calculus. In contrast, our approach utilizes readily available programs for training given a type checker, and the CHC formulation extends in principle to constraints beyond type correctness.
 
 \subsection{Type-Guided Program Synthesis}
 Our approach is inspired by type-guided program synthesis~\cite{DBLP:journals/pacmpl/GuoJJZWJP20, DBLP:conf/pldi/GuriaFH21, DBLP:conf/pldi/PolikarpovaKS16, DBLP:conf/pldi/OseraZ15}, which employs synthesis rules to produce type-correct programs. These approaches also guarantee type correctness by construction; however, they are designed for classical enumerative or constraint-based synthesis algorithms, not for neural code generation.

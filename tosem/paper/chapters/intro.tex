@@ -1,3 +1,4 @@
+% !TEX root=../manuscript.tex
 \section{Introduction} \label{section:intro}
 % importance of learning type system
 Recently, language models (LMs) have achieved great success in code generation~\cite{li2022competition, DBLP:conf/pldi/Xu0NH22, zheng2023codegeex, DBLP:journals/corr/abs-2108-07732}, where code is generated based on a natural language prompt.
@@ -10,11 +11,9 @@ Notably, even cutting-edge tools powered by state-of-the-art LMs can generate co
 For instance, an evaluation of GitHub Copilot on LeetCode revealed that 24\% of its suggestions resulted in compilation errors~\cite{DBLP:conf/msr/NguyenN22}, which mainly resulted from type errors~\cite{DBLP:journals/corr/abs-2504-09246}. 
 This type validity problem becomes particularly pronounced in resource-limited languages or those with complex type systems~\cite{DBLP:journals/corr/abs-2406-00515,DBLP:journals/corr/abs-2410-03981}.
 
-%Theoretically, while enhancing type systems with additional symbolic constraints could improve code safety, such strengthened systems would inevitably suffer from even scarcer training data, creating a fundamental limitation for data-driven approaches. 
-%Despite the challenge, recent research offers a promising benefit: by reducing the LMs' burden of learning these constraints implicitly, we can free up their capacity for mastering program semantics and algorithmic logic, thereby significantly boosting overall performance. This aligns with findings in syntactic learning, where explicit structural guidance has been shown to enhance correctness across model scales~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}.
-Ensuring type correctness is also useful beyond reducing type errors. First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system.
-%It is better to give an important decidable property to astonish the reviewer.
-For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
+Ensuring type correctness is also useful beyond reducing type errors. 
+First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system. For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. 
+Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
 Ensuring type correctness in practice, however, remains challenging. 
