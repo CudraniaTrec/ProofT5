@@ -288,3 +288,21 @@ with every downstream reference updated:
   statistics, the MBJP baseline row, and all TyFlow rows.
 - All score JSONs and the sweep records are frozen in
   artifacts/humaneval_aligned_retrain_20260909/ (SUMMARY.md indexes them).
+
+## 2026-09-10 (cont.): Appendix statistics completed and verified
+
+- Added MBJP to the 2B paired-test table (tab:paired-statistics-2b now covers
+  MBJP, HumanEval-Java, TransCoder-GFG), the combined 186-task Java analysis
+  (tab:paired-statistics-2b-java; all four differences significant), and SuFu
+  Wilson intervals at 2B (tab:sufu-2b-intervals; no paired test, rank vectors
+  not preserved). The response letter's "Appendix D" commitments are now backed
+  table-for-table.
+- Consistency pass: 16 benchmark-level values re-checked against the frozen
+  source JSONs (no mismatches), all six failure-taxonomy row sums verified,
+  RQ2 runtimes (5.70/5.34/11.07/15.62 s) and the 5.66/5.32 re-run reproduced
+  from rq2_runtime_220m, RQ3 iterative-repair counts (14.93/34.33/13.43,
+  122->90 compile errors) reproduced from the frozen scores, zero unresolved
+  references, zero stale baseline values remaining in text.
+- Two inaccurate statements found and corrected: the 220M note previously
+  implied all eight comparisons were significant (SuFu pass@10 is p=0.092),
+  and the SuFu 2B text claimed both intervals were disjoint (only CER is).
