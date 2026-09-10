@@ -236,8 +236,8 @@ TransCoder-GFG (414 / 103)~\cite{DBLP:conf/nips/LachauxROC20}       & 65\,(55--1
 
 HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
 
-\paragraph{Strengthened HumanEval-Java baseline.}
-Initial fine-tuning of the HumanEval-Java baseline used a learning rate of $5\times10^{-5}$ with last-checkpoint selection; a post-hoc recipe audit found this setting overfits the small training split and underestimates the base model. The reported baseline instead fine-tunes T5Gemma2-2B on the union of the three Java training splits (1{,}168 tasks) with learning rate $10^{-5}$ for 30 passes, selecting the checkpoint on a 32-task validation holdout drawn from the HumanEval-Java training split (never in any training data). The holdout-selected configuration was then evaluated once on the fixed 16-task test. The same audit found no benefit from excluding TransCoder-GFG data, and the strengthened baseline retains the standard beam-10 decoding protocol without few-shot prompting. Per-candidate results and the full recipe-search record are part of the artifact package.
+\paragraph{Strengthened HumanEval-Java and TransCoder-GFG baselines.}
+Initial fine-tuning of the HumanEval-Java and TransCoder-GFG baselines used a learning rate of $5\times10^{-5}$ with last-checkpoint selection; a post-hoc recipe audit found this setting overfits the small training splits and underestimates the base model. The reported baselines instead fine-tune T5Gemma2-2B with learning rate $10^{-5}$ for 30 passes---on the union of the three Java training splits (1{,}168 tasks) for HumanEval-Java, and on the TransCoder-GFG training split plus the MBJP training tasks (1{,}022 tasks) for TransCoder-GFG---selecting the checkpoint on validation holdouts drawn from the respective training splits (32 and 60 tasks, never in any training data). Each holdout-selected configuration was then evaluated once on the fixed test split. The same audit found no benefit from excluding cross-benchmark data, and the strengthened baselines retain the standard beam-10 decoding protocol without few-shot prompting. Per-candidate results and the full recipe-search record are part of the artifact package.
 
 \subsection{SuFu Benchmark}
 
@@ -375,7 +375,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
         & \mainname-2B & 8 & 1 & 0 & 7 & 16 \\
 \midrule
 \multirow{2}{*}{TransCoder-GFG (103)}
-        & T5Gemma2-2B & 14 & 14 & 3 & 72 & 103 \\
+        & T5Gemma2-2B & 20 & 14 & 2 & 67 & 103 \\
         & \mainname-2B & 31 & 17 & 2 & 53 & 103 \\
 \bottomrule
 \end{tabular}
@@ -383,7 +383,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 \end{table}
 
 Counts in \autoref{tab:failure-taxonomy} are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid \mainname-2B tasks include the documented budget-exhaustion (fail-closed) task.
-Invalid generation essentially disappears under \mainname{}: the all-invalid category drops from 4/0/3 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
+Invalid generation essentially disappears under \mainname{}: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
 Ranking failures persist (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
 The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
 

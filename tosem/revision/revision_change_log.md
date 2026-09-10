@@ -243,3 +243,23 @@
 - Selection discipline: 4 recipes x 5 epoch checkpoints were compared only on the
   32-task holdout; the 16-task test was opened exactly once for the selected
   configuration. Full record: artifacts/humaneval_aligned_retrain_20260909/.
+
+## 2026-09-10: Strengthened TransCoder-GFG baseline in RQ1 Table 1
+
+- The TransCoder-GFG T5Gemma2-2B baseline row was replaced using the same
+  pre-registered audit-and-holdout discipline as the HumanEval-Java baseline.
+  Old row: 13.59 / 27.18 / 7.74 / 25.05 (checkpoint
+  t5gemma2-2b_java_mbjp_transcoder_gfg_mbjp_native_prompt2164_v13_exposure3_pair_frombase_stage2_selected_20260819,
+  lr 5e-5, last-checkpoint selection).
+  New row: 19.42 / 33.01 / 7.10 / 13.69 (checkpoint
+  t5gemma2-2b_gBfinal_mbjpgfg1022_lr1e5_20260910/gBfinal_20260910/epoch_15;
+  trained on the MBJP-608 + TransCoder-GFG-414 training splits (1,022 tasks),
+  lr 1e-5, 30 passes; epoch selected on a 60-task validation holdout from the
+  TransCoder-GFG training split; decoding unchanged: HF beam 10).
+- TyFlow rows unchanged (30.10 / 46.60 / 5.81 / 2.75).
+- Failure-taxonomy table (appendix) GFG baseline column recomputed:
+  Solved@1 20, Ranking 14, All-invalid 2, Well-typed-wrong 67; prose updated
+  (all-invalid baseline 4/0/2).
+- Selection discipline: 5 epoch checkpoints compared only on the 60-task
+  holdout; the 103-task test was opened exactly once. Scores frozen under
+  artifacts/humaneval_aligned_retrain_20260909/scores/gfg_gBfinal_e15_baseline_test103_score.json.
