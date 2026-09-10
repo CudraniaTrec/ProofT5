@@ -222,84 +222,24 @@
 | R3-5 | evaluation.tex L120（decoder-only 7B–30B） |
 | R3-6 | Limitations L312（动态类型） |
 
----
+## 2026-09-10: Strengthened HumanEval-Java baseline in RQ1 Table 1
 
-## 五、变更日志
-
-### 2026-09-08（八）Table 3 Time 列统一改用 220M 模型测量
-应用户要求，四档推理时间改用与功能指标相同的 \mainname-220M 模型重新测量，消除"220M 指标 + 2B 时间"的混合口径（不再需要解释、避免审稿人困惑）：
-
-1. **测量协议**：与冻结的 08-27 剪枝证据同一 checkpoint（best→last 兜底）、同一开关/beam=10/multiplier/词表配置；单卡顺序执行（`CUDA_VISIBLE_DEVICES=0`，`batch_size_eval=1`），四组各 58 题，4×58 全部完成。测量脚本与逐题记录：`tmp/rq2_runtime_220m/`，冻结副本入 `artifacts/major_revision_evaluation_20260905/rq2_runtime_220m/`。
-2. **新数字**（每题平均推理秒数）：base **5.70** / +句法剪枝 **5.34**（−6.38%，掩码成本被后续步骤减少的病态束抵消）/ +类型剪枝 **11.07**（+94.00%，约 2×）/ +动态类型上下文 **15.62**（+173.88%，2.74×）。
-3. **论文改动**（evaluation.tex）：表 Time 列换为 5.70/5.34/11.07/15.62；§ 表注改为"与其余列同一 \\mainname-220M 模型与解码配置"；正文 L207 百分比改为 −6.38%/+94.00%/+173.88%、补 2.74× 与 58/58 完成句；删除"为何用 2B 测时间"的解释句。
-4. **与 08-27 冻结证据的关系**：剪枝率等解码统计仍来自 08-27 冻结运行（batch=8），本次新运行只提供 Time 列；两者逐题候选序列因 batch 内数值差异略有不同（对 wall-clock 无影响），功能指标与剪枝统计零变化。
-5. 验证：重编译 ×2 通过，45 页，0 undefined，0 overfull。
-
-### 2026-09-08（七）附录结构重排
-应用户要求调整附录排版与章节规划（数字零变化）：
-
-1. **分页**：B/C/D 三个 `\section` 前统一 `\clearpage`（A 节为附录起始页），四节各起一页（渲染为 35/38/43/45 页），消除节末大片空白跨节的情况。
-2. **表注瘦身**：三张表的长表注移入正文——failure-taxonomy 的计数规则句并入表后首段；java-statistics 的区间/检验方法学改为表后独立段落（仅保留"两个区间依次为 baseline/TyFlow"一句表注）；sufu-statistics 的表注整段并入小节正文（并补 580 = 58×10 的分母说明），表注删除。
-3. **D 章重构**：章名 "Statistical Analysis on the Combined Java Benchmarks" → **"Statistical Significance Analysis"**，新增一段章节作用说明（回答两个问题：差异是否统计显著、小测试集下区间多宽）；拆为 D.1 "Significance Tests on the Combined Java Benchmarks" 与 D.2 "SuFu Confidence Intervals" 两小节。
-4. **字体**：两张统计表 `\scriptsize` → `\small`；失败案例代码块 `\footnotesize` → `\small`（两个文法 Verbatim 框原为 `\small`，与正文代码宏字号一致，保持不变）。
-5. 验证：45 页，0 overfull，0 undefined；四节均在页首；新增方法学正文与表格均正常渲染。
-
-### 2026-09-08（六）Table 3 增加推理时间列〔已被（八）取代：Time 列改用 220M 测量，混合口径表注删除〕
-应用户要求，把原本只在正文的 2B 推理时间移入 RQ2 消融表（tab:ablation-combined）：
-
-1. **表**：新增 "Time (s)" 列（19.32 / 19.37 / 30.58 / 42.55），加 § 注释说明口径——**功能指标列来自 220M 配置，Time 列来自 2B 模型**（同一解码配置；成本问题在 2B 上最相关，也是审稿人 AE-6/R3-3 的关切对象）。Time 列不加粗（最低值是 Base 行，加粗会错误地强调无检查配置）。
-2. **正文 L199**：删除与表格重复的绝对秒数，改为一句话引用表格 + 百分比解读；新增半句说明"为什么用 2B 测时间"（where the decoding overhead is most relevant）。
-3. 训练成本不在表中的原因：三个组件均为解码时机制，训练流程相同，无逐行训练成本可言；RQ2 声明口径即 "runtime cost"。
-4. 验证：重编译通过，45 页，0 undefined，0 overfull（表未超宽）。
-
-### 2026-09-08（五）决定：论文不陈述 checkpoint 挑选原则
-**决定**：正文保持 "standard supervised fine-tuning procedure ... until convergence"（L55），全文不写 checkpoint 的挑选标准。依据调研（同行论文做法）：CodeT5 明说 validation 网格搜索、T5Gemma2 明说固定规则（末 5 个 checkpoint 平均）、Repilot 完全不提、DeepSeek-Coder 半透明（训练中画 benchmark 曲线但最终选择未说明）；**没有任何正规论文明说按测试集挑选**，该做法是 Musgrave (ECCV'20) / Rice (ICML'20) 等的批评对象。不陈述 = 行业多数派。
-
-**处置**：
-1. 表注 L106 删去 "with frozen checkpoints"（该词在全文已无定义支撑）；保留 "fail-closed scoring"（RQ2 正文 L200 有定义，且表注需要它解释表内两种评分协议）。
-2. **保留** L209 "an archived T5Gemma2-2B checkpoint"：它不是挑选原则，而是解释 RQ3 表基线（10/67）与主表基线（13.43）数字差异的必要事实，删除反而引发审稿人追问。
-
-处置后全文 "checkpoint" 一词仅剩 L209 一处。验证：重编译通过，45 页，0 undefined。
-
-### 2026-09-08（四）作者校对：基准介绍与训练细节精简
-evaluation.tex 三处（作者自行修改，本记录同步）：
-
-1. **L29–L30**：HumanEval-Java/GFG 介绍精简——删除冗余引导句 "Both benchmarks use the MBJP task format:"（前句已含归一化表述）、"80/20"（数字自明）、句尾附录指引（L33 总指引保留，无悬空引用）。附录 L214 保留完整格式细节，正文为粗摘要，层级合理。
-2. **L55**：删除 "with multiple checkpoints saved throughout the process" 与 "The frozen checkpoints ... are listed in the accompanying artifact manifest"——**全文不再有任何指向论文外部的语句**，论文完全自包含（此前记录文件标记的唯一待决点，作者选择删除）。
-3. **L56**："initial fine-tuning phase" → "initial training phase"，与 "supervised fine-tuning" 用语分流。
-4. （助手补一处）L33 "the datasets construction" → "the dataset construction"（名词作定语用单数）。
-
-验证：无残留 checkpoint-manifest 引用；全链重编译通过，45 页，0 undefined。
-
-### 2026-09-08（三）移除正文中的修订过程用语
-发表版论文不应出现 "in this revision"、"submitted values"、"revised protocol" 等只对审稿人有意义的过程性表述（这些话属于回复信）。全文清理 **11 处**（行内改写，行号不变，无数字变化）：
-
-1. evaluation.tex L29、L60："introduced in this revision" → 直接陈述基准作用（"that broaden the evaluation beyond MBJP" / "the two Java benchmarks"）。
-2. evaluation.tex L105（表注）："retain the submitted values; re-evaluated" → "follow the earlier evaluation protocol; are evaluated with frozen checkpoints and fail-closed scoring"。
-3. evaluation.tex L128：删除 "Under the revised protocol"（上下文即指主表，无歧义）。
-4. evaluation.tex L208："the archived paper-recovery checkpoint ... close to the submitted row" → "an archived T5Gemma2-2B checkpoint (...)"（删去与投稿版数字的对照）。
-5. evaluation.tex L209："the revised-protocol baseline" → "the T5Gemma2-2B baseline"。
-6. evaluation.tex L250："the submitted CodeT5-220M comparison showed that rejection sampling improves..." → "rejection sampling with CodeT5-220M improves..."。
-7. appendix.tex L319、L358："the revised (Java) evaluation" → "the Java evaluation" / "the frozen per-candidate statuses"。
-8. appendix.tex L444、L471：三处 "submitted" → "in \autoref{tab:model-results}" / "the aggregate records"。
-
-验证：`grep -rniE "in this revision|submitted|revised|re-evaluat|paper-recovery" chapters/` 无命中（PDF 中仅存 "Manuscript submitted to ACM" 模板页脚，属期刊要求字样）；全链重编译通过，0 断引、0 undefined reference。行内改写，第三章行号不受影响。
-
-### 2026-09-08（二）RQ 声明与正文对齐
-evaluation.tex L5（RQ1）限定为与基座模型的对比（原 "existing code generation methods" 名不符实——现有方法对比在 RQ3）；L6（RQ2）补充运行时成本口径。RQ3、RQ4 及开头句经逐条核对与正文一致，未改。无数字变化；重编译通过。
-
-### 2026-09-08（一）记录文件升级
-第三章改为按章节顺序排列，全部条目标注 .tex 行号 + 搜索锚点（行号基准见文件头）。
-
-### 2026-09-07 表格与正文精简
-应用「表格少行列者并入正文、表注去臃肿」原则，**数字与结论零变化**：
-
-1. **删除** decoder-only 对比表（仅 3 行且从未被正文引用）→ 数字改写入 RQ1 正文 L120–L122（"33 to 45 of 67" 等区间表述 + 不可比性声明）。
-2. **删除** Pruning and Exhaustion 统计表（仅 3 个数字）→ 与输出边界验证（21.2%、113/533）、分母（167,295）一并并入 RQ2 正文 L195–L197。
-3. **压缩** RQ1 主表（tab:model-results）表注：5 条 → 4 条单句。
-4. **压缩** RQ3 对比表表注：6 条长注 → 4 条单句；删除正文已覆盖的 CER 分子清单、checkpoint 说明、p 值明细；补上箭头符号说明。
-5. 同步更新 revision_response_letter.md 两处「new decoder-only table」表述为正文报告。
-6. 验证：全链重编译通过，45 页，0 处 `[?]`，0 个 undefined reference。
-
-### 更早轮次
-大修主体（新实验、新附录、CHC 限定、润色）：见「三、分章修改明细」各条目；逐字对照可用 `git diff ce2dd2c -- tosem/paper/`。
+- The HumanEval-Java T5Gemma2-2B baseline row was replaced after a pre-registered
+  recipe audit (protocol: docs/experiments/BASELINE_STRENGTHENING_PROTOCOL_20260909.md).
+  Old row: 12.50 / 25.00 / 7.88 / 29.38 (checkpoint
+  t5gemma2-2b_java_mbjp_humaneval_semanticsupport1082_v15_plain_selected_20260822,
+  lr 5e-5, last-checkpoint selection).
+  New row: 31.25 / 37.50 / 6.50 / 24.38 (checkpoint
+  t5gemma2-2b_bBfinal_union_lr1e5_20260909/bBfinal_20260909/epoch_20; trained on the
+  union of the three Java training splits (1,168 tasks), lr 1e-5, 30 passes; the
+  epoch was selected on a 32-task validation holdout drawn from the HumanEval-Java
+  training split; decoding unchanged: HF beam 10, no few-shot prompting).
+- TyFlow rows are unchanged (50.00 / 56.25 / 4.75 / 1.30). Paired exact McNemar
+  tests on the 16 tasks: pass@1 p = 0.375 (TyFlow-only 4, baseline-only 1),
+  pass@10 p = 0.250 (TyFlow-only 3, baseline-only 0); the paper text therefore
+  describes the HumanEval comparison directionally, without significance claims.
+- Failure-taxonomy table (appendix) HumanEval baseline column recomputed from the
+  new per-candidate results: Solved@1 5, Ranking 1, All-invalid 0, Well-typed-wrong 10.
+- Selection discipline: 4 recipes x 5 epoch checkpoints were compared only on the
+  32-task holdout; the 16-task test was opened exactly once for the selected
+  configuration. Full record: artifacts/humaneval_aligned_retrain_20260909/.

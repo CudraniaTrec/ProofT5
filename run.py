@@ -272,8 +272,12 @@ class MetricLogger:
             self.writer = None
 
 class Communicate:
-    def __init__(self, file_name="tmp/communicate.json"):
-        self.filename = file_name
+    def __init__(self, file_name=None):
+        # Overridable so concurrent same-repo runs (e.g. eval shards) do not
+        # clobber each other's inter-process state.
+        self.filename = file_name or os.environ.get(
+            "PROOFT5_COMMU_FILE", "tmp/communicate.json"
+        )
         os.makedirs(os.path.dirname(self.filename) or ".", exist_ok=True)
         if not os.path.exists(self.filename):
             with open(self.filename, "w") as f:

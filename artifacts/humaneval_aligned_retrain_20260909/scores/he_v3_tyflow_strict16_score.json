@@ -1,0 +1,173 @@
+{
+  "average_candidate_success_rate": 0.02857142857142857,
+  "average_first_success_position": 9.375,
+  "benchmark_source_path": "",
+  "benchmark_source_sha256": "",
+  "benchmark_source_verification": null,
+  "benchmark_source_verified_equal": false,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15_test_ans/tyflow_v3_he_strict16_merged_20260909",
+  "candidate_output_manifest_sha256": "344b67bf1157a8f980d9c9e541b5b1290b09ff5867fbd2c1e13d4564cec990b9",
+  "candidate_timeout_seconds": 10.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      1,
+      5
+    ],
+    [
+      1,
+      6
+    ],
+    [
+      1,
+      7
+    ],
+    [
+      1,
+      8
+    ],
+    [
+      1,
+      9
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      11,
+      4
+    ],
+    [
+      11,
+      5
+    ],
+    [
+      11,
+      6
+    ],
+    [
+      11,
+      7
+    ],
+    [
+      11,
+      8
+    ],
+    [
+      11,
+      9
+    ],
+    [
+      13,
+      0
+    ],
+    [
+      13,
+      1
+    ],
+    [
+      13,
+      2
+    ]
+  ],
+  "compile_error_rate": 0.14285714285714285,
+  "compile_errors": 20,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/test.pkl",
+  "dataset_pickle_sha256": "38be37d0c76bf708cf67413fab7d993a140241998442db23687e4d3d6ba58b79",
+  "first_success_pos": [
+    10,
+    10,
+    10,
+    10,
+    0,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "generation": {
+    "beam_size": 10,
+    "candidate_multiplier": 20,
+    "decoder": "proof_constrained",
+    "generation_max_length": null,
+    "length_penalty": 0.1
+  },
+  "ignored": 0,
+  "java_path": "/data2/x/hzc/.local/jdks/temurin17/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/data2/x/hzc/.local/jdks/temurin17/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 20,
+  "missing_problem_output_ids": [
+    9,
+    12
+  ],
+  "missing_problem_outputs": 2,
+  "model_checkpoint_path": "",
+  "model_checkpoint_sha256": "",
+  "model_output_task": "v3_staged_union_from_stage1_formal30_20260909",
+  "model_type": "last",
+  "output_tag": "tyflow_v3_he_strict16_merged_20260909",
+  "pass1": 0.0625,
+  "pass10": 0.0625,
+  "pass_at_k": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "problems": 16,
+  "solved": [
+    4
+  ],
+  "split": "test",
+  "task": "java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15",
+  "timeout_candidate_ids": [],
+  "timeouts": 0,
+  "top1_solved": [
+    4
+  ],
+  "total_tested": 140,
+  "train_time": ""
+}

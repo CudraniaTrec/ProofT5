@@ -66,5 +66,66 @@
       "wilson_95_percent": [1.28, 2.51]
     },
     "paired_per_task_error_fraction_sign_randomization_p": 2.9107676537857136e-32
+  },
+  "by_scale": {
+    "220M": {
+      "scope": {
+        "benchmark": "MBJP",
+        "tasks": 67,
+        "rationale": "tab:model-results reports the 220M scale only on MBJP; HumanEval-Java and TransCoder-GFG have no preserved 220M per-task arrays."
+      },
+      "pass_at_1": {
+        "CodeT5-220M": {
+          "successes": 7,
+          "total": 67,
+          "rate_percent": 10.45,
+          "wilson_95_percent": [5.15, 20.03]
+        },
+        "TyFlow-220M": {
+          "successes": 17,
+          "total": 67,
+          "rate_percent": 25.37,
+          "wilson_95_percent": [16.49, 36.93]
+        },
+        "exact_two_sided_mcnemar_p": 0.021300000000000001,
+        "discordant_baseline_only": 3,
+        "discordant_tyflow_only": 13
+      },
+      "pass_at_10": {
+        "CodeT5-220M": {
+          "successes": 14,
+          "total": 67,
+          "rate_percent": 20.90,
+          "wilson_95_percent": [12.88, 32.07]
+        },
+        "TyFlow-220M": {
+          "successes": 29,
+          "total": 67,
+          "rate_percent": 43.28,
+          "wilson_95_percent": [32.10, 55.19]
+        },
+        "exact_two_sided_mcnemar_p": 0.0014999999999999998,
+        "discordant_baseline_only": 3,
+        "discordant_tyflow_only": 18
+      },
+      "fsp": {
+        "CodeT5-220M": {"mean": 8.19},
+        "TyFlow-220M": {"mean": 6.36},
+        "exact_two_sided_sign_test_p": 0.0125
+      },
+      "cer": {
+        "CodeT5-220M": {
+          "errors": 238,
+          "returned_candidates": 670,
+          "rate_percent": 35.52
+        },
+        "TyFlow-220M": {
+          "errors": 3,
+          "returned_candidates": 670,
+          "rate_percent": 0.45
+        },
+        "paired_per_task_error_fraction_sign_test_p": 1.78e-13
+      }
+    }
   }
 }

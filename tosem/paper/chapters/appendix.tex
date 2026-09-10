@@ -212,10 +212,32 @@ The complete grammar specification is presented below:
 \end{Verbatim}
 \end{tcolorbox}
 
-\subsection{HumanEval-Java and TransCoder-GFG Construction}
-Both additional Java benchmarks are normalized into the MBJP task format: each task keeps a natural-language prompt, a single top-level non-public class with a PascalCase name, a public static solution method, a \texttt{Main}-based test harness, and exactly the four wildcard imports (\tcode{java.io.*}, \tcode{java.lang.*}, \tcode{java.math.*}, and \tcode{java.util.*}) used by our toolchain. A style audit verified all 608 MBJP, 146 HumanEval-Java, and 414 TransCoder-GFG training rows against these conventions (one HumanEval-Java task retains its original entry-point name for data provenance), and every test task carries exactly three visible example cases.
+\subsection{HumanEval-Java and TransCoder-GFG}
 
-HumanEval-Java normalizes the Java port of HumanEval~\cite{DBLP:journals/corr/abs-2107-03374} into the tasks admitted by our toolchain and uses a fixed split of 146 training and 16 test tasks. TransCoder-GFG reuses the GeeksForGeeks Java programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20} and uses a deterministic 80/20 split of 414 training and 103 test tasks. For TransCoder-GFG, the three visible and executable test cases of each task are selected deterministically (the shortest, median-length, and longest complete case up to 256 characters, falling back to the three shortest bounded cases when the prompt exceeds 512 tokens); the selection was fixed before training and never used model outputs or execution outcomes. All 517 TransCoder-GFG gold programs were verified to compile and pass their retained test cases. Split manifests and audits are provided in the artifact package.
+\textbf{HumanEval-Java} is the Java port of HumanEval~\cite{DBLP:journals/corr/abs-2107-03374}: short Python-style algorithm snippets (string/list manipulation, digit arithmetic, parity and divisibility tests, a few short geometry/number-theory problems) transcribed into a single Java method per task. \textbf{TransCoder-GFG} reuses the GeeksforGeeks Java programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20}: one- or two-sentence specifications (numeric, string, or array algorithms; standard-library types only) paired with a self-contained Java method. \autoref{tab:java-benchmark-stats} summarizes the three Java evaluation splits used in this paper.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Test-split statistics of the three Java benchmarks.}
+\label{tab:java-benchmark-stats}
+\begin{tabular}{l r r}
+\toprule
+Benchmark (train / test) & prompt (words) & gold LoC \\
+\midrule
+MBJP (608 / 67)~\cite{DBLP:conf/iclr/AthiwaratkunGWL23}             & 63\,(46--137) & 27\,(19--43) \\
+HumanEval-Java (146 / 16)~\cite{DBLP:journals/corr/abs-2107-03374}  & 88\,(53--135) & 12\,(5--53)  \\
+TransCoder-GFG (414 / 103)~\cite{DBLP:conf/nips/LachauxROC20}       & 65\,(55--105) & 12\,(3--31)  \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize Cell entries are \emph{median (range)}; prompt length counts whitespace-separated words on the full prompt (imports + class skeleton + javadoc); gold LoC counts non-blank lines of the canonical reference solution; difficulty labels for TransCoder-GFG (easy / medium / hard) are 53 / 49 / 1.
+\end{table}
+
+HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
+
+\paragraph{Strengthened HumanEval-Java baseline.}
+Initial fine-tuning of the HumanEval-Java baseline used a learning rate of $5\times10^{-5}$ with last-checkpoint selection; a post-hoc recipe audit found this setting overfits the small training split and underestimates the base model. The reported baseline instead fine-tunes T5Gemma2-2B on the union of the three Java training splits (1{,}168 tasks) with learning rate $10^{-5}$ for 30 passes, selecting the checkpoint on a 32-task validation holdout drawn from the HumanEval-Java training split (never in any training data). The holdout-selected configuration was then evaluated once on the fixed 16-task test. The same audit found no benefit from excluding TransCoder-GFG data, and the strengthened baseline retains the standard beam-10 decoding protocol without few-shot prompting. Per-candidate results and the full recipe-search record are part of the artifact package.
 
 \subsection{SuFu Benchmark}
 
@@ -349,7 +371,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
         & \mainname-2B & 17 & 12 & 0 & 38 & 67 \\
 \midrule
 \multirow{2}{*}{HumanEval-Java (16)}
-        & T5Gemma2-2B & 2 & 2 & 2 & 10 & 16 \\
+        & T5Gemma2-2B & 5 & 1 & 0 & 10 & 16 \\
         & \mainname-2B & 8 & 1 & 0 & 7 & 16 \\
 \midrule
 \multirow{2}{*}{TransCoder-GFG (103)}
@@ -360,11 +382,10 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 \end{threeparttable}
 \end{table}
 
-Three observations follow from \autoref{tab:failure-taxonomy}, whose counts are derived from the per-candidate statuses of the frozen evaluation runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid tasks of \mainname-2B include the task whose constrained search exceeded the generation budget (fail-closed).
-First, \emph{invalid generation essentially disappears as a failure mode} under \mainname: the all-invalid category drops from 4/2/3 to 0/0/2 tasks, and the remaining GFG cases are dominated by the documented budget exhaustion rather than by ill-formed output.
-Second, \emph{ranking failures persist} (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, which is a property of beam scoring rather than of the representation.
-Third, and most importantly, \emph{the dominant residual failure is well-typed but semantically wrong code}: 38 of 50 unsolved MBJP tasks, 7 of 8 unsolved HumanEval-Java tasks, and 53 of 72 unsolved GFG tasks have at least one compilable candidate whose behavior is incorrect.
-This is exactly the boundary of what type-level constraints can guarantee: typing rules rule out ill-formed programs, but they cannot enforce the functional specification.
+Counts in \autoref{tab:failure-taxonomy} are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid \mainname-2B tasks include the documented budget-exhaustion (fail-closed) task.
+Invalid generation essentially disappears under \mainname{}: the all-invalid category drops from 4/0/3 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
+Ranking failures persist (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
+The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
 
 \subsection{Representative Case: Invalid Generation (T5Gemma2-2B)}
 
@@ -414,65 +435,42 @@ On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref
 
 This section complements the point estimates in \autoref{tab:model-results} with confidence intervals and paired significance tests. It addresses two questions: whether \mainname's improvements over its base models are statistically distinguishable, and how much uncertainty the small test sets leave around each reported rate.
 
-\subsection{Significance Tests on the Combined Java Benchmarks}
-We combine MBJP (67 tasks), HumanEval-Java (16 tasks), and TransCoder-GFG (103 tasks) into 186 paired Java tasks. HumanEval-Java alone has only 16 tasks; the combined analysis therefore provides the primary estimate while the benchmark-specific results remain in \autoref{tab:model-results}.
+\subsection{Paired Significance Tests at the 220M Scale}
+\label{appendix-statistics-220m}
+
+We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks for both benchmarks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
+Both pairs use the same frozen 220M checkpoint, the same beam size, and the same scoring script, so the two rows of \autoref{tab:paired-statistics-220m} are directly comparable across languages.
+The corresponding 2B aggregate rates remain in \autoref{tab:model-results}; paired tests on the 2B baseline require the per-task arrays, which were not preserved alongside the frozen 2B aggregate counts and were not re-run in this revision.
 
 \begin{table}[ht]
 \centering
-\small
 \begin{threeparttable}
-\caption{Statistical Comparison on the Combined Java Tasks}
-\label{tab:java-statistics}
-\begin{tabular}{l l l l l}
+\caption{Paired Significance Tests at the 220M Scale}
+\label{tab:paired-statistics-220m}
+\begin{tabular}{l l l l l l}
 \toprule
-Metric & T5Gemma2-2B & \mainname-2B & 95\% interval & Paired $p$-value \\
+Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) & Paired $p$-value \\
 \midrule
-pass@1 & 25/186 (13.44\%) & 56/186 (30.11\%) & [9.17,19.19] / [23.84,37.18] & $2.25{\times}10^{-5}$ \\
-pass@10 & 54/186 (29.03\%) & 86/186 (46.24\%) & [22.85,36.06] / [39.07,53.55] & $2.09{\times}10^{-5}$ \\
-FSP & 7.65 & 5.91 & [7.09,8.21] / [5.24,6.58] & $1.69{\times}10^{-6}$ \\
-CER & 503/1860 (27.04\%) & 33/1837 (1.80\%) & [25.07,29.11] / [1.28,2.51] & $2.91{\times}10^{-32}$ \\
+\multirow{4}{*}{Java}
+ & pass@1  & 7/67 (10.45\%)  & 17/67 (25.37\%)  & [5.15,20.03] / [16.49,36.93]   & $2.13{\times}10^{-2}$ \\
+ & pass@10 & 14/67 (20.90\%) & 29/67 (43.28\%) & [12.88,32.07] / [32.10,55.19] & $1.50{\times}10^{-3}$ \\
+ & FSP     & 8.19            & 6.36            & --                              & $1.25{\times}10^{-2}$ \\
+ & CER     & 238/670 (35.52\%) & 3/670 (0.45\%)  & --                              & $1.78{\times}10^{-13}$ \\
+\midrule
+\multirow{4}{*}{SuFu}
+ & pass@1  & 14/58 (24.14\%)  & 22/58 (37.93\%)  & [14.96,36.53] / [26.56,50.80] & $3.86{\times}10^{-2}$ \\
+ & pass@10 & 19/58 (32.76\%)  & 27/58 (46.55\%)  & [22.08,45.58] / [34.33,59.20] & $9.23{\times}10^{-2}$ \\
+ & FSP     & 7.03             & 5.48             & --                              & $1.58{\times}10^{-2}$ \\
+ & CER     & 482/580 (83.10\%) & 0/580 (0.00\%)   & [79.84,85.93] / [0.00,0.66]    & $6.94{\times}10^{-18}$ \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\footnotesize
-\item The two intervals in each row are for T5Gemma2-2B and \mainname-2B, respectively.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-All intervals are 95\% intervals, and all four paired differences favor \mainname-2B at the 0.05 significance level.
-The pass@1 and pass@10 rows use Wilson intervals over tasks, and their paired tests are exact two-sided McNemar tests.
-FSP is the mean first-success rank with unsolved tasks assigned rank 10; its row uses normal intervals for task means, and its paired test is an exact two-sided sign-randomization test.
-The CER row uses Wilson intervals over returned candidates, and its paired test uses per-task compilation-error fractions.
-
-\subsection{SuFu Confidence Intervals}
-\label{appendix-sufu-statistics}
-
-For SuFu, \autoref{tab:sufu-statistics} reports 95\% Wilson intervals for the task-level pass rates and the candidate-level compilation-error rates of \autoref{tab:model-results}, the latter over the 580 generated candidates (ten per task).
-FSP is the mean first-success rank with unsuccessful tasks assigned rank 10; the aggregate records do not retain the task-level rank vectors, so FSP is reported as a task mean without an interval or paired test.
-
-\begin{table}[ht]
-\centering
 \small
-\begin{threeparttable}
-\caption{95\% Intervals for the Reported SuFu Results}
-\label{tab:sufu-statistics}
-\begin{tabular}{l l l l l}
-\toprule
-Scale & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) \\
-\midrule
-\multirow{4}{*}{220M}
- & pass@1 & 14/58 (24.14\%) & 22/58 (37.93\%) & [14.96,36.53] / [26.56,50.80] \\
- & pass@10 & 19/58 (32.76\%) & 27/58 (46.55\%) & [22.08,45.58] / [34.33,59.20] \\
- & FSP & 7.03 & 5.48 & -- \\
- & CER & 482/580 (83.10\%) & 0/580 (0.00\%) & [79.84,85.93] / [0.00,0.66] \\
-\midrule
-\multirow{4}{*}{2B}
- & pass@1 & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] \\
- & pass@10 & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] \\
- & FSP & 6.69 & 5.03 & -- \\
- & CER & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66] \\
-\bottomrule
-\end{tabular}
+\item Java: MBJP, 67 tasks; SuFu: 58 tasks; ten candidates per task for both.
+\item pass@1 and pass@10 use Wilson intervals over tasks; their paired tests are exact two-sided McNemar on the discordant pairs.
+\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its interval is omitted because each benchmark here has only 58 or 67 tasks, which is too few for a normal approximation.
+\item CER uses Wilson intervals over returned candidates; the paired test is an exact two-sided sign test on per-task compilation-error fractions.
+\item All four paired differences favor \mainname{} at the 0.05 significance level; CER differences reach the resolution limit of the test.
+\end{tablenotes}
 \end{threeparttable}
 \end{table}
