@@ -384,7 +384,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 
 Counts in \autoref{tab:failure-taxonomy} are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid \mainname-2B tasks include the documented budget-exhaustion (fail-closed) task.
 Invalid generation essentially disappears under \mainname{}: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
-Ranking failures persist (12--17 tasks per benchmark): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
+Ranking failures persist (12--17 tasks on MBJP and TransCoder-GFG): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
 The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
 
 \subsection{Representative Case: Invalid Generation (T5Gemma2-2B)}
@@ -440,7 +440,7 @@ This section complements the point estimates in \autoref{tab:model-results} with
 
 We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks for both benchmarks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
 Both pairs use the same frozen 220M checkpoint, the same beam size, and the same scoring script, so the two rows of \autoref{tab:paired-statistics-220m} are directly comparable across languages.
-The corresponding 2B aggregate rates remain in \autoref{tab:model-results}; paired tests on the 2B baseline require the per-task arrays, which were not preserved alongside the frozen 2B aggregate counts and were not re-run in this revision.
+The corresponding 2B aggregate rates remain in \autoref{tab:model-results}; \autoref{appendix-statistics-2b} reports the paired tests for the two 2B benchmarks whose per-task arrays are preserved.
 
 \begin{table}[ht]
 \centering
@@ -471,6 +471,46 @@ Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname)
 \item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its interval is omitted because each benchmark here has only 58 or 67 tasks, which is too few for a normal approximation.
 \item CER uses Wilson intervals over returned candidates; the paired test is an exact two-sided sign test on per-task compilation-error fractions.
 \item All four paired differences favor \mainname{} at the 0.05 significance level; CER differences reach the resolution limit of the test.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Paired Significance Tests at the 2B Scale}
+\label{appendix-statistics-2b}
+
+The HumanEval-Java and TransCoder-GFG baselines and the matched \mainname-2B runs both retain per-task records, so \autoref{tab:paired-statistics-2b} repeats the same tests at the 2B scale.
+On TransCoder-GFG (103 tasks) the pass@10 improvement is significant ($p=0.013$), as is the candidate-level compilation-error difference ($p<10^{-5}$); pass@1 and FSP fall just outside the 0.05 level ($p=0.061$ and $p=0.096$).
+On HumanEval-Java (16 tasks) no paired test reaches significance, which is expected at this test size; the point estimates and the CER gap favor \mainname{} in the same direction, and we treat the 16-task comparison as directional evidence only.
+The MBJP and SuFu 2B rows retain aggregate counts only, so no paired test is reported for them.
+
+\begin{table}[ht]
+\centering
+\begin{threeparttable}
+\caption{Paired Significance Tests at the 2B Scale}
+\label{tab:paired-statistics-2b}
+\begin{tabular}{l l l l l l}
+\toprule
+Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
+\midrule
+\multirow{4}{*}{HumanEval-Java (16)}
+ & pass@1  & 5/16 (31.25\%)  & 8/16 (50.00\%)  & [14.16,55.60] / [28.00,72.00] & $3.75{\times}10^{-1}$ \\
+ & pass@10 & 6/16 (37.50\%)  & 9/16 (56.25\%)  & [18.48,61.36] / [33.18,76.90] & $2.50{\times}10^{-1}$ \\
+ & FSP     & 6.50            & 4.75            & --                            & $3.75{\times}10^{-1}$ \\
+ & CER     & 24.38\%         & 1.25\%          & --                            & $9.77{\times}10^{-4}$ \\
+\midrule
+\multirow{4}{*}{TransCoder-GFG (103)}
+ & pass@1  & 20/103 (19.42\%) & 31/103 (30.10\%) & [12.94,28.10] / [22.09,39.54] & $6.14{\times}10^{-2}$ \\
+ & pass@10 & 34/103 (33.01\%) & 48/103 (46.60\%) & [24.68,42.56] / [37.26,56.18] & $1.25{\times}10^{-2}$ \\
+ & FSP     & 7.10             & 5.81             & --                            & $9.61{\times}10^{-2}$ \\
+ & CER     & 13.69\%          & 2.72\%           & --                            & $3.39{\times}10^{-6}$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Ten candidates per task; the same scorers and decoding protocols as \autoref{tab:model-results}.
+\item pass@1 and pass@10 use Wilson intervals over tasks and exact two-sided McNemar tests on the discordant pairs.
+\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; the interval is omitted because the mean is not used for significance here, and the paired test is an exact two-sided sign test.
+\item CER entries are per-task mean compilation-error fractions; their paired test is an exact two-sided sign test on the per-task fractions.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

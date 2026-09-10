@@ -263,3 +263,28 @@
 - Selection discipline: 5 epoch checkpoints compared only on the 60-task
   holdout; the 103-task test was opened exactly once. Scores frozen under
   artifacts/humaneval_aligned_retrain_20260909/scores/gfg_gBfinal_e15_baseline_test103_score.json.
+
+## 2026-09-10 (cont.): Synchronized statistics and text with the strengthened baselines
+
+Impact audit of the two replaced baseline rows (HumanEval-Java, TransCoder-GFG),
+with every downstream reference updated:
+
+- RQ1 Table 1 (tab:model-results): both baseline rows updated; TyFlow rows untouched.
+- Appendix failure taxonomy (tab:failure-taxonomy): HumanEval baseline column
+  (5/1/0/10) and GFG baseline column (20/14/2/67) recomputed from per-candidate
+  data; prose updated (all-invalid baseline 4/0/2; ranking-failure range scoped to
+  MBJP and TransCoder-GFG).
+- Appendix statistics: the previous statement that 2B per-task arrays were not
+  preserved no longer held for two benchmarks. Added
+  Sec. "Paired Significance Tests at the 2B Scale" (tab:paired-statistics-2b) with
+  Wilson intervals and paired tests: TransCoder-GFG pass@10 p = 1.25e-2 (significant),
+  pass@1 p = 6.14e-2, FSP p = 9.61e-2, CER p = 3.39e-6; HumanEval-Java all tests
+  non-significant (pass@1 p = 0.375, pass@10 p = 0.250, FSP p = 0.375, CER p = 9.77e-4),
+  reported as directional evidence at n = 16.
+- Appendix benchmark section: strengthened-baseline protocol paragraph covers both
+  benchmarks (lr 1e-5, 30 passes, holdouts of 32 and 60 tasks, single test opening).
+- Unchanged and verified: RQ2 ablation, RQ3 table and its archived-control note
+  (MBJP-only), RQ4 table, Table 2 decoder-only comparison and footnotes, SuFu
+  statistics, the MBJP baseline row, and all TyFlow rows.
+- All score JSONs and the sweep records are frozen in
+  artifacts/humaneval_aligned_retrain_20260909/ (SUMMARY.md indexes them).
