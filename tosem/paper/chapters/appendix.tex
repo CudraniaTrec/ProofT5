@@ -541,6 +541,7 @@ CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  &
 \begin{tablenotes}
 \small
 \item One row per task, ten candidates per task ($186\times10 = 1{,}860$ candidate slots); discordant counts for pass@1 are 35 in favor of \mainname{} and 13 in favor of the baseline, and 35 vs.\ 11 for pass@10.
+\item The MBJP baseline row retains its original training recipe, while the HumanEval-Java and TransCoder-GFG baselines use the audited recipes of \autoref{tab:java-benchmark-stats}'s companion paragraph; re-auditing MBJP could only raise the baseline and thus can only shrink the reported differences, so the combined result is conservative.
 \item The same intervals and tests as \autoref{tab:paired-statistics-2b}; this is the primary statistical statement for the Java results at the 2B scale.
 \end{tablenotes}
 \end{threeparttable}
