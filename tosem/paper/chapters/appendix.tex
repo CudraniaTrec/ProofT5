@@ -478,10 +478,12 @@ Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname)
 \subsection{Paired Significance Tests at the 2B Scale}
 \label{appendix-statistics-2b}
 
-The HumanEval-Java and TransCoder-GFG baselines and the matched \mainname-2B runs both retain per-task records, so \autoref{tab:paired-statistics-2b} repeats the same tests at the 2B scale.
+The MBJP, HumanEval-Java, and TransCoder-GFG baselines and the matched \mainname-2B runs all retain per-task records, so \autoref{tab:paired-statistics-2b} repeats the same tests at the 2B scale for each benchmark separately, and \autoref{tab:paired-statistics-2b-java} pools the three Java benchmarks into the combined 186-task analysis.
+On MBJP the FSP and compilation-error differences are significant ($p=5.9{\times}10^{-3}$ and $p=3.5{\times}10^{-13}$) while the two pass rates fall just outside the 0.05 level ($p=0.057$ and $p=0.119$).
 On TransCoder-GFG (103 tasks) the pass@10 improvement is significant ($p=0.013$), as is the candidate-level compilation-error difference ($p<10^{-5}$); pass@1 and FSP fall just outside the 0.05 level ($p=0.061$ and $p=0.096$).
-On HumanEval-Java (16 tasks) no paired test reaches significance, which is expected at this test size; the point estimates and the CER gap favor \mainname{} in the same direction, and we treat the 16-task comparison as directional evidence only.
-The MBJP and SuFu 2B rows retain aggregate counts only, so no paired test is reported for them.
+On HumanEval-Java (16 tasks) no paired test on the pass rates reaches significance, which is expected at this test size; the point estimates and the CER gap favor \mainname{} in the same direction, and we treat those 16-task comparisons as directional evidence only.
+Pooling the three benchmarks restores power: in the combined 186-task analysis all four paired differences favor \mainname{} at the 0.05 significance level (\autoref{tab:paired-statistics-2b-java}), which is the primary statistical statement for the Java results at the 2B scale.
+The SuFu 2B rows retain aggregate counts only, so \autoref{tab:sufu-2b-intervals} reports Wilson intervals without a paired test; the candidate-level compilation-error intervals do not overlap ($61.21\%$ vs.\ $0.00\%$), while the pass-rate intervals overlap despite the gap in point estimates.
 
 \begin{table}[ht]
 \centering
@@ -491,6 +493,12 @@ The MBJP and SuFu 2B rows retain aggregate counts only, so no paired test is rep
 \begin{tabular}{l l l l l l}
 \toprule
 Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
+\midrule
+\multirow{4}{*}{MBJP (67)}
+ & pass@1  & 9/67 (13.43\%)  & 17/67 (25.37\%)  & [7.23,23.60] / [16.49,36.93]   & $5.74{\times}10^{-2}$ \\
+ & pass@10 & 22/67 (32.84\%) & 29/67 (43.28\%) & [22.79,44.74] / [32.10,55.19] & $1.19{\times}10^{-1}$ \\
+ & FSP     & 7.46            & 6.36            & --                             & $5.93{\times}10^{-3}$ \\
+ & CER     & 29.55\%         & 0.45\%          & --                             & $3.48{\times}10^{-13}$ \\
 \midrule
 \multirow{4}{*}{HumanEval-Java (16)}
  & pass@1  & 5/16 (31.25\%)  & 8/16 (50.00\%)  & [14.16,55.60] / [28.00,72.00] & $3.75{\times}10^{-1}$ \\
@@ -511,6 +519,51 @@ Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainna
 \item pass@1 and pass@10 use Wilson intervals over tasks and exact two-sided McNemar tests on the discordant pairs.
 \item FSP is the mean first-success rank with unsolved tasks assigned rank 10; the interval is omitted because the mean is not used for significance here, and the paired test is an exact two-sided sign test.
 \item CER entries are per-task mean compilation-error fractions over the ten nominal slots per task; their paired test is an exact two-sided sign test on the per-task fractions. The HumanEval-Java \mainname-2B value (1.25\%) therefore counts the six ungenerated slots as valid, whereas \autoref{tab:model-results} uses the 154 returned candidates as denominator (1.30\%).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{threeparttable}
+\caption{Combined Java Analysis at the 2B Scale (MBJP + HumanEval-Java + TransCoder-GFG, 186 Tasks)}
+\label{tab:paired-statistics-2b-java}
+\begin{tabular}{l l l l l}
+\toprule
+Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
+\midrule
+pass@1  & 34/186 (18.28\%) & 56/186 (30.11\%) & [13.39,24.46] / [23.97,37.05] & $2.09{\times}10^{-3}$ \\
+pass@10 & 62/186 (33.33\%) & 86/186 (46.24\%) & [26.96,40.38] / [39.22,53.41] & $5.36{\times}10^{-4}$ \\
+FSP     & 7.18             & 5.91             & --                            & $7.65{\times}10^{-4}$ \\
+CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item One row per task, ten candidates per task ($186\times10 = 1{,}860$ candidate slots); discordant counts for pass@1 are 35 in favor of \mainname{} and 13 in favor of the baseline, and 35 vs.\ 11 for pass@10.
+\item The same intervals and tests as \autoref{tab:paired-statistics-2b}; this is the primary statistical statement for the Java results at the 2B scale.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{threeparttable}
+\caption{SuFu at the 2B Scale: 95\% Wilson Intervals (No Paired Test)}
+\label{tab:sufu-2b-intervals}
+\begin{tabular}{l l l l}
+\toprule
+Metric & T5Gemma2-2B & \mainname-2B & Intervals (baseline / \mainname) \\
+\midrule
+pass@1 ($n{=}58$) & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] \\
+pass@10 ($n{=}58$) & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] \\
+CER ($n{=}580$) & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66] \\
+FSP & 6.69 & 5.03 & -- \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item SuFu per-task rank vectors were not preserved with the frozen 2B package, so no paired test is reported; FSP is the task mean only.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
