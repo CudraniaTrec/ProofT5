@@ -10,8 +10,15 @@ revised evaluation package and a focused set of manuscript changes. The
 Evaluation section now includes two additional Java benchmarks, a task-level
 failure analysis, runtime measurements on SuFu, pruning and beam-exhaustion
 statistics, comparisons with larger decoder-only models, and comparisons with
-SynCode, Repilot, rejection sampling, and iterative compiler repair. The
-Appendix reports the combined Java statistical analysis and the SuFu
+SynCode, Repilot, rejection sampling, and iterative compiler repair. We also
+re-audited the Java baseline training recipe and replaced the HumanEval-Java
+and TransCoder-GFG baselines with strengthened checkpoints (same benchmarks,
+same beam decoding, no prompt-engineering changes), so that the reported
+improvements are measured against stronger baselines; the audit and its
+holdout-based selection protocol are documented in Appendix B, and all frozen
+scores are included in the artifact package. The Appendix reports the combined
+Java statistical analysis---on the pooled 186 tasks all four paired
+differences remain significant with the strengthened baselines---and the SuFu
 confidence intervals.
 
 The remaining wording changes outside Evaluation and Appendix have been
@@ -31,7 +38,12 @@ the remaining TyFlow failures are primarily semantic rather than type errors.
 
 We added HumanEval-Java and TransCoder-GFG, both normalized to the existing
 Java task format. The benchmark-specific results remain in the main RQ1 table,
-and the Appendix reports the combined Java analysis over 186 paired tasks.
+and the Appendix reports the combined Java analysis over 186 paired tasks. To
+avoid under-trained baselines on the two added benchmarks, we re-audited the
+baseline recipe and retrained those two baselines (learning-rate correction
+and holdout-selected checkpoints; Appendix B); the combined analysis uses
+these stronger baselines and still finds significant differences on all four
+metrics.
 
 ### Missing discussion on scalability
 
@@ -69,7 +81,12 @@ ablation to which it belongs.
 We added Appendix D. MBJP, HumanEval-Java, and TransCoder-GFG are analyzed as
 186 paired Java tasks. For pass@1 and pass@10, the Appendix reports 95%
 Wilson intervals and exact two-sided paired McNemar tests. It also reports the
-corresponding intervals and paired tests for FSP and CER. For SuFu, the
+corresponding intervals and paired tests for FSP and CER. The merged analysis
+is computed with the strengthened baselines (Appendix B), so the significance
+of the pooled comparison is not an artifact of under-trained baselines; the
+benchmark-specific 2B table additionally shows where the individual test sets
+are too small to reach significance, which is why the pooled analysis carries
+the statistical conclusion. For SuFu, the
 Appendix reports 95% Wilson intervals for the reported task-level pass rates
 and candidate-level compilation-error rates over all 58 tasks. HumanEval-
 Java's 16-task result remains visible in the benchmark-specific table; the
@@ -81,7 +98,12 @@ statistical conclusion.
 The revised Evaluation reports the benchmark-specific Java results and the
 failure taxonomy. It now briefly explains that the type constraints primarily
 remove uncompilable candidates, while semantic errors can still affect the
-top-ranked candidate; the Java-subset scope is stated separately.
+top-ranked candidate; the Java-subset scope is stated separately. In addition,
+the Java baselines were re-audited and strengthened (Appendix B), which raises
+the HumanEval-Java baseline from 12.50% to 31.25% pass@1 and the
+TransCoder-GFG baseline from 13.59% to 19.42%; the reported Java
+improvements are therefore measured against stronger baselines, and on the
+pooled 186 tasks all four paired differences remain significant (Appendix D).
 
 ### Modern decoder-only models
 
@@ -116,9 +138,14 @@ semantic.
 ### W1: Benchmarks and statistical analysis
 
 We added two Java benchmarks and Appendix D's combined 186-task analysis with
-95% intervals and paired tests for the four reported metrics. We also add
-95% intervals for the submitted SuFu task and candidate proportions. The
-original benchmark-specific results are retained in RQ1.
+95% intervals and paired tests for the four reported metrics. The HumanEval-Java
+and TransCoder-GFG baselines were first re-audited and strengthened (Appendix B),
+so the analysis is not driven by weak baselines: on the pooled tasks the
+strengthened baselines solve 34/186 at pass@1 and 62/186 at pass@10, and the
+differences remain significant (pass@1 p = 0.0021, pass@10 p = 0.00054,
+FSP p = 0.00076, CER p = 1.3e-19). We also add 95% intervals for the submitted SuFu
+task and candidate proportions. The original benchmark-specific results are
+retained in RQ1.
 
 ### W2: Runtime overhead, richer types, beam exhaustion, and fallback
 
@@ -180,6 +207,16 @@ The Evaluation section now states as a concise limitation that the current
 implementation and experiments focus on languages with explicit typing rules
 and do not establish applicability to dynamically typed languages such as
 Python.
+
+### Artifact availability
+
+All results in the revision are backed by a frozen artifact package: the
+per-candidate outputs and score JSONs for every table, the pre-registered
+evaluation and baseline-strengthening protocols (including the validation
+holdouts and the epoch-selection rules), the recipe-search records, and
+SHA-256 sums for datasets, checkpoints, and scores. The package lets each
+reported number be traced to the exact checkpoint, dataset revision, and
+scoring configuration that produced it.
 
 Sincerely,
 The Authors
