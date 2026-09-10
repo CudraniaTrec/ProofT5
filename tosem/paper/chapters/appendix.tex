@@ -470,7 +470,7 @@ Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname)
 \item pass@1 and pass@10 use Wilson intervals over tasks; their paired tests are exact two-sided McNemar on the discordant pairs.
 \item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its interval is omitted because each benchmark here has only 58 or 67 tasks, which is too few for a normal approximation.
 \item CER uses Wilson intervals over returned candidates; the paired test is an exact two-sided sign test on per-task compilation-error fractions.
-\item All four paired differences favor \mainname{} at the 0.05 significance level; CER differences reach the resolution limit of the test.
+\item In the Java block all four paired differences favor \mainname{} at the 0.05 significance level; in the SuFu block pass@1, FSP, and CER do, while pass@10 is borderline ($p=9.23{\times}10^{-2}$). CER differences reach the resolution limit of the test.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -510,7 +510,7 @@ Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainna
 \item Ten candidates per task; the same scorers and decoding protocols as \autoref{tab:model-results}.
 \item pass@1 and pass@10 use Wilson intervals over tasks and exact two-sided McNemar tests on the discordant pairs.
 \item FSP is the mean first-success rank with unsolved tasks assigned rank 10; the interval is omitted because the mean is not used for significance here, and the paired test is an exact two-sided sign test.
-\item CER entries are per-task mean compilation-error fractions; their paired test is an exact two-sided sign test on the per-task fractions.
+\item CER entries are per-task mean compilation-error fractions over the ten nominal slots per task; their paired test is an exact two-sided sign test on the per-task fractions. The HumanEval-Java \mainname-2B value (1.25\%) therefore counts the six ungenerated slots as valid, whereas \autoref{tab:model-results} uses the 154 returned candidates as denominator (1.30\%).
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
