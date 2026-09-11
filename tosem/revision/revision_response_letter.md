@@ -47,7 +47,7 @@ metrics.
 
 ### Missing discussion on scalability
 
-RQ2 now reports pruning statistics and 2B SuFu inference time for the
+RQ2 now reports pruning statistics and 220M SuFu inference time for the
 no-check, syntactic-pruning, type-pruning, and dynamic-context configurations.
 The text also states the observed beam-exhaustion result and the fail-closed
 behavior when the fixed generation budget produces fewer than ten completed
