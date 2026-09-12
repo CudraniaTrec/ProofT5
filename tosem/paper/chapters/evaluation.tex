@@ -109,9 +109,13 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 The 220M MBJP pass@1 gain is modest (10.45\% to 11.94\%) because the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10, FSP, and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 
-To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only base models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) prompted zero-shot and few-shot, alongside the two fine-tuned 2B encoder-decoder models as protocol-different references.
-Prompted models of this scale solve more Java tasks than \mainname-2B, but none solves any SuFu task zero-shot and few-shot prompting reaches at most 8 of 58, where \mainname-2B solves 25; since these models are prompted rather than fine-tuned, the comparison situates absolute difficulty rather than isolates a like-for-like method gap.
-Within the fine-tuned pair, \mainname-2B solves more tasks than its base model T5Gemma2-2B on all four benchmarks (17 vs.\ 9 on MBJP, 8 vs.\ 5 on HumanEval-Java, 31 vs.\ 20 on TransCoder-GFG, and 25 vs.\ 17 on SuFu).
+To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters), prompted with the same MBJP-normalized task prompt in all conditions, alongside the two fine-tuned 2B encoder-decoder models as protocol-different references.
+Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks (three fixed synthetic Java examples, so no benchmark solution is copied into the prompt) and six train-only examples for SuFu.
+On Java these models are difficult to beat: they solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models, and HumanEval-Java in particular is close to saturated for the strongest of them.
+On SuFu the picture reverses: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
+The few-shot behaviour carries a further observation: for the two Qwen3 models, few-shot prompting yields no Java gain over zero-shot (14B: $42{\to}41$ on MBJP, $14{\to}11$ on HumanEval-Java, $50{\to}49$ on TransCoder-GFG; 30B: $42{\to}45$, $13{\to}14$, $52{\to}52$) and helps only on SuFu ($0{\to}6/8$); MiMo-7B is the exception, gaining substantially on two Java benchmarks ($3{\to}10$ on HumanEval-Java, $38{\to}43$ on TransCoder-GFG).
+Since the effect is model-dependent, we do not claim benchmark contamination; we note only that demonstrating the target format is uninformative exactly where zero-shot performance is already high, which is consistent with these long-standing Java benchmarks being well represented in web-scale pretraining data, and we therefore read the Java columns as evidence that the external bar is high rather than as a like-for-like method comparison.
+Within the controlled fine-tuned pair, \mainname-2B solves more tasks than its base model T5Gemma2-2B on all four benchmarks (17 vs.\ 9 on MBJP, 8 vs.\ 5 on HumanEval-Java, 31 vs.\ 20 on TransCoder-GFG, and 25 vs.\ 17 on SuFu).
 
 \begin{table}[ht]
 \centering
@@ -134,7 +138,7 @@ T5Gemma2-2B\tnote{\dag}   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \m
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
-\item Cell entries are solved tasks at pass@1. Decoder-only rows use one greedy candidate per task; the few-shot condition uses three fixed synthetic Java examples for the Java benchmarks and six train-only examples for SuFu.
+\item Cell entries are solved tasks at pass@1. Decoder-only rows use one greedy candidate per task; the zero-shot condition uses the same task prompt in every case, and the few-shot condition prepends three fixed synthetic Java examples for the Java benchmarks and six train-only examples for SuFu.
 \item[\dag] T5Gemma2-2B and \mainname-2B are the fine-tuned encoder-decoder models with ten candidates per task (\autoref{tab:model-results}); their rows are a protocol-different reference, not a controlled comparison.
 \end{tablenotes}
 \end{threeparttable}
