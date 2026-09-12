@@ -109,8 +109,9 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 The 220M MBJP pass@1 gain is modest (10.45\% to 11.94\%) because the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10, FSP, and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 
-To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only base models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) prompted zero-shot and few-shot, alongside \mainname-2B as a protocol-different reference.
+To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only base models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) prompted zero-shot and few-shot, alongside the two fine-tuned 2B encoder-decoder models as protocol-different references.
 Prompted models of this scale solve more Java tasks than \mainname-2B, but none solves any SuFu task zero-shot and few-shot prompting reaches at most 8 of 58, where \mainname-2B solves 25; since these models are prompted rather than fine-tuned, the comparison situates absolute difficulty rather than isolates a like-for-like method gap.
+Within the fine-tuned pair, \mainname-2B solves more tasks than its base model T5Gemma2-2B on all four benchmarks (17 vs.\ 9 on MBJP, 8 vs.\ 5 on HumanEval-Java, 31 vs.\ 20 on TransCoder-GFG, and 25 vs.\ 17 on SuFu).
 
 \begin{table}[ht]
 \centering
@@ -127,13 +128,14 @@ MiMo-7B-Base        & 34 & 33 & 3  & 10 & 38 & 43 & 0 & 6 \\
 Qwen3-14B-Base      & 42 & 41 & 14 & 11 & 50 & 49 & 0 & 8 \\
 Qwen3-30B-A3B-Base  & 42 & 45 & 13 & 14 & 52 & 52 & 0 & 6 \\
 \midrule
-\mainname-2B\tnote{\dag} & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8} & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{25} \\
+T5Gemma2-2B\tnote{\dag}   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{17} \\
+\mainname-2B\tnote{\dag}   & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8}  & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{25} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
 \item Cell entries are solved tasks at pass@1. Decoder-only rows use one greedy candidate per task; the few-shot condition uses three fixed synthetic Java examples for the Java benchmarks and six train-only examples for SuFu.
-\item[\dag] \mainname-2B is the trained encoder-decoder model with ten candidates per task (\autoref{tab:model-results}); its row is a protocol-different reference, not a controlled comparison.
+\item[\dag] T5Gemma2-2B and \mainname-2B are the fine-tuned encoder-decoder models with ten candidates per task (\autoref{tab:model-results}); their rows are a protocol-different reference, not a controlled comparison.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
