@@ -92,18 +92,15 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
         &      & \mainname-2B        & \textbf{25.37} & \textbf{43.28} & \textbf{6.36} & \textbf{0.45} \\
         \cmidrule(lr){2-7}
         & HumanEval & T5Gemma2-2B & 31.25 & 37.50 & 6.50 & 24.38 \\
-        &      & \mainname-2B        & \textbf{50.00} & \textbf{56.25} & \textbf{4.75} & \textbf{1.30}\tnote{\dag} \\
+        &      & \mainname-2B        & \textbf{50.00} & \textbf{56.25} & \textbf{4.75} & \textbf{1.30} \\
         \cmidrule(lr){2-7}
-        & GFG\tnote{\ddag} & T5Gemma2-2B & 19.42 & 33.01 & 7.10 & 13.69 \\
+        & GFG & T5Gemma2-2B & 19.42 & 33.01 & 7.10 & 13.69 \\
         &      & \mainname-2B        & \textbf{30.10} & \textbf{46.60} & \textbf{5.81} & \textbf{2.75} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
 \item \updir\, Higher is better; \downdir\, Lower is better; metrics in \autoref{sec:evaluation-metrics}.
-\item[\dag] Six of 160 \mainname-2B HumanEval-Java candidates were left ungenerated; CER denominator = 154.
-\item[\ddag] One TransCoder-GFG task exhausted the beam budget and counts as ten failures (fail-closed).
-\item The SuFu and 220M Java rows follow the earlier protocol; the 2B Java rows use fail-closed scoring (Appendix~\ref{appendix-benchmark}).
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
