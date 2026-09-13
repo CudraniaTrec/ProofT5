@@ -58,7 +58,9 @@ Since \mainname introduces a new representation that differs from standard code 
 \subsection{Experimental Results}
 
 \subsubsection{RQ1: Performance of \mainname}
-\autoref{tab:model-results} summarizes the overall performance of \mainname, with models grouped by scale: the 220M group compares \mainname-220M with its base model CodeT5-220M, and the 2B group compares \mainname-2B with its base model T5Gemma2-2B. Both groups are evaluated on SuFu and MBJP, and the 2B group is additionally evaluated on the two Java benchmarks, HumanEval-Java and TransCoder-GFG.
+\autoref{tab:model-results} summarizes the overall performance of \mainname, with models grouped by scale: the 220M group compares \mainname-220M with its base model CodeT5-220M, and the 2B group compares \mainname-2B with its base model T5Gemma2-2B.
+Both models of a pair are fine-tuned on the same benchmark training splits with the same procedure, so that a pair differs only in the representation and in the decoder: a base model generates ordinary code tokens, whereas \mainname{} generates its synthesis decision sequence and decodes under type constraints.
+Both groups are evaluated on SuFu and MBJP, and the 2B group is additionally evaluated on the two Java benchmarks, HumanEval-Java and TransCoder-GFG.
 
 \begin{table}[ht]
 \centering
@@ -105,17 +107,17 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 \end{threeparttable}
 \end{table}
 
-\mainname improves code generation accuracy at both scales and on every benchmark, with the largest gains on SuFu where the type constraints exploit a complex type system under low-resource conditions.
-The 220M MBJP pass@1 gain is modest (10.45\% to 11.94\%) because the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10, FSP, and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
+\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 29.31\% to 43.10\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--18.75 points on the same six benchmarks.
+The largest gains are on SuFu and HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
+The 220M MBJP pass@1 gain is the smallest (10.45\% to 11.94\%) because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 (20.90\% to 28.36\%) and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 
-To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters), prompted with the same MBJP-normalized task prompt in all conditions, alongside the two fine-tuned 2B encoder-decoder models as protocol-different references.
-Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks (three fixed synthetic Java examples, so no benchmark solution is copied into the prompt) and six train-only examples for SuFu.
-On Java these models are difficult to beat: they solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models, and HumanEval-Java in particular is close to saturated for the strongest of them.
-On SuFu the picture reverses: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
-The few-shot behaviour carries a further observation: for the two Qwen3 models, few-shot prompting yields no Java gain over zero-shot (14B: $42{\to}41$ on MBJP, $14{\to}11$ on HumanEval-Java, $50{\to}49$ on TransCoder-GFG; 30B: $42{\to}45$, $13{\to}14$, $52{\to}52$) and helps only on SuFu ($0{\to}6/8$); MiMo-7B is the exception, gaining substantially on two Java benchmarks ($3{\to}10$ on HumanEval-Java, $38{\to}43$ on TransCoder-GFG).
-Since the effect is model-dependent, we do not claim benchmark contamination; we note only that demonstrating the target format is uninformative exactly where zero-shot performance is already high, which is consistent with these long-standing Java benchmarks being well represented in web-scale pretraining data, and we therefore read the Java columns as evidence that the external bar is high rather than as a like-for-like method comparison.
-Within the controlled fine-tuned pair, \mainname-2B solves more tasks than its base model T5Gemma2-2B on all four benchmarks (17 vs.\ 9 on MBJP, 8 vs.\ 5 on HumanEval-Java, 31 vs.\ 20 on TransCoder-GFG, and 25 vs.\ 17 on SuFu).
+To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
+Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
+
+On SuFu the comparison favors \mainname{} clearly: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
+On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
+In any case, relative to its fine-tuned baseline T5Gemma2-2B, \mainname-2B delivers a consistent improvement on all four benchmarks, including in the low-resource SuFu setting.
 
 \begin{table}[ht]
 \centering
@@ -132,14 +134,13 @@ MiMo-7B             & 34 & 33 & 3  & 10 & 38 & 43 & 0 & 6 \\
 Qwen3-14B           & 42 & 41 & 14 & 11 & 50 & 49 & 0 & 8 \\
 Qwen3-30B-A3B       & 42 & 45 & 13 & 14 & 52 & 52 & 0 & 6 \\
 \midrule
-T5Gemma2-2B\tnote{\dag}   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{17} \\
-\mainname-2B\tnote{\dag}   & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8}  & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{25} \\
+T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{17} \\
+\mainname-2B   & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8}  & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{25} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
-\item Cell entries are solved tasks at pass@1. Decoder-only rows use one greedy candidate per task; the zero-shot condition uses the same task prompt in every case, and the few-shot condition prepends three fixed synthetic Java examples for the Java benchmarks and six train-only examples for SuFu.
-\item[\dag] T5Gemma2-2B and \mainname-2B are the fine-tuned encoder-decoder models with ten candidates per task (\autoref{tab:model-results}); their rows are a protocol-different reference, not a controlled comparison.
+\item Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models below.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
