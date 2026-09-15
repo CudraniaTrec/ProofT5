@@ -1,0 +1,182 @@
+/data2/x/hzc/.uv-envs/prooft5-py313/lib/python3.13/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+train_set length : [232], total length : 232
+test_set length : [58], total length : 58
+train set(0) length: 232
+train set(0) mean rulelist length: 479.9568965517241
+train set(0) max rulelist length: 1815
+train set(0) mean nl length: 59.2801724137931
+train set(0) max nl length: 134
+test set(0) length: 58
+test set(0) mean rulelist length: 411.87931034482756
+test set(0) max rulelist length: 1852
+test set(0) mean nl length: 54.93103448275862
+test set(0) max nl length: 131
+test set(0) length: 58
+test set(0) mean rulelist length: 411.87931034482756
+test set(0) max rulelist length: 1852
+test set(0) mean nl length: 54.93103448275862
+test set(0) max nl length: 131
+Model loaded
+config is : {
+  'CodeLen': 329,
+  'NlLen': 512,
+  'base_vocab_rows': 0,
+  'batch_size': 4,
+  'batch_size_eval': 1,
+  'beam_size': 10,
+  'checkpoint_epoch': 200,
+  'cli_overrides': {
+    'disable_tqdm': True,
+    'eval_split': 'test',
+    'limit_train_batches': 0,
+    'metrics_file': '',
+    'model_output_task': 'sufucoqview',
+    'output_tag': '',
+    'runtime_dir': '',
+    'tensorboard_dir': '',
+  },
+  'coq_candidate_multiplier': None,
+  'coq_feature_lr': None,
+  'coq_feature_only': False,
+  'coq_final_only_check': False,
+  'coq_timeout': 20,
+  'coq_workers': 0,
+  'coqview_anchor_first_steps': 0,
+  'coqview_eval_mode_for_loss': False,
+  'coqview_extra_window_offsets': '',
+  'coqview_extra_window_repeats': 0,
+  'coqview_extra_window_steps': 0,
+  'coqview_history_gradient_policy': 'streaming_detached_self_kv',
+  'coqview_loss_reduction': 'sum',
+  'coqview_manual_distributed': True,
+  'coqview_max_step_offset': 0,
+  'coqview_prefix_replay_repeats': 0,
+  'coqview_prefix_replay_steps': 0,
+  'coqview_random_window_steps': None,
+  'coqview_skip_backward_for_debug': False,
+  'coqview_suffix_replay_repeats': 0,
+  'coqview_suffix_replay_steps': 0,
+  'coqview_sync_last_only': False,
+  'cut_prefix': False,
+  'ddp_find_unused_parameters': False,
+  'disable_sufu_grammar': False,
+  'disable_tqdm': True,
+  'distributed_timeout_minutes': 60,
+  'early_stop_after_final_steps': None,
+  'early_stop_max_first_final_len': None,
+  'embedding_size': 768,
+  'empty_cuda_cache': 50,
+  'enable_coqview': False,
+  'epoch_offset': 0,
+  'eval': True,
+  'eval_indices': '',
+  'eval_limit': 0,
+  'eval_max_len': 0,
+  'eval_num_workers': 2,
+  'eval_split': 'test',
+  'eval_start': 0,
+  'eval_step': 20,
+  'eval_step_init': 20,
+  'evaluation_only': False,
+  'force_coq_decoder': False,
+  'force_sufu_type_check': False,
+  'include_debug': False,
+  'lang': 'coq',
+  'length_penalty': 0.1,
+  'limit_train_batches': 0,
+  'lr': 0.0001,
+  'mask_id': 0,
+  'max_code_len': 329,
+  'max_coqview_len': 403,
+  'max_epoch': 200,
+  'max_nl_len': 134,
+  'max_num_trials': 3,
+  'metric': 'bleu',
+  'metrics_file': '',
+  'model_output_task': 'sufucoqview',
+  'model_type': 'last',
+  'no_swanlab': True,
+  'output_tag': '',
+  'pad_train_shards_to_equal_batches': False,
+  'patience': 5,
+  'precision': 'bf16',
+  'pretrain_model_type': 'best',
+  'pretrain_name': 'sufucoq',
+  'resume_output': False,
+  'rulenum': 32302,
+  'runtime_dir': 'tmp/runtime_state/sufucoqview',
+  'save_last_only': False,
+  'seed': 19970316,
+  'task': 'rq2sufu220m_grammar',
+  'tensorboard_dir': '',
+  'train_num_workers': 10,
+  'train_only_expanded_embedding_rows': False,
+  'train_time': '',
+  'validation': False,
+}
+Token indices sequence length is longer than the specified maximum sequence length for this model (524 > 512). Running this sequence through the model will result in indexing errors
+/data2/x/hzc/.uv-envs/prooft5-py313/lib/python3.13/site-packages/tree_sitter/__init__.py:36: FutureWarning: Language(path, name) is deprecated. Use Language(ptr, name) instead.
+  warn("{} is deprecated. Use {} instead.".format(old, new), FutureWarning)
+...Program model loaded
+Predefined length: 45(class) + 55(type)
+Task type: test
+Passing a tuple of `past_key_values` is deprecated and will be removed in Transformers v4.48.0. You should pass an instance of `EncoderDecoderCache` instead, e.g. `past_key_values=EncoderDecoderCache.from_legacy_cache(past_key_values)`.
+[0] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[1] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[2] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[3] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[4] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[5] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[6] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[7] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[8] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[9] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[10] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[11] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[12] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[13] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[14] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[15] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[16] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[17] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[18] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[19] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[20] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[21] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[22] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[23] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[24] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[25] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[26] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[27] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[28] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[29] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[30] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[31] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[32] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[33] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[34] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[35] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[36] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[37] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[38] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[39] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[40] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[41] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[42] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[43] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[44] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[45] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[46] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[47] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[48] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[49] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[50] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[51] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[52] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[53] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[54] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[55] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[56] saved to Utils/output/rq2sufu220m_grammar_test_ans/
+[57] saved to Utils/output/rq2sufu220m_grammar_test_ans/

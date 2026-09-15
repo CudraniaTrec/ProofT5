@@ -39,7 +39,6 @@
   ],
   "pending_runs": [],
   "interpretation_warnings": [
-    "HumanEval-Java v15 full16 is ancestor-mixed exploratory; report lineage-unseen11.",
     "The frozen ordinary result uses ten-beam decoding, so a matched plain-HF sampling control is needed to isolate constraint-only causal effects.",
     "The iterative row is a matched-weight diagnostic because the checkpoint is not repair-instruction-tuned.",
     "Upstream SynCode grammar_mask can fall back to unconstrained decoding after an incremental parse failure.",

@@ -15,10 +15,6 @@ Each cell is `pass@1 / pass@10 [compile errors among 10N candidates]`.
 | HumanEval-Java v15 (16) | 2 / 4 [47] | 0 / 1 [116] | 2 / 2 [42] | 2 / 2 [27] | 8 / 9 [2] |
 | TransCoder-GFG v13 (103) | 14 / 28 [258] | not run | 12 / 23 [158] | not run | 31 / 48 [28] |
 
-HumanEval is ancestor-mixed exploratory. On its lineage-unseen 11-task subset,
-SynCode is 0/11 and 1/11; Repilot and iterative are both 1/11 and 1/11;
-ordinary is 1/11 and 3/11; ProofT5 is 4/11 and 5/11.
-
 The iterative round-0 export is an exact paired control for the final repaired
 candidates. It scores 2/16 and 2/16 with 46 compile-error candidates; repair
 scores 2/16 and 2/16 with 27 compile-error candidates. Per-round trajectories

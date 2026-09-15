@@ -1,0 +1,309 @@
+{
+  "average_candidate_success_rate": 0.2,
+  "average_first_success_position": 6.75,
+  "benchmark_source_path": "/data2/x/hzc/prooft5/Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/test.json",
+  "benchmark_source_sha256": "a2fa49581ac1c5458cfe0ecef68cf7db19fddcedab0b21a0d3fe04da97ac92ab",
+  "benchmark_source_verification": {
+    "fields": [
+      "benchmark",
+      "original_split",
+      "test"
+    ],
+    "mode": "java_eval_semantics",
+    "rows": 16,
+    "verified": true
+  },
+  "benchmark_source_verified_equal": false,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/rq1_he_retrain_epoch5_eval_20260903_test_ans/rq1_he_retrain_epoch5_20260903",
+  "candidate_output_manifest_sha256": "206dd20974c787365afa9ed0483aae2f90ec1f773936cb579810a460b780d326",
+  "candidate_timeout_seconds": 10.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      6
+    ],
+    [
+      0,
+      8
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      1,
+      5
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      5,
+      5
+    ],
+    [
+      5,
+      7
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      6,
+      1
+    ],
+    [
+      6,
+      2
+    ],
+    [
+      6,
+      3
+    ],
+    [
+      6,
+      4
+    ],
+    [
+      6,
+      5
+    ],
+    [
+      6,
+      6
+    ],
+    [
+      6,
+      7
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      7,
+      1
+    ],
+    [
+      7,
+      2
+    ],
+    [
+      7,
+      5
+    ],
+    [
+      7,
+      6
+    ],
+    [
+      7,
+      7
+    ],
+    [
+      7,
+      8
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      9,
+      6
+    ],
+    [
+      10,
+      7
+    ],
+    [
+      11,
+      1
+    ],
+    [
+      11,
+      3
+    ],
+    [
+      11,
+      7
+    ],
+    [
+      11,
+      8
+    ],
+    [
+      12,
+      3
+    ],
+    [
+      12,
+      9
+    ],
+    [
+      13,
+      9
+    ],
+    [
+      14,
+      4
+    ],
+    [
+      14,
+      5
+    ],
+    [
+      14,
+      6
+    ],
+    [
+      15,
+      4
+    ],
+    [
+      15,
+      7
+    ],
+    [
+      15,
+      8
+    ],
+    [
+      15,
+      9
+    ]
+  ],
+  "compile_error_rate": 0.2875,
+  "compile_errors": 46,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/rq1_he_retrain_epoch5_eval_20260903/test.pkl",
+  "dataset_pickle_sha256": "834c970183a8707729ae72e190604f48f7429388cda9de867e85c060e6f8a42c",
+  "first_success_pos": [
+    10,
+    10,
+    10,
+    10,
+    0,
+    10,
+    10,
+    10,
+    0,
+    0,
+    0,
+    10,
+    0,
+    8,
+    10,
+    10
+  ],
+  "generation": {
+    "beam_size": null,
+    "candidate_multiplier": null,
+    "decoder": null,
+    "generation_max_length": null,
+    "length_penalty": null
+  },
+  "ignored": 0,
+  "java_path": "/home/zchuang/.local/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/home/zchuang/.local/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 0,
+  "missing_problem_output_ids": [],
+  "missing_problem_outputs": 0,
+  "model_checkpoint_path": "/data2/x/hzc/prooft5/t5_llm/models/t5gemma2-2b_rq1_he_plain_retrain_20260903_stage1/stage1/epoch_5",
+  "model_checkpoint_sha256": "",
+  "model_output_task": "epoch_5",
+  "model_type": "hf_directory",
+  "output_tag": "rq1_he_retrain_epoch5_20260903",
+  "pass1": 0.3125,
+  "pass10": 0.375,
+  "pass_at_k": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "problems": 16,
+  "solved": [
+    4,
+    8,
+    9,
+    10,
+    12,
+    13
+  ],
+  "split": "test",
+  "task": "rq1_he_retrain_epoch5_eval_20260903",
+  "timeout_candidate_ids": [
+    [
+      3,
+      0
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      3,
+      5
+    ]
+  ],
+  "timeouts": 4,
+  "top1_solved": [
+    4,
+    8,
+    9,
+    10,
+    12
+  ],
+  "total_tested": 160,
+  "train_time": ""
+}

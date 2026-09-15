@@ -1,0 +1,224 @@
+{
+  "batches_per_rank_per_pass": 85,
+  "epochs": {
+    "0": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.007177688181400299,
+      "last_loss": 0.014352570287883282,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "1": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.001974930288270116,
+      "last_loss": 0.000918129924684763,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "2": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0024266382679343224,
+      "last_loss": 0.004058660939335823,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "3": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0014004596741870046,
+      "last_loss": 0.003302936675027013,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "4": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0022827726788818836,
+      "last_loss": 0.013530810363590717,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "5": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.00033696016180329025,
+      "last_loss": 0.000442206219304353,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "6": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0032357750460505486,
+      "last_loss": 0.000808335084002465,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "7": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.006928267423063517,
+      "last_loss": 0.002136936876922846,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "8": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0029737353324890137,
+      "last_loss": 0.003482628148049116,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    "9": {
+      "active_targets": 71234,
+      "batches": 85,
+      "first_loss": 0.0015684498939663172,
+      "last_loss": 0.007309990469366312,
+      "padding_per_rank": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    }
+  },
+  "expected_active_targets_per_pass": 71234,
+  "expected_padding_per_rank_per_pass": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0
+  ],
+  "later_loss_records_ignored": 0,
+  "loss_records": 850,
+  "metrics": "tmp/mbjpcoqview_clean673_from_java_clean30_fullseq_20260810_java_fullseq_b1_lr1em6_pass10_20260810_160322_metrics.jsonl",
+  "original_shard_lengths": [
+    84,
+    84,
+    84,
+    84,
+    84,
+    84,
+    84,
+    85
+  ],
+  "passes": 10,
+  "ranks": 8,
+  "real_rows": 673,
+  "runtime_shard_audit": {
+    "content_multiset_exact_match": true,
+    "extra_content_occurrences": 0,
+    "missing_content_occurrences": 0,
+    "runtime_dir": "tmp/runtime_state/mbjpcoqview_clean673_from_java_clean30_fullseq_20260810_java_fullseq_b1_lr1em6_pass10_20260810_160322",
+    "runtime_padding_counts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    "runtime_real_rows": 673,
+    "runtime_shard_lengths": [
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85,
+      85
+    ],
+    "runtime_unique_content_hashes": 673,
+    "source_rows": 673,
+    "source_unique_content_hashes": 673,
+    "train_pickle": "Utils/data/mbjpcoqview_clean673_from_java_clean30_fullseq_20260810/train.pkl"
+  },
+  "status": "ok"
+}

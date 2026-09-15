@@ -1,0 +1,158 @@
+{
+  "checkpoint_by_model": {
+    "coq": [
+      "Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt",
+      "610644af2d599a7105450c9ecd1afbe30f127863374ebe95b9620d6e9fe39e48"
+    ],
+    "coqview": [
+      "Utils/models/Modelmbjpcoqview_clean673_from_java_clean30_fullseq_20260810_java_fullseq_b1_lr1em6_pass10_20260810_160322/last_model.ckpt",
+      "3541fa9173211227ebf71915e49faa88ec0df1c4729a2e5ee14dba29405b370f"
+    ],
+    "plain": [
+      "t5_llm/models/t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview/20260811_after_clean_coqview/epoch_20",
+      "18150d66e60fba84f99d48668af16a495fc5809ec96e04e4f21b3d0e1c6c517f"
+    ]
+  },
+  "checkpoint_selection": {
+    "coq": "prespecified final checkpoint after 30 passes",
+    "coqview": "prespecified final checkpoint after 10 passes",
+    "plain": "epoch 20, selected as the fixed saved checkpoint immediately after epoch 19, whose endpoint training loss 0.012044 was the minimum among fixed five-pass save points; no validation or test score used",
+    "plain_evidence": "tmp/t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview.log"
+  },
+  "protocol": "disjoint frozen-checkpoint beam10 functional execution",
+  "rows": [
+    {
+      "benchmark": "mbjp",
+      "checkpoint_path": "t5_llm/models/t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview/20260811_after_clean_coqview/epoch_20",
+      "checkpoint_sha256": "18150d66e60fba84f99d48668af16a495fc5809ec96e04e4f21b3d0e1c6c517f",
+      "compile_error_rate": 0.2955223880597015,
+      "model": "plain",
+      "pass10_count": 22,
+      "pass10_percent": 32.83582089552239,
+      "pass10_wilson95": [
+        22.791317376089594,
+        44.74181875226853
+      ],
+      "pass1_count": 9,
+      "pass1_percent": 13.432835820895523,
+      "pass1_wilson95": [
+        7.231091664295485,
+        23.60037226133703
+      ],
+      "problems": 67,
+      "score_artifact": "tmp/diagnostic_plain_epoch20_trainloss_mbjp_b10_20260811_score_timeout10.json",
+      "timeouts": 0
+    },
+    {
+      "benchmark": "mbjp",
+      "checkpoint_path": "Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt",
+      "checkpoint_sha256": "610644af2d599a7105450c9ecd1afbe30f127863374ebe95b9620d6e9fe39e48",
+      "compile_error_rate": 0.004524886877828055,
+      "model": "coq",
+      "pass10_count": 29,
+      "pass10_percent": 43.28358208955223,
+      "pass10_wilson95": [
+        32.10431149754174,
+        55.191263509207076
+      ],
+      "pass1_count": 17,
+      "pass1_percent": 25.37313432835821,
+      "pass1_wilson95": [
+        16.487913818578946,
+        36.92919453950009
+      ],
+      "problems": 67,
+      "score_artifact": "tmp/cleanrepro_coq_mbjp_final_b10_lp0p1_20260811_score_timeout10.json",
+      "timeouts": 5
+    },
+    {
+      "benchmark": "mbjp",
+      "checkpoint_path": "Utils/models/Modelmbjpcoqview_clean673_from_java_clean30_fullseq_20260810_java_fullseq_b1_lr1em6_pass10_20260810_160322/last_model.ckpt",
+      "checkpoint_sha256": "3541fa9173211227ebf71915e49faa88ec0df1c4729a2e5ee14dba29405b370f",
+      "compile_error_rate": 0.0030120481927710845,
+      "model": "coqview",
+      "pass10_count": 29,
+      "pass10_percent": 43.28358208955223,
+      "pass10_wilson95": [
+        32.10431149754174,
+        55.191263509207076
+      ],
+      "pass1_count": 19,
+      "pass1_percent": 28.35820895522388,
+      "pass1_wilson95": [
+        18.970281181710178,
+        40.09323828448048
+      ],
+      "problems": 67,
+      "score_artifact": "tmp/cleanrepro_coqview_mbjp_final_b10_lp0p1_20260811_score_timeout10.json",
+      "timeouts": 2
+    },
+    {
+      "benchmark": "humaneval",
+      "checkpoint_path": "t5_llm/models/t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview/20260811_after_clean_coqview/epoch_20",
+      "checkpoint_sha256": "18150d66e60fba84f99d48668af16a495fc5809ec96e04e4f21b3d0e1c6c517f",
+      "compile_error_rate": 0.3939393939393939,
+      "model": "plain",
+      "pass10_count": 5,
+      "pass10_percent": 7.575757575757576,
+      "pass10_wilson95": [
+        3.2792037562960243,
+        16.53919502061051
+      ],
+      "pass1_count": 3,
+      "pass1_percent": 4.545454545454546,
+      "pass1_wilson95": [
+        1.5578274334433504,
+        12.53331411324222
+      ],
+      "problems": 66,
+      "score_artifact": "tmp/diagnostic_plain_epoch20_trainloss_humaneval_b10_20260811_score_timeout10.json",
+      "timeouts": 6
+    },
+    {
+      "benchmark": "humaneval",
+      "checkpoint_path": "Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt",
+      "checkpoint_sha256": "610644af2d599a7105450c9ecd1afbe30f127863374ebe95b9620d6e9fe39e48",
+      "compile_error_rate": 0.0061162079510703364,
+      "model": "coq",
+      "pass10_count": 9,
+      "pass10_percent": 13.636363636363635,
+      "pass10_wilson95": [
+        7.343320265668933,
+        23.92959297167952
+      ],
+      "pass1_count": 4,
+      "pass1_percent": 6.0606060606060606,
+      "pass1_wilson95": [
+        2.3818614832318334,
+        14.572908678564216
+      ],
+      "problems": 66,
+      "score_artifact": "tmp/cleanrepro_coq_humaneval_final_b10_lp0p1_20260811_score_timeout10.json",
+      "timeouts": 11
+    },
+    {
+      "benchmark": "humaneval",
+      "checkpoint_path": "Utils/models/Modelmbjpcoqview_clean673_from_java_clean30_fullseq_20260810_java_fullseq_b1_lr1em6_pass10_20260810_160322/last_model.ckpt",
+      "checkpoint_sha256": "3541fa9173211227ebf71915e49faa88ec0df1c4729a2e5ee14dba29405b370f",
+      "compile_error_rate": 0.012422360248447204,
+      "model": "coqview",
+      "pass10_count": 12,
+      "pass10_percent": 18.181818181818183,
+      "pass10_wilson95": [
+        10.71860640560806,
+        29.145192677071837
+      ],
+      "pass1_count": 7,
+      "pass1_percent": 10.606060606060606,
+      "pass1_wilson95": [
+        5.233347255479488,
+        20.31230875164801
+      ],
+      "problems": 66,
+      "score_artifact": "tmp/cleanrepro_coqview_humaneval_final_b10_lp0p1_20260811_score_timeout10.json",
+      "timeouts": 6
+    }
+  ],
+  "status": "ok"
+}

@@ -1,0 +1,366 @@
+{
+  "average_candidate_success_rate": 0.14375,
+  "average_first_success_position": 6.625,
+  "benchmark_source_path": "/data2/x/hzc/prooft5/Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15/test.json",
+  "benchmark_source_sha256": "a2fa49581ac1c5458cfe0ecef68cf7db19fddcedab0b21a0d3fe04da97ac92ab",
+  "benchmark_source_verification": {
+    "fields": [
+      "benchmark",
+      "original_split",
+      "test"
+    ],
+    "mode": "java_eval_semantics",
+    "rows": 16,
+    "verified": true
+  },
+  "benchmark_source_verified_equal": false,
+  "candidate_output_dir": "/data2/x/hzc/prooft5/Utils/output/rq1_he_retrain_epoch1_eval_20260903_test_ans/rq1_he_retrain_epoch1_20260903",
+  "candidate_output_manifest_sha256": "dd3ac49e8c26b58dff17a4567bb106996ffb7f6509737c4bb1bf5b1dd4ff5a68",
+  "candidate_timeout_seconds": 10.0,
+  "checkpoint_epoch": null,
+  "compile_error_candidate_ids": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      6
+    ],
+    [
+      0,
+      7
+    ],
+    [
+      0,
+      8
+    ],
+    [
+      0,
+      9
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      8
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      3,
+      5
+    ],
+    [
+      3,
+      6
+    ],
+    [
+      3,
+      7
+    ],
+    [
+      3,
+      8
+    ],
+    [
+      4,
+      0
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      4,
+      6
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      4,
+      8
+    ],
+    [
+      4,
+      9
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      5,
+      2
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      5,
+      5
+    ],
+    [
+      5,
+      6
+    ],
+    [
+      5,
+      8
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      6,
+      1
+    ],
+    [
+      6,
+      2
+    ],
+    [
+      6,
+      3
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      7,
+      3
+    ],
+    [
+      7,
+      5
+    ],
+    [
+      7,
+      7
+    ],
+    [
+      7,
+      8
+    ],
+    [
+      7,
+      9
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      9,
+      0
+    ],
+    [
+      9,
+      3
+    ],
+    [
+      9,
+      8
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      11,
+      0
+    ],
+    [
+      11,
+      1
+    ],
+    [
+      11,
+      2
+    ],
+    [
+      11,
+      4
+    ],
+    [
+      11,
+      5
+    ],
+    [
+      11,
+      6
+    ],
+    [
+      11,
+      7
+    ],
+    [
+      11,
+      8
+    ],
+    [
+      11,
+      9
+    ],
+    [
+      12,
+      9
+    ],
+    [
+      13,
+      4
+    ],
+    [
+      14,
+      0
+    ],
+    [
+      14,
+      1
+    ],
+    [
+      14,
+      2
+    ],
+    [
+      14,
+      3
+    ],
+    [
+      14,
+      6
+    ],
+    [
+      14,
+      7
+    ],
+    [
+      14,
+      8
+    ],
+    [
+      14,
+      9
+    ]
+  ],
+  "compile_error_rate": 0.40625,
+  "compile_errors": 65,
+  "dataset_pickle_path": "/data2/x/hzc/prooft5/Utils/data/rq1_he_retrain_epoch1_eval_20260903/test.pkl",
+  "dataset_pickle_sha256": "834c970183a8707729ae72e190604f48f7429388cda9de867e85c060e6f8a42c",
+  "first_success_pos": [
+    10,
+    4,
+    10,
+    10,
+    1,
+    9,
+    10,
+    10,
+    1,
+    10,
+    0,
+    10,
+    0,
+    1,
+    10,
+    10
+  ],
+  "generation": {
+    "beam_size": null,
+    "candidate_multiplier": null,
+    "decoder": null,
+    "generation_max_length": null,
+    "length_penalty": null
+  },
+  "ignored": 0,
+  "java_path": "/home/zchuang/.local/bin/java",
+  "java_version": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.19+10 (build 17.0.19+10, mixed mode, sharing)",
+  "javac_path": "/home/zchuang/.local/bin/javac",
+  "javac_version": "javac 17.0.19",
+  "missing": 0,
+  "missing_problem_output_ids": [],
+  "missing_problem_outputs": 0,
+  "model_checkpoint_path": "/data2/x/hzc/prooft5/t5_llm/models/t5gemma2-2b_rq1_he_plain_retrain_20260903_stage1/stage1/epoch_1",
+  "model_checkpoint_sha256": "",
+  "model_output_task": "epoch_1",
+  "model_type": "hf_directory",
+  "output_tag": "rq1_he_retrain_epoch1_20260903",
+  "pass1": 0.125,
+  "pass10": 0.4375,
+  "pass_at_k": 10,
+  "problem_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "problems": 16,
+  "solved": [
+    1,
+    4,
+    5,
+    8,
+    10,
+    12,
+    13
+  ],
+  "split": "test",
+  "task": "rq1_he_retrain_epoch1_eval_20260903",
+  "timeout_candidate_ids": [],
+  "timeouts": 0,
+  "top1_solved": [
+    10,
+    12
+  ],
+  "total_tested": 160,
+  "train_time": ""
+}
