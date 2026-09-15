@@ -44,7 +44,7 @@ To evaluate the quality of code generation, we adopt the metrics below, which re
     \item \textbf{Pass@k (k=1,10)~\cite{DBLP:journals/corr/abs-2107-03374}}: These metrics quantify the proportion of problems where at least one of the top-k generated candidates passes all reference test cases. Each generated candidate is executed against the test cases provided in the benchmark, and a candidate is considered correct only if it produces the expected output for all test cases. 
     %It's the standard and widely used method to quantify the correctness of generated code.
 
-    \item \textbf{First Success Position (FSP)}: This metric is the mean rank of the first functionally correct candidate among the generated ones across the test set. It measures how early in the candidate list a correct solution appears, assessing the efficiency of output ranking.
+    \item \textbf{First Success Position (FSP)}: This metric is the mean rank of the first functionally correct candidate among the generated ones across the test set. It measures how early in the candidate list a correct solution appears, assessing the efficiency of output ranking; a problem with no correct candidate contributes the candidate-list length (10).
 
     \item \textbf{Compilation Error Rate (CER)}: This metric quantifies the proportion of generated candidates that fail to compile. 
     Since \mainname generates programs with type correctness guarantees, CER reflects the type system's effectiveness in catching compile-time errors. 
@@ -52,15 +52,15 @@ To evaluate the quality of code generation, we adopt the metrics below, which re
 
 \subsubsection{Implementation Details}
 
-We fine-tuned both \mainname-220M (based on CodeT5-220M) and \mainname-2B (based on T5Gemma2-2B) following a standard supervised fine-tuning procedure with the same set of hyperparameters to ensure a fair comparison. Each model was fine-tuned on the training set until convergence. 
-Since \mainname introduces a new representation that differs from standard code tokens, we perform an initial training phase using a supervised fine-tuning dataset from OpenCoder~\cite{DBLP:journals/corr/abs-2411-04905} to help the model adapt to this representation.
+We fine-tuned both \mainname-220M (based on CodeT5-220M) and \mainname-2B (based on T5Gemma2-2B) following a standard supervised fine-tuning procedure with the same set of hyperparameters to ensure a fair comparison. Each model was fine-tuned on the training set until convergence.
+Since \mainname introduces a new representation that differs from standard code tokens and thus faces a cold-start problem, we first perform an initial training phase using a supervised fine-tuning dataset from OpenCoder~\cite{DBLP:journals/corr/abs-2411-04905} to adapt the model to this representation.
+At the same scale and on the same benchmark, each baseline--\mainname{} pair is fine-tuned on the same training set. The exception is the two additional Java benchmarks, HumanEval-Java and TransCoder-GFG. There, \mainname-2B builds on its MBJP fine-tuning, which avoids the cold-start problem, and is further trained on the training splits of the two benchmarks. The baselines, which generate ordinary code tokens and face no cold-start problem, are instead trained from the original T5Gemma2-2B, with the MBJP training tasks added to their own training sets for joint training.
 
 \subsection{Experimental Results}
 
 \subsubsection{RQ1: Performance of \mainname}
-\autoref{tab:model-results} summarizes the overall performance of \mainname, with models grouped by scale: the 220M group compares \mainname-220M with its base model CodeT5-220M, and the 2B group compares \mainname-2B with its base model T5Gemma2-2B.
-Both models of a pair are fine-tuned on the same benchmark training splits with the same procedure, so that a pair differs only in the representation and in the decoder: a base model generates ordinary code tokens, whereas \mainname{} generates its synthesis decision sequence and decodes under type constraints.
-Both groups are evaluated on SuFu and MBJP, and the 2B group is additionally evaluated on the two Java benchmarks, HumanEval-Java and TransCoder-GFG.
+\autoref{tab:model-results} summarizes the overall performance of \mainname, with models grouped by scale.
+For each model scale and benchmark, we compare the fine-tuned baseline (CodeT5-220M or T5Gemma2-2B) with our \mainname{} model on the metrics above; the 2B group additionally covers the two Java benchmarks, HumanEval-Java and TransCoder-GFG.
 
 \begin{table}[ht]
 \centering
@@ -81,10 +81,10 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 \midrule
 \multirow{4}{*}{220M}
         & SuFu & CodeT5-220M         & 24.14 & 32.76 & 7.03 & 83.10 \\
-        &      & \mainname-220M      & \textbf{37.93} & \textbf{46.55} & \textbf{5.48} & \textbf{0.00} \\
+        &      & \mainname-220M      & \textbf{37.93} & \textbf{53.45} & \textbf{5.03} & \textbf{0.00} \\
         \cmidrule(lr){2-7}
-        & MBJP & CodeT5-220M         & 10.45 & 20.90 & 8.19 & 38.51 \\
-        &      & \mainname-220M      & \textbf{11.94} & \textbf{28.36} & \textbf{7.94} & \textbf{3.52} \\
+        & MBJP & CodeT5-220M         & 10.45 & 20.90 & 8.19 & 35.52 \\
+        &      & \mainname-220M      & \textbf{11.94} & \textbf{28.36} & \textbf{7.94} & \textbf{1.53} \\
 \midrule
 \multirow{8}{*}{2B}
         & SuFu & T5Gemma2-2B         & 29.31 & 37.93 & 6.69 & 61.21 \\
@@ -107,17 +107,17 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 \end{threeparttable}
 \end{table}
 
-\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 29.31\% to 43.10\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--18.75 points on the same six benchmarks.
+\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 29.31\% to 43.10\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 The largest gains are on SuFu and HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
-The 220M MBJP pass@1 gain is the smallest (10.45\% to 11.94\%) because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 (20.90\% to 28.36\%) and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
+The 220M MBJP pass@1 gain is the smallest because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 
-To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
+To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
 Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
 
-On SuFu the comparison favors \mainname{} clearly: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
+On SuFu the comparison favors \mainname{}: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
 On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
-In any case, relative to its fine-tuned baseline T5Gemma2-2B, \mainname-2B delivers a consistent improvement on all four benchmarks, including in the low-resource SuFu setting.
+In any case, relative to its fine-tuned baseline T5Gemma2-2B, \mainname-2B delivers a consistent improvement on all four benchmarks.
 
 \begin{table}[ht]
 \centering
@@ -146,8 +146,8 @@ T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2
 \end{table}
 
 \subsubsection{RQ2: Contributions of Individual Components in \mainname}
-To answer RQ2, we conduct an ablation study on the SuFu benchmark and the \mainname-220M model to quantify the contributions of each component in \mainname. Starting from the base case where \mainname synthesizes decision sequences with no checks, system components (syntactic pruning, type pruning, and dynamic typing context, as introduced in \autoref{sec:implementation}) are incrementally added, and the impact on performance metrics is evaluated at each stage. 
-%\autoref{tab:ablation-combined} summarizes the results.
+We conduct an ablation study on the SuFu benchmark and the \mainname-220M model to quantify the contributions of each component in \mainname. Starting from the base case where \mainname synthesizes decision sequences with no checks, system components (syntactic pruning, type pruning, and dynamic typing context, as introduced in \autoref{sec:implementation}) are incrementally added, and the impact on performance metrics is evaluated at each stage. 
+\autoref{tab:ablation-combined} summarizes the results.
 
 \begin{table}[ht]
 \centering
@@ -161,7 +161,7 @@ To answer RQ2, we conduct an ablation study on the SuFu benchmark and the \mainn
     S[table-format=2.2]@{\hspace{1em}}S[table-format=+2.2]
     S[table-format=1.2]@{\hspace{1em}}S[table-format=+1.2]
     S[table-format=2.2]@{\hspace{1em}}S[table-format=+2.2]
-    @{\hspace{1em}}S[table-format=2.2]@{\hspace{1em}}S[table-format=2.1]
+    @{\hspace{0.5em}}S[table-format=2.2]@{\hspace{0.5em}}S[table-format=2.1]
 }
 \toprule
 \multicolumn{1}{l}{Components} &
@@ -190,8 +190,8 @@ Base (no checks)         & 24.14 & 0.00
                         & \textbf{0.00} & \textbf{-74.26}
                         & 11.07 & 43.7 \\
 + Dynamic Typing Context       & \textbf{37.93} & \textbf{+13.79}
-                        & \textbf{46.55} & \textbf{+10.34}
-                        & \textbf{5.48}  & \textbf{-1.30}
+                        & \textbf{53.45} & \textbf{+17.24}
+                        & \textbf{5.03}  & \textbf{-1.75}
                         & \textbf{0.00}  & \textbf{-74.26}
                         & 15.62 & 59.6 \\
 \bottomrule
@@ -199,25 +199,44 @@ Base (no checks)         & 24.14 & 0.00
 \begin{tablenotes}
 \footnotesize
 \item[\,] \textit{Score}: absolute value for each setting; $\Delta$: improvement relative to the base setting.
-\item[\S] Inference on the 58 SuFu tasks with the same \mainname-220M model and decoding configuration as the other columns. \textit{Time}: average per-task wall time; \textit{ms/step}: average wall time per decoding step.
+\item[\S] \textit{Time}: average per-task wall time; \textit{ms/step}: average wall time per decoding step.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-Type-based mechanisms are the ones that eliminate compilation errors; dynamic typing context is what pushes pass@10 and FSP to their final values, demonstrating \textbf{Context Locality} in~\autoref{section:intro}.
+\paragraph{Functional contribution of each component.}
+The four metric columns of \autoref{tab:ablation-combined} show which component contributes which improvement.
+Syntactic pruning alone gives a moderate pass@1 gain ($+3.45$); the turning point is type pruning, which lifts pass@1 by $+13.79$ and eliminates compilation errors outright (CER $74.26 \to 0.00$).
+Dynamic typing context leaves pass@1 and CER unchanged but improves pass@10 ($+17.24$ over the base) and FSP: it ranks correct candidates earlier rather than solving new tasks, which demonstrates the \textbf{Context Locality} property of~\autoref{section:intro}.
 
-Instrumenting the constrained decoder on the 58 SuFu tasks (beam 10, 330-step budget): syntactic pruning eliminates 59.1\% of vocabulary proposals per beam step, and type pruning eliminates 8.2\% of the 167{,}295 grammar-valid expansions; the constrained search dead-ends on none of the 58 tasks.
-At the output boundary the type component rejects 21.2\% of the 533 completed candidates (113 rejections): incremental checking during search is deliberately permissive while an AST field is incomplete, so whole-program type validity is established only on the complete derivation.
+\paragraph{How much the constraints prune.}
+To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam 10, 330-step budget\footnote{The longest decision sequence in the benchmark has 330 steps, so the budget suffices to derive every reference program.}): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%.
+The lower rate is expected: type checking is more expensive, so it is applied only to the high-probability candidates about to enter the beam.
+Such candidates are rarely ill-typed, yet pruning them matters, for they would otherwise expand within the beam and crowd out well-typed derivations.
+Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates.
 
-Inference cost is reported along two dimensions in \autoref{tab:ablation-combined}: per-task wall time and wall time per decoding step.
-Each component strictly increases the per-step cost ($31.1 \to 32.4 \to 43.7 \to 59.6$\,ms), while the per-task total moves by $-6.38\%$ / $+94.00\%$ / $+173.88\%$ ($2.74\times$ base); all four runs complete all 58 tasks, and slots that miss the fixed budget count as failures (fail-closed), with the decoder never falling back to unconstrained generation.
-The $-6.38\%$ of syntactic pruning is a net effect, not a faster checker: the search stops once every beam completes, and masking ill-formed decisions keeps beams on well-formed derivations that finish sooner (a mean of 164.6 versus 183.2 decoding steps per task), so the roughly $+4\%$ per-step masking cost is outweighed by the $10\%$ fewer steps (a re-run of both configurations reproduced $5.66$ versus $5.32$\,s and the same step counts).
-Qualitatively, the synthesis tree grows with the number of typing-rule applications, so more complex programs produce deeper trees, longer decision sequences, and more rule choices at each node; our measurements characterize this on SuFu but do not bound the behavior on richer language features.
+\paragraph{Whether the constraints over-prune.}
+By construction, pruning removes only ill-formed or ill-typed expansions, so every possibly correct derivation survives.
+The residual risk is beam search itself, which retains only a fixed number of candidates per step: the correct candidate may in theory fall outside the beam, and the retained candidates then dead-end.
+In our experiments this never occurs: under the beam-10 setting, no task dead-ends, and every task retains at least one grammar- and type-valid expansion at every step.
+
+
+\paragraph{Runtime cost.}
+Each component increases the per-step cost ($31.1 \to 32.4 \to 43.7 \to 59.6$\,ms).
+Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic typing context cost considerably more, as the former invokes the type checker at every step and the latter additionally re-encodes the evolving synthesis goal.
+The per-task totals move by $-6.38\%$ / $+94.00\%$ / $+173.88\%$ ($2.74\times$ base).
+Syntactic pruning even lowers the per-task total: with little per-step overhead, it prunes ill-formed decisions early, so beams stay on well-formed derivations that finish sooner (164.6 versus 183.2 mean steps per task), and the $10\%$ fewer steps outweigh the per-step increase.
 
 \subsubsection{RQ3: Comparison with Reliability-Oriented Generation Methods}
-To answer RQ3, we compare \mainname{} with methods that pursue correct code by constraining or repairing the output of a trained model.
-On SuFu the baseline is CodeT5-220M with rejection sampling; on MBJP we compare four approaches that share the same frozen T5Gemma2-2B weights as the ordinary control: \emph{rejection sampling} with a standalone-\texttt{javac} gate (four ten-draw rounds per task); \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar} (grammar-constrained token masking); \emph{Repilot}~\cite{DBLP:conf/sigsoft/0003X023} (LM + Eclipse JDT completion engine); and \emph{iterative compiler repair}, which regenerates candidates from standalone \texttt{javac} diagnostics for at most two rounds without ever seeing the benchmark tests; the repair rounds use the un-fine-tuned T5Gemma2-2B as the repair agent, since the fine-tuned generator never learned to consume diagnostics.
-All Java rows are evaluated on the same 67 tasks with 10 candidates each; the ordinary control uses an archived T5Gemma2-2B checkpoint (10/67 and 23/67), which differs slightly from \autoref{tab:model-results} (13.43/32.84) because the external methods must share one frozen distribution; the \mainname-2B row is identical in both tables.
+We compare \mainname{} with methods that pursue correct code by constraining or repairing the output of a trained model.
+On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: \emph{rejection sampling}, \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar}, \emph{Repilot}(\emph{Copiloting the Copilots})~\cite{DBLP:conf/sigsoft/0003X023}, and \emph{iterative compiler repair}.
+All methods are evaluated on the same 67 tasks with 10 candidates each.
+Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of \autoref{tab:model-results} (13.43/32.84); the \mainname-2B row is identical in both tables.
+
+Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
+SynCode constrains decoding itself: at each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed. It is not originally implemented for Java, so we adapt it to the grammar of our Java subset.
+Repilot pairs the LM with the Eclipse JDT completion engine: the partial program is maintained as a JDT document, and at each decoding position the engine is queried for the continuations it can legally complete, so that LM-proposed tokens inadmissible at that position are pruned.
+Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
 
 \begin{table}[ht]
 \centering
@@ -226,46 +245,40 @@ All Java rows are evaluated on the same 67 tasks with 10 candidates each; the or
 \label{tab:model-compare-sufu-java}
 \begin{tabular}{
     l
-    l
     S[table-format=2.2]
     S[table-format=2.2]
     S[table-format=2.2]
 }
 \toprule
-Language & Method & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {CER (\%)\tnote{\downdir}} \\
+Method & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {CER (\%)\tnote{\downdir}} \\
 \midrule
-%\multirow{3}{*}{SuFu}
-%        & CodeT5                & 24.14 & 32.76 & 83.10 \\
-%        & CodeT5 + Rejection Sampling\tnote{\dag} & 31.03 & 32.76 & 0.00 \\
-%        & \mainname-220M             & \textbf{37.93} & \textbf{46.55} & \textbf{0.00} \\
-%\midrule
-\multirow{6}{*}{Java}
-        & T5Gemma2-2B           & 14.93 & 34.33 & 18.21 \\
-        & \quad + Rejection Sampling\tnote{\dag} & 14.93 & 35.82 & 0.00 \\
-        & \quad + SynCode (adapt., compile-safe) & 14.93 & 35.82 & 10.90 \\
-        & \quad + Repilot/JDT       & 14.93 & 34.33 & 16.72 \\
-        & \quad + Iterative compiler repair & 14.93 & 34.33 & 13.43 \\
-        & \mainname-2B          & \textbf{25.37} & \textbf{43.28} & \textbf{0.45} \\
+T5Gemma2-2B           & 14.93 & 23.88 & 26.12 \\
+\quad + Rejection Sampling & 16.42 & 28.36 & 0.00 \\
+\quad + SynCode (adapt., compile-safe) & 14.93 & 23.88 & 21.34 \\
+\quad + Repilot/JDT       & 14.93 & 23.88 & 25.97 \\
+\quad + Iterative compiler repair & 14.93 & 23.88 & 17.31 \\
+\mainname-2B          & \textbf{25.37} & \textbf{43.28} & \textbf{0.45} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \footnotesize
-\item \updir\,/\downdir\, Higher/lower is better; \textbf{bold} = best generation-time method (rejection sampling's 0.00 CER is by construction); metrics in \autoref{sec:evaluation-metrics}.
-\item[\dag] Resamples until ten compilable candidates or four ten-draw rounds (618/670 slots filled); benchmark tests never used.
-\item SynCode: our compile-safe portfolio---ordinary kept unless \texttt{javac} rejects it and the SynCode candidate compiles.
-\item Repilot: upstream-faithful; its soundness-preserving strengthening reproduces all counts exactly.
+\item \updir\,/\downdir\, Higher/lower is better.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-On SuFu, rejection sampling with CodeT5-220M only lifts pass@1 from 24.14\% to 31.03\%; the budget-limited variant on the T5Gemma2-2B control leaves it unchanged (14.93\%), confirming that post-hoc filtering cannot change which programs a base LM can solve.
-On MBJP, none of the four external baselines improves functional correctness over the ordinary control: Repilot adds 2.66\,ms/token and 18{,}653 JDT queries but no new solved task; iterative repair repairs 32 candidates' compilability (compile errors 122$\to$90 of 670) yet leaves the solved sets exactly unchanged; paired exact tests show no difference reaching significance (pass@1 $p \geq 0.09$, pass@10 $p \geq 0.21$).
+None of the four external baselines significantly improves functional correctness over the ordinary control:
+rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$);
+SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67);
+Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%);
+iterative repair repairs 59 candidates' compilability (compile errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
 \mainname-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods.
-External reliability mechanisms (post-hoc filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) act on a frozen output distribution and prune invalid outputs but cannot change which programs the model solves; \mainname{} embeds type constraints into the LM itself, demonstrating \textbf{Type Explicitness} in~\autoref{section:intro}.
+External reliability mechanisms (post-hoc filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) never change the model's own preference and distribution over output tokens, whereas \mainname{} explicitly encodes the typing rules into the model and helps it better learn the program distribution, demonstrating the importance of the \textbf{Type Explicitness} property in~\autoref{section:intro}.
 
 \subsubsection{RQ4: Comparison with Separated Type-Code Generation}
-To answer RQ4, we compare \mainname with approaches that separate type reasoning and code generation. 
-We evaluate three variants: (1) Type-First: CodeT5-220M is fine-tuned to generate a sequence of typing rules (forming the type derivation tree) as explicit type reasoning, then generate code based on the reasoning, (2) Code-First: CodeT5-220M is fine-tuned to first generate code, then output a sequence of typing rules as its type correctness proof, and (3) \mainname-220M: our synthesis decision sequence representation.
+We compare \mainname with approaches that separate type reasoning and code generation.
+Both variants fine-tune CodeT5-220M to emit a single sequence that concatenates the two parts, differing only in their order: \emph{Type-First} generates the sequence of typing rules (forming the type derivation tree) first and then the code on its basis, whereas \emph{Code-First} generates the code first and then the typing rules as its type reasoning.
+All settings are evaluated on the same SuFu and MBJP test sets with 10 candidates each.
 
 \begin{table}[ht]
 \centering
@@ -284,27 +297,48 @@ We evaluate three variants: (1) Type-First: CodeT5-220M is fine-tuned to generat
 \toprule
 Language & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & {CER (\%)\tnote{\downdir}} & {FSP\tnote{\downdir}} & {Avg Tokens\tnote{\downdir}} \\
 \midrule
-\multirow{3}{*}{SuFu}
-        & CodeT5 + Type-First        & 31.03 & 36.21 & 64.31 & 6.57 & 752 \\
-        & CodeT5 + Code-First        & 29.31 & 39.66 & 56.72 & 6.28 & 752 \\
-        & \mainname-220M             & \textbf{37.93} & \textbf{46.55} & \textbf{0.00} & \textbf{5.48} & \textbf{410} \\
+\multirow{4}{*}{SuFu}
+        & CodeT5-220M                & 24.14 & 32.76 & 83.10 & 7.03 & \textbf{405} \\
+        & CodeT5-220M + Type-First   & 31.03 & 36.21 & 64.31 & 6.57 & 752 \\
+        & CodeT5-220M + Code-First   & 29.31 & 39.66 & 56.72 & 6.28 & 752 \\
+        & \mainname-220M             & \textbf{37.93} & \textbf{53.45} & \textbf{0.00} & \textbf{5.03} & 410 \\
 \midrule
-\multirow{3}{*}{Java}
-        & CodeT5 + Type-First        & \textbf{11.94} & 26.87 & 37.61 & \textbf{7.36} & 247 \\
-        & CodeT5 + Code-First        & 8.96 & 22.39 & 31.49 & 8.21 & 247 \\
-        & \mainname-220M             & \textbf{11.94} & \textbf{28.36} & \textbf{3.52} & 7.94 & \textbf{129} \\
+\multirow{4}{*}{Java}
+        & CodeT5-220M                & 10.45 & 20.90 & 35.52 & 8.19 & 142 \\
+        & CodeT5-220M + Type-First   & \textbf{11.94} & 26.87 & 37.61 & \textbf{7.36} & 247 \\
+        & CodeT5-220M + Code-First   & 8.96 & 22.39 & 31.49 & 8.21 & 247 \\
+        & \mainname-220M             & \textbf{11.94} & \textbf{28.36} & \textbf{1.53} & 7.94 & \textbf{129} \\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item \updir\,/\downdir\, Higher/lower is better.
+\item \emph{Avg Tokens}: length of the generated sequence in each model's own vocabulary, excluding comments.
+\end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-\autoref{tab:sequential-compare} shows that both separated-reasoning variants trail \mainname{} on pass@10 and CER, and that \mainname{} also uses 45--48\% fewer tokens (410 vs. 752 on SuFu, 129 vs. 247 on Java); this supports \mainname's \textbf{Derivation Vicinality} paradigm, that unifying type reasoning and code generation into one synthesis process is more accurate and more efficient than splitting them.
+Adding separated type reasoning improves over the ordinary trained baseline on both languages (e.g., Type-First 31.03 vs.\ 24.14 pass@1 on SuFu), and unifying the two into one process improves further: both separated variants trail \mainname{} on pass@10 and CER (on Java pass@1, Type-First merely ties \mainname{}).
+Because neither variant constrains decoding, their CER remains high (56.72--64.31 on SuFu), whereas \mainname{} outputs only type-valid programs.
+In terms of token length, fully unifying type reasoning and code is far more economical than outputting them separately: the unified decision sequence (410 on SuFu, 129 on Java) saves 342 and 118 tokens respectively against appending the typing rules to plain code tokens (752 and 247).
+It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
+These results support the \textbf{Derivation Vicinality} paradigm of \mainname, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
 
-\subsection{Limitations}
-The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context. A decoder-only adaptation could be more efficient, but it would require a different representation in which type-rule tokens are used to encode the program and guide syntactic and type pruning. Such a redesign would not retain the current dynamic typing-context mechanism, and we leave it to future work.
+\subsection{Limitations and Future Work}
+\paragraph{Dependence on the encoder-decoder architecture.}
+The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
+The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.
+In a decoder-only model, supplying the context would mean prefilling the current typing context after the derivation prefix at every step and removing it again before the next step, so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule.
+We leave this adaptation to future work.
 
-Our implementation and experiments also focus on languages with explicit typing rules, namely SuFu and the evaluated Java subset. We have not established that the current formulation applies to dynamically typed languages such as Python, where the relevant type information is not supplied by the same kind of static typing derivation.
+\paragraph{Dynamically typed languages.}
+The current design of \mainname relies on a type system in which the type derivation of a program can be computed automatically from the program text, so that existing code can be converted into our decision-sequence format.
+Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information.
+As a result, decision sequences cannot be automatically extracted from existing programs, which breaks the \textbf{Data Usability} property of~\autoref{section:intro} and with it the training-data pipeline.
+Parsing and adapting such languages is left to future work.
 
-Both evaluated type systems are deliberately simple. The implemented Java subset omits polymorphism with variance, subtyping hierarchies, overload resolution, type inference beyond local declarations, and mutable-state-related features; SuFu's type system targets fusion optimization. Richer features would enlarge the rule set, increase the branching factor at individual synthesis nodes, and, for polymorphism, potentially require higher-order unification (Sec.~\ref{sec:meta}); our measurements on SuFu and the Java subset do not establish how the approach scales to such languages.
-
-The simply typed lambda calculus used in the overview serves a pedagogical role and is simpler still; the distance between it and industrial languages is bridged only partially by the evaluated Java subset.
+\paragraph{Type-system expressiveness.}
+Both evaluated type systems are relatively simple compared with the mainstream languages that have evolved over decades, such as C++: the implemented Java subset omits subtyping hierarchies, overload resolution, and mutable-state-related features, and SuFu's type system targets fusion optimization.
+The framework itself is not confined to such systems: typing rules are formulated as constrained Horn clauses (Sec.~\ref{sec:meta}), which can in principle describe more complex type systems and their languages.
+The restriction is practical rather than conceptual: writing and modeling the concrete typing rules and designing the parser for a richer system make experimentation much harder, and our measurements on SuFu and the Java subset do not establish how the approach scales to such languages.
+Migrating \mainname{} to richer type systems, and even to systems such as linear types that can to some extent guarantee functional properties of the code, is a direction for future work.

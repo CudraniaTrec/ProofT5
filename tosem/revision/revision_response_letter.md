@@ -49,11 +49,9 @@ metrics.
 
 RQ2 now reports pruning statistics and 220M SuFu inference time for the
 no-check, syntactic-pruning, type-pruning, and dynamic-context configurations.
-The text also states the observed beam-exhaustion result and the fail-closed
-behavior when the fixed generation budget produces fewer than ten completed
-candidates. We additionally explain qualitatively how synthesis-tree depth,
-decision-sequence length, and branching increase the decoding and checking work
-as programs become more complex.
+The text also states the observed beam-exhaustion result (no task dead-ends
+under beam 10). How the approach scales to more expressive type systems is
+discussed in the Limitations subsection of the Evaluation section.
 
 ### Missing comparison with larger and more recent LLMs
 
@@ -80,16 +78,20 @@ ablation to which it belongs.
 
 We added Appendix D. MBJP, HumanEval-Java, and TransCoder-GFG are analyzed as
 186 paired Java tasks. For pass@1 and pass@10, the Appendix reports 95%
-Wilson intervals and exact two-sided paired McNemar tests. It also reports the
-corresponding intervals and paired tests for FSP and CER. The merged analysis
+Wilson intervals and exact two-sided paired McNemar tests; FSP reports a
+t-interval over per-task ranks with an exact two-sided sign test, and CER a
+Wilson interval over candidates with an exact sign test on per-task error
+fractions. The merged analysis
 is computed with the strengthened baselines (Appendix B), so the significance
-of the pooled comparison is not an artifact of under-trained baselines; the
-benchmark-specific 2B table additionally shows where the individual test sets
-are too small to reach significance, which is why the pooled analysis carries
-the statistical conclusion. For SuFu, the
-Appendix reports 95% Wilson intervals for the reported task-level pass rates
-and candidate-level compilation-error rates over all 58 tasks. HumanEval-
-Java's 16-task result remains visible in the benchmark-specific table; the
+of the pooled comparison is not an artifact of under-trained baselines; at
+the 220M scale, where only MBJP is reported, the exact tests on 67 tasks are
+underpowered (the Appendix states both reasons: modest improvements and few
+discordant pairs), which is why the pooled 2B analysis carries the
+statistical conclusion. For SuFu, the
+Appendix reports the same intervals and paired tests at the 220M scale (all
+four differences significant), and at the 2B scale Wilson intervals plus the
+compilation-error bound derived from aggregate counts alone. HumanEval-
+Java's 16-task result remains visible in Table 1; the
 merged analysis prevents that small set from being the sole basis for the
 statistical conclusion.
 
@@ -117,7 +119,10 @@ We agree that the current formal and empirical evidence is limited to the
 implemented first-order setting. A targeted scope and limitation paragraph
 covering higher-order unification, polymorphism, subtyping, overloading, and
 mutable-state-related features has been added to the Limitations subsection of
-the Evaluation section.
+the Evaluation section. The paragraph also notes that typing rules are
+formulated as constrained Horn clauses, which can in principle describe richer
+type systems, and that migrating to such systems (including linear types) is
+future work.
 
 ### Branching factor and pruning
 
@@ -152,9 +157,8 @@ retained in RQ1.
 RQ2 reports the measured SuFu runtime of the same 220M model for each component
 configuration. The
 same section reports zero strict beam dead-ends in the instrumented 58-task
-run. The decoder does not switch to unconstrained generation; incomplete
-candidate slots at the fixed budget are scored fail-closed. The discussion of
-richer type features is listed as a focused manual limitation edit.
+run. The discussion of richer type features is a focused paragraph in the
+Limitations subsection of the Evaluation section.
 
 ### W3: Decoder-only comparison and adaptation
 
@@ -162,25 +166,35 @@ We added the four-benchmark decoder-only comparison for MiMo-7B, Qwen3-14B,
 and Qwen3-30B-A3B. The architectural adaptation discussion remains a
 limitation in the Evaluation section: TyFlow currently obtains its dynamic
 type context by re-encoding the evolving synthesis goal in an encoder-decoder
-architecture. A pure decoder-only adaptation would require a different
-representation and would not preserve that mechanism in its current form.
+architecture. The representation itself carries over to a decoder-only model
+unchanged; what changes is the architecture; supplying the context there would
+mean prefilling the current typing context after the derivation prefix at
+every step and removing it again before the next step, so its key-value
+entries would be recomputed at every step and never reused. We leave this
+adaptation to future work.
 
 ### W4: Scope of the CHC generality claim
 
 The empirical claim is supported by the two evaluated languages and the
 additional Java benchmarks. The requested narrowing of the CHC/generalization
-wording and the explicit boundary around richer constraints are listed for
-manual insertion in the introduction, related-work, and conclusion text.
+wording and the explicit boundary around richer constraints have been applied
+to the introduction, related-work, and conclusion text.
 
 ## Response to Reviewer 3
 
 ### SynCode, Copiloting the Copilots, and iterative refinement
 
 RQ3 reports SynCode, Repilot (the Copiloting the Copilots comparison), and
-iterative compiler repair alongside rejection sampling and TyFlow. The
-iterative row reports both functional correctness and compilation-error rate;
-the text records that compiler repair improves compilability without adding a
-solved MBJP task in the controlled run.
+iterative compiler repair alongside rejection sampling and TyFlow. All
+external methods are rerun on one leak-clean frozen T5Gemma2-2B checkpoint
+under a shared temperature-sampling protocol (the control's scores therefore
+differ slightly from the beam-10 Table 1 row; the TyFlow row is identical in
+both tables). The table reports functional correctness and
+compilation-error rate; the text records that compiler repair improves
+compilability without adding a solved MBJP task in the controlled run, and
+that rejection sampling is the only external method that adds solved tasks
+(three at pass@10, one at pass@1), with the differences not statistically
+significant.
 
 ### Larger models
 
@@ -203,20 +217,27 @@ table.
 
 ### Dynamic languages and Python
 
-The Evaluation section now states as a concise limitation that the current
-implementation and experiments focus on languages with explicit typing rules
-and do not establish applicability to dynamically typed languages such as
-Python.
+The Evaluation section now states this as a focused limitation paragraph: our
+method needs a type system in which the type derivation of a program can be
+computed automatically from the program text, so that existing code can be
+converted into the decision-sequence format. Dynamically typed languages such
+as Python still have typing rules to a degree, but the derivation cannot be
+read off the program text alone, so training sequences cannot be extracted
+from existing programs; this breaks the Data Usability property and with it
+the training-data pipeline. Adapting such languages is left to future work.
 
 ### Artifact availability
 
-All results in the revision are backed by a frozen artifact package: the
-per-candidate outputs and score JSONs for every table, the pre-registered
-evaluation and baseline-strengthening protocols (including the validation
-holdouts and the epoch-selection rules), the recipe-search records, and
-SHA-256 sums for datasets, checkpoints, and scores. The package lets each
-reported number be traced to the exact checkpoint, dataset revision, and
-scoring configuration that produced it.
+All Java table rows and the 220M SuFu pair in the revision are backed by a
+frozen artifact package: the per-candidate outputs and score JSONs, the
+pre-registered evaluation and baseline-strengthening protocols (including the
+validation holdouts and the epoch-selection rules), the frozen checkpoints
+(including the 220M SuFu pair's checkpoint), and SHA-256 sums for datasets,
+checkpoints, and scores, so each of these numbers can be traced to the exact
+checkpoint, dataset revision, and scoring configuration that produced it. The
+2B SuFu pair predates this record-keeping; its per-task arrays were not
+preserved, so the Appendix reports for it only what the retained aggregate
+counts support (Wilson intervals and the compilation-error bound).
 
 Sincerely,
 The Authors

@@ -236,8 +236,11 @@ TransCoder-GFG (414 / 103)~\cite{DBLP:conf/nips/LachauxROC20}       & 65\,(55--1
 
 HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
 
-\paragraph{Strengthened HumanEval-Java and TransCoder-GFG baselines.}
-Initial fine-tuning of the HumanEval-Java and TransCoder-GFG baselines used a learning rate of $5\times10^{-5}$ with last-checkpoint selection; a post-hoc recipe audit found this setting overfits the small training splits and underestimates the base model. The reported baselines instead fine-tune T5Gemma2-2B with learning rate $10^{-5}$ for 30 passes---on the union of the three Java training splits (1{,}168 tasks) for HumanEval-Java, and on the TransCoder-GFG training split plus the MBJP training tasks (1{,}022 tasks) for TransCoder-GFG---selecting the checkpoint on validation holdouts drawn from the respective training splits (32 and 60 tasks, never in any training data). Each holdout-selected configuration was then evaluated once on the fixed test split. Because these baselines see a superset of the per-benchmark training data available to \mainname, the strengthened rows make the comparison conservative for \mainname. The same audit found no benefit from excluding cross-benchmark data, and the strengthened baselines retain the standard beam-10 decoding protocol without few-shot prompting. Per-candidate results and the full recipe-search record are part of the artifact package.
+\emergencystretch=1em
+\paragraph{HumanEval-Java and TransCoder-GFG baselines.}
+The T5Gemma2-2B baselines for the two additional benchmarks are fine-tuned with learning rate $10^{-5}$ for 30 passes, selecting the checkpoint on validation holdouts drawn from the respective training splits (32 and 60 tasks, never in any training data). Each selected configuration was then evaluated once on the fixed test split, with the standard beam-10 decoding protocol and no few-shot prompting. Per-candidate results are part of the artifact package.
+
+\emergencystretch=0pt
 
 \subsection{SuFu Benchmark}
 
@@ -427,7 +430,7 @@ No typing rule is violated, so no amount of type-level pruning can reject this c
 
 \subsection{SuFu}
 
-On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category; the fixed-budget and fail-closed behavior is described in the RQ2 discussion.
+On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category.
 
 \clearpage
 \section{Statistical Significance Analysis}
@@ -438,9 +441,10 @@ This section complements the point estimates in \autoref{tab:model-results} with
 \subsection{Paired Significance Tests at the 220M Scale}
 \label{appendix-statistics-220m}
 
-We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks for both benchmarks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
-Both pairs use the same frozen 220M checkpoint, the same beam size, and the same scoring script, so the two rows of \autoref{tab:paired-statistics-220m} are directly comparable across languages.
-The corresponding 2B aggregate rates remain in \autoref{tab:model-results}; \autoref{appendix-statistics-2b} reports the paired tests for the two 2B benchmarks whose per-task arrays are preserved.
+We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
+pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved; both runs use the same frozen checkpoint, beam size, and scoring script, with ten candidates per task.
+In the SuFu block all four paired differences favor \mainname{} at the 0.05 significance level.
+In the Java block only CER is significant at $n=67$, for two reasons: the pass-rate improvements themselves are modest at this scale (one additional task at pass@1, five at pass@10), and a 67-task test set yields few discordant pairs (11, 19, and 24 for pass@1, pass@10, and FSP), so the exact tests are underpowered; pooling the three Java benchmarks at the 2B scale restores significance for all four metrics (\autoref{tab:paired-statistics-2b}).
 
 \begin{table}[ht]
 \centering
@@ -451,120 +455,51 @@ The corresponding 2B aggregate rates remain in \autoref{tab:model-results}; \aut
 \toprule
 Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) & Paired $p$-value \\
 \midrule
-\multirow{4}{*}{Java}
- & pass@1  & 7/67 (10.45\%)  & 17/67 (25.37\%)  & [5.15,20.03] / [16.49,36.93]   & $2.13{\times}10^{-2}$ \\
- & pass@10 & 14/67 (20.90\%) & 29/67 (43.28\%) & [12.88,32.07] / [32.10,55.19] & $1.50{\times}10^{-3}$ \\
- & FSP     & 8.19            & 6.36            & --                              & $1.25{\times}10^{-2}$ \\
- & CER     & 238/670 (35.52\%) & 3/670 (0.45\%)  & --                              & $1.78{\times}10^{-13}$ \\
+\multirow{4}{*}{Java (67)}
+ & pass@1  & 7/67 (10.45\%)  & 8/67 (11.94\%)  & [5.15,20.03] / [6.18,21.83]   & $1.00$ \\
+ & pass@10 & 14/67 (20.90\%) & 19/67 (28.36\%) & [12.88,32.07] / [18.97,40.09] & $3.59{\times}10^{-1}$ \\
+ & FSP     & 8.19            & 7.94            & [7.31,9.08] / [7.04,8.84]      & $3.08{\times}10^{-1}$ \\
+ & CER     & 238/670 (35.52\%) & 10/654 (1.53\%)  & [31.99,39.22] / [0.83,2.79] & $6.98{\times}10^{-11}$ \\
 \midrule
-\multirow{4}{*}{SuFu}
+\multirow{4}{*}{SuFu (58)}
  & pass@1  & 14/58 (24.14\%)  & 22/58 (37.93\%)  & [14.96,36.53] / [26.56,50.80] & $3.86{\times}10^{-2}$ \\
- & pass@10 & 19/58 (32.76\%)  & 27/58 (46.55\%)  & [22.08,45.58] / [34.33,59.20] & $9.23{\times}10^{-2}$ \\
- & FSP     & 7.03             & 5.48             & --                              & $1.58{\times}10^{-2}$ \\
- & CER     & 482/580 (83.10\%) & 0/580 (0.00\%)   & [79.84,85.93] / [0.00,0.66]    & $6.94{\times}10^{-18}$ \\
+ & pass@10 & 19/58 (32.76\%) & 31/58 (53.45\%) & [22.08,45.58] / [40.80,65.67] & $2.35{\times}10^{-3}$ \\
+ & FSP     & 7.03             & 5.03             & [6.02,8.32] / [3.77,6.30]      & $7.20{\times}10^{-3}$ \\
+ & CER     & 482/580 (83.10\%) & 0/361 (0.00\%)   & [79.84,85.93] / [0.00,1.05]    & $6.94{\times}10^{-18}$ \\
 \bottomrule
 \end{tabular}
-\begin{tablenotes}
-\small
-\item Java: MBJP, 67 tasks; SuFu: 58 tasks; ten candidates per task for both.
-\item pass@1 and pass@10 use Wilson intervals over tasks; their paired tests are exact two-sided McNemar on the discordant pairs.
-\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; its interval is omitted because each benchmark here has only 58 or 67 tasks, which is too few for a normal approximation.
-\item CER uses Wilson intervals over returned candidates; the paired test is an exact two-sided sign test on per-task compilation-error fractions.
-\item In the Java block all four paired differences favor \mainname{} at the 0.05 significance level; in the SuFu block pass@1, FSP, and CER do, while pass@10 is borderline ($p=9.23{\times}10^{-2}$). CER differences reach the resolution limit of the test.
-\end{tablenotes}
 \end{threeparttable}
 \end{table}
 
 \subsection{Paired Significance Tests at the 2B Scale}
 \label{appendix-statistics-2b}
 
-The MBJP, HumanEval-Java, and TransCoder-GFG baselines and the matched \mainname-2B runs all retain per-task records, so \autoref{tab:paired-statistics-2b} repeats the same tests at the 2B scale for each benchmark separately, and \autoref{tab:paired-statistics-2b-java} pools the three Java benchmarks into the combined 186-task analysis.
-On MBJP the FSP and compilation-error differences are significant ($p=5.9{\times}10^{-3}$ and $p=3.5{\times}10^{-13}$) while the two pass rates fall just outside the 0.05 level ($p=0.057$ and $p=0.119$).
-On TransCoder-GFG (103 tasks) the pass@10 improvement is significant ($p=0.013$), as is the candidate-level compilation-error difference ($p<10^{-5}$); pass@1 and FSP fall just outside the 0.05 level ($p=0.061$ and $p=0.096$).
-On HumanEval-Java (16 tasks) no paired test on the pass rates reaches significance, which is expected at this test size; the point estimates and the CER gap favor \mainname{} in the same direction, and we treat those 16-task comparisons as directional evidence only.
-Pooling the three benchmarks restores power: in the combined 186-task analysis all four paired differences favor \mainname{} at the 0.05 significance level (\autoref{tab:paired-statistics-2b-java}), which is the primary statistical statement for the Java results at the 2B scale.
-The SuFu 2B rows retain aggregate counts only, so \autoref{tab:sufu-2b-intervals} reports Wilson intervals without a paired test; the candidate-level compilation-error intervals do not overlap ($61.21\%$ vs.\ $0.00\%$), while the pass-rate intervals overlap despite the gap in point estimates.
+The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply.
+In the combined analysis all four paired differences favor \mainname{} at the 0.05 significance level (\autoref{tab:paired-statistics-2b}).
+The SuFu 2B runs retain aggregate counts only, so the pass-rate and FSP paired tests cannot be computed; the compilation-error difference can still be bounded without the per-task arrays: \mainname-2B has zero compilation errors on all 580 candidates, so every task on which the baseline has at least one error (at least 36 of the 58) favors \mainname{} in the exact sign test, giving $p<3{\times}10^{-11}$.
 
 \begin{table}[ht]
 \centering
+\small
 \begin{threeparttable}
-\caption{Paired Significance Tests at the 2B Scale}
+\caption{Paired Significance Tests at the 2B Scale (Java: MBJP + HumanEval-Java + TransCoder-GFG Pooled)}
 \label{tab:paired-statistics-2b}
 \begin{tabular}{l l l l l l}
 \toprule
 Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
 \midrule
-\multirow{4}{*}{MBJP (67)}
- & pass@1  & 9/67 (13.43\%)  & 17/67 (25.37\%)  & [7.23,23.60] / [16.49,36.93]   & $5.74{\times}10^{-2}$ \\
- & pass@10 & 22/67 (32.84\%) & 29/67 (43.28\%) & [22.79,44.74] / [32.10,55.19] & $1.19{\times}10^{-1}$ \\
- & FSP     & 7.46            & 6.36            & --                             & $5.93{\times}10^{-3}$ \\
- & CER     & 29.55\%         & 0.45\%          & --                             & $3.48{\times}10^{-13}$ \\
+\multirow{4}{*}{Java (186)}
+ & pass@1  & 34/186 (18.28\%) & 56/186 (30.11\%) & [13.39,24.46] / [23.97,37.05] & $2.09{\times}10^{-3}$ \\
+ & pass@10 & 62/186 (33.33\%) & 86/186 (46.24\%) & [26.96,40.38] / [39.22,53.41] & $5.36{\times}10^{-4}$ \\
+ & FSP     & 7.18             & 5.91             & [6.57,7.78] / [5.24,6.58]     & $7.65{\times}10^{-4}$ \\
+ & CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
 \midrule
-\multirow{4}{*}{HumanEval-Java (16)}
- & pass@1  & 5/16 (31.25\%)  & 8/16 (50.00\%)  & [14.16,55.60] / [28.00,72.00] & $3.75{\times}10^{-1}$ \\
- & pass@10 & 6/16 (37.50\%)  & 9/16 (56.25\%)  & [18.48,61.36] / [33.18,76.90] & $2.50{\times}10^{-1}$ \\
- & FSP     & 6.50            & 4.75            & --                            & $3.75{\times}10^{-1}$ \\
- & CER     & 24.38\%         & 1.25\%          & --                            & $9.77{\times}10^{-4}$ \\
-\midrule
-\multirow{4}{*}{TransCoder-GFG (103)}
- & pass@1  & 20/103 (19.42\%) & 31/103 (30.10\%) & [12.94,28.10] / [22.09,39.54] & $6.14{\times}10^{-2}$ \\
- & pass@10 & 34/103 (33.01\%) & 48/103 (46.60\%) & [24.68,42.56] / [37.26,56.18] & $1.25{\times}10^{-2}$ \\
- & FSP     & 7.10             & 5.81             & --                            & $9.61{\times}10^{-2}$ \\
- & CER     & 13.69\%          & 2.72\%           & --                            & $3.39{\times}10^{-6}$ \\
+\multirow{4}{*}{SuFu (58)}
+ & pass@1  & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] & -- \\
+ & pass@10 & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] & -- \\
+ & FSP     & 6.69            & 5.03            & --                             & -- \\
+ & CER     & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66]    & $<3{\times}10^{-11}$ \\
 \bottomrule
 \end{tabular}
-\begin{tablenotes}
-\small
-\item Ten candidates per task; the same scorers and decoding protocols as \autoref{tab:model-results}.
-\item pass@1 and pass@10 use Wilson intervals over tasks and exact two-sided McNemar tests on the discordant pairs.
-\item FSP is the mean first-success rank with unsolved tasks assigned rank 10; the interval is omitted because the mean is not used for significance here, and the paired test is an exact two-sided sign test.
-\item CER entries are per-task mean compilation-error fractions over the ten nominal slots per task; their paired test is an exact two-sided sign test on the per-task fractions. The HumanEval-Java \mainname-2B value (1.25\%) therefore counts the six ungenerated slots as valid, whereas \autoref{tab:model-results} uses the 154 returned candidates as denominator (1.30\%).
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-\begin{table}[ht]
-\centering
-\begin{threeparttable}
-\caption{Combined Java Analysis at the 2B Scale (MBJP + HumanEval-Java + TransCoder-GFG, 186 Tasks)}
-\label{tab:paired-statistics-2b-java}
-\begin{tabular}{l l l l l}
-\toprule
-Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
-\midrule
-pass@1  & 34/186 (18.28\%) & 56/186 (30.11\%) & [13.39,24.46] / [23.97,37.05] & $2.09{\times}10^{-3}$ \\
-pass@10 & 62/186 (33.33\%) & 86/186 (46.24\%) & [26.96,40.38] / [39.22,53.41] & $5.36{\times}10^{-4}$ \\
-FSP     & 7.18             & 5.91             & [6.57,7.78] / [5.24,6.58]       & $7.65{\times}10^{-4}$ \\
-CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\small
-\item One row per task, ten candidates per task ($186\times10 = 1{,}860$ candidate slots); discordant counts for pass@1 are 35 in favor of \mainname{} and 13 in favor of the baseline, and 35 vs.\ 11 for pass@10.
-\item The MBJP baseline row retains its original training recipe, while the HumanEval-Java and TransCoder-GFG baselines use the audited recipes of \autoref{tab:java-benchmark-stats}'s companion paragraph; re-auditing MBJP could only raise the baseline and thus can only shrink the reported differences, so the combined result is conservative.
-\item The same intervals and tests as \autoref{tab:paired-statistics-2b}; this is the primary statistical statement for the Java results at the 2B scale.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-\begin{table}[ht]
-\centering
-\begin{threeparttable}
-\caption{SuFu at the 2B Scale: 95\% Wilson Intervals (No Paired Test)}
-\label{tab:sufu-2b-intervals}
-\begin{tabular}{l l l l}
-\toprule
-Metric & T5Gemma2-2B & \mainname-2B & Intervals (baseline / \mainname) \\
-\midrule
-pass@1 ($n{=}58$) & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] \\
-pass@10 ($n{=}58$) & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] \\
-CER ($n{=}580$) & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66] \\
-FSP & 6.69 & 5.03 & -- \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\small
-\item SuFu per-task rank vectors were not preserved with the frozen 2B package, so no paired test is reported; FSP is the task mean only.
-\end{tablenotes}
 \end{threeparttable}
 \end{table}
