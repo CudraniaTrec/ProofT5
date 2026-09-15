@@ -1,6 +1,6 @@
 # ProofT5 Project Structure
 
-Last updated: 2026-09-05
+Last updated: 2026-09-15
 
 This note records the current local structure of `/data2/x/hzc/prooft5`.
 It is meant as a memory aid for future work, especially because several
@@ -17,33 +17,37 @@ important runtime assets are intentionally ignored by git.
 ├── beamsearch*.py            # Decoding implementations for Java, Coq, DSL, SuFu
 ├── get_tokenizer.py          # Tokenizer helper
 ├── trans_dsl_program.py      # DSL-to-executable-program helper
+├── score_*_no_write.py       # Frozen Java / SuFu scoring entrypoints
 ├── run.sh / run_overall.sh   # Shell wrappers for experiments
 ├── acc_config.yaml           # Accelerate config
 ├── requirements.txt          # Historical Python requirements
 ├── requirements-t5gemma2.txt # T5Gemma2 environment overlay
-├── artifacts/                # Frozen paper-facing result packages and hashes
+├── archive/                  # Abandoned experiment branches kept for reference
+├── artifact/                 # Gitignored 47G reproducibility bundle (code/checkpoints/data)
+├── artifacts/                # Git-tracked evidence store (score JSONs, frozen arrays, protocols)
 ├── baselines/                # Reproducible Java baseline adapters and lock file
-├── docs/                     # Canonical experiment ledger, audits, retained reports
+├── docs/                     # Maintained experiment ledger, audits, inventory, this file
+├── scripts/                  # Frozen-protocol launch scripts kept as provenance
+├── tests/                    # Script-style regression tests
 ├── Utils/                    # Data, checkpoints, outputs, scoring, parsers
 ├── coq_model/                # Java/Coq modeling, proof generation, mxeval
 ├── SuFu/                     # SuFu benchmarks, parser, model helpers, ignored source trees
 ├── t5_llm/                   # CodeT5 / T5Gemma2 baseline scripts and outputs
-├── tests/                    # Script-style regression tests
 ├── third_party/              # Gitignored upstream checkouts restored from lock file
 ├── tosem/                    # TOSEM paper and submission material
-└── tmp/                      # Ignored runtime scratch data, logs, and backups
+└── tmp/                      # Ignored runtime scratch (kept empty; evidence goes to artifacts/)
 ```
 
 Paper-facing Java experiment status is frozen in
 `docs/MAJOR_REVISION_FINAL_PACKAGE_20260824.md`. The machine-readable package
 under `artifacts/major_revision_20260824/` records exact dataset, checkpoint,
-score, and complete candidate-output paths and their hashes. The compact table
-also remains in `docs/JAVA_BENCHMARK_EXPERIMENT_MASTER_20260823.md`.
+score, and complete candidate-output paths and their hashes.
 
-For current experiment numbers, start from the frozen 2026-08-24 package. For
-broader paper, reviewer, code, and historical context, continue with
-`docs/SESSION_HANDOFF_MAJOR_REVISION_20260823.md`; its older experiment status
-must not override the frozen package.
+For current experiment numbers, start from the frozen 2026-08-24 package and
+`docs/README.md`. Superseded one-off scripts and documents were removed in the
+2026-09-15 cleanup (see `docs/PROJECT_CLEANUP_AUDIT_20260823.md`) and remain
+retrievable from git history; large scratch was quarantined outside the repo
+at `/data2/x/hzc/quarantine_20260915/`.
 
 External SynCode, Repilot, LLMLOOP, and modified Eclipse JDT repositories are
 not vendored. Their URLs and exact commits are recorded in

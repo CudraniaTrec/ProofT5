@@ -34,7 +34,7 @@ from baselines.java_baselines.run_online_replay import load_replay_inputs
 from baselines.java_baselines.select_qwen_training_checkpoint import select as select_qwen_checkpoint
 from baselines.java_baselines.inspect_qwen_coq_adapter import inspect as inspect_qwen_coq_adapter
 from score_java_no_write import read_candidate, verify_benchmark_source
-from ModelQwenCausalDsl import MyQwenCausalDsl
+from archive.abandoned_decoder_only.ModelQwenCausalDsl import MyQwenCausalDsl
 from baselines.java_baselines.run_syncode import (
     CandidateGenerationTimeout,
     IncrementalPartialOutputDecoder,

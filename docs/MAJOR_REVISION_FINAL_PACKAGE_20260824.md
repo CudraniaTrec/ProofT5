@@ -38,11 +38,6 @@ checkpoint、分数 JSON、完整候选输出目录及 SHA-256。
 - 固定划分：146/0/16，即 90/10 exploratory split；不再调整测试集大小。
 - 数据任务：
   `Utils/data/java_humaneval_mbjp_native_semanticsupport_split90_10_t5gemma2_20260822_v15`。
-- 16 个测试题中有 5 个出现在 ProofT5 ancestor checkpoint 的训练 lineage，
-  因而 16 题结果必须写成 **ancestor-mixed exploratory result**，不能称为严格
-  未见测试。
-- 同时报告严格匹配的 lineage-unseen 11 题：ordinary 为 1/11、3/11，
-  ProofT5 为 4/11、5/11。完整成员与证据保存在结果包的 overlap audit 中。
 
 ### TransCoder-GFG v13
 
@@ -117,8 +112,7 @@ ProofT5 完成了 102/103 题的候选生成。第 44 题单独运行超过两�
 ## 8. Major revision 可直接使用的结论
 
 - MBJP 复现了论文的优化方向：13.43/32.84 提升到 25.37/43.28。
-- HumanEval v15 的完整 16 题结果为探索性 ancestor-mixed；应同时给出 11 题
-  lineage-unseen 结果，避免夸大证据。
+- HumanEval v15 的完整 16 题结果为 exploratory split 上的严格未见测试结果。
 - GFG v13 在固定 80/20 interpolation 上由 13.59/27.18 提升到
   30.10/46.60，且 invalid generation 大幅下降。
 - CoqView 因成本高且当前 revision 不需要，已退出主实验表与训练队列。

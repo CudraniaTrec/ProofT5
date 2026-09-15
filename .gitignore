@@ -4,6 +4,18 @@ wandb/
 # Editor and IDE local state.
 .idea/
 .vscode/
+.codebuddy/
+
+# Local-only frozen artifact staging: 47G of checkpoints, datasets, and
+# bundled result records; mapping documented in artifact/README.md.
+/artifact/
+
+# Accidental root-level LaTeX build byproducts (real paper lives in tosem/paper).
+/manuscript.aux
+/manuscript.pdf
+/manuscript.out
+/manuscript.synctex.gz
+/texput.log
 
 # Tree-sitter compiled parser libraries; regenerate with
 # Utils/processdata/parser/build.py and Utils/evaluator/CodeBLEU/parser/build.py.

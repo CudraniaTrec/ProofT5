@@ -408,7 +408,7 @@ Intermediate joint23 candidate shards were also removed after strict merges:
 - four one-off GFG orchestration scripts.
 
 The only retained joint23 scratch files are the final HumanEval/GFG scores,
-the HumanEval lineage-unseen score, final checkpoint training log/metrics,
+the final checkpoint training log/metrics,
 the GFG problem-44 nontermination log, and the final scheduling log. Two v14
 support documents were removed because the final Java package uses v13 GFG;
 their negative-route interpretation is preserved in the consolidated handoff

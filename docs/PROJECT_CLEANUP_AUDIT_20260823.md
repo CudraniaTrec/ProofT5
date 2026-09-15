@@ -134,3 +134,111 @@ Before deleting large artifacts, generate a machine-readable manifest with:
 - proposed action: keep, archive, quarantine, or delete.
 
 Only exact paths marked `delete` in a reviewed manifest should be removed.
+
+## 2026-09-15 git hygiene and tmp/cache quarantine
+
+Reference-gated pass over the working tree, following the same policy as
+above (quarantine first, evidence into `artifacts/` before any move).
+
+Evidence secured in git first: the nine `tmp/stat_*_20260903*.json` frozen
+per-task arrays backing Appendix D (FSP t-intervals, sign tests), plus the
+JSONs cited by docs (`clean_java_reproduction_final_20260811.json`,
+`paperrecover_mbjp_rejectionsampling_b10_20260927_score_timeout10.json`,
+`cleanratio_oldcv_{overlap33,nonoverlap34}_score_timeout10_20260810.json`,
+`mbjpcoqview_clean673_*_audit_final10.json`,
+`stat_sufu2b_baseline_resultcsv_20260914.json`) were copied to
+`artifacts/appendix_d_stat_arrays_20260903/` (104K, git-tracked).
+
+Quarantined to `/data2/x/hzc/quarantine_20260915/` (outside the repo,
+recoverable, nothing deleted):
+
+- `tmp/`: everything not modified since 2026-09-01 and not on the keep list,
+  plus `repilot_jdt/` (2.6G Repilot run workspaces; final scores already in
+  `artifacts/major_revision_mbjp_baselines_20260825/` and
+  `artifacts/rq3clean_mbjp_20260914/`) and `runtime_state/` (711M abandoned
+  codegemma/qwen eval state). `tmp` shrank from 4.0G to 110M; the kept files
+  are the September RQ1/RQ2/RQ3 logs and score JSONs.
+- `cache/`: all contents (3.0G, regenerable tree-sitter parsers and mask
+  stores via the documented build scripts).
+
+Git hygiene: root `.gitignore` gained `/artifact/` (47G local-only frozen
+staging), root-level accidental LaTeX byproducts, and `.codebuddy/`;
+`tosem/paper/.codebuddy/` was untracked via `git rm --cached` (files kept on
+disk).
+
+Root-level abandoned decoder-only fine-tuning branch files
+(`prepare_qwen_causal_dsl_java.py`, `prepare_qwen_coq_java.py`,
+`prepare_codegemma_causal_dsl_data.py`, `ModelQwenCausalDsl.py`,
+`ModelCodeGemmaCausalDsl.py`) moved to
+`archive/abandoned_decoder_only/` via `git mv`; `run.py` already guards
+their imports with try/except, and `tests/test_java_major_revision_baselines.py`
+was updated to import from the archive path. Full test suite: 109 passed;
+`test_forced_gold_coqview_beam_alignment.py` fails identically on clean HEAD
+(pre-existing, unrelated).
+
+Not cleaned, deliberately: `tests/` (35 files), `docs/` (protocol
+provenance), `scripts/` (76 frozen-protocol launch scripts) — all small and
+part of the experiment record.
+
+## 2026-09-15 (second pass): docs/scripts/tests pruning and tmp emptied
+
+Reference-gated pruning of tracked working-tree files. Everything removed
+below stays recoverable from git history; the criterion was an active
+reference from `tosem/`, `artifacts/`, `artifact/README.md`, or live code.
+
+- `tmp/` emptied: RQ1/RQ2 evidence (retrain score JSONs, `rq2_runtime_*`
+  measurements, 220M rerun dirs) copied into
+  `artifacts/appendix_d_stat_arrays_20260903/`,
+  `artifacts/rq2_runtime_20260904/`, and
+  `artifacts/rq3clean_mbjp_20260914/logs/` first; everything else moved to
+  the quarantine (repilot audit workspaces 50M, sufu.log 29M, superseded
+  retrain sweeps 19M, score workdirs, paper diff snapshots).
+- `scripts/`: 59 unreferenced one-off build/audit/launch scripts removed;
+  22 kept (runtime env, 20260914 RQ3 frozen-protocol launchers, paper
+  artifact builder, and the scripts cited by frozen artifact packages).
+- `docs/`: 10 superseded documents removed (pre-final HumaneEval retrain
+  protocol variants, recipe-search validation, v13/v15 Java expansion
+  experiments, master pointer doc, two audit JSONs, CLEAN_T5GEMMA2
+  predecessor doc). Kept: final package, baseline-strengthening and
+  joint23 protocols, clean-reproduction results, checkpoint comparison
+  docs, cleanup records, README (index updated). Three files with
+  uncommitted local edits were left in place pending an explicit decision:
+  `HUMANEVAL_ALIGNED_RETRAIN_PROTOCOL_20260908.md`,
+  `JAVA_BENCHMARK_EXPERIMENT_MASTER_20260823.md`,
+  `JAVA_EXPANSION_SEMANTICSUPPORT_V15_EXPERIMENT_20260822.md`.
+- `tests/`: 11 tests that exercised the removed one-off scripts removed;
+  suite now 86 passed plus the one pre-existing failure
+  (`test_forced_gold_coqview_beam_alignment.py`, fails identically on
+  clean HEAD).
+
+## 2026-09-15 (third pass): docs finalized, artifact dirs deduplicated
+
+- The three superseded docs with uncommitted edits removed after explicit
+  author approval (HumaneEval aligned-retrain protocol, Java benchmark
+  master pointer, v15 semanticsupport experiment).
+- `artifact/results/` eliminated: its two score JSONs (strengthened
+  HumanEval/GFG baselines) were the only surviving copies after the earlier
+  minimization deleted `artifacts/humaneval_aligned_retrain_20260909/`; they
+  now live in `artifacts/major_revision_strong_baselines_20260824/scores/`.
+- Role split between the two similarly named directories is now clean and
+  non-overlapping: `artifacts/` (git-tracked, 14M) is the evidence store
+  (score JSONs, frozen per-task arrays, protocol records);
+  `artifact/` (gitignored, 47G) is the heavy reproducibility bundle
+  (checkpoints, code, datasets) built by
+  `scripts/build_paper_artifact_20260914.sh`, which no longer copies score
+  records and no longer references the archived qwen prepare script.
+
+## 2026-09-15 (fourth pass): top-level flattening
+
+- `selected_data/` removed (git rm + quarantine): eight tracked files of
+  superseded 2026-07-31 Java-expansion data with no references from live
+  code, docs, or artifacts.
+- Superseded root notes quarantined (were already gitignored):
+  `MODEL_LINEAGE_T5GEMMA2_20260710.md`, `T5GEMMA2_2B_EXPERIMENT_PLAN.md`,
+  `eval_coq_shard.py`.
+- `MODEL_TRAINING_INVENTORY.md` and `PROJECT_STRUCTURE.md` moved into
+  `docs/` (git mv); `docs/README.md` links updated.
+- `docs/PROJECT_STRUCTURE.md` top-level map rewritten for the post-cleanup
+  layout. `docs/`, `scripts/`, `tests/` are kept as separate directories by
+  convention (documentation, provenance launchers, regression tests);
+  `tmp/` and `cache/` remain as ignored runtime scratch locations.
