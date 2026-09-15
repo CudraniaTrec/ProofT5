@@ -72,3 +72,10 @@ t5_llm/evaluator/
 /T5GEMMA2_2B_EXPERIMENT_PLAN.md
 /prepare_t5gemma2_prooft5_data.py
 /eval_coq_shard.py
+
+# LaTeX Workshop / latexmk build artifacts (response letter)
+tosem/revision/response_letter/*.bbl
+tosem/revision/response_letter/*.fls
+tosem/revision/response_letter/*.fdb_latexmk
+tosem/revision/response_letter/*.synctex.gz
+tosem/revision/response_letter/*.out

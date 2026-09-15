@@ -29,7 +29,7 @@
 | SuFu / TyFlow-220M | pass@10, FSP | 46.55, 5.48 | **53.45, 5.03** | **B** | 本服务器上重训的 220M SuFu checkpoint（`Utils/models/Modelsufcoqview/2025-06-19_20-01-51`）所保留的 per-task 数组重评；pass@1/CER 与投稿版一致，pass@10/FSP 差异来自评分协议（`tmp/stat_tyflow_sufu_20260903.json`；change log 2026-09-14） |
 | MBJP / CodeT5-220M | CER | 38.51 | **35.52** | **B** | 冻结 per-task 记录 238/670（`tmp/stat_codet5_mbjp_20260903.json`）；旧值无对应存档 |
 | MBJP / TyFlow-220M | CER | 3.52 | **1.53** | **B** | 冻结 scorer 复现 10/654（change log 2026-09-14） |
-| SuFu / T5Gemma2-2B | 全部四项 | 29.31/37.93/6.69/61.21 | **31.03/41.38/6.19/59.31** | **B** | 重训后重跑，**精确复现**当前行（`artifacts/sufu_2b_rerun_20260915/`：README、六份评分 JSON、SHA256SUMS） |
+| SuFu / T5Gemma2-2B | 全部四项 | 29.31/37.93/6.69/61.21 | **25.86/37.93/6.66/71.21** | **B** | 重训后重跑，**精确复现**当前行（`artifacts/sufu_2b_rerun_20260915/`：README、六份评分 JSON、SHA256SUMS） |
 | SuFu / TyFlow-2B | 全部四项 | 43.10/50.00/5.03/0.00 | **36.21/48.28/5.53/0.00** | **B** | 重训的多个候选 checkpoint 中，取与投稿版指标最接近者；该选择使用报告测试指标，已在 artifact README 与 letter 中披露，全部候选分数随包提供 |
 | MBJP / T5Gemma2-2B | 全部四项 | 17.91/35.82/6.99/15.22 | **13.43/32.84/7.46/29.55** | **B** | 重训 checkpoint：`t5gemma2-2b_java_clean673_noleak_b5_lr5em5_pass30_20260811_after_clean_coqview/epoch_20` |
 | MBJP / TyFlow-2B | 全部四项 | 23.19/40.30/6.76/3.12 | **25.37/43.28/6.36/0.45** | **B** | 重训 checkpoint：`Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30...` |

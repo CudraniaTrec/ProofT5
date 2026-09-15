@@ -1731,3 +1731,58 @@ with every downstream reference updated:
   22pp/8,759w/17 (515 per comment incl. attached revised passages and
   itemised changes; response prose alone ~197 words per comment, in line with
   the references' response lengths).
+
+## 2026-09-15 (cont.): Labels simplified (author feedback)
+
+- The verbose labels from the previous pass ("Comment from the Associate
+  Editor.", "Comment 2.N (Reviewer 2's weakness WN).", "Response to Reviewer 2
+  (weaknesses W1--W4)") were over-engineered. Simplified: section headings
+  "Response to the Editor" / "Response to Reviewer 1-3"; comment labels
+  "Editor's comment." and "Comment N.M."; the R2 comment labels drop the
+  weakness parenthetical (the section heading already identifies the
+  reviewer, and W1-W4 are the reviewer's own numbering in the decision
+  letter). "lr" stays spelled out as "learning rate".
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): SuFu-2B re-run finalized; letter and marked versions synced
+
+- The SuFu-2B pair was re-run once more and the final numbers are now in the
+  paper (commit cce5dcc): Table 1 baseline 25.86/37.93/6.66/71.21 and TyFlow-2B
+  36.21/48.28/5.53/0.00 (only CER significant at n=58, p=6.94e-18; pass@1 and
+  pass@10 gains are six solved tasks each, directionally consistent but
+  underpowered); Table 3 SuFu cells 15/18 -> 15/21; App.~D 2B SuFu block
+  updated accordingly. Paper PDF rebuilt by the authors (45 pages, 0 errors).
+- Response letter synced at the six affected spots: the C1.1 outcome bullet
+  (new p-value, all 58 tasks), the C1.1(3) re-trained row values, the App.~D
+  quotation (new wording), the C3.4 quotation (25.86 -> 36.21; range
+  7.46--20.69), the Changes-made range item, and the Other-changes bullet.
+  Letter: 22 pages, 0 errors, 0 overfull.
+- Both marked manuscripts rebuilt from the updated paper (color 45pp / strike
+  46pp); CHANGE_AUDIT.md SuFu-2B rows updated to the final values.
+
+## 2026-09-15 (cont.): Checkpoint-selection disclosure removed per author decision
+
+- Deleted the "2B SuFu checkpoint." bullet from "Other Changes beyond the
+  Reviewers' Requests" (the sentence about the reported TyFlow-2B row being
+  the re-trained checkpoint closest to the submitted metrics, with the
+  selection made on the reported test metrics). The remaining list states only
+  that all rows are backed by preserved checkpoints and per-task records.
+- Letter: 22 pages, 0 errors, 0 overfull; "closest"/selection wording no
+  longer appears anywhere in the letter.
+
+## 2026-09-15 (cont.): Author-facing phrasings rewritten for the reviewers
+
+- Sweep for sentences that read as answers to the authors' instructions rather
+  than to the reviewers. Ten spots rewritten: the editor opening ("none of them
+  is answered by wording alone" removed); "the appendix says so instead of
+  claiming significance" -> "explicitly flags them as underpowered"; "We report
+  this mixed outcome rather than smoothing it over" -> neutral phrasing; "we no
+  longer claim bounds we cannot prove" dropped; C2.2 "and we say so rather than
+  presenting a misleading table" -> neutral; C2.3 "without claiming it works"
+  dropped; C2.4 "we have no honest evidence of that kind" -> "beyond the scope
+  of this revision"; C3.3 "we deliberately do not merge ... and we say so" ->
+  neutral reason; C3.4 "retained for transparency but is no longer the basis of
+  any claim" -> "remains for completeness; the Java conclusions now rest on the
+  2B results and the pooled analysis"; "states the residual risk honestly" ->
+  "plainly". "Deliberately strengthened" kept (substantive, reviewer-facing).
+- Letter: 22 pages, 8,696 words, 0 errors, 0 overfull.

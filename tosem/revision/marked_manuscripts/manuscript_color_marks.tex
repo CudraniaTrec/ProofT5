@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.ApkcQE/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.ApkcQE/new/manuscript.tex                Tue Sep 15 07:33:51 2026
+%DIF DEL /tmp/marked_build.N6bXp4/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.N6bXp4/new/manuscript.tex                Tue Sep 15 12:10:18 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -1585,7 +1585,7 @@ We fine-tuned both \mainname-220M (based on CodeT5-220M) and \mainname-2B (based
         &      &  \mainname-220M      &    \textbf{\color{revblue}11.94}  &    \textbf{\color{revblue}28.36}  &    \textbf{\color{revblue}7.94}  &    \textbf{\color{revblue}1.53}  \\
  \midrule
 \multirow{8}{*}{2B}
-         &  {\color{revblue}SuFu }& {\color{revblue}T5Gemma2-2B         }& {\color{revblue}31.03 }& {\color{revblue}41.38 }& {\color{revblue}6.19 }& {\color{revblue}59.31 }\\
+         &  {\color{revblue}SuFu }& {\color{revblue}T5Gemma2-2B         }& {\color{revblue}25.86 }& {\color{revblue}37.93 }& {\color{revblue}6.66 }& {\color{revblue}71.21 }\\
         &      &  \mainname-2B        & \textbf{\color{revblue}36.21} & \textbf{\color{revblue}48.28} & \textbf{\color{revblue}5.53} & \textbf{0.00} \\
          %DIFDELCMD < \midrule
 %DIFDELCMD < \multirow{4}{*}{Java} 
@@ -1614,8 +1614,8 @@ We fine-tuned both \mainname-220M (based on CodeT5-220M) and \mainname-2B (based
 
 \mainname   improves code generation accuracy  %DIFDELCMD < \mainname%%%
   {\color{revblue}at both scales and on every benchmark: } pass@   {\color{revblue}1 rises from 24.14\% } to  %DIFDELCMD < \mainname%%%
-  {\color{revblue}37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 31.03\% } to  {\color{revblue}36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to } 50.00\%  %DIFDELCMD < \mainname%%%
-  {\color{revblue}(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass} @10    {\color{revblue}improves by 6.90--20.69 points on the same six benchmarks.
+  {\color{revblue}37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% } to  {\color{revblue}36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to } 50.00\%  %DIFDELCMD < \mainname%%%
+  {\color{revblue}(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass} @10    {\color{revblue}improves by 7.46--20.69 points on the same six benchmarks.
 The largest gains are on SuFu } and  %DIFDELCMD < \mainname%%%
 %DIFDELCMD < \mainname %%%
   {\color{revblue}HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
@@ -1649,7 +1649,7 @@ In any case, relative to its fine-tuned baseline T5Gemma2-2B, } \mainname %DIFDE
 {\color{revblue}Qwen3-14B           }& {\color{revblue}42 }& {\color{revblue}41 }& {\color{revblue}14 }& {\color{revblue}11 }& {\color{revblue}50 }& {\color{revblue}49 }& {\color{revblue}0 }& {\color{revblue}8 }\\
 {\color{revblue}Qwen3-30B-A3B       }& {\color{revblue}42 }& {\color{revblue}45 }& {\color{revblue}13 }& {\color{revblue}14 }& {\color{revblue}52 }& {\color{revblue}52 }& {\color{revblue}0 }& {\color{revblue}6 }\\
 \midrule
-{\color{revblue}T5Gemma2-2B   }& \multicolumn{2}{c}{{\color{revblue}9}}  & \multicolumn{2}{c}{{\color{revblue}5}}  & \multicolumn{2}{c}{{\color{revblue}20}} & \multicolumn{2}{c}{{\color{revblue}18}} \\
+{\color{revblue}T5Gemma2-2B   }& \multicolumn{2}{c}{{\color{revblue}9}}  & \multicolumn{2}{c}{{\color{revblue}5}}  & \multicolumn{2}{c}{{\color{revblue}20}} & \multicolumn{2}{c}{{\color{revblue}15}} \\
  \mainname %DIFDELCMD < \mainname %%%
 %DIFDELCMD < \mainname %%%
 %DIFDELCMD < \mainname %%%
@@ -2490,8 +2490,8 @@ In the Java block only CER is significant at $n=67$, for two reasons: the pass-r
 
 {\color{revblue}The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply.
 In the combined analysis all four paired differences favor }\mainname{} {\color{revblue}at the 0.05 significance level (}\autoref{tab:paired-statistics-2b}{\color{revblue}).
-On SuFu only the compilation-error difference is significant at the 2B scale: }\mainname{\color{revblue}-2B has zero compilation errors on all 313 rendered candidates, so every task on which the baseline has at least one error (55 of the 58) favors }\mainname{} {\color{revblue}in the exact sign test.
-The pass@1, pass@10, and FSP differences favor }\mainname{} {\color{revblue}in the same direction as at the 220M scale but are not significant at $n=58$: the gains are three and four solved tasks, which leaves few discordant pairs (8 vs.\ 11 for pass@1, 10 vs.\ 14 for pass@10) and 28 nonzero FSP pairs (17 better, 11 worse), so the exact tests are underpowered, mirroring the 220M Java block.
+On SuFu only the compilation-error difference is significant at the 2B scale: }\mainname{\color{revblue}-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors }\mainname{} {\color{revblue}in the exact sign test.
+The pass@1, pass@10, and FSP differences favor }\mainname{} {\color{revblue}in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 }
 
 \begin{table}[ht]
@@ -2511,10 +2511,10 @@ The pass@1, pass@10, and FSP differences favor }\mainname{} {\color{revblue}in t
  & {\color{revblue}CER     }& {\color{revblue}378/1860 (20.32\%) }& {\color{revblue}33/1860 (1.77\%) }& [{\color{revblue}18.51,22.25}] {\color{revblue}/ }[{\color{revblue}1.26,2.48}]  & {\color{revblue}$1.25{\times}10^{-19}$ }\\
 \midrule
 \multirow{4}{*}{SuFu (58)}
- & {\color{revblue}pass@1  }& {\color{revblue}18/58 (31.03\%) }& {\color{revblue}21/58 (36.21\%) }& [{\color{revblue}20.62,43.80}] {\color{revblue}/ }[{\color{revblue}25.05,49.07}] & {\color{revblue}$6.48{\times}10^{-1}$ }\\
- & {\color{revblue}pass@10 }& {\color{revblue}24/58 (41.38\%) }& {\color{revblue}28/58 (48.28\%) }& [{\color{revblue}29.63,54.20}] {\color{revblue}/ }[{\color{revblue}35.93,60.84}] & {\color{revblue}$5.41{\times}10^{-1}$ }\\
- & {\color{revblue}FSP     }& {\color{revblue}6.19            }& {\color{revblue}5.53            }& [{\color{revblue}4.96,7.42}] {\color{revblue}/ }[{\color{revblue}4.28,6.79}]      & {\color{revblue}$3.45{\times}10^{-1}$ }\\
- & {\color{revblue}CER     }& {\color{revblue}344/580 (59.31\%) }& {\color{revblue}0/313 (0.00\%) }& [{\color{revblue}55.26,63.23}] {\color{revblue}/ }[{\color{revblue}0.00,1.21}]    & {\color{revblue}$5.55{\times}10^{-17}$ }\\
+ & {\color{revblue}pass@1  }& {\color{revblue}15/58 (25.86\%) }& {\color{revblue}21/58 (36.21\%) }& [{\color{revblue}16.35,38.38}] {\color{revblue}/ }[{\color{revblue}25.05,49.07}] & {\color{revblue}$2.86{\times}10^{-1}$ }\\
+ & {\color{revblue}pass@10 }& {\color{revblue}22/58 (37.93\%) }& {\color{revblue}28/58 (48.28\%) }& [{\color{revblue}26.56,50.80}] {\color{revblue}/ }[{\color{revblue}35.93,60.84}] & {\color{revblue}$3.07{\times}10^{-1}$ }\\
+ & {\color{revblue}FSP     }& {\color{revblue}6.66            }& {\color{revblue}5.53            }& [{\color{revblue}5.46,7.85}] {\color{revblue}/ }[{\color{revblue}4.28,6.79}]      & {\color{revblue}$3.62{\times}10^{-1}$ }\\
+ & {\color{revblue}CER     }& {\color{revblue}413/580 (71.21\%) }& {\color{revblue}0/313 (0.00\%) }& [{\color{revblue}67.39,74.74}] {\color{revblue}/ }[{\color{revblue}0.00,1.21}]    & {\color{revblue}$6.94{\times}10^{-18}$ }\\
 \bottomrule
 \end{tabular}
 \end{threeparttable}

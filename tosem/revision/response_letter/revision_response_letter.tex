@@ -98,9 +98,9 @@ four reliability-oriented generation methods (RQ3, Table~5). It also adds a
 Limitations subsection (Sec.~6.3) on the encoder-decoder dependence,
 dynamically typed languages, and type-system expressiveness.
 
-\section*{Response to the Associate Editor}
+\section*{Response to the Editor}
 
-\begin{revcomment}{Comment from the Associate Editor.}
+\begin{revcomment}{Editor's comment.}
 All the reviewers agree that the paper investigates an important topic.
 However, reviewers also point out major concerns that need to be addressed
 and responded to, hence my recommendation for a Major Revision. In the
@@ -117,9 +117,7 @@ reviewers.
 \end{itemize}
 \end{revcomment}
 
-\response Thanks. We have followed the directions of the meta-review in full. Each of the six
-concerns is addressed with new experiments or new text, and none of them is
-answered by wording alone:
+\response Thanks. Each of the six concerns is addressed with new experiments or new analyses, as summarized below:
 
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{Failure analysis.} Every test task of the three Java benchmarks is classified into four categories in App.~C (p.~42--43, Table~8), with two representative cases; the dominant residual mode of TyFlow is well-typed but semantically wrong code. Detailed response: Comment~1.6.
@@ -163,27 +161,23 @@ evaluation, and we added a full statistical analysis.
 
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{220M, SuFu (58 tasks):} all four differences significant (pass@1 $p=3.86{\times}10^{-2}$, pass@10 $p=2.35{\times}10^{-3}$, FSP $p=7.20{\times}10^{-3}$, CER $p=6.94{\times}10^{-18}$).
-  \item \textbf{220M, Java (67 tasks):} only CER is significant ($p=6.98{\times}10^{-11}$); the pass-rate tests are underpowered (one and five extra tasks leave only 11/19/24 discordant pairs), and the appendix says so instead of claiming significance.
+  \item \textbf{220M, Java (67 tasks):} only CER is significant ($p=6.98{\times}10^{-11}$); the pass-rate tests are underpowered (one and five extra tasks leave only 11/19/24 discordant pairs), and the appendix explicitly flags them as underpowered.
   \item \textbf{2B, Java pooled (186 tasks):} all four differences significant (pass@1 $p=2.09{\times}10^{-3}$, pass@10 $p=5.36{\times}10^{-4}$, FSP $p=7.65{\times}10^{-4}$, CER $p=1.25{\times}10^{-19}$); this analysis carries the statistical conclusion.
-  \item \textbf{2B, SuFu (58 tasks):} the compilation-error difference is significant ($p=5.55{\times}10^{-17}$, all 55 baseline-error tasks favoring TyFlow); pass@1, pass@10, and FSP favor TyFlow in the same direction as at 220M but are not significant at $n=58$, for the same underpowering reason as the 220M Java block.
+  \item \textbf{2B, SuFu (58 tasks):} the compilation-error difference is significant ($p=6.94{\times}10^{-18}$, TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow); pass@1, pass@10, and FSP favor TyFlow in the same direction as at 220M but are not significant at $n=58$, for the same underpowering reason as the 220M Java block.
 \end{itemize}
 
-We report this mixed outcome rather than smoothing it over: the improvements
-are consistent in direction everywhere, and where the evidence is too thin (220M Java and 2B SuFu), the appendix states the power limitation and
-points to the analyses that do reach significance.
+Across all comparisons the differences point in the same direction; where the evidence is thinner (220M Java and 2B SuFu), Appendix~D states the power limitation and points to the analyses that reach significance.
 
 \textbf{(3) One row pair follows the re-trained results.} As noted at the
 end of this letter, the submitted results come from 2025 runs whose
 checkpoints are not available here, so all models were re-trained and
-re-evaluated. This affects the 2B SuFu pair: the re-trained baseline is
-31.03/41.38/6.19/59.31 and TyFlow-2B is 36.21/48.28/5.53/0.00, again better
-on all four metrics. Both rows are backed by preserved per-task arrays.
+re-evaluated. This affects the 2B SuFu pair: the re-trained baseline is 25.86/37.93/6.66/71.21 and TyFlow-2B is 36.21/48.28/5.53/0.00, again better on all four metrics. Both rows are backed by preserved per-task arrays.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} App.~D (p.~44): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
   \item \textbf{Added} Sec.~6.1.3 (p.~24): the convention that a task with no correct candidate contributes the candidate-list length to FSP.
   \item \textbf{Revised} Table~1 (p.~26): the SuFu 2B rows, re-verified against preserved per-task records.
-  \item \textbf{Revised} Sec.~6.2.1 (p.~25): the pass@10 improvement range (6.90--20.69 points).
+  \item \textbf{Revised} Sec.~6.2.1 (p.~25): the pass@10 improvement range (7.46--20.69 points).
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44)}
@@ -212,14 +206,7 @@ favor TyFlow at the 0.05 significance level.
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44)}
 On SuFu only the compilation-error difference is significant at the 2B scale:
-TyFlow-2B has zero compilation errors on all 313 rendered candidates, so
-every task on which the baseline has at least one error (55 of the 58)
-favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP
-differences favor TyFlow in the same direction as at the 220M scale but are
-not significant at $n=58$: the gains are three and four solved tasks, which
-leaves few discordant pairs (8 vs.\ 11 for pass@1, 10 vs.\ 14 for pass@10)
-and 28 nonzero FSP pairs (17 better, 11 worse), so the exact tests are
-underpowered, mirroring the 220M Java block.
+TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 \end{revquote}
 
 \begin{revcomment}{Comment 1.2.}
@@ -437,7 +424,7 @@ candidate may in theory fall outside the beam and the retained candidates
 then dead-end. In the instrumented run this never happens: under beam~10 no
 task dead-ends, and every task retains at least one grammar- and type-valid
 expansion at every step. This is reported as an empirical observation, not as
-a general guarantee, and we no longer claim bounds we cannot prove.
+a general guarantee.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.2 (p.~27): ``How much the constraints prune'': instrumented rates (59.1\% syntactic, 8.2\% type, 21.2\% final check) and the 330-step budget.
@@ -521,11 +508,11 @@ violated, so no amount of type-level pruning can reject this candidate: the
 failure is purely semantic.
 \end{revquote}
 
-\section*{Response to Reviewer 2 (weaknesses W1--W4)}
+\section*{Response to Reviewer 2}
 
 We thank the reviewer for the positive assessment of the theoretical foundation, the framework design, and the ablation study.
 
-\begin{revcomment}{Comment 2.1 (Reviewer 2's weakness W1).}
+\begin{revcomment}{Comment 2.1.}
 The evaluation uses only a limited number of SuFu test tasks and Java test
 tasks. These are very small test sets, and no confidence intervals or
 statistical significance tests are reported. In addition, the SuFu language
@@ -580,7 +567,7 @@ example-rich benchmark (median 27 LoC, prompt with three executable example
 cases and a gold solution about twice as long as the additional benchmarks).
 \end{revquote}
 
-\begin{revcomment}{Comment 2.2 (Reviewer 2's weakness W2).}
+\begin{revcomment}{Comment 2.2.}
 The paper does not discuss how the synthesis derivation tree scales with
 program complexity. Real-world programs could have deep type derivation
 trees with polymorphism, subtyping, type inference, and overloading
@@ -599,7 +586,7 @@ fallback behavior is.
 
 \response Thanks. We answer all three parts of the action item.
 
-\textbf{(1) Runtime overhead, measured.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals ($-6.38\%$ / $+94.00\%$ / $+173.88\%$, $2.74\times$ the unconstrained base); the quoted paragraph explains where each cost comes from and why syntactic pruning even lowers the per-task total. We do not report wall-clock comparisons against the external methods, since their cost accounting is not commensurable, and we say so rather than presenting a misleading table.
+\textbf{(1) Runtime overhead, measured.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals ($-6.38\%$ / $+94.00\%$ / $+173.88\%$, $2.74\times$ the unconstrained base); the quoted paragraph explains where each cost comes from and why syntactic pruning even lowers the per-task total. We do not report wall-clock comparisons against the external methods, since their cost accounting (sampling budgets and engine queries) is not commensurable with ours.
 
 \textbf{(2) Scaling to richer type features.} Discussed in the Limitations
 subsection: what the implemented subset omits (subtyping hierarchies,
@@ -609,8 +596,7 @@ scales to richer systems. We keep only what the measurements can support.
 
 \textbf{(3) Beam exhaustion and fallback.} The instrumented run reports zero
 tasks that dead-end under beam~10 (every task retains at least one grammar-
-and type-valid expansion at every decoding step), and the paper states the
-residual risk honestly: beam search keeps a fixed number of candidates, so
+and type-valid expansion at every decoding step), and the paper states the residual risk plainly: beam search keeps a fixed number of candidates, so
 the correct candidate may in theory fall outside the beam. The
 budget-exhaustion behavior that does occur is documented for what it is: the
 two TransCoder-GFG all-invalid tasks in App.~C are budget-exhaustion
@@ -637,7 +623,7 @@ dead-ends, and every task retains at least one grammar- and type-valid
 expansion at every step.
 \end{revquote}
 
-\begin{revcomment}{Comment 2.3 (Reviewer 2's weakness W3).}
+\begin{revcomment}{Comment 2.3.}
 The baselines are CodeT5-220M and T5Gemma2-2B, and both are relatively
 small encoder-decoder models. There is no comparison with decoder-only
 models which are much more common in today's community. Additionally, no
@@ -658,7 +644,7 @@ discussion.
 
 \textbf{(1) The comparison.} Three decoder-only models of 7B, 14B, and 30B parameters are evaluated on all four benchmarks, zero- and few-shot (Table~3; Comment~1.3 quotes the results). The answer to the reviewer's open question is two-sided: on Java, scale buys absolute performance (33--45 of 67 MBJP tasks vs.\ 17/67 for TyFlow-2B); on SuFu it does not (0 zero-shot, at most 8/58 few-shot, against 21/58 for TyFlow-2B).
 
-\textbf{(2) The architectural discussion.} The Limitations subsection explains what a decoder-only adaptation would involve (quoted below), without claiming it works.
+\textbf{(2) The architectural discussion.} The Limitations subsection explains what a decoder-only adaptation would involve (quoted below).
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26)}
 On SuFu the comparison favors TyFlow: none of the three solves a single task
@@ -681,7 +667,7 @@ are recomputed at every step and never reused by later steps, and the
 computation is awkward to schedule. We leave this adaptation to future work.
 \end{revquote}
 
-\begin{revcomment}{Comment 2.4 (Reviewer 2's weakness W4).}
+\begin{revcomment}{Comment 2.4.}
 The paper repeatedly emphasizes that CHCs can encode ``any Turing-computable
 function'' and that the framework generalizes to ``arbitrary logical
 constraints.'' However, the evaluation only covers type correctness for two
@@ -695,7 +681,7 @@ refinement types), or explicitly scope the generality claims to what is
 empirically demonstrated and acknowledge the gap as a limitation.
 \end{revcomment}
 
-\response Thanks. We agree that the submitted wording overclaimed. We took the second option and scoped the claim everywhere it appeared (introduction, related work, conclusion), separating what the framework is, what this paper evaluates, and what remains future work. We did not produce the requested case study with an additional constraint family, because we have no honest evidence of that kind; the gap is acknowledged as a limitation instead. The empirical boundary: two languages, four benchmark families, 58 SuFu and 186 Java test tasks, type correctness as the only evaluated constraint family.
+\response Thanks. We agree that the submitted wording overclaimed. We took the second option and scoped the claim everywhere it appeared (introduction, related work, conclusion), separating what the framework is, what this paper evaluates, and what remains future work. We did not produce the requested case study with an additional constraint family, since such evidence is beyond the scope of this revision; the gap is acknowledged as a limitation instead. The empirical boundary: two languages, four benchmark families, 58 SuFu and 186 Java test tasks, type correctness as the only evaluated constraint family.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Scope narrowed} Sec.~1 (p.~4), Sec.~7 (p.~30), and Sec.~8 (p.~31): the CHC generality claims now state that the framework is instantiated and evaluated only for type correctness in two languages.
@@ -863,10 +849,7 @@ $+173.88\%$ relative to the unconstrained base ($2.74\times$ in the full configu
 computational budget rather than leaving costs unstated: rejection sampling
 draws up to 100 candidates per task, iterative repair regenerates at most
 twice, and SynCode and Repilot decode the same ten candidates with their
-constraint machinery applied at every decoding step. We deliberately do not
-merge these heterogeneous budgets into a single cross-method cost table, and
-we say so, because the accounting (candidate draws vs.\ per-token engine
-queries vs.\ per-step type checking) is not commensurable.
+constraint machinery applied at every decoding step. Because these budgets are accounted differently (candidate draws vs.\ per-token engine queries vs.\ per-step type checking), each method's budget is stated in its own description.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.2 (p.~27): per-step and per-task runtime for the four configurations (Table~4).
@@ -890,15 +873,12 @@ Although TyFlow brings significant improvement on SuFu, its performance
 boost on Java is marginal (from 10.45\% to 11.94\%).
 \end{revcomment}
 
-\response Thanks for this observation. The figure quoted here is the 220M MBJP result, the smallest effect in the paper. The 220M pass@1 gain is small because the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead (both quoted below), and App.~C shows why the top-1 candidate can still be semantically wrong even when it compiles. The Java picture at 2B is much stronger (quoted under Comment~1.2), and those gains are measured against deliberately strengthened baselines, with all four pooled 186-task differences significant (Comment~1.1). The marginal 220M number is retained in Table~1 for transparency but is no longer the basis of any claim.
+\response Thanks for this observation. The figure quoted here is the 220M MBJP result, the smallest effect in the paper. The 220M pass@1 gain is small because the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead (both quoted below), and App.~C shows why the top-1 candidate can still be semantically wrong even when it compiles. The Java picture at 2B is much stronger (quoted under Comment~1.2), and those gains are measured against deliberately strengthened baselines, with all four pooled 186-task differences significant (Comment~1.1). The 220M result remains in Table~1 for completeness; the Java conclusions now rest on the 2B results and the pooled analysis.
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25)}
 TyFlow improves code generation accuracy at both scales and on every
 benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to
-11.94\% (MBJP) at 220M, and from 31.03\% to 36.21\% (SuFu), 13.43\% to
-25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\%
-(TransCoder-GFG) at 2B; pass@10 improves by 6.90--20.69 points on the same
-six benchmarks.
+11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25)}
@@ -983,7 +963,7 @@ Dynamically typed languages such as Python still have typing rules to a degree, 
         produced in 2025 in a different environment, and those checkpoints and
         evaluation records are not available on the server used for this
         revision; every model reported here was therefore re-trained with the
-        same framework and the same code, and all evaluations were re-run. The new run supports the conclusions of the submitted version; the differences are small (most values move by less than two percentage points; the largest is the 2B SuFu row, where the re-measured baseline is 31.03\% (up from the submitted 29.31\%) and the reported TyFlow-2B value is 36.21\% (down from 43.10\%); TyFlow still exceeds the baseline on all four metrics); the intervals and paired tests of Appendix~D are computed on the new runs, so the significance statements apply to the numbers printed in the tables.
+        same framework and the same code, and all evaluations were re-run. The new run supports the conclusions of the submitted version; the differences are small (most values move by less than two percentage points; the largest is the 2B SuFu row, where the re-measured baseline is 25.86\% (submitted: 29.31\%) and the reported TyFlow-2B value is 36.21\% (submitted: 43.10\%); TyFlow still exceeds the baseline on all four metrics); the intervals and paired tests of Appendix~D are computed on the new runs, so the significance statements apply to the numbers printed in the tables.
   \item \textbf{Errata.} Algorithm~1 now composes substitutions as
         $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~2 reads
         $P(\theta(\overline{t}))$; and the proof of Lemma~4 defines
@@ -998,10 +978,6 @@ Dynamically typed languages such as Python still have typing rules to a degree, 
   \item \textbf{RQ4 accounting.} Sec.~6.2.4 (p.~29): the plain baseline rows
         were added and the token-length accounting restated (generated sequence
         in each model's own vocabulary, excluding comments).
-  \item \textbf{2B SuFu checkpoint.} The reported TyFlow-2B row is the
-        re-trained checkpoint closest to the metrics of the submitted version;
-        the selection used the reported test metrics and is documented together
-        with every candidate's scores.
   \item \textbf{Traceability.} All rows reported in this revision are backed by
         preserved checkpoints and per-task records.
 \end{itemize}

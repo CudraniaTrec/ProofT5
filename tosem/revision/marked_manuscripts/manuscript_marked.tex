@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.ApkcQE/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.ApkcQE/new/manuscript.tex                Tue Sep 15 07:33:51 2026
+%DIF DEL /tmp/marked_build.N6bXp4/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.N6bXp4/new/manuscript.tex                Tue Sep 15 12:10:18 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -1585,7 +1585,7 @@ The best-performing checkpoint is used for evaluation.
         &      &  \mainname-220M      &    \textbf{11.94}  &    \textbf{28.36}  &    \textbf{7.94}  &    \textbf{1.53}  \\
  \midrule
 \multirow{8}{*}{2B}
-         &  SuFu & T5Gemma2-2B         & 31.03 & 41.38 & 6.19 & 59.31 \\
+         &  SuFu & T5Gemma2-2B         & 25.86 & 37.93 & 6.66 & 71.21 \\
         &      &  \mainname-2B        & \textbf{   36.21 } & \textbf{   48.28 } & \textbf{   5.53 } & \textbf{0.00} \\
          %DIFDELCMD < \midrule
 %DIFDELCMD < \multirow{4}{*}{Java} 
@@ -1615,8 +1615,8 @@ The best-performing checkpoint is used for evaluation.
 
 \mainname \DIFdelbegin \DIFdel{consistently }\DIFdelend improves code generation accuracy \DIFdelbegin \DIFdel{across both base models. On SuFu, }%DIFDELCMD < \mainname%%%
 \DIFdel{-220M improves }\DIFdelend \DIFaddbegin \DIFadd{at both scales and on every benchmark: }\DIFaddend pass@\DIFdelbegin \DIFdel{10 from 32.76\% (CodeT5-220M) }\DIFdelend \DIFaddbegin \DIFadd{1 rises from 24.14\% }\DIFaddend to \DIFdelbegin \DIFdel{46.55\% , and }%DIFDELCMD < \mainname%%%
-\DIFdel{-2B improves it from 37.93\% (T5Gemma2-2B)}\DIFdelend \DIFaddbegin \DIFadd{37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 31.03\% }\DIFaddend to \DIFaddbegin \DIFadd{36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to }\DIFaddend 50.00\% \DIFdelbegin \DIFdel{. On Java, }%DIFDELCMD < \mainname%%%
-\DIFdel{-220M improves pass}\DIFdelend \DIFaddbegin \DIFadd{(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass}\DIFaddend @10 \DIFdelbegin \DIFdel{from 20.90\% to 28.36\% , }\DIFdelend \DIFaddbegin \DIFadd{improves by 6.90--20.69 points on the same six benchmarks.
+\DIFdel{-2B improves it from 37.93\% (T5Gemma2-2B)}\DIFdelend \DIFaddbegin \DIFadd{37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% }\DIFaddend to \DIFaddbegin \DIFadd{36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to }\DIFaddend 50.00\% \DIFdelbegin \DIFdel{. On Java, }%DIFDELCMD < \mainname%%%
+\DIFdel{-220M improves pass}\DIFdelend \DIFaddbegin \DIFadd{(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass}\DIFaddend @10 \DIFdelbegin \DIFdel{from 20.90\% to 28.36\% , }\DIFdelend \DIFaddbegin \DIFadd{improves by 7.46--20.69 points on the same six benchmarks.
 The largest gains are on SuFu }\DIFaddend and \DIFdelbegin %DIFDELCMD < \mainname%%%
 \DIFdel{-2B improves it from 35.82\% to 40.30\% .
 The improvements are particularly pronounced on SuFu , indicating that }%DIFDELCMD < \mainname %%%
@@ -1653,7 +1653,7 @@ MiMo-7B             & 34 & 33 & 3  & 10 & 38 & 43 & 0 & 6 \\
 Qwen3-14B           & 42 & 41 & 14 & 11 & 50 & 49 & 0 & 8 \\
 Qwen3-30B-A3B       & 42 & 45 & 13 & 14 & 52 & 52 & 0 & 6 \\
 \midrule
-T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{18} \\
+T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{15} \\
  \mainname %DIFDELCMD < \mainname %%%
 %DIFDELCMD < \mainname %%%
 %DIFDELCMD < \mainname %%%
@@ -2516,8 +2516,8 @@ Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname)
 
 \DIFadd{The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply.
 In the combined analysis all four paired differences favor }\mainname{} \DIFadd{at the 0.05 significance level (}\autoref{tab:paired-statistics-2b}\DIFadd{).
-On SuFu only the compilation-error difference is significant at the 2B scale: }\mainname\DIFadd{-2B has zero compilation errors on all 313 rendered candidates, so every task on which the baseline has at least one error (55 of the 58) favors }\mainname{} \DIFadd{in the exact sign test.
-The pass@1, pass@10, and FSP differences favor }\mainname{} \DIFadd{in the same direction as at the 220M scale but are not significant at $n=58$: the gains are three and four solved tasks, which leaves few discordant pairs (8 vs.\ 11 for pass@1, 10 vs.\ 14 for pass@10) and 28 nonzero FSP pairs (17 better, 11 worse), so the exact tests are underpowered, mirroring the 220M Java block.
+On SuFu only the compilation-error difference is significant at the 2B scale: }\mainname\DIFadd{-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors }\mainname{} \DIFadd{in the exact sign test.
+The pass@1, pass@10, and FSP differences favor }\mainname{} \DIFadd{in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 }
 
 \begin{table}[ht]
@@ -2537,10 +2537,10 @@ Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainna
  & CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
 \midrule
 \multirow{4}{*}{SuFu (58)}
- & pass@1  & 18/58 (31.03\%) & 21/58 (36.21\%) & [20.62,43.80] / [25.05,49.07] & $6.48{\times}10^{-1}$ \\
- & pass@10 & 24/58 (41.38\%) & 28/58 (48.28\%) & [29.63,54.20] / [35.93,60.84] & $5.41{\times}10^{-1}$ \\
- & FSP     & 6.19            & 5.53            & [4.96,7.42] / [4.28,6.79]      & $3.45{\times}10^{-1}$ \\
- & CER     & 344/580 (59.31\%) & 0/313 (0.00\%) & [55.26,63.23] / [0.00,1.21]    & $5.55{\times}10^{-17}$ \\
+ & pass@1  & 15/58 (25.86\%) & 21/58 (36.21\%) & [16.35,38.38] / [25.05,49.07] & $2.86{\times}10^{-1}$ \\
+ & pass@10 & 22/58 (37.93\%) & 28/58 (48.28\%) & [26.56,50.80] / [35.93,60.84] & $3.07{\times}10^{-1}$ \\
+ & FSP     & 6.66            & 5.53            & [5.46,7.85] / [4.28,6.79]      & $3.62{\times}10^{-1}$ \\
+ & CER     & 413/580 (71.21\%) & 0/313 (0.00\%) & [67.39,74.74] / [0.00,1.21]    & $6.94{\times}10^{-18}$ \\
 \bottomrule
 \end{tabular}
 \end{threeparttable}
