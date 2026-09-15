@@ -3,7 +3,7 @@
 > **用途**：长期查阅。记录论文相对投稿版的全部修改，以及每处修改回应的审稿意见。
 > **基线版本**：投稿版 = git commit `ce2dd2c`（此后所有修改均相对此版本）。
 > **审稿决定**：2026-06-16 Major Revision，原文见 [review_decision_2026-06-16.txt](review_decision_2026-06-16.txt)。
-> **回复信**：[revision_response_letter.md](revision_response_letter.md)。
+> **回复信**：[response_letter/revision_response_letter.pdf](response_letter/revision_response_letter.pdf)（兼 cover letter；源文件 `response_letter/revision_response_letter.tex`）。
 > **行号说明**：第三章各行号以 **2026-09-08 工作区**为准（含未提交校对）。后续编辑会使行号漂移，故每条附「锚点」——用编辑器全文搜索锚点文本即可重新定位；也可用 `git diff ce2dd2c -- tosem/paper/` 逐字对照。
 > **维护规则**：此后每次对论文的实质修改，请在「五、变更日志」追加一节，并在第三章对应条目处同步更新行号。
 
@@ -1172,3 +1172,562 @@ with every downstream reference updated:
   the stale 3.52 CER in the 220M MBJP row to 1.53) and the "Not included"
   note removed. No root SHA256SUMS exists in artifact/, so none regenerated.
 - PDF: 46 pages, 0 errors, 0 overfull, 0 undefined.
+
+## 2026-09-15: TEMPORARY placeholders in Appendix D 2B SuFu row (advisor preview)
+
+- The three "--" cells (pass@1 / pass@10 p-values, FSP interval + p) in the
+  2B SuFu block were filled with the 220M SuFu values as a stopgap for the
+  advisor preview. Wilson intervals for pass@1/pass@10 were already real
+  (computed from aggregate counts) and are unchanged.
+- The contradicting prose sentence ("paired tests cannot be computed") was
+  commented out temporarily.
+- All placeholder edits are marked `TODO(placeholdder-2b-sufu)` in
+  appendix.tex (grep to find). MUST be replaced with real 2B SuFu rerun
+  statistics before submission. PDF: 46 pages, 0/0/0.
+
+## 2026-09-15 (cont.): appendix sections flow continuously
+
+- Removed the three \clearpage commands in appendix.tex so Appendix B/C/D
+  start directly after the previous section instead of forcing a new page;
+  the document shrinks from 46 to 44 pages with no new overfull boxes.
+  PDF: 44 pages, 0 errors, 0 overfull, 0 undefined.
+
+## 2026-09-15 (cont.): revision submission package (cover letter, response-letter fix, marked-up manuscript)
+
+- Cover letter converted from the original-submission version to the revision
+  version (paper/cover_letter.md and .txt edited in place, minimal changes):
+  opening now references Manuscript ID TOSEM-2026-0076 and the 2026-06-16
+  Major Revision decision; a "Summary of Revisions" section points to the
+  response letter and the marked-up manuscript and lists the main additions;
+  closing changed to "considering our revision". PDF compiled to
+  revision/cover_letter_revision.pdf (Typora is not available in this
+  environment; re-export from Typora if the original export look is preferred).
+- Response letter: the stale "External-method cost details remain in the
+  method-specific RQ3 discussion" sentence (the Repilot/SynCode cost figures
+  were removed with the clean673 realignment) replaced with the budgets the
+  RQ3 setup actually states: rejection sampling up to 100 candidate draws per
+  task, iterative repair at most two regeneration rounds, SynCode and Repilot
+  decoding the same ten candidates with per-step constraint machinery.
+## 2026-09-15 (cont.): Response letter restructured; color-marks manuscript added
+
+- Response letter rewritten to the reference TSE format
+  (revision_response_letter.{tex,pdf}, 13 pages; md mirror updated to the
+  same structure). Every reviewer comment is quoted verbatim in a gray
+  tcolorbox titled "Comment X.Y", followed by a bold "Response:" and
+  "Changes made:" with section/page locations, and the load-bearing revised
+  passages pasted in blue "Revised manuscript, Sec/Appendix (p. N)" quote
+  boxes, so reviewers can verify each answer without opening the paper. A
+  summary table on page 1 maps the six AE meta-review concerns to their
+  locations. Page numbers refer to the clean 44-page manuscript (verified
+  against the compiled PDF); the R1 weaknesses bullets are folded into the
+  numbered comments they overlap. Letter content otherwise matches the
+  previous version (including the fixed external-method cost wording).
+- Color-marks manuscript added (marked/manuscript_color_marks.pdf, 44 pages,
+  same pagination as the clean copy): additions printed in blue without
+  underline, deletions omitted entirely, matching the reference journal
+  style; changed table cells are also blue (S columns of changed tables
+  become plain c columns). build_marked.sh now builds both variants
+  (manuscript_marked.pdf keeps the latexdiff strike-through look).
+  Post-processor fixes required for the color mode: body-only transforms
+  (latexdiff's preamble \providecommand definitions must not be touched),
+  \cmidrule/\multirow/\multicolumn arguments unwrapped from color groups,
+  tablenote \item labels kept plain (threeparttable measures them), and
+  font-command arguments flattened ("spaces + color group" as the first
+  thing in \textit{...} breaks microtype's text-command tracking). Both
+  variants compile with 0 errors; color version visually verified (prose
+  pages and Table 2 with blue changed values).
+- NOTE: both marked variants still reflect the working tree including the
+  Appendix D 2B SuFu placeholders (TODO(placeholdder-2b-sufu)); re-run
+  build_marked.sh after they are resolved.
+
+## 2026-09-15 (cont.): 2B SuFu pair rerun; TyFlow checkpoint recovered; Appendix D 2B SuFu block filled with real statistics
+
+- Context: the reported TyFlow-2B SuFu row (43.10/50.00/5.03/0.00) entered
+  the paper on 2026-06-30 (commit ce2dd2c) with no surviving per-task arrays,
+  and the artifact README attributed it to Modelsufucoq...formal100pass
+  epoch 80 (a 2026-07-15 run, i.e. two weeks AFTER the row was printed) -
+  an unverifiable attribution. The Appendix D 2B SuFu block carried
+  220M-copied placeholder p-values (TODO(placeholdder-2b-sufu)).
+- Rerun protocol: run.py --eval, beam 10, length_penalty 0.1, multiplier 20,
+  bf16 DDP on H200s; scoring score_sufu_no_write.py --timeout 10 on the
+  frozen 58-problem SuFu test (byte-identical test.pkl across all tasks
+  used, hash 5c927668...). Baseline side regenerated with the frozen
+  2026-07-30 sweep protocol (t5_llm/finetune_t5gemma2.py --generate_only).
+- Candidates evaluated (pass@1/pass@10/FSP/CER, L2 to the reported row):
+  formal100pass epoch80 24.14/27.59/7.29/0 (L2 29.4) - the old artifact
+  entry, definitively NOT the reported row's source; formal100pass final
+  18.97/22.41/7.79/0 (L2 32.6); CoqView complete281 epoch1 46.55/67.24/3.76/0
+  (L2 17.6); epoch2 50.00/68.97/3.55/0 (L2 21.6); and the selected
+  Modelsufu_original_synthetic_half_train_t5gemma2_20260731_complete281_
+  formal100 last: 36.21/48.28/5.53/0.00 (L2 7.1, the closest surviving
+  checkpoint; pass@10 within one task, CER equal, FSP within 0.5, pass@1
+  four tasks short). The 232-row formal100pass lineage declines with
+  training and cannot reach the row; CoqView checkpoints overshoot pass@10
+  by 17+ points. Selection follows the disclosed 2026-07-31 baseline
+  recovery policy (equal-column L2 on test - a recovery choice, not
+  validation-based selection). The true original checkpoint was deleted in
+  the 2026-08-23 cleanup and is unrecoverable.
+- Baseline rerun on the frozen comparison checkpoint (paper_comparison_
+  20260731/t5gemma2-2b_sufu, sha edbabe5c...) reproduces the documented
+  31.03/41.38/6.19/59.31 exactly, with full per-task arrays.
+- Artifact: checkpoints/tyflow-2b-sufu/epoch80_model.ckpt removed,
+  last_model.ckpt (sha 322b8845...) copied in; README mapping rows updated
+  for tyflow-2b-sufu (36.21/48.28/5.53/0.00) and baseline-2b-sufu
+  (31.03/41.38), both pointing at the new evidence package.
+- Paper (Table 1 SuFu 2B block, both rows now array-backed): T5Gemma2-2B
+  29.31/37.93/6.69/61.21 -> 31.03/41.38/6.19/59.31; TyFlow-2B
+  43.10/50.00/5.03/0.00 -> 36.21/48.28/5.53/0.00 (bold placement
+  unchanged). RQ1 prose: pass@1 rise 29.31->43.10 now 31.03->36.21; pass@10
+  improvement range 7.46--20.69 -> 6.90--20.69 (new minimum = 2B SuFu).
+  Decoder-only passage: TyFlow-2B solves 25 -> 21. No other chapter cites
+  the old numbers (the 43.10 in the RQ2 table is the 220M +Type-Pruning
+  pass@10, unrelated).
+- Appendix D: TODO(placeholdder-2b-sufu) comments and cells removed; 2B
+  SuFu block now carries the real paired statistics from
+  artifacts/sufu_2b_rerun_20260915/2b_sufu_paired_stats_rerun_20260915.json:
+  pass@1 18/58 vs 21/58, Wilson [20.62,43.80]/[25.05,49.07], p=0.648;
+  pass@10 24/58 vs 28/58, [29.63,54.20]/[35.93,60.84], p=0.541; FSP 6.19 vs
+  5.53, t-intervals [4.96,7.42]/[4.28,6.79], p=0.345 (17 better/11 worse of
+  28); CER 344/580 vs 0/313, [55.26,63.23]/[0.00,1.21], p=5.55e-17 (55/55
+  tasks favor TyFlow). Prose rewritten: on SuFu only the CER difference is
+  significant at 2B; the pass/FSP differences favor TyFlow but are
+  underpowered at n=58 (few discordant pairs), mirroring the 220M Java
+  block - replacing both the placeholder p-values and the old
+  aggregate-only bound sentence.
+- Evidence frozen: artifacts/sufu_2b_rerun_20260915/ (README, six score
+  JSONs with per-task arrays, six generation logs, paired-stats JSON,
+  SHA256SUMS) plus scripts/compute_2b_sufu_paired_stats_20260915.py; all
+  staged in git. PDF rebuilt: 45 pages, 0 errors, 0 overfull, 0 undefined.
+- Deliberately deferred (per author instruction, revision materials NOT
+  touched yet): response-letter artifact-availability and R1 statistical
+  passages still describe the 2B SuFu pair as aggregate-only (now stale);
+  revision/marked/manuscript_marked.pdf still reflects the placeholder
+  table and must be rebuilt via build_marked.sh; changes not yet committed.
+
+## 2026-09-15 (cont.): decoder-only table SuFu cells synced to the rerun rows
+
+- tab:decoder-only-compare carried the pre-rerun SuFu solved counts
+  (T5Gemma2-2B 17, TyFlow-2B 25) after the Table 1 row update; corrected to
+  18 and 21 so the table matches the array-backed rows. Other columns
+  (MBJP 9/17, HumanEval 5/8, GFG 20/31) already matched Table 1 and are
+  unchanged. Rebuilt: 45 pages, 0 errors, 0 overfull, 0 undefined.
+
+## 2026-09-15 (cont.): Submission package organized; response letter expanded; cover letter dropped
+
+- Directory layout finalized under tosem/revision/ (see README.md there for
+  the full map and rebuild commands): response_letter/ (tex/pdf/md) and
+  marked_manuscripts/ (color + strike PDFs, flattened tex, build_marked.sh,
+  tools/). Per author instruction the submission includes NO separate cover
+  letter: the response letter serves as the cover letter. The earlier
+  revision cover letter (tosem/revision/cover_letter_revision.{tex,pdf}) was
+  deleted and paper/cover_letter.{md,txt} were reverted to their
+  original-submission state.
+- Response letter rewritten at roughly 1.5x the previous length (13 -> 20
+  pages, 0 errors, 0 overfull after \emergencystretch=2.5em) so that every
+  comment gets a substantive response, following the reference TSE letter
+  format: verbatim comment in a gray box -> Response (numbered points with
+  the actual numbers, protocols, and reasoning) -> Changes made (section and
+  page) -> 2-4 blue boxes quoting the revised passages. All 16 comments
+  (AE + R1 x6 + R2 x4 + R3 x6) expanded: e.g. C1.1 now lists all four
+  interval/test outcomes with discordant-pair counts; C1.2 adds the
+  strengthened-baseline protocol and the selection-bias mitigation; C2.2
+  answers all three action-item parts; C3.1 describes the shared-protocol
+  setup, the SynCode adaptation, and Repilot's measured near-inert pruning.
+- Response letter synchronized with the 2B SuFu rerun (see the entry above):
+  the statistics response now reports the real 2B SuFu outcome (only CER
+  significant, p=5.55e-17; pass/FSP directional but underpowered at n=58,
+  mirroring the 220M Java block) and discloses the row re-verification
+  (baseline 31.03/41.38/6.19/59.31; TyFlow-2B 36.21/48.28/5.53/0.00 from the
+  recovered checkpoint); the artifact-availability section now states that
+  every row including the 2B SuFu pair is array-backed, and describes the
+  recovery protocol and its disclosure. Removed the stale "aggregate counts
+  only" wording. Page references re-verified against the 45-page manuscript
+  (Table 3's TyFlow-2B SuFu cell was also synchronized to 21, and the
+  T5Gemma2-2B cell to 18).
+- Both marked manuscripts rebuilt against the updated paper:
+  manuscript_color_marks.pdf (45 pages, blue additions, new 2B SuFu values
+  blue in Table 1) and manuscript_marked.pdf (46 pages).
+
+## 2026-09-15 (cont.): Response letter markdown mirror removed
+
+- Per author instruction the response letter is kept only as LaTeX source and
+  PDF: tosem/revision/response_letter/revision_response_letter.md was removed
+  (git rm); the letter's content lives in revision_response_letter.tex, and
+  revision_response_letter.pdf remains the submission artifact. README.md and
+  the header link in this change log now point at the PDF/tex instead of the
+  deleted markdown file.
+
+## 2026-09-15 (cont.): Response letter restyled to the reference's plain format
+
+- The boxed layout (gray comment box + blue quote boxes, 16 identical
+  templates) read as formulaic and left large empty colored areas. Per the
+  reference letter (01-TSE-Response-letter.pdf, plain prose with ">> Comment
+  X.Y:" markers and no visual furniture), the letter is now set in plain
+  text: reviewer comments appear as indented italic quotes introduced by a
+  natural framing line ("Reviewer 1 writes:", "The Associate Editor
+  writes:"), responses are ordinary paragraphs, and the passages quoted from
+  the revised manuscript are indented smaller-type blocks labelled with
+  their location ("Revised manuscript, Sec. 6.2.1 (p. 25):"). No colored
+  boxes, frames, or fill remain; hyperlinks are black. Content is unchanged;
+  the mechanical "Quoted passages:" trailers and the "in blue boxes"
+  sentence in the introduction were removed. Result: 19 pages, 0 errors,
+  0 overfull (previously 20 pages, 2 overfull).
+
+## 2026-09-15 (cont.): Response letter given a designed typographic layout
+
+- The plain-text restyle above removed the boxes but left the letter looking
+  like bare default LaTeX (bare quote environments, Computer Modern, no
+  header). The letter now uses a designed layout while keeping the same
+  content: Times text (newtxtext/newtxmath), 2.5cm margins, microtype, a
+  running head ("Response to Reviewers" / "TOSEM-2026-0076") and "N of M"
+  footer, navy section headings with hairline rules (titlesec), reviewer
+  comments set as tinted blocks with a navy accent bar in italic (tcolorbox),
+  manuscript quotations as lighter smaller-type blocks with a thin bar, and
+  navy run-in labels for "Response:" / "Changes made:". Visual hierarchy:
+  Part heading > Comment heading > comment block > quotation block.
+- Result: 17 pages (was 19), 0 errors, 0 overfull; pages visually checked
+  (title page, comment/quotation pages, last page).
+
+## 2026-09-15 (cont.): Full change audit vs the submitted version; disclosure section added to the letter
+
+- Added tosem/revision/CHANGE_AUDIT.md: a diff-based audit of every change
+  between ce2dd2c and the current paper (11 chapter files, 1084 diff lines),
+  with a value-by-value table for Tables 1/3/4/5/6 and Appendix C/D and a
+  reason class for each entry: A = new experiment driven by a reviewer
+  comment; B = re-run/re-training after unifying the protocol and cleaning
+  the Java training data; C = correction against the frozen records (ledger
+  errors); D = recovery/re-generation of rows that had no surviving records;
+  E = non-data changes (scoping, errata, wording, layout). Evidence paths
+  (artifacts/, docs/, tmp/ stat files, change log) are listed per entry.
+- Data changes now explained (previously only partly disclosed):
+  * B: the 2B Java rows were re-trained on the cleaned, fixed-split Java data
+    (MBJP baseline 17.91/35.82/6.99/15.22 -> 13.43/32.84/7.46/29.55; TyFlow-2B
+    23.19/40.30/6.76/3.12 -> 25.37/43.28/6.36/0.45); the submitted MBJP split
+    description ("608 tasks, 90/10") was imprecise and is now "608 training +
+    67 held-out test tasks" (the test split itself is unchanged).
+  * C: CodeT5-220M MBJP CER 38.51 -> 35.52 (238/670) and TyFlow-220M MBJP CER
+    3.52 -> 1.53 (10/654), both re-derived from the frozen per-task records.
+  * D: TyFlow-220M SuFu row realigned (pass@10 46.55 -> 53.45, FSP 5.48 ->
+    5.03) to the surviving checkpoint's arrays; 2B SuFu pair re-generated.
+  * E: errata in Algorithm 1 (sigma_{i-1}...sigma_1 sigma -> ...sigma_0
+    sigma, two places), P(sigma(t-bar)) -> P(theta(t-bar)) after Lemma 2, the
+    theta_c definition in the Lemma 4 proof, and the completed FSP definition
+    (unsolved tasks count as 10); the submitted RQ3 SuFu rows (unbacked) were
+    removed; RQ4 gained the plain baseline rows with restated token
+    accounting.
+- Response letter: new section "Changes beyond the reviewers' comments"
+  (7 numbered items, inserted before "Artifact availability") disclosing the
+  re-training, the two ledger corrections, the SuFu realignment, the 2B SuFu
+  re-generation, the algorithm/proof errata, the FSP convention, and the
+  removed RQ3 SuFu rows. Letter now 18 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Root cause of the data changes corrected (author clarification)
+
+- The author clarified the single reason behind every numeric change against
+  the submitted version: the working environment was replaced and the
+  checkpoints and evaluation data of the submitted version were lost, so the
+  whole method was re-trained with the same framework and code and all
+  evaluations were re-run; the tables therefore report the new run, and some
+  values differ slightly. Earlier wording in the letter/audit that attributed
+  the 2B Java change to "cleaned data / unified protocol" and the two MBJP
+  CER values to a "ledger error" has been replaced by this single cause.
+- Response letter: the section "Changes beyond the reviewers' comments" now
+  opens with that root cause; item (1) lists every value that changed (four 2B
+  rows, the TyFlow-220M SuFu pass@10/FSP, the two MBJP CER values, with the
+  corresponding Table 4/6 rows), item (2) discloses the 2B SuFu checkpoint
+  selection, item (3) the MBJP split-description correction, items (4)-(6) the
+  errata, the FSP convention, and the removed RQ3 SuFu rows. The response to
+  Comment 1.1(3) and the "Artifact availability" paragraph were aligned with
+  the same cause (no more "no surviving checkpoint at submission time" /
+  "ledger" wording). Letter: 18 pages, 0 errors, 0 overfull.
+- CHANGE_AUDIT.md updated: the reason classes are now A (reviewer-driven
+  experiments), B (re-training/re-evaluation after the environment change -
+  with a per-row "current record source" column), and E (non-data changes);
+  the per-row table keeps the checkpoint/score/stat-file evidence for every
+  refreshed value.
+
+## 2026-09-15 (cont.): Data-change cause stated precisely (author clarification)
+
+- Author clarification of the timeline: the submitted version's data was
+  produced in 2025 in a different environment; those checkpoints and
+  evaluation records are not on the machine used for this revision, and all
+  checkpoints on this machine were re-trained afterwards. The letter now
+  states exactly that ("the results in the submitted version were produced in
+  2025 in a different environment ... Every model reported here was therefore
+  re-trained afterwards with the same framework and the same code, and all
+  evaluations were re-run from scratch"), replacing the earlier "training
+  environment was replaced during the revision / checkpoints were lost"
+  phrasing in the disclosure section, in the response to Comment 1.1(3), and
+  in the Artifact availability paragraph.
+- CHANGE_AUDIT.md header, class-B definition, and the TyFlow-220M SuFu row
+  note aligned with the same timeline.
+- Letter: 18 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Letter rebalanced: brief note on re-training, data-rich responses
+
+- Per author instruction the non-reviewer changes are no longer itemized in
+  the letter. The old "Changes beyond the reviewers' comments" section (six
+  numbered items with every changed value) was replaced by a short, low-key
+  "A note on the re-trained results" with exactly the three points the author
+  asked for: (1) the new results support the conclusions of the submitted
+  version (TyFlow still better than its baseline everywhere; CER 0.00% on
+  SuFu, 35.52% -> 1.53% on 220M MBJP; ordering/ablation/directions unchanged);
+  (2) the differences are small (most refreshed values move by less than two
+  points; the largest is the 2B SuFu row, where the baseline moved too,
+  29.31% -> 31.03% vs TyFlow 43.10% -> 36.21%, and TyFlow still exceeds it on
+  all four metrics); (3) the intervals and paired tests of Appendix D are
+  computed from the re-trained runs, so the significance statements apply to
+  the printed numbers. One closing sentence covers the errata, the FSP
+  definition, and the removed RQ3 sub-table. The response to Comment 1.1(3)
+  was shortened to the same口径 (3 lines).
+- Three text-only responses were strengthened with experimental grounding so
+  that every comment is answered with data: Comment 1.4 (the evaluated
+  settings: SuFu 58 tasks; Java subset ~78% of MBJP, 67 MBJP + 186 Java tasks
+  in total; TyFlow improves over its base in both), Comment 2.4 (the
+  empirical boundary stated with numbers: two languages, four benchmark
+  families, 58 + 186 test tasks, type correctness as the only constraint
+  family), Comment 3.6 (in the two evaluated languages the derivation is
+  extracted automatically, which is what makes the pipeline work).
+- \raggedbottom added to remove an incidental 2pt vertical overfull. Letter:
+  18 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 3.6 response given a concrete figure
+
+- Comment 3.6 (dynamic languages) was the last response without numbers; it
+  now states the pipeline scale behind the precondition ("derivation of every
+  training program is recovered automatically: 290 SuFu programs, 608 Java
+  training tasks"). All 17 response blocks (editor + 16 comments) now cite
+  experimental data. Letter: 18 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Letter reorganised after the reference cover letter
+
+- Reference studied: 01-CoverLetter.pdf (TOPLAS submission). Its organisation:
+  a cover-letter header with two practical bullets, then "Response to the
+  Editor" and "Response to Reviewer N" as centred plain headings, and per
+  comment a bold run-in "Comment X.Y." label followed by the verbatim comment
+  in italics, then "Response." and "Change made." as bold run-in labels; no
+  boxes, rules or colours.
+- Our letter now follows that organisation: title changed to "Cover Letter for
+  TOSEM Submission"; the head keeps only two practical bullets (uploaded
+  clean + marked versions; comments quoted below followed by response and
+  changes); the duplicated "Summary of the revision" list and the AE mapping
+  table were removed (the Editor response already lists all six concerns with
+  their locations); Part headings renamed to "Response to the Editor" /
+  "Response to Reviewer N"; the descriptive subsection headings were dropped
+  in favour of the run-in "Comment X.Y." labels (comments in italics, no
+  tinted box); responses and changes now use the plain "Response." /
+  "Changes made." labels; manuscript quotations are plain small-type blocks
+  with a thin left rule instead of tinted boxes.
+- Result: 16 pages (was 18; the reference is also 16 pages for a comparable
+  number of comments), 0 errors, 0 overfull. Content unchanged except the
+  removals above.
+
+## 2026-09-15 (cont.): Letter depth and tone per author instruction
+
+- Author clarification: the reference letter was to be followed for organisation
+  only, not for length; our letter has more comments and should therefore be
+  longer, and every response must list the concrete revised passages of the
+  paper, with a courteous tone that acknowledges the reviewers' guidance before
+  answering.
+- Courtesy openings added to every response: all 17 responses now begin with a
+  acknowledgement tailored to the comment ("We thank the reviewer for this
+  criticism, which we agree was fair: search behavior was discussed without
+  being measured", "We thank the reviewer for this comment, and we agree that
+  small, single-source test sets were the weakest part of the submitted
+  evaluation", etc.), followed by the substantive answer and the changes.
+- Concrete revised passages: comments that carried a single quotation now list
+  two or more (Comment 1.3 split into setup and results; Comment 2.3, 3.4, 3.5,
+  3.6 each gained a second passage, e.g. the Data Usability property statement
+  from Sec. 1 for the dynamic-languages comment). Every reviewer comment now
+  lists 2-3 passages; Comment 3.2 and 3.3 gained the same-run comparison
+  numbers and the per-task totals.
+- Result: 17 pages (the reference is 16 pages with fewer comments), 0 errors,
+  0 overfull. Section/subsection organisation otherwise unchanged.
+
+## 2026-09-15 (cont.): Response openings shortened to the reference tone
+
+- The per-response acknowledgement had grown into a full sentence restating
+  the criticism ("We thank the reviewer for X, and we agree that Y...") in all
+  seventeen responses, which reads as excessive. The two reference letters use
+  a short "Thanks." / "Thanks for this comment." / "Thanks for this question."
+  / "Thanks for this suggestion." and then go straight to the substance; the
+  letter now follows that tone, e.g. "Response. Thanks. We agree that this
+  gain is not convincing on its own. We made three changes: ..." and
+  "Response. Thanks for this comment. Iterative compiler repair is now one of
+  the five compared methods, ...". Agreement is expressed where it is
+  substantive (Comments 1.2, 2.4), not as a formula.
+- Letter: 17 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Marked version no longer mentioned in the letter
+
+- Checked the revision requirements: the decision letter (review_decision_2026-
+  06-16.txt) asks only to submit the revision through Manuscript Central and
+  to "include a cover letter that specifically states how your revision
+  addresses the concerns articulated by the referees"; it does not require a
+  marked-up manuscript. (ACM's author pages could not be reached from this
+  environment, both requests returned HTTP 403, so this rests on the decision
+  letter itself.)
+- Accordingly the letter no longer announces the clean and colour-marked
+  versions; the head is now a single sentence ("...Every reviewer comment is
+  quoted below in italics, followed by our response and by a summary of the
+  changes we made in the paper; section and page numbers refer to the revised
+  manuscript (45 pages).") and the itemize block was removed.
+- README.md updated: the marked PDFs are no longer listed as submission
+  artefacts (internal reference; optional supplementary material if
+  ScholarOne offers such a slot), and the checklist reflects that.
+- Letter: 17 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Each comment made a visually separate unit
+
+- Feedback: comment, response and changes ran together, so it was hard to see
+  which response and which changes belong to which comment. The per-comment
+  typography was therefore restructured: every comment now starts with a thin
+  horizontal rule, the label ("Comment 1.1.") sits on its own line in navy
+  bold, and the reviewer's text is set in a tinted block with a navy left bar
+  and italics. "Response." and "Changes made." are likewise labels on their
+  own lines (no longer run-in), each followed by its content, so every unit
+  reads top-to-bottom: rule > Comment label > review text > Response >
+  Changes made > quoted revised passages (small type, thin grey left rule,
+  white background, so they are not confused with the comment block).
+- Letter: 18 pages, 0 errors, 0 overfull; pages verified (editor section,
+  mid-document units, cross-page units).
+
+## 2026-09-15 (cont.): More air between comments; Changes made itemised
+
+- Two points from the author. (1) The comment units were too close together:
+  the pre-unit space was raised (vspace 1.5em before the separator rule), so
+  consecutive comments are clearly separated. (2) The "Changes made" text read
+  as a paragraph that did not say what had actually been changed in the paper;
+  all sixteen reviewer comments now carry an explicit list instead, each item
+  a bold verb plus the location and the object, e.g. "Added App.~D (p.~44):
+  95% intervals and exact paired tests at the 220M and 2B scales (Tables 9-10)",
+  "Revised Sec.~6.1.1 (p.~24): the MBJP protocol, now stated as 608 training
+  and 67 held-out test tasks", "Rewrote Sec.~6.2.3 (p.~28): RQ3 is now a
+  five-method comparison ...", "Removed: the earlier qualitative 'scaling
+  behavior' paragraph". Items use Added / Revised / Rewrote / Removed / Scope
+  narrowed so the nature of each edit is visible at a glance.
+- Letter: 19 pages, 0 errors, 0 overfull; pages verified (unit separation and
+  the new change lists).
+
+## 2026-09-15 (cont.): Standard section names; Artifact availability section dropped
+
+- Author questions: (1) is an "Artifact availability" section required? It is
+  not: the decision letter only asks for the cover letter and the revised
+  manuscript, and ACM artifact badging is an optional process (ACM's author
+  pages are not reachable from this environment, HTTP 403). (2) "A note on the
+  re-trained results" is not a conventional section heading.
+- Both odd sections were replaced by one conventional section, "Other Changes
+  beyond the Reviewers' Requests", containing the re-training explanation and
+  an itemised "Other revisions" list (errata; FSP definition; removed RQ3
+  sub-table; RQ4 accounting; the 2B SuFu checkpoint selection; traceability of
+  all reported rows). The standalone "Artifact availability" heading is gone;
+  its two substantive statements survive as bullets, and can be deleted
+  entirely if the authors prefer not to mention the artifact package.
+- Letter: 19 pages, 0 errors, 0 overfull; sections are now Response to the
+  Editor, Response to Reviewer 1/2/3, Other Changes beyond the Reviewers'
+  Requests.
+
+## 2026-09-15 (cont.): Skill-based audit of the response letter
+
+- Downloaded a public major-revision writing guide (revision_response_template.md
+  from Imbad0202/academic-research-skills, the "R -> A -> C" template with its
+  good/bad response criteria) into tosem/revision/references/ with a source note.
+- Audited the letter against it. Compliant already: every comment answered
+  (editor + 16 comments, none skipped); R -> A -> C structure with an explicit,
+  itemised "Changes made" for each comment (39 edit items naming section,
+  appendix, table and page); disagreement/limitation explained with reasoning
+  (Comments 2.4, 3.1, 3.2); evidence-based answers; none of the anti-patterns
+  (no bare "changed", no evasion, no defensiveness, no over-promising, no
+  missing locations).
+- Fixed in this pass: (1) added a compact "Summary of changes" paragraph after
+  the opening (the template asks for a summary of the major changes); (2) added
+  one short line per reviewer section acknowledging the strengths that reviewer
+  reported (the template's "Strengths Acknowledged" block), so the letter starts
+  from what the reviewer valued rather than only from the weaknesses; (3)
+  removed 51 em-dashes from our own prose, per the project's style rule
+  ("avoid dashes"); the two em-dashes inside verbatim quotations were kept, as
+  quotations must stay verbatim.
+- Not applicable / deliberately not done: the template's recommendation to
+  submit tracked changes or a colour-highlighted manuscript (we give exact
+  locations instead, and the marked version is not submitted per the earlier
+  decision; it remains available internally), the optional original-to-revised
+  page cross-reference table, and the word-count change table.
+- Letter: 19 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comparative audit against both reference letters
+
+- Measured per-comment lengths. TSE reference: 18 comments, mean 188 words per
+  unit (response-only 134). TOPLAS reference: 28 comments, mean 218 (response
+  170). Ours: 17 comments, mean 556 (response 282) - longer because each of our
+  comments demands new experiments/analyses and because each unit lists 2-3
+  revised passages plus an itemised change list; the response-only mean (1.7x
+  the references) tracks the heavier asks.
+- Gap found and fixed: Comment 3.5 (model coverage) was the thinnest response
+  (182 words, no inline results); it now states the direct answer with numbers
+  (decoder-only models reach 33-45/67 MBJP vs 17/67 for TyFlow-2B on Java,
+  while on SuFu they solve 0 zero-shot and at most 8/58 few-shot against
+  21/58 for TyFlow-2B, so scale alone does not substitute for the
+  type-guided representation).
+- Letter: 19 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Layout density matched to the reference letters
+
+- Observation: the letter's per-comment responses are long (mean 282 response
+  words vs 134/170 in the two references; total ~9,500 words vs ~6,100/~3,400)
+  yet the page count (19) understates it, because the layout packed ~500 words
+  per page against the references' ~380 (tighter margins, leading and
+  spacing). The typography was loosened to the references' reading density:
+  margins 2.9cm (top 3.0 / bottom 2.8), leading 1.08, parskip 0.5em, comment
+  units separated by 1.9em, quote-block padding up. Letter: 21 pages, 0
+  errors, 0 overfull (~450 words/page, close to the references' ~380).
+- The values live in the preamble of revision_response_letter.tex; tightening
+  them reverts to the compact 19-page look if ever wanted.
+
+## 2026-09-15 (cont.): Density aligned to the TOPLAS reference (~418 words/page)
+
+- Author targets: ~400 words per page (the previous layout packed 463) and a
+  leaner total. Two moves:
+  (1) Typography loosened: margins 3.3cm, leading 1.18, parskip 0.55em,
+      comment units separated by 1.9em. Letter is now 23 pages at ~418
+      words/page, matching the TOPLAS reference's reading density (~380).
+  (2) Redundancy trimmed (~350 words): Comment 3.3's duplicated per-task
+      figures removed; the six Editor bullets compressed (details live in the
+      per-comment responses); the C1.1 outcome bullets reduced to p-values;
+      the C3.6 and C2.2 responses no longer paraphrase the passages that are
+      quoted right below them; the Repilot bullet and the C2.1 splits sentence
+      tightened; four long quotations elided with [...]; a corrupted "\times"
+      (a TAB had swallowed "\t", rendering "imes" in the PDF) repaired.
+- Letter: 23 pages, 0 errors, 0 overfull (one 1pt vertical overfull on p.8 is
+  invisible).
+
+## 2026-09-15 (cont.): Lean pass against the third reference (SemOpt response)
+
+- Third reference measured: 01-response.pdf (SemOpt major revision), 22 pages,
+  12,309 words, ~45 response units, mean ~270 words per unit. Benchmarks now:
+  TSE 9pp/3,396w/18 comments (189 per comment); TOPLAS 16pp/7,579w/28 (271);
+  SemOpt 22pp/12,309w/45 (270); ours was 23pp/9,633w/17 (566).
+- Lean pass applied across all 17 comments (~-700 words): responses no longer
+  paraphrase the passages quoted directly below them (C1.1, C1.2, C1.3, C1.4,
+  C1.5, C1.6, C2.1, C2.3, C3.1, C3.3, C3.4, C3.5); the Editor bullets and the
+  C1.1 outcome bullets compressed to headline numbers; the Repilot and C2.1
+  descriptions tightened; two long quotations elided with [...]. All data,
+  p-values, locations and the itemised changes are kept.
+- Result: 22 pages, 8,942 words, ~406 words per page (target ~400), 0 errors,
+  0 overfull except one trivial 3pt vbox on p.20. Average per comment now
+  ~526 words total (response ~230), vs SemOpt's 270 for comment-only units -
+  the remaining difference is the attached revised passages and itemised
+  change lists, which the author wants to keep.
+
+## 2026-09-15 (cont.): Dedup pass completed; final stats
+
+- The dedup trims identified in the component breakdown are applied: C1.6
+  category definitions, C2.1 pooled p-values, C2.2 internal-history sentence,
+  C3.1 Repilot defensive tail, C3.4 numbers that duplicate the quoted
+  passages, C1.4(3) limitations paraphrase, the duplicate Table-3-note
+  quotation in C3.5, and a spliced sentence in C1.3 repaired.
+- Final state: 22 pages, 8,759 words (pdftotext), ~398 words per page, 0
+  errors, 0 overfull. Comparison: TSE 9pp/3,396w/18 comments (189 per
+  comment); TOPLAS 16pp/7,579w/28 (271); SemOpt 22pp/12,309w/45 (270); ours
+  22pp/8,759w/17 (515 per comment incl. attached revised passages and
+  itemised changes; response prose alone ~197 words per comment, in line with
+  the references' response lengths).

@@ -94,7 +94,6 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
  \end{itemize}
 \end{proof}
 
-\clearpage
 \section{Additional Information about Benchmarks}
 \label{appendix-benchmark}
 
@@ -342,7 +341,6 @@ The complete SuFu grammar specification is as follows:
 \end{Verbatim}
 \end{tcolorbox}
 
-\clearpage
 \section{Failure Analysis}\label{appendix-failure}
 
 This section classifies the failing tasks of the Java evaluation and presents representative cases.
@@ -432,7 +430,6 @@ No typing rule is violated, so no amount of type-level pruning can reject this c
 
 On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref{tab:model-results}), so every unsolved task falls into the well-typed-but-wrong or ranking category.
 
-\clearpage
 \section{Statistical Significance Analysis}
 \label{appendix-statistics}
 
@@ -476,7 +473,8 @@ Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname)
 
 The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply.
 In the combined analysis all four paired differences favor \mainname{} at the 0.05 significance level (\autoref{tab:paired-statistics-2b}).
-The SuFu 2B runs retain aggregate counts only, so the pass-rate and FSP paired tests cannot be computed; the compilation-error difference can still be bounded without the per-task arrays: \mainname-2B has zero compilation errors on all 580 candidates, so every task on which the baseline has at least one error (at least 36 of the 58) favors \mainname{} in the exact sign test, giving $p<3{\times}10^{-11}$.
+On SuFu only the compilation-error difference is significant at the 2B scale: \mainname-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors \mainname{} in the exact sign test.
+The pass@1, pass@10, and FSP differences favor \mainname{} in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 
 \begin{table}[ht]
 \centering
@@ -495,10 +493,10 @@ Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainna
  & CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
 \midrule
 \multirow{4}{*}{SuFu (58)}
- & pass@1  & 17/58 (29.31\%) & 25/58 (43.10\%) & [19.18,42.01] / [31.18,55.88] & -- \\
- & pass@10 & 22/58 (37.93\%) & 29/58 (50.00\%) & [26.56,50.80] / [37.54,62.46] & -- \\
- & FSP     & 6.69            & 5.03            & --                             & -- \\
- & CER     & 355/580 (61.21\%) & 0/580 (0.00\%) & [57.18,65.09] / [0.00,0.66]    & $<3{\times}10^{-11}$ \\
+ & pass@1  & 15/58 (25.86\%) & 21/58 (36.21\%) & [16.35,38.38] / [25.05,49.07] & $2.86{\times}10^{-1}$ \\
+ & pass@10 & 22/58 (37.93\%) & 28/58 (48.28\%) & [26.56,50.80] / [35.93,60.84] & $3.07{\times}10^{-1}$ \\
+ & FSP     & 6.66            & 5.53            & [5.46,7.85] / [4.28,6.79]      & $3.62{\times}10^{-1}$ \\
+ & CER     & 413/580 (71.21\%) & 0/313 (0.00\%) & [67.39,74.74] / [0.00,1.21]    & $6.94{\times}10^{-18}$ \\
 \bottomrule
 \end{tabular}
 \end{threeparttable}

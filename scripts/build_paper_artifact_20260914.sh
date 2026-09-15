@@ -43,9 +43,10 @@ cp -r Utils/data/pretrain_t5gemma2_2b_retok/* $OUT/data/opencoder/
 # 220M TyFlow MBJP (11.94/28.36/7.94/3.52, results_final.csv mbjp_coqview)
 mkdir -p $OUT/checkpoints/tyflow-220m-mbjp
 cp Utils/models/Modelmbjpcoqview/2025-06-20_16-57-57/epoch80_model.ckpt $OUT/checkpoints/tyflow-220m-mbjp/
-# 2B TyFlow SuFu (43.10/50.00/5.03/0.00)
+# 2B TyFlow SuFu (36.21/48.28/5.53/0.00; recovered 2026-09-15, see
+# artifacts/sufu_2b_rerun_20260915/README.md)
 mkdir -p $OUT/checkpoints/tyflow-2b-sufu
-cp Utils/models/Modelsufucoq_t5gemma2_2b_corrected_formal100pass_lr5em5_8gpu_b5_20260715_172939/2026-07-15_17-29-57/epoch80_model.ckpt $OUT/checkpoints/tyflow-2b-sufu/
+cp Utils/models/Modelsufu_original_synthetic_half_train_t5gemma2_20260731_complete281_formal100_8gpu_b5_lr5em5_20260731_105207/last_model.ckpt $OUT/checkpoints/tyflow-2b-sufu/
 # 2B TyFlow MBJP (25.37/43.28)
 mkdir -p $OUT/checkpoints/tyflow-2b-mbjp
 cp Utils/models/Modelmbjp_humaneval_half_train_t5gemma2_20260731_clean673_noleak_formal30_8gpu_b5_lr1em5_20260810/last_model.ckpt $OUT/checkpoints/tyflow-2b-mbjp/

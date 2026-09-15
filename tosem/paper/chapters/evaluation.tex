@@ -87,8 +87,8 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
         &      & \mainname-220M      & \textbf{11.94} & \textbf{28.36} & \textbf{7.94} & \textbf{1.53} \\
 \midrule
 \multirow{8}{*}{2B}
-        & SuFu & T5Gemma2-2B         & 29.31 & 37.93 & 6.69 & 61.21 \\
-        &      & \mainname-2B        & \textbf{43.10} & \textbf{50.00} & \textbf{5.03} & \textbf{0.00} \\
+        & SuFu & T5Gemma2-2B         & 25.86 & 37.93 & 6.66 & 71.21 \\
+        &      & \mainname-2B        & \textbf{36.21} & \textbf{48.28} & \textbf{5.53} & \textbf{0.00} \\
         \cmidrule(lr){2-7}
         & MBJP & T5Gemma2-2B         & 13.43 & 32.84 & 7.46 & 29.55 \\
         &      & \mainname-2B        & \textbf{25.37} & \textbf{43.28} & \textbf{6.36} & \textbf{0.45} \\
@@ -107,7 +107,7 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 \end{threeparttable}
 \end{table}
 
-\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 29.31\% to 43.10\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
+\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 The largest gains are on SuFu and HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
 The 220M MBJP pass@1 gain is the smallest because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
@@ -115,7 +115,7 @@ The 220M MBJP pass@1 gain is the smallest because there the type constraints mai
 To contextualize absolute performance, \autoref{tab:decoder-only-compare} reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
 Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
 
-On SuFu the comparison favors \mainname{}: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 25; the low-resource language is where the type-guided representation delivers its advantage.
+On SuFu the comparison favors \mainname{}: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas \mainname-2B solves 21; the low-resource language is where the type-guided representation delivers its advantage.
 On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
 In any case, relative to its fine-tuned baseline T5Gemma2-2B, \mainname-2B delivers a consistent improvement on all four benchmarks.
 
@@ -134,8 +134,8 @@ MiMo-7B             & 34 & 33 & 3  & 10 & 38 & 43 & 0 & 6 \\
 Qwen3-14B           & 42 & 41 & 14 & 11 & 50 & 49 & 0 & 8 \\
 Qwen3-30B-A3B       & 42 & 45 & 13 & 14 & 52 & 52 & 0 & 6 \\
 \midrule
-T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{17} \\
-\mainname-2B   & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8}  & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{25} \\
+T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2}{c}{20} & \multicolumn{2}{c}{15} \\
+\mainname-2B   & \multicolumn{2}{c}{17} & \multicolumn{2}{c}{8}  & \multicolumn{2}{c}{31} & \multicolumn{2}{c}{21} \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
