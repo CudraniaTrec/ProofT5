@@ -1786,3 +1786,13 @@ with every downstream reference updated:
   2B results and the pooled analysis"; "states the residual risk honestly" ->
   "plainly". "Deliberately strengthened" kept (substantive, reviewer-facing).
 - Letter: 22 pages, 8,696 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): "normalized to MBJP format" phrasing removed
+
+- Per author instruction, the dataset descriptions no longer use the
+  "normalizes ... into the MBJP prompt and test-harness format" framing:
+  Sec.~6.1.1 now reads "HumanEval-Java adapts the HumanEval problems to Java,
+  and TransCoder-GFG collects the Java programs released with TransCoder; both
+  follow the task format of MBJP." The response letter (Editor bullet and the
+  C2.1 quotation) was aligned with the same wording. Paper rebuilt (45pp), both
+  marked manuscripts rebuilt (45/46pp), letter 22pp - 0 errors, 0 overfull.

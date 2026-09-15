@@ -26,7 +26,7 @@ To evaluate the generality of \mainname, our evaluation considers two languages 
 
  We consider the MBJP dataset~\cite{DBLP:conf/iclr/AthiwaratkunGWL23} in our evaluation, which is the Java version of the popular MBPP dataset. Our Java subset covers the MBJP tasks admitted by our toolchain, which we split randomly into a training set of 608 tasks and a held-out test set of 67 tasks.
 
- \item \textbf{HumanEval-Java} and \textbf{TransCoder-GFG} are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java normalizes the Java port of HumanEval~\cite{DBLP:journals/corr/abs-2107-03374} into the MBJP prompt and test-harness format, and TransCoder-GFG does the same for the GeeksForGeeks programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20}. 
+ \item \textbf{HumanEval-Java} and \textbf{TransCoder-GFG} are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java~\cite{DBLP:journals/corr/abs-2107-03374}, and TransCoder-GFG collects the Java programs released with TransCoder~\cite{DBLP:conf/nips/LachauxROC20}; both follow the task format of MBJP. 
 HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
 \end{itemize}
 

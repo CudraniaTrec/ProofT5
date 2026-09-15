@@ -121,7 +121,7 @@ reviewers.
 
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{Failure analysis.} Every test task of the three Java benchmarks is classified into four categories in App.~C (p.~42--43, Table~8), with two representative cases; the dominant residual mode of TyFlow is well-typed but semantically wrong code. Detailed response: Comment~1.6.
-  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added and normalized to the MBJP format, so the Java evaluation spans 186 test tasks from three independent sources, analyzed jointly in App.~D (p.~44). Detailed responses: Comments~1.1, 2.1.
+  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added, so the Java evaluation spans 186 test tasks from three independent sources, analyzed jointly in App.~D (p.~44). Detailed responses: Comments~1.1, 2.1.
   \item \textbf{Scalability.} RQ2 measures the pruning strength of each component, the beam-exhaustion behavior, and the per-step and per-task runtime (up to $2.74\times$ the unconstrained base); scaling to richer type systems is discussed in the Limitations subsection. Detailed responses: Comments~1.5, 2.2.
   \item \textbf{Larger and more recent LLMs.} Zero- and few-shot pass@1 results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks are added (Table~3, p.~26): on Java they outperform the fine-tuned 2B models, on SuFu none solves a single task zero-shot. Detailed responses: Comments~1.3, 2.3.
   \item \textbf{State-of-the-art techniques.} RQ3 is rewritten as a five-method comparison on MBJP (rejection sampling, SynCode, Repilot, iterative compiler repair) on one leak-clean frozen checkpoint; none of the four external methods significantly improves functional correctness, while TyFlow-2B is the best of all compared methods. Detailed responses: Comments~3.1, 3.2.
@@ -552,12 +552,7 @@ generalization evidence on widely used benchmarks.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24)}
-HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that
-broaden the evaluation beyond MBJP. HumanEval-Java normalizes the Java port
-of HumanEval into the MBJP prompt and test-harness format, and TransCoder-GFG
-does the same for the GeeksForGeeks programs released with TransCoder.
-HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and
-TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
+HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java, and TransCoder-GFG collects the Java programs released with TransCoder; both follow the task format of MBJP. HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~B (p.~40, Table~7)}
