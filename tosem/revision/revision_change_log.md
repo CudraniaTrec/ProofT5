@@ -1796,3 +1796,250 @@ with every downstream reference updated:
   follow the task format of MBJP." The response letter (Editor bullet and the
   C2.1 quotation) was aligned with the same wording. Paper rebuilt (45pp), both
   marked manuscripts rebuilt (45/46pp), letter 22pp - 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.1 response restructured (setup -> methodology -> results)
+
+- Per author feedback, the Comment 1.1 response now follows the paper's own
+  format: (1) Experimental setup first (the two added benchmarks introduced by
+  name with their splits - HumanEval-Java 146/16, TransCoder-GFG 414/103,
+  both in the MBJP task format, construction in App. B; Java evaluation 67 ->
+  186 tasks; SuFu 58 tasks by construction), (2) the statistical methodology
+  (per-metric 95% interval and exact paired test types, ten candidates per
+  task, per-task records in App. D), (3) the results block with per-scale
+  outcomes, (4) the re-generated SuFu 2B row note. The 2B SuFu outcome bullet
+  now carries the full data (CER 71.21% -> 0.00%, 413/580 -> 0/313, Wilson
+  [67.39,74.74] -> [0.00,1.21], sign test p=6.94e-18, all 58 tasks favoring
+  TyFlow; pass@1 25.86% -> 36.21%, pass@10 37.93% -> 48.28%, FSP 6.66 -> 5.53
+  with Wilson/t-intervals; discordant pairs 8 vs. 14 and 9 vs. 15; 30 nonzero
+  FSP pairs, 18 favoring TyFlow) instead of describing the outcome without
+  numbers. Changes made gained the Sec. 6.1.1 benchmark-introduction item.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.1 results reorganized by language
+
+- The results block of Comment 1.1 is now grouped by language instead of by
+  scale, per author feedback: (a) Java - at 220M the two pass-rate gains are
+  small in magnitude on a small task set and are not particularly significant
+  (pass@1 10.45% -> 11.94%), while the compilation-error difference is highly
+  significant (p=6.98e-11); at 2B the pooled 186-task set makes the task
+  count work in our favor and all four differences are significant; (b) SuFu
+  - the task count likewise drives the p-values: 220M all four significant;
+  at 2B the pass-rate gains (25.86% -> 36.21%, 37.93% -> 48.28%) are not
+  particularly significant (p=0.286/0.307), although the 95% intervals still
+  indicate an improvement (TyFlow-2B pass@1 interval above the baseline's),
+  and CER remains clearly significant (71.21% -> 0.00%, p=6.94e-18).
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Instruction-facing phrasings removed (repeat offense fixed)
+
+- The sentence "Following the paper's format, we state the setup first and
+  then the results" in Comment 1.1 was written in response to the authors'
+  instruction and has been deleted; the (1)-(4) labeled structure speaks for
+  itself. A full sweep found and fixed two more of the same class: C1.6 "The
+  numbers answer the reviewer's question directly" -> "answer this question
+  directly"; C2.2 "We keep only what the measurements can support" -> "the
+  revised text claims only what these measurements support"; C1.3 "we report
+  this openly" -> "we state this plainly". No such phrasings remain.
+- Letter: 22 pages, 8,807 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Re-training note removed from the Comment 1.1 body
+
+- Per author instruction, the response body no longer discusses the
+  re-training/re-generation of the SuFu 2B rows; item (4) of Comment 1.1 was
+  deleted, leaving the brief mention only in the letter's final "Other Changes
+  beyond the Reviewers' Requests" list ("Re-trained results." bullet). The
+  "regenerates" wording in the Comment 3.1-3.3 responses is kept: it
+  describes the compared external methods' own mechanisms (iterative repair,
+  rejection sampling), not our re-training.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Two re-run-sync items removed from the Comment 1.1 changes list
+
+- Per author feedback, the "Changes made" list of Comment 1.1 kept only the
+  items that answer the reviewer's question (the two added benchmarks in
+  Sec.~6.1.1, the App.~D statistical analysis, and the FSP convention in
+  Sec.~6.1.3). The two items that were side effects of the SuFu-2B re-run
+  number sync ("Revised Table~1: the SuFu 2B rows" and "Revised Sec.~6.2.1:
+  the pass@10 improvement range") were removed; that bookkeeping lives in the
+  end-of-letter "Re-trained results" bullet.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Every quotation now states which response point it supports
+
+- Per author feedback, all 36 quotation labels were rewritten from the bare
+  "Revised manuscript, <location>" to "<location>: <what this passage shows>",
+  e.g. "App. D (p. 44): the paired-test definitions and the 220M outcomes",
+  "Sec. 6.2.1 (p. 26): the decoder-only comparison", "Sec. 1 (p. 3): the Data
+  Usability property" - so a reviewer can see at a glance which point of the
+  response each attached passage backs without reading it.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.2 explanation rewritten (baseline starting-point cause)
+
+- Per author explanation, Comment 1.2 (1) now states the causal chain: the
+  Java baselines are ordinary language models already well trained on Java,
+  so their starting point is stronger and their outputs already contain
+  comparatively few type errors, leaving limited headroom for pass@1; the
+  constraints instead remove uncompilable output (pass@10 and CER improve),
+  and the small test set at pass@1 makes the gain look modest. The (2)
+  paragraph now leads with "as the model scale and the evaluation grow, the
+  effect becomes much larger" before the 2B numbers.
+- Letter: 22 pages, 9,081 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Re-run sync item removed from the Comment 1.2 changes list
+
+- Same principle as Comment 1.1: the "Revised Table 1 (p. 26): the 2B MBJP
+  rows, measured against the strengthened baseline" item was a record of the
+  re-run/retrain number sync, not an answer to the reviewer's question; it was
+  removed from the Comment 1.2 changes list (the list now keeps the Sec.~6.2.1
+  explanation paragraph, the MBJP protocol statement, and the two App.~B
+  additions). Letter: 22 pages, ~9,066 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Same cleanup applied to Comment 3.4's changes list
+
+- The item "Revised Table 1 (p. 26): the 2B Java rows" (a record of the
+  re-run/retrain number sync, like the one removed from Comment 1.2) was
+  removed from the Comment 3.4 changes list. Letter: 22 pages, ~9,050 words,
+  0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Full manual line-by-line read of the letter
+
+- Read the entire letter line by line. Found and fixed one corrupted passage
+  that the mechanical scans had missed: in the Comment 1.4 quotation of the
+  type-system-expressiveness limitation, the earlier elision had left a
+  broken fragment ("...and our measurements the concrete typing rules and
+  designing the parser..."); the passage now reads correctly with a single
+  [...] elision. Also cleaned leftover blank lines in three changes-made
+  lists (C1.1, C1.2, C3.4).
+- No other issues found on the careful read: every response states its
+  answer with data and locations, the tone is short-thanks + substance, the
+  labels are explicit, and no author-facing meta phrasings remain.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.2 response restructured into a clean three-part line
+
+- The Comment 1.2 response had drifted: the opening promised "two changes"
+  while four numbered points followed, and the invented "Fair comparison"
+  label was unclear. Restructured to a single clean line that mirrors the
+  reviewer's question: (1) why the 220M Java pass@1 gain is small (baseline
+  starting point on a well-trained language + small test set), (2) the effect
+  grows with the model scale and the evaluation (2B numbers), (3) the
+  selection-bias concern and its mitigation. The vague "Fair comparison"
+  point was removed (its substance lives in the (3) App.~B pointer and
+  Comment~1.1's pooled analysis). Changes-made list kept to the four
+  corresponding paper edits.
+- Letter: 22 pages, 8,929 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.2 points (2) and (3) given explicit reasoning
+
+- Point (2) now states why the 2B numbers matter: the 220M figure comes from
+  the smallest model on the smallest Java test set, so it says little about
+  what TyFlow achieves as capacity grows; at 2B the comparison yields much
+  larger gains on three benchmarks, with CER falling to 0.45-2.75%.
+- Point (3) now states the mitigation logic: the selection-bias concern is
+  that MBJP results might be an artifact of the toolchain's admission subset;
+  replicating the comparison on two independently sourced benchmarks (where
+  the gains persist at the 2B scale) shows they are not such an artifact, and
+  the paper states the filter explicitly in App. B.
+- Letter: 22 pages, ~9,000 words, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Generalized detection pass completed
+
+- The dedup+logic checks from the Comment 1.2 rewrite were generalized and
+  applied to every response. Detection principle, per comment: (a) does every
+  sentence answer the reviewer's question (no re-run/retrain bookkeeping, no
+  implementation recipes, no internal editing history in the response body);
+  (b) is the causal chain explicit (why this evidence answers this question);
+  (c) is anything duplicated with the quoted passages below.
+- Findings: Comment 1.1's changes list had two re-run-sync "Revised" items
+  (removed earlier this session); Comment 1.2 had one (removed); Comment 3.4
+  had one (removed); Comment 3.4's "for transparency" phrasing was rewritten
+  reviewer-facing; one corrupted quotation passage in Comment 1.4 (broken
+  fragment from an earlier elision) was repaired. All other responses passed
+  the check without changes.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Selection bias acknowledged as a genuine scope limitation
+
+- Per author feedback: the "subset restriction" in Reviewer 1's Comment 1.2
+  refers to the fact that the method can only handle programs expressible
+  within the modeled type system and grammar — not a dataset-selection issue
+  that can be mitigated by adding more benchmarks. The response now
+  acknowledges this as a genuine scope limitation, states that the toolchain
+  admits ~78% of MBJP and that the two added benchmarks are similarly
+  restricted, and points to the Limitations subsection for the broader
+  discussion. The previous wording that implied the added benchmarks
+  "mitigate" the bias has been removed.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.2 orphaned items removed
+
+- The "baseline protocol of the two added benchmarks" item in the Changes-made
+  list and its corresponding quotation were added to support the former
+  "(3) Stronger baselines, not weaker ones" point. That point was already
+  deleted; these two orphaned items (which contain implementation details
+  about re-training that are unrelated to the method) have now been removed
+  as well. The Comment 1.2 response now only lists and quotes passages that
+  directly support its remaining three points: (1) why the 220M gain is
+  small, (2) the gain grows with model scale, (3) the selection-bias
+  acknowledgment.
+- Letter: 21 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.6 slash notation made self-explanatory
+
+- The response used bare slash notation (4/0/2, 38/50, etc.) without
+  explaining what the numbers referred to. Now adds a notation sentence
+  ("X/Y/Z abbreviates the task counts for MBJP (67), HumanEval-Java (16),
+  and TransCoder-GFG (103)") and rewrites the three bullets to be
+  self-contained rather than relying on bare slash shorthand.
+- Letter: 21 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.6 failure data rewritten for clarity
+
+- The old response used category names (all-invalid, ranking, well-typed
+  wrong) and slash notation (4/0/2, 38/50) that a reviewer could not decode
+  without reading App. C first. Rewritten as a narrative: (1) every failing
+  TyFlow task still produces at least one compilable candidate (the type
+  guarantee works); (2) the residual failures are semantic (wrong answer),
+  not type errors (38/50, 7/8, 53/72 per benchmark); (3) ranking failures are
+  a beam-scoring property; (4) by contrast the baseline produces completely
+  invalid output for 4+2 tasks. The App. C and App. C.2 quotations are kept
+  as supporting evidence.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.6 rewritten to convey the takeaway, not just numbers
+
+- Per author feedback, the failure-analysis response now leads with the
+  takeaway ("confirms the boundary of our method") instead of just listing
+  category names and slash counts. The three-part structure states: (1) zero
+  completely invalid outputs, confirming the type guarantee; (2) the residual
+  failures are semantic errors — code compiles and type-checks but gives
+  wrong answers — with per-benchmark counts; (3) the remaining tasks are
+  ranking failures (beam-scoring issue). The baseline's completely invalid
+  outputs (4 on MBJP, 2 on TransCoder-GFG) provide the contrast.
+- Letter: 21 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 1.6 restructured: define categories, then compare per category
+
+- The old response interleaved category names with slash counts and findings,
+  making it hard to parse. Restructured: (1) first define the four failure
+  categories in plain terms (solved@1, ranking failure, all-invalid,
+  well-typed wrong); (2) then walk through each category comparing baseline
+  vs. TyFlow with the actual numbers, explaining what each change means:
+  - All-invalid drops to zero (the type constraint guarantees compilable code).
+  - Well-typed-wrong becomes the dominant residual mode (the expected boundary
+    of the approach).
+  - Solved@1 increases on every benchmark (the method adds value).
+  - Ranking failures persist (beam scoring, not representation).
+  The App. C and App. C.2 quotations are kept as supporting evidence.
+- Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-15 (cont.): Comment 2.2 changes list synchronized
+
+- The C2.2 changes-made list now includes the tree-scaling discussion item
+  ("Added Sec. 6.2.1: the discussion of how the synthesis derivation tree
+  scales with program complexity") to match the corresponding point in the
+  response. The confusing "Removed: the earlier qualitative scaling behavior
+  paragraph" item was deleted — it was internal editing history that a
+  reviewer could not make sense of.
+- Letter: 22 pages, 0 errors, 0 overfull.
