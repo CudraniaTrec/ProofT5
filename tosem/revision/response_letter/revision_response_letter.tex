@@ -97,12 +97,13 @@ the paper; section and page numbers refer to the revised manuscript
 \textbf{Summary of changes.} The revision adds two Java benchmarks
 (HumanEval-Java and TransCoder-GFG) that enlarge the Java evaluation to 186
 tasks, a statistical analysis with 95\% intervals and exact paired tests
-(App.~D), a task-level failure taxonomy (App.~C), runtime and pruning
-measurements of the constrained decoder (RQ2), a comparison with three
-decoder-only models of 7B--30B parameters (Table~3), and a comparison with
-four reliability-oriented generation methods (RQ3, Table~5). It also adds a
-Limitations subsection (Sec.~6.3) on the encoder-decoder dependence,
-dynamically typed languages, and type-system expressiveness.
+(App.~D), and a task-level failure taxonomy (App.~C). It also adds runtime
+and pruning measurements of the constrained decoder (RQ2). The comparison
+with other generation methods now covers three decoder-only models of
+7B--30B parameters (Table~3) and four reliability-oriented approaches
+(RQ3, Table~5). A new Limitations subsection (Sec.~6.3) discusses the
+encoder-decoder dependence, dynamically typed languages, and type-system
+expressiveness.
 
 \section*{Response to the Editor}
 
@@ -178,25 +179,35 @@ pass@1/pass@10, a $t$-interval over per-task ranks plus an exact sign test
 for FSP, and a Wilson interval over candidates plus an exact sign test on
 per-task error fractions for CER.
 
-\textbf{(3) Results, organized by language.}
+\textbf{(3) Results, organized by language.} The significance of the results
+differs by language and scale: for Java, only CER is significant at 220M
+while all four differences are significant at 2B; for SuFu, all four are
+significant at 220M while at 2B only CER remains clearly significant.
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{Java.} At 220M (67 tasks), the two pass-rate gains are small
+  \item \textbf{Java.}
+        \textbf{At 220M} (67 tasks), the two pass-rate gains are small
         in magnitude and the task set is small, so they are not particularly
-        significant (pass@1 moves only from 10.45\% to 11.94\%; the
+        significant (pass@1 moves only from 10.45\% to 11.94\%); the
         compilation-error difference, however, is highly significant,
-        $p=6.98{\times}10^{-11}$, 35.52\% $\to$ 1.53\%). At 2B, pooling the
-        three Java benchmarks into 186 tasks changes the picture: the larger
-        task count is clearly reflected in the $p$-values, and all four
-        differences are significant (pass@1 18.28\% $\to$ 30.11\%,
-        $p=2.09{\times}10^{-3}$; pass@10 33.33\% $\to$ 46.24\%,
-        $p=5.36{\times}10^{-4}$; FSP $p=7.65{\times}10^{-4}$; CER 20.32\%
-        $\to$ 1.77\%, $p=1.25{\times}10^{-19}$).
+        $p=6.98{\times}10^{-11}$, 35.52\% $\to$ 1.53\%.
+
+        \textbf{At 2B}, pooling the three Java benchmarks into 186 tasks
+        changes the picture: the larger task count is clearly reflected in
+        the $p$-values, and all four differences are significant (pass@1
+        18.28\% $\to$ 30.11\%, $p=2.09{\times}10^{-3}$; pass@10 33.33\%
+        $\to$ 46.24\%, $p=5.36{\times}10^{-4}$; FSP
+        $p=7.65{\times}10^{-4}$; CER 20.32\% $\to$ 1.77\%,
+        $p=1.25{\times}10^{-19}$).
   \item \textbf{SuFu (58 tasks).} The task count likewise drives the
-        $p$-values here: at 220M all four differences are significant
-        (pass@1 24.14\% $\to$ 37.93\%, $p=3.86{\times}10^{-2}$; pass@10
+        $p$-values here.
+
+        \textbf{At 220M}, all four differences are significant (pass@1
+        24.14\% $\to$ 37.93\%, $p=3.86{\times}10^{-2}$; pass@10
         $p=2.35{\times}10^{-3}$; FSP $p=7.20{\times}10^{-3}$; CER
-        $p=6.94{\times}10^{-18}$). At 2B, the gains on the two pass-rate
-        metrics (25.86\% $\to$ 36.21\% and 37.93\% $\to$ 48.28\%) are not
+        $p=6.94{\times}10^{-18}$).
+
+        \textbf{At 2B}, the gains on the two pass-rate metrics (25.86\%
+        $\to$ 36.21\% and 37.93\% $\to$ 48.28\%) are not
         particularly significant ($p=0.286$ and $p=0.307$), although the 95\%
         intervals still indicate an improvement (e.g., TyFlow-2B's pass@1
         interval [25.05,49.07] lies above the baseline's [16.35,38.38]); the
@@ -602,7 +613,7 @@ fallback behavior is.
 
 \textbf{(2) Runtime overhead, measured.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals ($-6.38\%$ / $+94.00\%$ / $+173.88\%$, $2.74\times$ the unconstrained base); the quoted paragraph explains where each cost comes from and why syntactic pruning even lowers the per-task total.
 
-\textbf{(3) Scaling to richer type features.} Discussed in the Limitations subsection: what the implemented subset omits, why the CHC formulation is not conceptually limited to it, and that our measurements do not establish how the approach scales to richer systems; the revised text claims only what these measurements support.
+\textbf{(3) Scaling to richer type features.} The Limitations subsection states what the implemented subset omits and why the CHC formulation is not conceptually limited to it. It also states that our measurements do not establish how the approach scales to richer systems, so the revised text claims only what these measurements support.
 
 \textbf{(4) Beam exhaustion and fallback.} The instrumented run reports zero tasks that dead-end under beam~10. By design, if beam search ever ran out of candidates, the task would be counted as a failure. In practice this never occurred across all 58 SuFu tasks and all 186 Java tasks.
 
@@ -838,8 +849,8 @@ larger agent might extract more from the feedback, but swapping it in would
 change the model rather than the mechanism under comparison. And the deeper
 reason is independent of budget: none of the 59 repaired candidates passed its
 tests, because the dominant residual failure is well-typed but semantically
-wrong (App.~C), exactly what compile diagnostics cannot see. This is the
-closing point of RQ3: feedback changes what compiles, not the model's
+wrong (App.~C), exactly what compile diagnostics cannot see. RQ3 concludes:
+feedback changes what compiles, not the model's
 distribution over semantically meaningful programs, whereas TyFlow encodes
 the typing rules into the model itself.
 
