@@ -216,9 +216,13 @@ Such candidates are rarely ill-typed, yet pruning them matters, for they would o
 Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates.
 
 \paragraph{Whether the constraints over-prune.}
-By construction, pruning removes only ill-formed or ill-typed expansions, so every possibly correct derivation survives.
-The residual risk is beam search itself, which retains only a fixed number of candidates per step: the correct candidate may in theory fall outside the beam, and the retained candidates then dead-end.
-In our experiments this never occurs: under the beam-10 setting, no task dead-ends, and every task retains at least one grammar- and type-valid expansion at every step.
+Completeness guarantees that a well-typed program has a derivation, but it does not guarantee that the model ranks a correct prefix within a fixed beam or provide a bound on the required beam size.
+A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty.
+Training on correct decision sequences is intended to rank correct prefixes highly, but cannot rule out this case.
+We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning.
+With beam 10, this number averages 7.97.
+It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the top-20 candidate list can therefore be exhausted before all slots are filled.
+In our experiments, however, the active beam never became empty.
 
 
 \paragraph{Runtime cost.}

@@ -278,23 +278,28 @@ understand the practical search space reduction.
 \response Thanks for this criticism. We now measure the constrained decoder, and we state explicitly what the
 completeness theorem does and does not imply for search.
 
-\textbf{(1) Pruning rates.} Instrumenting the decoder on the SuFu tasks (beam~10, 330-step budget) gives: syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\% (type checking is applied only to the high-probability candidates about to enter the beam, which is why its rate is lower). A final, complete type check on finished derivations rejects 21.2\% of the completed candidates (113/533).
+\textbf{(1) Completeness, branching factor, and beam behavior.}
 
-\textbf{(2) Branching factor and beam behavior.} The revision separates two
-claims that were previously conflated: (i) by construction, pruning removes
-only ill-formed or ill-typed expansions, so every possibly correct
-derivation survives; (ii) the residual risk comes from beam search itself,
-which keeps only a fixed number of candidates per step, so the correct
-candidate may in theory fall outside the beam and the retained candidates
-then dead-end. In the instrumented run this never happens: under beam~10 no
-task dead-ends, and every task retains at least one grammar- and type-valid
-expansion at every step. This is reported as an empirical observation, not as
-a general guarantee.
+\emph{What completeness guarantees.} The theorem is existential: it guarantees a derivation for every well-typed program, but it does not guarantee that the LM ranks a correct prefix within the beam, and it gives no bound on the required beam size. If all correct prefixes fall outside the beam, later decoding cannot recover them. Training on correct decision sequences is intended to assign higher probability to suitable choices.
+
+\emph{Observed beam-10 behavior.} We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning. At each step, the decoder applies grammar pruning, ranks the remaining expansions, and incrementally type-checks at most the 20 highest-scoring expansions to construct the next active beam. Theoretically, a finite beam can discard all correct prefixes even when the beam size is relatively large, so a subsequent active beam can become empty. However, this did not occur in the evaluated run where the beam width sets its maximum to 10: the active beam contained 7.97 hypotheses on average and never became empty. The average is lower than 10 because a completed program is moved to the output set, while rejected candidates do not fill an active slot.
+
+\textbf{(2) Pruning rates.} Instrumenting the decoder on the SuFu tasks (beam~10, 330-step budget) gives: syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\% (type checking is applied only to the high-probability candidates about to enter the beam, which is why its rate is lower). A final, complete type check on finished derivations rejects 21.2\% of the completed candidates (113/533).
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Added} Sec.~6.2.2 (p.~27): ``Whether the constraints over-prune'': what completeness does and does not guarantee, the theoretical possibility of beam exhaustion, and the observed beam-10 behavior.
   \item \textbf{Added} Sec.~6.2.2 (p.~27): ``How much the constraints prune'': instrumented rates (59.1\% syntactic, 8.2\% type, 21.2\% final check) and the 330-step budget.
-  \item \textbf{Added} Sec.~6.2.2 (p.~27): ``Whether the constraints over-prune'': the constructive argument, the beam-size residual risk, and the zero dead-end observation.
 \end{itemize}}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Whether the constraints over-prune'' (p.~27) -- completeness and the observed beam-10 behavior}
+Completeness guarantees that a well-typed program has a derivation, but it
+does not guarantee that the model ranks a correct prefix within a fixed beam
+or provide a bound on the required beam size. A finite beam can discard all
+correct prefixes, and the retained hypotheses may later have no valid
+continuation, leaving the active beam empty. [\dots] With beam 10, this number
+averages 7.97. [\dots] In our experiments, however, the active beam never
+became empty.
+\end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``How much the constraints prune'' (p.~27) -- the measured pruning rates}
 To measure the pruning strength, we instrument the constrained decoder on
@@ -307,16 +312,6 @@ within the beam and crowd out well-typed derivations. Type checking during
 search is provisional (only completed AST fields are checked); the whole
 program is checked once when the derivation finishes, and this final check
 rejects 21.2\% of the completed candidates.
-\end{revquote}
-
-\begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Whether the constraints over-prune'' (p.~27) -- the over-pruning argument and zero dead-ends}
-By construction, pruning removes only ill-formed or ill-typed expansions, so
-every possibly correct derivation survives. The residual risk is beam search
-itself, which retains only a fixed number of candidates per step: the correct
-candidate may in theory fall outside the beam, and the retained candidates
-then dead-end. In our experiments this never occurs: under the beam-10
-setting, no task dead-ends, and every task retains at least one grammar- and
-type-valid expansion at every step.
 \end{revquote}
 
 \phantomsection\label{com:1.3}
@@ -332,70 +327,56 @@ points.\par\smallskip
 reliability. [\dots] Missing failure analysis and confidence intervals.
 \end{revcomment}
 
-\response Thanks for this comment. We addressed it in two ways: a larger evaluation, and a full statistical analysis.
+\response Thanks for this comment. We address the dataset size and the statistical uncertainty separately.
 
-\textbf{(1) Experimental setup.} Two Java benchmarks are added:
+\textbf{(1) Expanded evaluation.} We add two Java benchmarks:
 HumanEval-Java, the Java port of HumanEval (146 training and 16 test tasks),
 and TransCoder-GFG, the GeeksForGeeks programs released with TransCoder (414
 training and 103 test tasks); both follow the task format of MBJP, and their
 construction and split statistics are documented in App.~B (p.~37--40). The
 Java evaluation therefore grows from 67 to 186 test tasks across three
 independent sources. SuFu remains a 58-task test set by construction (the
-language has 290 programs in total).
+language has only 290 programs in total), so we keep this test set and report
+its statistical uncertainty explicitly rather than treating its point
+estimates as conclusive.
 
-\textbf{(2) Statistical methodology.} New App.~D (p.~44) pairs every
-baseline--TyFlow run on the same tasks (ten candidates per task) and reports,
-for each metric, a 95\% interval together with an exact two-sided paired
-test: Wilson intervals and McNemar tests on discordant pairs for
-pass@1/pass@10, a $t$-interval over per-task ranks plus an exact sign test
-for FSP, and a Wilson interval over candidates plus an exact sign test on
-per-task error fractions for CER.
-
-\textbf{(3) Results, organized by language.} The significance of the results
-differs by language and scale: for Java, only CER is significant at 220M
-while all four differences are significant at 2B; for SuFu, all four are
-significant at 220M while at 2B only CER remains clearly significant.
+\textbf{(2) Confidence intervals and significance tests.} New App.~D (p.~44)
+pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval
+and an exact two-sided paired test for every metric. For pass@1 and pass@10,
+we use Wilson intervals and McNemar tests; for FSP, a $t$-interval over
+per-task ranks and an exact sign test; and for CER, a Wilson interval over
+candidates and an exact sign test on per-task error fractions. The results
+show where the evidence is strong and where the small test sets still leave
+uncertainty:
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{Java.}
-        \textbf{At 220M} (67 tasks), the two pass-rate gains are small
-        in magnitude and the task set is small, so they are not particularly
-        significant (pass@1 moves only from 10.45\% to 11.94\%); the
-        compilation-error difference, however, is highly significant,
-        $p=6.98{\times}10^{-11}$, 35.52\% $\to$ 1.53\%.
-
-        \textbf{At 2B}, pooling the three Java benchmarks into 186 tasks
-        changes the picture: the larger task count is clearly reflected in
-        the $p$-values, and all four differences are significant (pass@1
-        18.28\% $\to$ 30.11\%, $p=2.09{\times}10^{-3}$; pass@10 33.33\%
-        $\to$ 46.24\%, $p=5.36{\times}10^{-4}$; FSP
-        $p=7.65{\times}10^{-4}$; CER 20.32\% $\to$ 1.77\%,
-        $p=1.25{\times}10^{-19}$).
-  \item \textbf{SuFu (58 tasks).} The task count likewise drives the
-        $p$-values here.
-
-        \textbf{At 220M}, all four differences are significant (pass@1
-        24.14\% $\to$ 37.93\%, $p=3.86{\times}10^{-2}$; pass@10
-        $p=2.35{\times}10^{-3}$; FSP $p=7.20{\times}10^{-3}$; CER
-        $p=6.94{\times}10^{-18}$).
-
-        \textbf{At 2B}, the gains on the two pass-rate metrics (25.86\%
-        $\to$ 36.21\% and 37.93\% $\to$ 48.28\%) are not
-        particularly significant ($p=0.286$ and $p=0.307$), although the 95\%
-        intervals still indicate an improvement (e.g., TyFlow-2B's pass@1
-        interval [25.05,49.07] lies above the baseline's [16.35,38.38]); the
-        compilation-error difference remains clearly significant (71.21\%
-        $\to$ 0.00\%, $p=6.94{\times}10^{-18}$).
+  \item \textbf{Java.} At 220M, the pass@1 intervals are
+        [5.15,20.03] for the baseline and [6.18,21.83] for TyFlow, and the
+        paired difference is not significant ($p=1.00$); only the CER
+        difference is significant. At 2B, pooling the three Java benchmarks
+        gives 186 paired tasks. The pass@1 intervals become [13.39,24.46]
+        and [23.97,37.05], with $p=2.09{\times}10^{-3}$, and all four metric
+        differences are significant.
+  \item \textbf{SuFu.} At 220M, all four paired differences are significant.
+        At 2B, the pass@1, pass@10, and FSP differences favor TyFlow but are
+        not significant ($p=0.286$, $0.307$, and $0.362$); only the CER
+        difference is significant. For example, the 2B pass@1 intervals are
+        [16.35,38.38] for the baseline and [25.05,49.07] for TyFlow. This
+        directly shows the uncertainty caused by the 58-task test set.
 \end{itemize}
-
-Across all comparisons the differences point in the same direction; where the
-evidence is thinner (220M Java and 2B SuFu), Appendix~D states the power
-limitation and points to the analyses that reach significance.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.1.1 (p.~24): HumanEval-Java and TransCoder-GFG with their fixed splits.
   \item \textbf{Added} App.~D (p.~44): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
-  \item \textbf{Added} Sec.~6.1.3 (p.~24): the convention that a task with no correct candidate contributes the candidate-list length to FSP.
 \end{itemize}}
+
+\begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added Java benchmarks and their fixed splits}
+HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that
+broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval
+problems to Java [\dots], and TransCoder-GFG collects the Java programs
+released with TransCoder [\dots]; both follow the task format of MBJP.
+HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and
+TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
+\end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the paired-test definitions and the 220M outcomes}
 We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on
@@ -682,9 +663,10 @@ evolving synthesis goal. The per-task totals move by $-6.38\%$ / $+94.00\%$ / $+
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2 (p.~27) -- the beam-exhaustion observation}
-In our experiments this never occurs: under the beam-10 setting, no task
-dead-ends, and every task retains at least one grammar- and type-valid
-expansion at every step.
+A finite beam can discard all correct prefixes, and the retained hypotheses
+may later have no valid continuation, leaving the active beam empty. [\dots]
+With beam 10, this number averages 7.97. [\dots] In our experiments, however,
+the active beam never became empty.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the scope of richer type-system extensions}
