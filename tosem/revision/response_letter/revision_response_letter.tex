@@ -89,22 +89,9 @@
 {\color{accent!55}\hrule height 0.9pt}
 \vspace{4pt}
 
-We thank the reviewers and the editor for their valuable comments. We have
-revised our paper accordingly. Every reviewer comment is quoted below in
-italics, followed by our response and by a summary of the changes we made in
-the paper; section and page numbers refer to the revised manuscript
-(45 pages).
+We thank the reviewers and the editor for their valuable comments. We have revised our paper accordingly. Every reviewer comment is quoted below in italics, followed by our response and by a summary of the changes we made in the paper; section and page numbers refer to the revised manuscript (45 pages).
 
-\textbf{Summary of changes.} The revision adds two Java benchmarks
-(HumanEval-Java and TransCoder-GFG) that enlarge the Java evaluation to 186
-tasks, a statistical analysis with 95\% intervals and exact paired tests
-(App.~D), and a task-level failure taxonomy (App.~C). It also adds runtime
-and pruning measurements of the constrained decoder (RQ2). The comparison
-with other generation methods now covers three decoder-only models of
-7B--30B parameters (Table~3) and four reliability-oriented approaches
-(RQ3, Table~5). A new Limitations subsection (Sec.~6.3) discusses the
-encoder-decoder dependence, dynamically typed languages, and type-system
-expressiveness.
+\textbf{Summary of changes.} The revision adds two Java benchmarks (HumanEval-Java and TransCoder-GFG) that enlarge the Java evaluation to 186 tasks, a statistical analysis with 95\% intervals and exact paired tests (App.~D), and a task-level failure taxonomy (App.~C). It also adds runtime and pruning measurements of the constrained decoder (RQ2). The comparison with other generation methods now covers three decoder-only models of 7B--30B parameters (Table~3) and four reliability-oriented approaches (RQ3, Table~5). A new Limitations subsection (Sec.~6.3) discusses the encoder-decoder dependence, dynamically typed languages, and type-system expressiveness.
 
 \section*{Response to the Editor}
 
@@ -138,17 +125,10 @@ summarized above.
   \item \textbf{Scalability.} RQ2 measures the pruning strength of each component, the beam-exhaustion behavior, and the per-step and per-task runtime (up to $2.74\times$ the unconstrained base); scaling to richer type systems is discussed in the Limitations subsection. Detailed responses: \commentref{1.2} and \commentref{2.2}.
   \item \textbf{Larger and more recent LLMs.} Zero- and few-shot pass@1 results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks are added (Table~3, p.~26): on Java they outperform the fine-tuned 2B models, on SuFu none solves a single task zero-shot. Detailed responses: \commentref{1.5} and \commentref{2.3}.
   \item \textbf{State-of-the-art techniques.} RQ3 is rewritten as a five-method comparison on MBJP (rejection sampling, SynCode, Repilot, iterative compiler repair) on one leak-clean frozen checkpoint; none of the four external methods significantly improves functional correctness, while TyFlow-2B is the best of all compared methods. Detailed responses: \commentref{3.1} and \commentref{3.2}.
-  \item \textbf{System cost.} The runtime analysis is reported in RQ2
-        together with the component ablation it belongs to: per-step and
-        per-task wall time of the same 220M model in the four configurations,
-        with an explanation of where each cost comes from and why syntactic
-        pruning even \emph{lowers} the per-task total. For the compared
-        external methods, the RQ3 setup states each method's computational
-        budget. Detailed responses: \commentref{2.2} and \commentref{3.3}.
+  \item \textbf{System cost.} The runtime analysis is reported in RQ2 together with the component ablation it belongs to: per-step and per-task wall time of the same 220M model in the four configurations, with an explanation of where each cost comes from and why syntactic pruning even \emph{lowers} the per-task total. For the compared external methods, the RQ3 setup states each method's computational budget. Detailed responses: \commentref{2.2} and \commentref{3.3}.
 \end{itemize}
 
-Beyond these six cross-cutting concerns, we respond to every other reviewer
-comment and question individually in Comments~1.1--3.6 below.
+Beyond these six cross-cutting concerns, we respond to every other reviewer comment and question individually in Comments~1.1--3.6 below.
 
 \clearpage
 \section*{Response to Reviewer 1}
@@ -186,8 +166,7 @@ encoder-decoder architectures limits near-term applicability.
 
 \emph{Why we use it.} To apply a typing rule, TyFlow needs unification to terminate, decide whether the rule conclusion matches the current goal, and return a principal substitution for the remaining premises. First-order unification provides these guarantees: it is decidable and returns a most-general unifier that is unique up to variable renaming. We therefore use first-order unification as a sufficient condition.
 
-\needspace{16\baselineskip}\emph{Higher-order functions do not require higher-order unification.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate.
-The following two terms show the difference:
+\needspace{16\baselineskip}\emph{Higher-order functions do not require higher-order unification.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate. The following two terms show the difference:
 \[
   \operatorname{Arrow}(\alpha,\beta)
   \qquad\text{versus}\qquad
@@ -195,8 +174,7 @@ The following two terms show the difference:
 \]
 In the first term, $\operatorname{Arrow}$ is fixed. Only $\alpha$ and $\beta$ are unknown, so this is still a first-order problem. In the second term, $F$ is such an unknown, so it is a higher-order unification problem.
 
-ML is an example. It supports higher-order functions and parametric polymorphism, but Hindley--Milner type inference uses first-order unification.
-Java provides the same distinction. A simplified typing rule for a higher-order API such as \texttt{Stream.map} is:
+ML is an example. It supports higher-order functions and parametric polymorphism, but Hindley--Milner type inference uses first-order unification. Java provides the same distinction. A simplified typing rule for a higher-order API such as \texttt{Stream.map} is:
 \[
 \frac{\Gamma \vdash s : \operatorname{Stream}\langle A\rangle
       \qquad
@@ -219,45 +197,21 @@ Dependent-type systems such as Lean are different because elaboration may need t
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~2 (p.~9) -- the acknowledged gap between the example language and real languages}
-The $\lambda^{\rightarrow}$ language above serves for exposition: it is
-deliberately minimal, containing only the base type \tcode{bool}, function
-types, and explicitly annotated, monomorphic bindings. Real languages
-additionally involve subtyping, polymorphism, type inference, overloading
-resolution, and mutable state, none of which $\lambda^{\rightarrow}$
-exercises. The evaluation (Sec.~6) therefore runs TyFlow on Java and SuFu
-instances with fuller, though still restricted, type systems; the scope of
-the underlying rule framework is stated in Sec.~3, and how the approach
-would extend to richer type systems is discussed in Sec.~6.3.
+The $\lambda^{\rightarrow}$ language above serves for exposition: it is deliberately minimal, containing only the base type \tcode{bool}, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\lambda^{\rightarrow}$ exercises. The evaluation (Sec.~6) therefore runs TyFlow on Java and SuFu instances with fuller, though still restricted, type systems; the scope of the underlying rule framework is stated in Sec.~3, and how the approach would extend to richer type systems is discussed in Sec.~6.3.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~3 (p.~12) -- the role and boundary of first-order unification}
-First-order unification always terminates. It either rejects two terms or
-returns a most-general unifier that is unique up to variable renaming. These
-guarantees let TyFlow apply a selected typing rule and update its remaining
-premises.
+First-order unification always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming. These guarantees let TyFlow apply a selected typing rule and update its remaining premises.
 
-Supporting higher-order functions does not by itself require higher-order
-unification. The latter is needed only when an unknown to be solved is itself
-a function, type constructor, or predicate. If a typing rule creates such a
-problem, TyFlow's current solver cannot handle it. A decidable fragment could
-be supported with a different unifier, but general higher-order unification
-remains outside the current framework.
+Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, TyFlow's current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the architectural limitation}
-The representation itself carries over to a decoder-only model unchanged;
-what changes is the architecture, and with it the cost of the dynamic typing
-context. [\dots] so its key-value entries are recomputed at every step and never
-reused by later steps, and the computation is awkward to schedule. We leave
-this adaptation to future work.
+The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context. [\dots] so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule. We leave this adaptation to future work.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- type-system expressiveness as a limitation}
-For features that can be represented with first-order terms, such as many
-forms of subtyping, overloading, effects, and type classes, we need to
-implement the typing rules and solvers and then measure their cost. The
-current solver cannot handle a typing rule that requires higher-order
-unification, as discussed in Sec.~3.
+For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. The current solver cannot handle a typing rule that requires higher-order unification, as discussed in Sec.~3.
 \end{revquote}
 
 \phantomsection\label{com:1.2}
@@ -275,8 +229,7 @@ of candidate tokens are eliminated at each level? This would help readers
 understand the practical search space reduction.
 \end{revcomment}
 
-\response Thanks for this criticism. We now measure the constrained decoder, and we state explicitly what the
-completeness theorem does and does not imply for search.
+\response Thanks for this criticism. We now measure the constrained decoder, and we state explicitly what the completeness theorem does and does not imply for search.
 
 \textbf{(1) Completeness, branching factor, and beam behavior.}
 
@@ -292,26 +245,11 @@ completeness theorem does and does not imply for search.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Whether the constraints over-prune'' (p.~27) -- completeness and the observed beam-10 behavior}
-Completeness guarantees that a well-typed program has a derivation, but it
-does not guarantee that the model ranks a correct prefix within a fixed beam
-or provide a bound on the required beam size. A finite beam can discard all
-correct prefixes, and the retained hypotheses may later have no valid
-continuation, leaving the active beam empty. [\dots] With beam 10, this number
-averages 7.97. [\dots] In our experiments, however, the active beam never
-became empty.
+Completeness guarantees that a well-typed program has a derivation, but it does not guarantee that the model ranks a correct prefix within a fixed beam or provide a bound on the required beam size. A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty. [\dots] With beam 10, this number averages 7.97. [\dots] In our experiments, however, the active beam never became empty.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``How much the constraints prune'' (p.~27) -- the measured pruning rates}
-To measure the pruning strength, we instrument the constrained decoder on
-the SuFu tasks (beam 10, 330-step budget): syntactic pruning removes 59.1\%
-of all vocabulary proposals, and type pruning a further 8.2\%. The lower
-rate is expected: type checking is more expensive, so it is applied only to
-the high-probability candidates about to enter the beam. Such candidates are
-rarely ill-typed, yet pruning them matters, for they would otherwise expand
-within the beam and crowd out well-typed derivations. Type checking during
-search is provisional (only completed AST fields are checked); the whole
-program is checked once when the derivation finishes, and this final check
-rejects 21.2\% of the completed candidates.
+To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam 10, 330-step budget): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%. The lower rate is expected: type checking is more expensive, so it is applied only to the high-probability candidates about to enter the beam. Such candidates are rarely ill-typed, yet pruning them matters, for they would otherwise expand within the beam and crowd out well-typed derivations. Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates.
 \end{revquote}
 
 \phantomsection\label{com:1.3}
@@ -329,82 +267,49 @@ reliability. [\dots] Missing failure analysis and confidence intervals.
 
 \response Thanks for this comment. We address the dataset size and the statistical uncertainty separately.
 
-\textbf{(1) Expanded evaluation.} We add two Java benchmarks:
-HumanEval-Java, the Java port of HumanEval (146 training and 16 test tasks),
-and TransCoder-GFG, the GeeksForGeeks programs released with TransCoder (414
-training and 103 test tasks); both follow the task format of MBJP, and their
-construction and split statistics are documented in App.~B (p.~37--40). The
-Java evaluation therefore grows from 67 to 186 test tasks across three
-independent sources. SuFu remains a 58-task test set by construction (the
-language has only 290 programs in total), so we keep this test set and report
-its statistical uncertainty explicitly rather than treating its point
-estimates as conclusive.
+\textbf{(1) Expanded evaluation.}
 
-\textbf{(2) Confidence intervals and significance tests.} New App.~D (p.~44)
-pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval
-and an exact two-sided paired test for every metric. For pass@1 and pass@10,
-we use Wilson intervals and McNemar tests; for FSP, a $t$-interval over
-per-task ranks and an exact sign test; and for CER, a Wilson interval over
-candidates and an exact sign test on per-task error fractions. The results
-show where the evidence is strong and where the small test sets still leave
-uncertainty:
+\emph{Benchmark coverage.} We add two Java benchmarks from sources independent of MBJP. HumanEval-Java contains short algorithmic methods adapted from HumanEval, with a fixed split of 146 training and 16 test tasks. TransCoder-GFG contains numeric, string, and array problems drawn from the GeeksForGeeks programs released with TransCoder, with a fixed split of 414 training and 103 test tasks. Together with the original 67 MBJP test tasks, these additions increase the Java evaluation from 67 to 186 test tasks across three benchmarks. SuFu remains a 58-task test set because the source repository contains 290 programs.
+
+\emph{Experimental protocol.} We evaluate the two added benchmarks at the 2B scale, comparing the baseline T5Gemma2-2B with our TyFlow-2B. Both systems use the same Java training tasks and are evaluated on the same fixed test tasks with beam~10 and ten candidates per task. We report pass@1, pass@10, FSP, and CER, so the evaluation covers functional correctness, candidate ranking, and compilation errors.
+
+\emph{Results.} The two added benchmarks show improvements on all four metrics:
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{Java.} At 220M, the pass@1 intervals are
-        [5.15,20.03] for the baseline and [6.18,21.83] for TyFlow, and the
-        paired difference is not significant ($p=1.00$); only the CER
-        difference is significant. At 2B, pooling the three Java benchmarks
-        gives 186 paired tasks. The pass@1 intervals become [13.39,24.46]
-        and [23.97,37.05], with $p=2.09{\times}10^{-3}$, and all four metric
-        differences are significant.
-  \item \textbf{SuFu.} At 220M, all four paired differences are significant.
-        At 2B, the pass@1, pass@10, and FSP differences favor TyFlow but are
-        not significant ($p=0.286$, $0.307$, and $0.362$); only the CER
-        difference is significant. For example, the 2B pass@1 intervals are
-        [16.35,38.38] for the baseline and [25.05,49.07] for TyFlow. This
-        directly shows the uncertainty caused by the 58-task test set.
+  \item \textbf{HumanEval-Java.} pass@1 improves from 31.25\% to 50.00\%, pass@10 from 37.50\% to 56.25\%, and FSP from 6.50 to 4.75; CER falls from 24.38\% to 1.30\%.
+  \item \textbf{TransCoder-GFG.} pass@1 improves from 19.42\% to 30.10\%, pass@10 from 33.01\% to 46.60\%, and FSP from 7.10 to 5.81; CER falls from 13.69\% to 2.75\%.
+\end{itemize}
+These results show that the improvements are not confined to the original MBJP split: they recur on two independently sourced Java benchmarks. The large CER reductions are consistent with the purpose of type-constrained generation, while the pass-rate and FSP gains show that the benefit is not limited to rejecting uncompilable outputs.
+
+\textbf{(2) Confidence intervals and significance tests.} New App.~D (p.~44) pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval and an exact two-sided paired test for every metric. For pass@1 and pass@10, we use Wilson intervals and McNemar tests; for FSP, a $t$-interval over per-task ranks and an exact sign test; and for CER, a Wilson interval over candidates and an exact sign test on per-task error fractions. The results show where the evidence is strong and where the small test sets still leave uncertainty:
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Java.} At 220M, the Java evaluation contains only the 67 MBJP test tasks, and the small test set provides few paired observations: pass@10 improves from 20.90\% to 28.36\%, with 95\% intervals of [12.88,32.07] for the baseline and [18.97,40.09] for TyFlow. The paired difference is not significant ($p=0.359$), and only the CER difference is significant. At 2B, the two added benchmarks increase the Java test set to 186 paired tasks. On this larger test set, pass@10 improves from 33.33\% to 46.24\%, with 95\% intervals of [26.96,40.38] and [39.22,53.41], respectively. The paired difference is significant ($p=5.36{\times}10^{-4}$), as are the other three metric differences.
+  \item \textbf{SuFu.} The small test set of 58 tasks also limits our ability to detect statistically significant improvements on this benchmark. At 2B, pass@10 improves from 37.93\% to 48.28\%, with 95\% intervals of [26.56,50.80] for the baseline and [35.93,60.84] for TyFlow, but the paired difference is not significant ($p=0.307$). At 220M, the pass@10 gain is larger: 32.76\% to 53.45\%. Its 95\% intervals are [22.08,45.58] and [40.80,65.67], respectively, and the paired difference is significant ($p=2.35{\times}10^{-3}$). All four paired differences are significant at 220M despite the same small test set.
 \end{itemize}
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.1.1 (p.~24): HumanEval-Java and TransCoder-GFG with their fixed splits.
-  \item \textbf{Added} App.~D (p.~44): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
+  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (pp.~39--40): the sources, task characteristics, and fixed splits of HumanEval-Java and TransCoder-GFG.
+  \item \textbf{Added} Sec.~6.2.1 (p.~25): the results of TyFlow-2B and its T5Gemma2-2B baseline on HumanEval-Java and TransCoder-GFG.
+  \item \textbf{Added} App.~D (pp.~44--45): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added Java benchmarks and their fixed splits}
-HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that
-broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval
-problems to Java [\dots], and TransCoder-GFG collects the Java programs
-released with TransCoder [\dots]; both follow the task format of MBJP.
-HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and
-TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
+HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java [\dots], and TransCoder-GFG collects the Java programs released with TransCoder [\dots]; both follow the task format of MBJP. HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the results on the expanded benchmark set}
+TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks. [\dots] TyFlow also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the paired-test definitions and the 220M outcomes}
-We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on
-the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10
-and exact two-sided sign tests on FSP and on per-task compilation-error
-fractions (CER). pass@1 and pass@10 report Wilson 95\% intervals over tasks,
-CER over candidates, and FSP a $t$-interval over per-task ranks [\dots] with
-ten candidates per task. In the SuFu block all four paired differences favor
-TyFlow at the 0.05 significance level. In the Java block only CER is
-significant at $n=67$, for two reasons: the pass-rate improvements themselves
-are modest at this scale (one additional task at pass@1, five at pass@10),
-and a 67-task test set yields few discordant pairs (11, 19, and 24 for
-pass@1, pass@10, and FSP), so the exact tests are underpowered; pooling the
-three Java benchmarks at the 2B scale restores significance for all four
-metrics.
+We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER). pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks [\dots] with ten candidates per task. In the SuFu block all four paired differences favor TyFlow at the 0.05 significance level. In the Java block only CER is significant at $n=67$, for two reasons: the pass-rate improvements themselves are modest at this scale (one additional task at pass@1, five at pass@10), and a 67-task test set yields few discordant pairs (11, 19, and 24 for pass@1, pass@10, and FSP), so the exact tests are underpowered; pooling the three Java benchmarks at the 2B scale restores significance for all four metrics.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the pooled 186-task Java analysis}
-The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain
-per-task records, so we pool them into one combined 186-task analysis rather
-than reporting each benchmark separately; the same tests and intervals as at
-the 220M scale apply. In the combined analysis all four paired differences
-favor TyFlow at the 0.05 significance level (Tab.~10).
+The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply. In the combined analysis all four paired differences favor TyFlow at the 0.05 significance level (Tab.~10).
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the 2B SuFu outcomes}
-On SuFu only the compilation-error difference is significant at the 2B scale:
-TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
+On SuFu only the compilation-error difference is significant at the 2B scale: TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 \end{revquote}
 
 \phantomsection\label{com:1.4}
@@ -433,19 +338,11 @@ introduces potential selection bias.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- why the 220M Java pass@1 gain is the smallest}
-The 220M MBJP pass@1 gain is the smallest because there the type constraints
-mainly remove uncompilable candidates; the benefit shows up in pass@10 and
-CER instead, consistent with the failure analysis in Appendix~C (well-typed
-but wrong is the dominant residual mode). TyFlow also drops CER to 0.00\% on
-SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small
-residual Java CER comes from static-analysis errors the type system does not
-capture.
+The 220M MBJP pass@1 gain is the smallest because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead, consistent with the failure analysis in Appendix~C (well-typed but wrong is the dominant residual mode). TyFlow also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~B (p.~37) -- the selection-bias statement}
-The subset admits tasks whose constructs our toolchain supports; this
-admission filter is a potential selection bias, mitigated by the two
-additional benchmarks drawn from independent sources.
+The subset admits tasks whose constructs our toolchain supports; this admission filter is a potential selection bias, mitigated by the two additional benchmarks drawn from independent sources.
 \end{revquote}
 
 \phantomsection\label{com:1.5}
@@ -463,24 +360,12 @@ models.
 \response Thanks for this comment. We added exactly the requested zero-shot comparison, plus a few-shot condition, for three larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) on all four benchmark families (Table~3, p.~26; protocol in the table note). The comparison contextualizes the absolute numbers:
 
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{SuFu (58 tasks).} None of the three models solves a single
-        task zero-shot, and few-shot prompting reaches at most 8/58, whereas
-        TyFlow-2B solves 21/58. The low-resource language is precisely where
-        the type-guided representation delivers its advantage, and where
-        scale alone does not.
-  \item \textbf{Java.} The prompted models solve 33--45 of 67 MBJP tasks,
-        3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG
-        tasks, well above the fine-tuned 2B models (TyFlow-2B: 17/8/31); on Java, large decoder-only models are indeed stronger in absolute terms, and we state this plainly, since it is exactly what the comparison is for.
-  \item \textbf{A caveat we flag ourselves.} Few-shot prompting brings little
-        or no gain over zero-shot on Java for these models, which suggests
-        they have seen this language extensively and may have been trained on
-        these benchmarks directly; the revision therefore flags a possible
-        data-leakage risk for the Java comparison.
+  \item \textbf{SuFu (58 tasks).} None of the three models solves a single task zero-shot, and few-shot prompting reaches at most 8/58, whereas TyFlow-2B solves 21/58. The low-resource language is precisely where the type-guided representation delivers its advantage, and where scale alone does not.
+  \item \textbf{Java.} The prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models (TyFlow-2B: 17/8/31); on Java, large decoder-only models are indeed stronger in absolute terms, and we state this plainly, since it is exactly what the comparison is for.
+  \item \textbf{A caveat we flag ourselves.} Few-shot prompting brings little or no gain over zero-shot on Java for these models, which suggests they have seen this language extensively and may have been trained on these benchmarks directly; the revision therefore flags a possible data-leakage risk for the Java comparison.
 \end{itemize}
 
-Relative to its fine-tuned baseline T5Gemma2-2B, TyFlow-2B still improves all
-four benchmarks, which is the controlled comparison the paper's claims rest
-on.
+Relative to its fine-tuned baseline T5Gemma2-2B, TyFlow-2B still improves all four benchmarks, which is the controlled comparison the paper's claims rest on.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Table~3 (p.~26): pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks, zero-shot and few-shot, with the prompt protocol in the table note.
@@ -488,25 +373,11 @@ on.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, setup (p.~26) -- the setup of the decoder-only comparison}
-To contextualize absolute performance, Tab.~3 reports three larger
-decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the
-same task prompt in all conditions, alongside our two fine-tuned 2B
-encoder-decoder models. Each prompted model produces one greedy candidate per
-task: the zero-shot condition uses only the task prompt, and the few-shot
-condition prepends three solved examples for the Java benchmarks and six
-examples for SuFu.
+To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, results (p.~26) -- the decoder-only results on Java and SuFu}
-On SuFu the comparison favors TyFlow: none of the three solves a single task
-zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B
-solves 21 [\dots] On Java the conclusion is the opposite: the prompted models
-solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of
-103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover,
-few-shot prompting on Java brings little or no gain over zero-shot for these
-models, which suggests that they have seen this language extensively and may
-even have been trained on these benchmarks directly; we therefore flag a
-possible data-leakage risk for the Java comparison.
+On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
 \end{revquote}
 
 \phantomsection\label{com:1.6}
@@ -541,25 +412,11 @@ failure modes would significantly strengthen the paper.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure taxonomy and counts}
-Invalid generation essentially disappears under TyFlow: the all-invalid
-category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget
-exhaustion rather than ill-formed output. Ranking failures persist (12--17
-tasks on MBJP and TransCoder-GFG): the constrained search often finds a
-correct derivation but does not rank it first, a property of beam scoring
-rather than the representation. The dominant residual mode is well-typed but
-semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java,
-and 53/72 unsolved GFG tasks have at least one compilable candidate with
-incorrect behaviour; this is exactly the boundary of what type-level
-constraints can guarantee.
+Invalid generation essentially disappears under TyFlow: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output. Ranking failures persist (12--17 tasks on MBJP and TransCoder-GFG): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation. The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~C.2, representative case (p.~43) -- the representative semantic failure case}
-The candidate has the right shape---a loop over indices with a modulo
-test---but the body never inspects \texttt{nums.get(i)} and never assigns
-\texttt{true}; the method returns \texttt{false} for every input, while the
-tests expect \texttt{true} for two of the three cases. No typing rule is
-violated, so no amount of type-level pruning can reject this candidate: the
-failure is purely semantic.
+The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects \texttt{nums.get(i)} and never assigns \texttt{true}; the method returns \texttt{false} for every input, while the tests expect \texttt{true} for two of the three cases. No typing rule is violated, so no amount of type-level pruning can reject this candidate: the failure is purely semantic.
 \end{revquote}
 
 \clearpage
@@ -585,21 +442,13 @@ the small test sets. Consider adding at least one more widely-used benchmark
 to help contextualize the results.
 \end{revcomment}
 
-\response Thanks. We did both things the action item asks for, and we state SuFu's
-role explicitly rather than claiming generality from it.
+\response Thanks. We did both things the action item asks for, and we state SuFu's role explicitly rather than claiming generality from it.
 
 \textbf{(1) Two widely-used benchmarks.} HumanEval-Java and TransCoder-GFG are added with fixed splits of 146/16 and 414/103 tasks (the quoted passage describes them); the Java evaluation grows from 67 to 186 test tasks across three independent sources. We did not add multiple random splits (the SuFu and added Java splits are fixed by construction); instead we report the intervals and paired tests of the first option.
 
-\textbf{(2) Statistical stability.} Rather than reporting point estimates on
-small sets, App.~D reports 95\% intervals and exact paired tests for every
-comparison, at both scales, with the three Java benchmarks pooled into a
-186-task analysis. On the pooled set all four metrics are significant, and the appendix identifies explicitly where the evidence remains underpowered (220M Java, 2B SuFu) instead of implying significance (\commentref{1.3}).
+\textbf{(2) Statistical stability.} Rather than reporting point estimates on small sets, App.~D reports 95\% intervals and exact paired tests for every comparison, at both scales, with the three Java benchmarks pooled into a 186-task analysis. On the pooled set all four metrics are significant, and the appendix identifies explicitly where the evidence remains underpowered (220M Java, 2B SuFu) instead of implying significance (\commentref{1.3}).
 
-\textbf{(3) SuFu's role.} SuFu stays in the evaluation as the low-resource
-case, and the revision says so: it is the setting in which the type-guided
-representation helps most and in which larger decoder-only models fail
-entirely zero-shot (\commentref{1.5}), while the Java results provide the
-generalization evidence on widely used benchmarks.
+\textbf{(3) SuFu's role.} SuFu stays in the evaluation as the low-resource case, and the revision says so: it is the setting in which the type-guided representation helps most and in which larger decoder-only models fail entirely zero-shot (\commentref{1.5}), while the Java results provide the generalization evidence on widely used benchmarks.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.1.1 (p.~24): HumanEval-Java and TransCoder-GFG with their fixed splits (146/16 and 414/103).
@@ -612,10 +461,7 @@ HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broade
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~B (p.~40, Table~7) -- split statistics of the three Java benchmarks}
-HumanEval-Java and TransCoder-GFG problems are short single-method snippets
-(median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most
-example-rich benchmark (median 27 LoC, prompt with three executable example
-cases and a gold solution about twice as long as the additional benchmarks).
+HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
 \end{revquote}
 
 \phantomsection\label{com:2.2}
@@ -655,27 +501,15 @@ fallback behavior is.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~27) -- the runtime measurements}
-Each component increases the per-step cost ($31.1 \to 32.4 \to 43.7 \to
-59.6$\,ms). Syntactic pruning adds little (roughly $+4\%$); type pruning and
-the dynamic typing context cost considerably more, as the former invokes the
-type checker at every step and the latter additionally re-encodes the
-evolving synthesis goal. The per-task totals move by $-6.38\%$ / $+94.00\%$ / $+173.88\%$ ($2.74\times$ base). [\dots]
+Each component increases the per-step cost ($31.1 \to 32.4 \to 43.7 \to 59.6$\,ms). Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic typing context cost considerably more, as the former invokes the type checker at every step and the latter additionally re-encodes the evolving synthesis goal. The per-task totals move by $-6.38\%$ / $+94.00\%$ / $+173.88\%$ ($2.74\times$ base). [\dots]
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2 (p.~27) -- the beam-exhaustion observation}
-A finite beam can discard all correct prefixes, and the retained hypotheses
-may later have no valid continuation, leaving the active beam empty. [\dots]
-With beam 10, this number averages 7.97. [\dots] In our experiments, however,
-the active beam never became empty.
+A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty. [\dots] With beam 10, this number averages 7.97. [\dots] In our experiments, however, the active beam never became empty.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the scope of richer type-system extensions}
-For features that can be represented with first-order terms, such as many
-forms of subtyping, overloading, effects, and type classes, we need to
-implement the typing rules and solvers and then measure their cost. The
-current solver cannot handle a typing rule that requires higher-order
-unification, as discussed in Sec.~3. Our experiments do not test either type
-of extension. We leave them for future work.
+For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. The current solver cannot handle a typing rule that requires higher-order unification, as discussed in Sec.~3. Our experiments do not test either type of extension. We leave them for future work.
 \end{revquote}
 
 \phantomsection\label{com:2.3}
@@ -707,20 +541,11 @@ decoder-only architectures, even if full integration is left to future work.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26) -- the decoder-only comparison}
-On SuFu the comparison favors TyFlow: none of the three solves a single task
-zero-shot [\dots] On Java the conclusion is the opposite: the prompted models
-solve 33--45 of 67 MBJP tasks
-[\dots] well above the fine-tuned 2B models.
+On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot [\dots] On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks [\dots] well above the fine-tuned 2B models.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the decoder-only adaptation limitation}
-The representation itself carries over to a decoder-only model unchanged;
-what changes is the architecture, and with it the cost of the dynamic typing
-context. In a decoder-only model, supplying the context would mean
-prefilling the current typing context after the derivation prefix at every
-step and removing it again before the next step, so its key-value entries
-are recomputed at every step and never reused by later steps, and the
-computation is awkward to schedule. We leave this adaptation to future work.
+The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context. In a decoder-only model, supplying the context would mean prefilling the current typing context after the derivation prefix at every step and removing it again before the next step, so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule. We leave this adaptation to future work.
 \end{revquote}
 
 \phantomsection\label{com:2.4}
@@ -745,28 +570,15 @@ empirically demonstrated and acknowledge the gap as a limitation.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~1 (p.~4) -- the scoped CHC claim in the introduction}
-Notably, all proof rules in our system are formulated as constrained Horn
-clauses (see Sec.~3.1.1). This representation not only subsumes the prior work on syntactic
-correctness but also accommodates a broader class of Turing-computable
-specifications. While this paper instantiates and evaluates the framework
-only for type correctness in two languages, the synthesis construction itself
-is defined at the CHC level and is in principle applicable to other decidable
-constraint families; we do not evaluate such extensions empirically.
+Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation not only subsumes the prior work on syntactic correctness but also accommodates a broader class of Turing-computable specifications. While this paper instantiates and evaluates the framework only for type correctness in two languages, the synthesis construction itself is defined at the CHC level and is in principle applicable to other decidable constraint families; we do not evaluate such extensions empirically.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~7 (p.~30) -- the scoped CHC claim in related work}
-Grammar-based encoding can be viewed as a special case of our framework when
-grammar rules are expressed as CHCs. Our implementation and evaluation
-exercise this generality on type-correctness constraints in two languages;
-other CHC-representable constraint families remain a formal possibility that
-we do not evaluate.
+Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. Our implementation and evaluation exercise this generality on type-correctness constraints in two languages; other CHC-representable constraint families remain a formal possibility that we do not evaluate.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~8 (p.~31) -- the scoped CHC claim in the conclusion}
-Beyond type correctness, TyFlow's CHC foundation suggests a route toward
-richer constraint families, such as safety verification and the generation of
-other structural data; instantiating and evaluating these extensions remains
-future work.
+Beyond type correctness, TyFlow's CHC foundation suggests a route toward richer constraint families, such as safety verification and the generation of other structural data; instantiating and evaluating these extensions remains future work.
 \end{revquote}
 
 \clearpage
@@ -783,29 +595,11 @@ the token level. To demonstrate the robustness of TyFlow, comparisons
 against those works are important.
 \end{revcomment}
 
-\response Thanks for this suggestion. We compared TyFlow with rejection
-sampling, SynCode, Repilot (\emph{Copiloting the Copilots}), and iterative
-compiler repair on MBJP, all running on the same frozen checkpoint under the
-same sampling protocol. The question is whether these external mechanisms,
-which operate only on the model's output at decoding time, can match
-internalizing the type constraints into the model itself. The results show
-they cannot: all four filter, mask, or repair candidates without changing
-the model's own distribution over programs, whereas TyFlow changes that
-distribution by encoding the typing rules into the model.
+\response Thanks for this suggestion. We compared TyFlow with rejection sampling, SynCode, Repilot (\emph{Copiloting the Copilots}), and iterative compiler repair on MBJP, all running on the same frozen checkpoint under the same sampling protocol. The question is whether these external mechanisms, which operate only on the model's output at decoding time, can match internalizing the type constraints into the model itself. The results show they cannot: all four filter, mask, or repair candidates without changing the model's own distribution over programs, whereas TyFlow changes that distribution by encoding the typing rules into the model.
 
 \textbf{SynCode} constrains decoding at each step by masking tokens that would violate the grammar, so every output is syntactically well-formed. It reduces the compilation-error rate (26.12\% $\to$ 21.34\%) but leaves the solved sets unchanged: constraining syntax does not help with semantic correctness, because a well-formed program can still compute the wrong result.
 
-\textbf{Repilot} is the method proposed in \emph{Copiloting the Copilots}. It
-pairs the LM with the Eclipse JDT completion engine, pruning tokens that the
-engine cannot legally complete. In our run its pruning rarely fires, for two
-reasons. First, following the original implementation, punctuation and
-keyword tokens are accepted without querying the engine, so a large share of
-the model's token proposals are never checked at all. Second, when the
-engine is queried, it is queried at an incomplete position, where its
-completion list is permissive: JDT can legally continue almost any partial
-prefix, so few proposals are actually rejected. Repilot therefore behaves
-close to unconstrained decoding: compilation errors barely move (26.12\%
-$\to$ 25.97\%), and the solved sets are unchanged.
+\textbf{Repilot} is the method proposed in \emph{Copiloting the Copilots}. It pairs the LM with the Eclipse JDT completion engine, pruning tokens that the engine cannot legally complete. In our run its pruning rarely fires, for two reasons. First, following the original implementation, punctuation and keyword tokens are accepted without querying the engine, so a large share of the model's token proposals are never checked at all. Second, when the engine is queried, it is queried at an incomplete position, where its completion list is permissive: JDT can legally continue almost any partial prefix, so few proposals are actually rejected. Repilot therefore behaves close to unconstrained decoding: compilation errors barely move (26.12\% $\to$ 25.97\%), and the solved sets are unchanged.
 
 \textbf{Rejection sampling} is the only external method that changes any outcome, adding three solved tasks at pass@10 and one at pass@1, but neither difference is statistically significant.
 
@@ -817,42 +611,15 @@ $\to$ 25.97\%), and the solved sets are unchanged.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the five-method setup and shared protocol}
-On MBJP, four such methods are applied on top of the same frozen
-T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair
-mechanisms on top: \emph{rejection sampling}, \emph{SynCode},
-\emph{Repilot}(\emph{Copiloting the Copilots}), and \emph{iterative
-compiler repair}. All methods are evaluated on the same 67 tasks with 10
-candidates each. Because rejection sampling and repair need diverse draws
-rather than beam output, the ordinary control uses the temperature-sampling
-decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores
-(14.93/23.88) differ from the beam-10 row of Tab.~2 (13.43/32.84); the
-TyFlow-2B row is identical in both tables.
+On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: \emph{rejection sampling}, \emph{SynCode}, \emph{Repilot}(\emph{Copiloting the Copilots}), and \emph{iterative compiler repair}. All methods are evaluated on the same 67 tasks with 10 candidates each. Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of Tab.~2 (13.43/32.84); the TyFlow-2B row is identical in both tables.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the SynCode and Repilot mechanisms}
-SynCode constrains decoding itself: at each step it masks the tokens that
-would violate a given grammar, so every output is syntactically well-formed.
-It is not originally implemented for Java, so we adapt it to the grammar of
-our Java subset. Repilot pairs the LM with the Eclipse JDT completion engine
-[\dots] Repilot's pruning rarely fires: following the original Repilot
-implementation, punctuation and keyword tokens are accepted without querying
-the engine, and the completion list at an incomplete position is permissive,
-so compilation errors barely move (26.12\% $\to$ 25.97\%).
+SynCode constrains decoding itself: at each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed. It is not originally implemented for Java, so we adapt it to the grammar of our Java subset. Repilot pairs the LM with the Eclipse JDT completion engine [\dots] Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%).
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the outcome and the Type Explicitness conclusion}
-None of the four external baselines significantly improves functional
-correctness over the ordinary control: rejection sampling adds three solved
-tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar
-$p=1.00$ and $p=0.25$); SynCode, Repilot, and iterative repair leave the
-solved sets exactly unchanged (10/67 and 16/67) [\dots] TyFlow-2B solves
-17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to
-compile, the best of all compared methods. External reliability mechanisms
-(post-hoc filtering, token-level grammar masking, completion-engine repair,
-compiler-feedback regeneration) never change the model's own preference and
-distribution over output tokens, whereas TyFlow explicitly encodes the typing
-rules into the model and helps it better learn the program distribution,
-demonstrating the importance of the Type Explicitness property in Sec.~1.
+None of the four external baselines significantly improves functional correctness over the ordinary control: rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$); SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67) [\dots] TyFlow-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods. External reliability mechanisms (post-hoc filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) never change the model's own preference and distribution over output tokens, whereas TyFlow explicitly encodes the typing rules into the model and helps it better learn the program distribution, demonstrating the importance of the Type Explicitness property in Sec.~1.
 \end{revquote}
 
 \phantomsection\label{com:3.2}
@@ -865,50 +632,22 @@ To demonstrate TyFlow's robustness, the authors should compare it with this
 line of work.
 \end{revcomment}
 
-\response Thanks for this comment. Iterative compiler repair is now one of
-the five compared methods: \texttt{javac} diagnostics are fed back to the
-model, which regenerates the candidate for at most two rounds; the repair
-agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never
-learned to consume diagnostics.
+\response Thanks for this comment. Iterative compiler repair is now one of the five compared methods: \texttt{javac} diagnostics are fed back to the model, which regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
 
-Repair does improve compilability (compile errors fall from 175 to 116 of
-670 candidates) but adds no solved task: the solved sets remain 10/67 at
-pass@1 and 16/67 at pass@10, whereas rejection sampling in the same run adds
-three solved tasks at pass@10 and one at pass@1 --- so feedback-based
-regeneration is not strictly stronger than rejection sampling on this
-benchmark. Note that rejection sampling's own gain is itself not
-statistically significant (App.~D) --- neither external method demonstrably
-improves functional correctness over the ordinary control.
+Repair does improve compilability (compile errors fall from 175 to 116 of 670 candidates) but adds no solved task: the solved sets remain 10/67 at pass@1 and 16/67 at pass@10, whereas rejection sampling in the same run adds three solved tasks at pass@10 and one at pass@1 --- so feedback-based regeneration is not strictly stronger than rejection sampling on this benchmark. Note that rejection sampling's own gain is itself not statistically significant (App.~D) --- neither external method demonstrably improves functional correctness over the ordinary control.
 
-The theoretical advantage of feedback does not show up here because of the
-experimental setup, in two ways. First, the budgets are not equalized, since
-each method keeps the protocol of its own line of work: rejection sampling
-draws up to 100 candidates per task, while repair works from ten sampled
-candidates plus at most two feedback rounds. Second, the agent is a 2B
-model, which is not yet good at turning diagnostics into correct rewrites; a
-larger agent might extract more from the feedback, but swapping it in would
-change the model rather than the mechanism under comparison. And the deeper
-reason is independent of budget: none of the 59 repaired candidates passed its
-tests, because the dominant residual failure is well-typed but semantically
-wrong (App.~C), exactly what compile diagnostics cannot see. RQ3 concludes:
-feedback changes what compiles, not the model's
-distribution over semantically meaningful programs, whereas TyFlow encodes
-the typing rules into the model itself.
+The theoretical advantage of feedback does not show up here because of the experimental setup, in two ways. First, the budgets are not equalized, since each method keeps the protocol of its own line of work: rejection sampling draws up to 100 candidates per task, while repair works from ten sampled candidates plus at most two feedback rounds. Second, the agent is a 2B model, which is not yet good at turning diagnostics into correct rewrites; a larger agent might extract more from the feedback, but swapping it in would change the model rather than the mechanism under comparison. And the deeper reason is independent of budget: none of the 59 repaired candidates passed its tests, because the dominant residual failure is well-typed but semantically wrong (App.~C), exactly what compile diagnostics cannot see. RQ3 concludes: feedback changes what compiles, not the model's distribution over semantically meaningful programs, whereas TyFlow encodes the typing rules into the model itself.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.3 (p.~28): the repair protocol (\texttt{javac} feedback, at most two rounds, un-fine-tuned agent), its measured outcome, and the closing discussion.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the iterative-repair protocol}
-Iterative compiler repair feeds \texttt{javac} diagnostics back to the model
-and regenerates the candidate for at most two rounds; the repair agent is
-the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to
-consume diagnostics.
+Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the repair outcome vs. rejection sampling}
-[\dots] iterative repair repairs 59 candidates' compilability (compile
-errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
+[\dots] iterative repair repairs 59 candidates' compilability (compile errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
 \end{revquote}
 
 \phantomsection\label{com:3.3}
@@ -932,15 +671,11 @@ analysis of the system's cost for generating the program.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the rejection-sampling budget}
-Rejection sampling repeatedly draws candidates and keeps those that pass
-Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
+Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~27) -- the runtime measurements}
-Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic
-typing context cost considerably more, as the former invokes the type checker
-at every step and the latter additionally re-encodes the evolving synthesis
-goal.
+Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic typing context cost considerably more, as the former invokes the type checker at every step and the latter additionally re-encodes the evolving synthesis goal.
 \end{revquote}
 
 \phantomsection\label{com:3.4}
@@ -949,16 +684,7 @@ Limited Java Performance: Although TyFlow brings significant improvement on SuFu
 boost on Java is marginal (from 10.45\% to 11.94\%).
 \end{revcomment}
 
-\response Thanks for this observation. This is the same question as
-\commentref{1.4}, and the answer is the different starting points of the two
-baselines. On SuFu, the baseline is a model for a low-resource language with
-many type errors, so the constraints have a lot to fix and pass@1 rises
-substantially (24.14\% $\to$ 37.93\%). On Java, the baseline has already been
-trained extensively on the language, so there is little room for pass@1 to
-improve. Once the evaluation
-moves to the 2B scale with the extended test sets, the Java gains become
-much larger, and on the pooled 186-task analysis all four differences are
-significant (\commentref{1.3}); the Java conclusions rest on those results.
+\response Thanks for this observation. This is the same question as \commentref{1.4}, and the answer is the different starting points of the two baselines. On SuFu, the baseline is a model for a low-resource language with many type errors, so the constraints have a lot to fix and pass@1 rises substantially (24.14\% $\to$ 37.93\%). On Java, the baseline has already been trained extensively on the language, so there is little room for pass@1 to improve. Once the evaluation moves to the 2B scale with the extended test sets, the Java gains become much larger, and on the pooled 186-task analysis all four differences are significant (\commentref{1.3}); the Java conclusions rest on those results.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.1 (p.~25): the paragraph explaining why the 220M MBJP gain is the smallest.
@@ -966,16 +692,11 @@ significant (\commentref{1.3}); the Java conclusions rest on those results.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the Java results at both scales}
-TyFlow improves code generation accuracy at both scales and on every
-benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to
-11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
+TyFlow improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- why the 220M MBJP gain is the smallest}
-The 220M MBJP pass@1 gain is the smallest because there the type constraints
-mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER
-instead, consistent with the failure analysis in Appendix~C (well-typed but
-wrong is the dominant residual mode).
+The 220M MBJP pass@1 gain is the smallest because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead, consistent with the failure analysis in Appendix~C (well-typed but wrong is the dominant residual mode).
 \end{revquote}
 
 \phantomsection\label{com:3.5}
@@ -985,34 +706,13 @@ models (decoder-only, billions of parameters) is unexplored. The authors
 should consider extending the evaluation to larger models.
 \end{revcomment}
 
-\response Thanks for this comment. This question is already answered in
-detail under \commentref{1.5} (the added zero- and few-shot comparison, and its
-data-leakage caveat) and \commentref{2.3} (the same results read against the
-open question of larger models, plus the architectural discussion); we
-restate the analysis and conclusions here so that they can be read on
-their own.
+\response Thanks for this comment. This question is already answered in detail under \commentref{1.5} (the added zero- and few-shot comparison, and its data-leakage caveat) and \commentref{2.3} (the same results read against the open question of larger models, plus the architectural discussion); we restate the analysis and conclusions here so that they can be read on their own.
 
-\textbf{The added comparison.} Three open-weight decoder-only models
-(MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) are evaluated on
-all four benchmarks, zero- and few-shot, under a separate prompt-based
-protocol kept distinct from the trained results (Table~3, p.~26); the
-evaluation now spans five model scales.
+\textbf{The added comparison.} Three open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) are evaluated on all four benchmarks, zero- and few-shot, under a separate prompt-based protocol kept distinct from the trained results (Table~3, p.~26); the evaluation now spans five model scales.
 
-\textbf{The two-sided analysis.} On Java the decoder-only models are
-clearly stronger in absolute terms than the fine-tuned 2B models, and the
-revision says so plainly, since this is exactly what such a comparison is
-for; it also flags a possible data-leakage risk for the Java comparison,
-because few-shot prompting brings these models little or no gain over
-zero-shot. On SuFu, the low-resource setting the method targets, none of
-the three solves a single task zero-shot, and few-shot prompting reaches
-at most 8 of 58, against 21 of 58 for TyFlow-2B.
+\textbf{The two-sided analysis.} On Java the decoder-only models are clearly stronger in absolute terms than the fine-tuned 2B models, and the revision says so plainly, since this is exactly what such a comparison is for; it also flags a possible data-leakage risk for the Java comparison, because few-shot prompting brings these models little or no gain over zero-shot. On SuFu, the low-resource setting the method targets, none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, against 21 of 58 for TyFlow-2B.
 
-\textbf{The conclusions.} Scale helps on well-resourced languages, but it
-does not eliminate type errors in the setting the method targets, so it
-does not substitute for the type-guided representation. Whether TyFlow
-itself can be adapted to decoder-only architectures is discussed in the
-Limitations (Sec.~6.3), including what the adaptation would cost; that
-adaptation is left to future work.
+\textbf{The conclusions.} Scale helps on well-resourced languages, but it does not eliminate type errors in the setting the method targets, so it does not substitute for the type-guided representation. Whether TyFlow itself can be adapted to decoder-only architectures is discussed in the Limitations (Sec.~6.3), including what the adaptation would cost; that adaptation is left to future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Table~3 (p.~26): the three decoder-only models on all four benchmarks.
@@ -1020,12 +720,7 @@ adaptation is left to future work.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, Table~3 and its note (p.~26) -- the decoder-only comparison and its protocol}
-To contextualize absolute performance, Tab.~3 reports three larger
-decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the
-same task prompt in all conditions, alongside our two fine-tuned 2B
-encoder-decoder models. Each prompted model produces one greedy candidate per
-task [\dots] Cell entries are solved tasks at pass@1 for all models; the
-0-shot condition uses the same prompt as the two fine-tuned models.
+To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task [\dots] Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models.
 \end{revquote}
 
 \phantomsection\label{com:3.6}
@@ -1043,41 +738,23 @@ robust.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~1, ``Data Usability'' (p.~3) -- the Data Usability property}
-The decision sequences of $\mathcal{S}$ and source code should be automatically and
-bidirectionally convertible, enabling both the extraction of decision
-sequences from existing programs and the reconstruction of programs from
-generated decision sequences.
+The decision sequences of $\mathcal{S}$ and source code should be automatically and bidirectionally convertible, enabling both the extraction of decision sequences from existing programs and the reconstruction of programs from generated decision sequences.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dynamically typed languages'' (p.~30) -- the dynamic-language limitation}
-The current design of TyFlow relies on a type system in which the type
-derivation of a program can be computed automatically from the program text,
-so that existing code can be converted into our decision-sequence format.
-Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information. [\dots] Parsing and adapting such languages is left to future work.
+The current design of TyFlow relies on a type system in which the type derivation of a program can be computed automatically from the program text, so that existing code can be converted into our decision-sequence format. Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information. [\dots] Parsing and adapting such languages is left to future work.
 \end{revquote}
 
 \clearpage
 \section*{Other Changes beyond the Reviewers' Requests}
 
 \begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=3pt]
-  \item \textbf{Re-trained results.} The results in the submitted version were
-        produced in 2025 in a different environment, and those checkpoints and
-        evaluation records are not available on the server used for this
-        revision; every model reported here was therefore re-trained with the
-        same framework and the same code, and all evaluations were re-run. The new run supports the conclusions of the submitted version; the differences are small (most values move by less than two percentage points; the largest is the 2B SuFu row, where the re-measured baseline is 25.86\% (submitted: 29.31\%) and the reported TyFlow-2B value is 36.21\% (submitted: 43.10\%); TyFlow still exceeds the baseline on all four metrics); the intervals and paired tests of Appendix~D are computed on the new runs, so the significance statements apply to the numbers printed in the tables.
-  \item \textbf{Errata.} Algorithm~1 now composes substitutions as
-        $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~2 reads
-        $P(\theta(\overline{t}))$; and the proof of Lemma~4 defines
-        $\theta_c=\sigma_n\ldots\sigma_0\sigma$. The method and the theorems are
-        unchanged.
-  \item \textbf{FSP definition.} Sec.~6.1.3 (p.~24): a task with no correct
-        candidate contributes the candidate-list length, a convention the
-        submitted text left implicit.
+  \item \textbf{Re-trained results.} The results in the submitted version were produced in 2025 in a different environment, and those checkpoints and evaluation records are not available on the server used for this revision; every model reported here was therefore re-trained with the same framework and the same code, and all evaluations were re-run. The new run supports the conclusions of the submitted version; the differences are small (most values move by less than two percentage points; the largest is the 2B SuFu row, where the re-measured baseline is 25.86\% (submitted: 29.31\%) and the reported TyFlow-2B value is 36.21\% (submitted: 43.10\%); TyFlow still exceeds the baseline on all four metrics); the intervals and paired tests of Appendix~D are computed on the new runs, so the significance statements apply to the numbers printed in the tables.
+  \item \textbf{Errata.} Algorithm~1 now composes substitutions as $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~2 reads $P(\theta(\overline{t}))$; and the proof of Lemma~4 defines $\theta_c=\sigma_n\ldots\sigma_0\sigma$. The method and the theorems are unchanged.
+  \item \textbf{FSP definition.} Sec.~6.1.3 (p.~24): a task with no correct candidate contributes the candidate-list length, a convention the submitted text left implicit.
 \end{itemize}
 
-\medskip
-We hope that the revision addresses all concerns and look forward to the
-reviewers' feedback.
+\medskip We hope that the revision addresses all concerns and look forward to the reviewers' feedback.
 
 \bigskip
 Sincerely,\\
