@@ -340,5 +340,6 @@ Parsing and adapting such languages is left to future work.
 \paragraph{Type-system expressiveness.}
 Both evaluated type systems are relatively simple compared with the mainstream languages that have evolved over decades, such as C++: the implemented Java subset omits subtyping hierarchies, overload resolution, and mutable-state-related features, and SuFu's type system targets fusion optimization.
 The framework itself is not confined to such systems: typing rules are formulated as constrained Horn clauses (Sec.~\ref{sec:meta}), which can in principle describe more complex type systems and their languages.
-The restriction is practical rather than conceptual: writing and modeling the concrete typing rules and designing the parser for a richer system make experimentation much harder, and our measurements on SuFu and the Java subset do not establish how the approach scales to such languages.
-Migrating \mainname{} to richer type systems, and even to systems such as linear types that can to some extent guarantee functional properties of the code, is a direction for future work.
+For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
+The current solver cannot handle a typing rule that requires higher-order unification, as discussed in Sec.~\ref{sec:meta}.
+Our experiments do not test either type of extension. We leave them for future work.

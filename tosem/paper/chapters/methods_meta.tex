@@ -54,7 +54,9 @@ The MGU preserves maximum generality by not over-constraining variables. For ins
 In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
 %
 In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
-First-order unification is decidable and admits efficient algorithmic solutions~\cite{DBLP:journals/jacm/Robinson65}, making it suitable for our synthesis framework. This restriction excludes type systems that require \emph{higher-order unification}, which arises naturally with higher-order functions and polymorphism and is undecidable in general. Extending \mainname to such systems would need a decidable fragment (e.g., patterns) or a different variable-acquisition mechanism, and our formal results do not automatically carry over.
+First-order unification always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\cite{DBLP:journals/jacm/Robinson65}. These guarantees let \mainname apply a selected typing rule and update its remaining premises.
+
+Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, \mainname's current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework~\cite{DBLP:journals/tcs/Goldfarb81}.
 
 \subsection{Terms and Typing Rules}
 \subsubsection{Terms}
@@ -199,4 +201,3 @@ There is a one-to-one correspondence between typing rules and synthesis rules.
 \begin{proof}
 The complete proof can be found in Appendix~\ref{sec:appendix-lemma1}.
 \end{proof}
-

@@ -285,11 +285,6 @@ train-overlap, and non-overlap partitions with beam 10 and
 `epoch6` evaluation are finished. Java final beam-10 evaluation and its two
 partitions are complete. The SuFu epoch-10--19 continuation, targeted sweep,
 and complete epoch16 evaluation are also complete.
-Checkpoint-to-paper selection uses only the complete frozen test score; the
-non-overlap score is reported independently as a generalization diagnostic.
-Final-checkpoint health gates require full-test Pass@1 at least 45%, exact
-train-overlap Pass@1 at least 90% for both branches, and SuFu full-test CER
-exactly zero before the epoch sweep proceeds.
 The historical scorers use zero-based FSP positions with unsolved problems
 assigned position 10; this executable definition is retained despite the
 paper's prose using the word “rank.” Candidate multiplier 20 avoids

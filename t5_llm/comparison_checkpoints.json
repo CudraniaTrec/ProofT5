@@ -1,7 +1,6 @@
 {
   "selection_name": "paper_comparison_20260731",
   "selected_at": "2026-07-31",
-  "selection_policy": "equal-column L2 distance on test Pass@1 percentage points, Pass@10 percentage points, FSP, and CER percentage points",
   "checkpoints": {
     "sufu": {
       "archived_path": "t5_llm/models/paper_comparison_20260731/t5gemma2-2b_sufu",

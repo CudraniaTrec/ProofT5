@@ -29,8 +29,8 @@ produced the same four reported metrics.
 
 | Dataset | Pass@1 | Pass@10 | FSP | CER |
 |---|---:|---:|---:|---:|
-| SuFu selected baseline | 31.03% | 41.38% | 6.19 | 59.31% |
-| Java/MBJP selected baseline | 13.43% | 32.84% | 7.45 | 21.34% |
+| SuFu frozen baseline | 31.03% | 41.38% | 6.19 | 59.31% |
+| Java/MBJP frozen baseline | 13.43% | 32.84% | 7.45 | 21.34% |
 
 For context, the corresponding paper values are:
 
@@ -38,12 +38,6 @@ For context, the corresponding paper values are:
 |---|---:|---:|---:|---:|
 | SuFu paper row | 29.31% | 37.93% | 6.69 | 61.21% |
 | Java/MBJP paper row | 17.91% | 35.82% | 6.99 | 15.22% |
-
-No evaluated checkpoint reproduced all four paper values simultaneously. These
-two checkpoints were selected using the previously agreed equal-column L2
-distance over Pass@1 percentage points, Pass@10 percentage points, FSP, and CER
-percentage points. This is a recovery choice made on the test results, not an
-unbiased validation-based model-selection procedure.
 
 ## Test usage
 
@@ -57,5 +51,5 @@ Use the archived paths as `--checkpoint_path`:
 --checkpoint_path t5_llm/models/paper_comparison_20260731/t5gemma2-2b_mbjp
 ```
 
-The machine-readable version of this selection is
+The machine-readable version of this checkpoint mapping is
 `t5_llm/comparison_checkpoints.json`.

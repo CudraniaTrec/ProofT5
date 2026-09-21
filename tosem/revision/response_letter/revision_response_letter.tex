@@ -123,27 +123,34 @@ reviewers.
   \item Missing comparison with state-of-the-art techniques
   \item Missing analysis of the system's cost
 \end{itemize}
+
+Details on the above points are in the reviews of the reviewers involved in
+the process. While preparing a Major Revision, please make sure to respond to
+all the other reviewers' comments and questions, not just the points
+summarized above.
 \end{revcomment}
 
 \response Thanks. Each of the six concerns is addressed with new experiments or new analyses, as summarized below:
 
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{Failure analysis.} Every test task of the three Java benchmarks is classified into four categories in App.~C (p.~42--43, Table~8), with two representative cases; the dominant residual mode of TyFlow is well-typed but semantically wrong code. Detailed response: \commentref{1.6}.
-  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added, so the Java evaluation spans 186 test tasks from three independent sources, analyzed jointly in App.~D (p.~44). Detailed responses: Comments~\commentref{1.3}, \commentref{2.1}.
-  \item \textbf{Scalability.} RQ2 measures the pruning strength of each component, the beam-exhaustion behavior, and the per-step and per-task runtime (up to $2.74\times$ the unconstrained base); scaling to richer type systems is discussed in the Limitations subsection. Detailed responses: Comments~\commentref{1.2}, \commentref{2.2}.
-  \item \textbf{Larger and more recent LLMs.} Zero- and few-shot pass@1 results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks are added (Table~3, p.~26): on Java they outperform the fine-tuned 2B models, on SuFu none solves a single task zero-shot. Detailed responses: Comments~\commentref{1.5}, \commentref{2.3}.
-  \item \textbf{State-of-the-art techniques.} RQ3 is rewritten as a five-method comparison on MBJP (rejection sampling, SynCode, Repilot, iterative compiler repair) on one leak-clean frozen checkpoint; none of the four external methods significantly improves functional correctness, while TyFlow-2B is the best of all compared methods. Detailed responses: Comments~\commentref{3.1}, \commentref{3.2}.
+  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added, so the Java evaluation spans 186 test tasks from three independent sources, analyzed jointly in App.~D (p.~44). Detailed responses: \commentref{1.3} and \commentref{2.1}.
+  \item \textbf{Scalability.} RQ2 measures the pruning strength of each component, the beam-exhaustion behavior, and the per-step and per-task runtime (up to $2.74\times$ the unconstrained base); scaling to richer type systems is discussed in the Limitations subsection. Detailed responses: \commentref{1.2} and \commentref{2.2}.
+  \item \textbf{Larger and more recent LLMs.} Zero- and few-shot pass@1 results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks are added (Table~3, p.~26): on Java they outperform the fine-tuned 2B models, on SuFu none solves a single task zero-shot. Detailed responses: \commentref{1.5} and \commentref{2.3}.
+  \item \textbf{State-of-the-art techniques.} RQ3 is rewritten as a five-method comparison on MBJP (rejection sampling, SynCode, Repilot, iterative compiler repair) on one leak-clean frozen checkpoint; none of the four external methods significantly improves functional correctness, while TyFlow-2B is the best of all compared methods. Detailed responses: \commentref{3.1} and \commentref{3.2}.
   \item \textbf{System cost.} The runtime analysis is reported in RQ2
         together with the component ablation it belongs to: per-step and
         per-task wall time of the same 220M model in the four configurations,
         with an explanation of where each cost comes from and why syntactic
         pruning even \emph{lowers} the per-task total. For the compared
         external methods, the RQ3 setup states each method's computational
-        budget. Detailed responses: Comments~\commentref{2.2}, \commentref{3.3}.
+        budget. Detailed responses: \commentref{2.2} and \commentref{3.3}.
 \end{itemize}
 
-The individual reviewer comments, with the corresponding responses, follow.
+Beyond these six cross-cutting concerns, we respond to every other reviewer
+comment and question individually in Comments~1.1--3.6 below.
 
+\clearpage
 \section*{Response to Reviewer 1}
 
 We thank the reviewer for the positive assessment of the formalization, its generality over grammar-based approaches, and the ablation study.
@@ -155,38 +162,60 @@ serves the pedagogical purpose well, readers may reasonably wonder whether
 the approach scales to languages with subtyping, polymorphism, type
 inference, overloading, or mutable state. The paper partially addresses this
 by evaluating on Java, but the overview could better acknowledge the gap
-between $\lambda\!\rightarrow$ and real languages.\smallskip
+between $\lambda\!\rightarrow$ and real languages.\par\smallskip
 
 The restriction to first-order unification deserves further discussion.
 Higher-order unification arises naturally in languages with higher-order
 functions and polymorphism. The authors should discuss what happens when
 this restriction is violated and what classes of type systems are
-excluded.\smallskip
+excluded.\par\smallskip
 
 \emph{[Weaknesses:]} The restriction to first-order unification and
 encoder-decoder architectures limits near-term applicability.
 \end{revcomment}
 
-\response Thanks for these questions. We added scoping text in three places, and we answer each half of
-the comment separately.
+\response Thanks. We answer the three questions separately.
 
-\textbf{(1) The example language.} The overview now acknowledges the gap
-concretely (quoted below): it enumerates what $\lambda\!\rightarrow$ omits
-relative to real languages --- subtyping, polymorphism, type inference,
-overloading resolution, and mutable state, exactly the features the reviewer
-names --- states that the minimal calculus is a deliberate choice for
-exposition, and points to the evaluation languages, to the scope of the rule
-framework (Sec.~3), and to the Limitations discussion of richer type systems
-(Sec.~6.3).
+\textbf{(1) The running example and richer type systems.}
 
-\textbf{(2) First-order unification.} Section~3 now states what the restriction excludes (type systems requiring higher-order unification, which is undecidable in general) and what an extension would need; the quoted passage names this class explicitly.
+\emph{The difference from real languages.} The example language is deliberately simple and is used only to demonstrate how TyFlow converts typing rules into synthesis rules. It contains Boolean and function types with explicitly annotated, monomorphic bindings. Unlike mainstream languages, it does not include features like subtyping, polymorphism, type inference, overloading, or mutable state. We now acknowledge this gap explicitly in the overview.
 
-\textbf{(3) Type-system expressiveness and the architecture.} A dedicated Limitations subsection (Sec.~6.3) now covers the omitted Java features, the CHC framing, and what migration would involve (quoted below). The encoder-decoder dependence is treated in the same subsection and in the response to \commentref{2.3}. Empirically, the two evaluated settings are a functional language (SuFu, 58 test tasks) and a Java subset admitting about 78\% of MBJP (186 Java test tasks in total), and TyFlow improves over its base model in both; the added paragraph states precisely what these settings do not establish.
+\emph{Extension to richer type systems.} TyFlow is not tied to this example language. To support a richer statically typed language, we define its program, type, and context terms, express its typing rules as constrained Horn clauses, and implement the required computable constraints. The transformation from typing rules to synthesis rules remains unchanged. Because this language-specific implementation requires substantial engineering effort, we currently instantiate TyFlow only for Java and SuFu.
+
+\textbf{(2) The first-order unification restriction.}
+
+\emph{Why we use it.} To apply a typing rule, TyFlow needs unification to terminate, decide whether the rule conclusion matches the current goal, and return a principal substitution for the remaining premises. First-order unification provides these guarantees: it is decidable and returns a most-general unifier that is unique up to variable renaming. We therefore use first-order unification as a sufficient condition.
+
+\needspace{16\baselineskip}\emph{Higher-order functions do not require higher-order unification.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate.
+The following two terms show the difference:
+\[
+  \operatorname{Arrow}(\alpha,\beta)
+  \qquad\text{versus}\qquad
+  F(\tcode{Int}) = \operatorname{List}(\tcode{Int}).
+\]
+In the first term, $\operatorname{Arrow}$ is fixed. Only $\alpha$ and $\beta$ are unknown, so this is still a first-order problem. In the second term, $F$ is such an unknown, so it is a higher-order unification problem.
+
+ML is an example. It supports higher-order functions and parametric polymorphism, but Hindley--Milner type inference uses first-order unification.
+Java provides the same distinction. A simplified typing rule for a higher-order API such as \texttt{Stream.map} is:
+\[
+\frac{\Gamma \vdash s : \operatorname{Stream}\langle A\rangle
+      \qquad
+      \Gamma \vdash f : \operatorname{Function}\langle A,B\rangle}
+     {\Gamma \vdash s.\operatorname{map}(f) : \operatorname{Stream}\langle B\rangle}.
+\]
+The program passes a function as a value, but $\operatorname{Stream}$ and $\operatorname{Function}$ are fixed type constructors. Rule application only needs to instantiate the ordinary type terms $A$ and $B$. Thus, this higher-order language feature still requires only first-order unification.
+
+\emph{Support for real-world type systems.} Java supports function values, but its type checking does not require unification over unknown type-level functions, type constructors, or predicates. Its program, type, and context syntax can be represented as first-order terms. The Java Language Specification handles generic inference through constraint reduction, incorporation, and resolution over inference variables.\footnote{\href{https://docs.oracle.com/javase/specs/jls/se25/html/jls-18.html}{\emph{The Java Language Specification}, Java SE 25, Sec.~18, ``Type Inference.''}} Features such as subtyping, generic bounds, overload applicability, and lambda target typing can therefore be handled through typing rules and language-specific constraints. Supporting these features requires substantial implementation work, but it does not require higher-order unification as long as rule application only instantiates ordinary term variables.
+
+Dependent-type systems such as Lean are different because elaboration may need to infer an unknown type constructor or predicate. Lean therefore uses higher-order unification together with heuristics and backtracking.\footnote{Leonardo de Moura, Jeremy Avigad, Soonho Kong, and Cody Roux. \href{https://doi.org/10.1007/978-3-319-21401-6_3}{``Elaboration in Dependent Type Theory.''} CADE-25, 2015.} The current TyFlow solver cannot directly support these cases. A decidable fragment with principal unifiers, such as higher-order patterns, could be incorporated, but this would require a new unifier. General higher-order unification remains outside our current framework.
+
+\textbf{(3) The architecture restriction.} The current implementation cannot be moved directly because the encoder reads the changing synthesis goal. A decoder-only version would have to encode this goal at each step, and its cached states could not be reused. We discuss this issue and the decoder-only evaluation in \commentref{2.3}.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~2 (p.~9): the overview now enumerates the gap between $\lambda\!\rightarrow$ and real languages (subtyping, polymorphism, type inference, overloading resolution, mutable state) and points to the evaluation and the Limitations discussion.
-  \item \textbf{Added} Sec.~3 (p.~12): what the first-order restriction excludes (higher-order unification) and what an extension would need.
-  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the omitted Java features, the CHC framing, and future work on richer type systems.
+  \item \textbf{Clarified} Sec.~3 (p.~12): why TyFlow uses first-order unification, why higher-order functions do not by themselves require higher-order unification, and when the current solver no longer applies.
+  \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29): why the dynamic typing context is not directly portable to a decoder-only model.
+  \item \textbf{Clarified} Sec.~6.3, ``Type-system expressiveness'' (p.~30): which features can use first-order terms and which require a different solver.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~2 (p.~9) -- the acknowledged gap between the example language and real languages}
@@ -201,28 +230,34 @@ the underlying rule framework is stated in Sec.~3, and how the approach
 would extend to richer type systems is discussed in Sec.~6.3.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~3 (p.~12) -- what first-order unification excludes}
-First-order unification is decidable and admits efficient algorithmic
-solutions, making it suitable for our synthesis framework. This restriction
-excludes type systems that require \emph{higher-order unification}, which
-arises naturally with higher-order functions and polymorphism and is
-undecidable in general. Extending TyFlow to such systems would need a
-decidable fragment (e.g., patterns) or a different variable-acquisition
-mechanism, and our formal results do not automatically carry over.
+\begin{revquote}{Revised manuscript, Sec.~3 (p.~12) -- the role and boundary of first-order unification}
+First-order unification always terminates. It either rejects two terms or
+returns a most-general unifier that is unique up to variable renaming. These
+guarantees let TyFlow apply a selected typing rule and update its remaining
+premises.
+
+Supporting higher-order functions does not by itself require higher-order
+unification. The latter is needed only when an unknown to be solved is itself
+a function, type constructor, or predicate. If a typing rule creates such a
+problem, TyFlow's current solver cannot handle it. A decidable fragment could
+be supported with a different unifier, but general higher-order unification
+remains outside the current framework.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the architectural limitation}
+The representation itself carries over to a decoder-only model unchanged;
+what changes is the architecture, and with it the cost of the dynamic typing
+context. [\dots] so its key-value entries are recomputed at every step and never
+reused by later steps, and the computation is awkward to schedule. We leave
+this adaptation to future work.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- type-system expressiveness as a limitation}
-Both evaluated type systems are relatively simple compared with the
-mainstream languages that have evolved over decades, such as C++: the
-implemented Java subset omits subtyping hierarchies, overload resolution,
-and mutable-state-related features, and SuFu's type system targets fusion
-optimization. [\dots] The restriction is practical rather than conceptual: writing
-and modeling the concrete typing rules and designing the parser for a richer
-system make experimentation much harder, and our measurements on SuFu and
-the Java subset do not establish how the approach scales to such languages.
-Migrating TyFlow to richer type systems, and even to systems such as linear
-types that can to some extent guarantee functional properties of the code,
-is a direction for future work.
+For features that can be represented with first-order terms, such as many
+forms of subtyping, overloading, effects, and type classes, we need to
+implement the typing rules and solvers and then measure their cost. The
+current solver cannot handle a typing rule that requires higher-order
+unification, as discussed in Sec.~3.
 \end{revquote}
 
 \phantomsection\label{com:1.2}
@@ -234,7 +269,7 @@ of decisions. If the LM makes a wrong choice early, it may be unable to
 recover. The paper does not discuss the branching factor of the search space
 or the likelihood of the LM making correct decisions in practice. Beam
 search partially addresses this, but the theoretical analysis gives no
-bounds on how many beams are needed.\smallskip
+bounds on how many beams are needed.\par\smallskip
 The paper does not quantify the pruning rate in Section 5.3. What fraction
 of candidate tokens are eliminated at each level? This would help readers
 understand the practical search space reduction.
@@ -291,7 +326,7 @@ test set has only \textasciitilde61 tasks (10\% of 608). These are very small
 test sets, and the results may not be statistically robust. The authors should
 report confidence intervals or conduct significance tests. A difference of
 1--2 tasks passing or failing could shift pass@1 by several percentage
-points.\smallskip
+points.\par\smallskip
 
 \emph{[Weaknesses:]} Small test sets raise concerns about statistical
 reliability. [\dots] Missing failure analysis and confidence intervals.
@@ -396,7 +431,7 @@ TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every o
 On Java, TyFlow-220M improves pass@1 from 10.45\% to only 11.94\%, less than
 1.5 percentage points absolute. While pass@10 improves more substantially,
 the pass@1 gain is marginal, given the test set size. The paper should
-discuss why Java gains are smaller.\smallskip
+discuss why Java gains are smaller.\par\smallskip
 
 \emph{[Weaknesses:]} The Java results are modest, and the subset restriction
 introduces potential selection bias.
@@ -438,7 +473,7 @@ The paper compares only with fine-tuned CodeT5 and T5Gemma2 variants. The
 absence of any comparison with modern LLMs is a notable gap. The authors
 could at least report zero-shot pass rates for state-of-the-art proprietary
 and open-weight LLMs on the same benchmarks to contextualize the absolute
-numbers.\smallskip
+numbers.\par\smallskip
 
 \emph{[Weaknesses:]} No comparison with modern decoder-only large-scale code
 models.
@@ -513,9 +548,9 @@ failure modes would significantly strengthen the paper.
 \textbf{How the baseline and TyFlow compare on each category:}
 
 \begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
-  \item \textbf{All-invalid drops to zero.} Under the baseline, 4 MBJP tasks and 2 TransCoder-GFG tasks produce no compilable candidate at all. Under TyFlow, no task falls into this category: the type constraint guarantees that every generated program compiles.
-  \item \textbf{Solved@1 increases on every benchmark.} MBJP: 9 $\to$ 17 (baseline $\to$ TyFlow). TransCoder-GFG: 20 $\to$ 31. HumanEval-Java: 5 $\to$ 8. The method adds value beyond eliminating compilation errors.
-  \item \textbf{Well-typed but wrong becomes the dominant residual mode.} On MBJP, 38 of TyFlow's 50 unsolved tasks produce compilable but incorrect code; on TransCoder-GFG, 53 of 72 do. This is the expected result: type constraints guarantee compilable code, not semantically correct code.
+  \item \textbf{All-invalid generation essentially disappears.} Under the baseline, 4 MBJP tasks and 2 TransCoder-GFG tasks produce no compilable candidate. Under TyFlow, the counts are 0, 0, and 2 on MBJP, HumanEval-Java, and TransCoder-GFG, respectively; the two residual GFG cases arise from budget exhaustion rather than completed ill-formed output.
+  \item \textbf{Solved@1 increases on every benchmark.} MBJP: 9 $\to$ 17 (baseline $\to$ TyFlow). TransCoder-GFG: 20 $\to$ 31. HumanEval-Java: 5 $\to$ 8. The method adds value beyond reducing compilation errors.
+  \item \textbf{Well-typed but wrong becomes the dominant residual mode.} On MBJP, 38 of TyFlow's 50 unsolved tasks produce compilable but incorrect code; on TransCoder-GFG, 53 of 72 do. This is the expected result: TyFlow enforces the implemented type constraints, not semantic correctness.
   \item \textbf{Ranking failures persist.} On MBJP and TransCoder-GFG, 12 and 17 tasks respectively contain a correct candidate in the top ten that is not ranked first. This is a property of beam scoring, not of the representation.
 \end{itemize}
 
@@ -546,13 +581,14 @@ violated, so no amount of type-level pruning can reject this candidate: the
 failure is purely semantic.
 \end{revquote}
 
+\clearpage
 \section*{Response to Reviewer 2}
 
 We thank the reviewer for the positive assessment of the theoretical foundation, the framework design, and the ablation study.
 
 \phantomsection\label{com:2.1}
 \begin{revcomment}{Comment 2.1.}
-The evaluation uses only a limited number of SuFu test tasks and Java test
+W1: Limited evaluation benchmarks. The evaluation uses only a limited number of SuFu test tasks and Java test
 tasks. These are very small test sets, and no confidence intervals or
 statistical significance tests are reported. In addition, the SuFu language
 is highly niche. While this is positioned as a ``low-resource'' evaluation,
@@ -560,9 +596,9 @@ it's unclear how findings generalize beyond this specific setting. There is
 no evaluation on standard, widely-used benchmarks. While the approach
 requires language-specific tooling (type checker, parser), the absence of
 comparison on common benchmarks could limit the paper's impact and make it
-harder to contextualize the results.\smallskip
+harder to contextualize the results.\par\smallskip
 
-\emph{[Action item (Major):]} Report confidence intervals or evaluate over
+(Addresses W1) Report confidence intervals or evaluate over
 multiple random train/test splits to establish statistical stability given
 the small test sets. Consider adding at least one more widely-used benchmark
 to help contextualize the results.
@@ -603,15 +639,16 @@ cases and a gold solution about twice as long as the additional benchmarks).
 
 \phantomsection\label{com:2.2}
 \begin{revcomment}{Comment 2.2.}
+W2: Scalability concerns are insufficiently addressed.\par\smallskip
 The paper does not discuss how the synthesis derivation tree scales with
 program complexity. Real-world programs could have deep type derivation
 trees with polymorphism, subtyping, type inference, and overloading
 resolution, but the Java subset avoids most of these. It is also unclear
 what runtime overhead the synthesis system imposes during inference, as the
 dynamic re-encoding at each step and the unification/constraint-checking
-machinery introduce costs that are never quantified.\smallskip
+machinery introduce costs that are never quantified.\par\smallskip
 
-\emph{[Action item (Major):]} Report runtime inference time comparisons
+(Addresses W2) Report runtime inference time comparisons
 between TyFlow and the baselines. Discuss, even qualitatively, how the
 synthesis system would scale to richer type features such as polymorphism
 with variance, subtyping hierarchies, or ownership types. Report how
@@ -619,13 +656,13 @@ frequently beam search exhausts all candidates due to pruning and what the
 fallback behavior is.
 \end{revcomment}
 
-\response Thanks. We address all three parts of the action item.
+\response Thanks. We address each part of the action item.
 
 \textbf{(1) How the synthesis tree scales with program complexity.} The synthesis derivation tree is represented as a token sequence whose length is roughly proportional to the program's own token length. On SuFu, the average TyFlow decision sequence is 410 tokens, comparable to the average program's 405 code tokens; on Java, 129 tokens vs. 142 program tokens. The derivation tree therefore grows linearly with the program, not exponentially.
 
 \textbf{(2) Runtime overhead, measured.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals ($-6.38\%$ / $+94.00\%$ / $+173.88\%$, $2.74\times$ the unconstrained base); the quoted paragraph explains where each cost comes from and why syntactic pruning even lowers the per-task total.
 
-\textbf{(3) Scaling to richer type features.} The Limitations subsection states what the implemented subset omits and why the CHC formulation is not conceptually limited to it. It also states that our measurements do not establish how the approach scales to richer systems, so the revised text claims only what these measurements support.
+\textbf{(3) Scaling to richer type features.} This issue is answered in detail in \commentref{1.1}. In short, richer type features add constraints, state, and rule choices. They do not change the mapping from typing rules to synthesis rules when their checks can use first-order terms and separate solvers, but they do increase implementation work, solver cost, and search. Our experiments do not show that these costs scale to full production languages.
 
 \textbf{(4) Beam exhaustion and fallback.} The instrumented run reports zero tasks that dead-end under beam~10. By design, if beam search ever ran out of candidates, the task would be counted as a failure. In practice this never occurred across all 58 SuFu tasks and all 186 Java tasks.
 
@@ -633,7 +670,7 @@ fallback behavior is.
   \item \textbf{Added} Sec.~6.2.2 (p.~27): the runtime measurements and the Time / ms-per-step columns of Table~4.
   \item \textbf{Added} Sec.~6.2.1 (p.~26): the discussion of how the synthesis derivation tree scales with program complexity.
   \item \textbf{Added} Sec.~6.2.2 (p.~27): the beam-exhaustion observation (no task dead-ends under beam~10).
-  \item \textbf{Added} Sec.~6.3 (p.~29--30): the limitations on type-system expressiveness.
+  \item \textbf{Added} Sec.~6.3 (p.~30): the limitations on type-system expressiveness.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~27) -- the runtime measurements}
@@ -650,18 +687,27 @@ dead-ends, and every task retains at least one grammar- and type-valid
 expansion at every step.
 \end{revquote}
 
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the scope of richer type-system extensions}
+For features that can be represented with first-order terms, such as many
+forms of subtyping, overloading, effects, and type classes, we need to
+implement the typing rules and solvers and then measure their cost. The
+current solver cannot handle a typing rule that requires higher-order
+unification, as discussed in Sec.~3. Our experiments do not test either type
+of extension. We leave them for future work.
+\end{revquote}
+
 \phantomsection\label{com:2.3}
 \begin{revcomment}{Comment 2.3.}
-The baselines are CodeT5-220M and T5Gemma2-2B, and both are relatively
+W3: Comparison with modern LLMs is absent. The baselines are CodeT5-220M and T5Gemma2-2B, and both are relatively
 small encoder-decoder models. There is no comparison with decoder-only
 models which are much more common in today's community. Additionally, no
 model larger than 2B parameters is evaluated. While the paper demonstrates
 clear improvements over its chosen baselines, it remains an open question
 whether larger models might already mitigate type errors sufficiently
 through scale alone. This would contextualize the practical value of the
-proposed approach.\smallskip
+proposed approach.\par\smallskip
 
-\emph{[Action item (Major):]} Include at least a zero-shot or few-shot
+(Addresses W3) Include at least a zero-shot or few-shot
 evaluation of a modern decoder-only model on the same benchmarks.
 Additionally, discuss whether the core ideas could be adapted to
 decoder-only architectures, even if full integration is left to future work.
@@ -697,14 +743,14 @@ computation is awkward to schedule. We leave this adaptation to future work.
 
 \phantomsection\label{com:2.4}
 \begin{revcomment}{Comment 2.4.}
-The paper repeatedly emphasizes that CHCs can encode ``any Turing-computable
+W4: The CHC generality claim is overclaimed relative to the evidence. The paper repeatedly emphasizes that CHCs can encode ``any Turing-computable
 function'' and that the framework generalizes to ``arbitrary logical
 constraints.'' However, the evaluation only covers type correctness for two
 languages with relatively simple type systems. No evidence is provided for
 richer constraints. The gap between the theoretical generality and empirical
-validation is large.\smallskip
+validation is large.\par\smallskip
 
-\emph{[Action item (Major):]} Either provide a case study demonstrating a
+(Addresses W4) Either provide a case study demonstrating a
 constraint richer than basic type correctness (e.g., ownership, effects,
 refinement types), or explicitly scope the generality claims to what is
 empirically demonstrated and acknowledge the gap as a limitation.
@@ -741,6 +787,7 @@ other structural data; instantiating and evaluating these extensions remains
 future work.
 \end{revquote}
 
+\clearpage
 \section*{Response to Reviewer 3}
 
 We thank the reviewer for the positive assessment of the typing-based extension of grammar-guided generation and of the rigor of the isomorphism between type derivations and synthesis derivations.
@@ -780,7 +827,7 @@ $\to$ 25.97\%), and the solved sets are unchanged.
 
 \textbf{Rejection sampling} is the only external method that changes any outcome, adding three solved tasks at pass@10 and one at pass@1, but neither difference is statistically significant.
 
-\textbf{TyFlow-2B} solves 17/67 at pass@1 and 29/67 at pass@10 with only 3/670 compilation errors, the best result among all compared methods. The type constraint guarantees compilable code at the source (CER 0.45\%), rather than filtering or repairing what the model already produces.
+\textbf{TyFlow-2B} solves 17/67 at pass@1 and 29/67 at pass@10 with only 3/670 compilation errors, the best result among all compared methods. TyFlow enforces the modeled type constraints during generation and reduces CER to 0.45\%, rather than filtering or repairing what the model already produces.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Rewrote} Sec.~6.2.3 (p.~28): RQ3 is now a five-method comparison under one frozen checkpoint, and Table~5 was replaced accordingly.
@@ -916,7 +963,7 @@ goal.
 
 \phantomsection\label{com:3.4}
 \begin{revcomment}{Comment 3.4.}
-Although TyFlow brings significant improvement on SuFu, its performance
+Limited Java Performance: Although TyFlow brings significant improvement on SuFu, its performance
 boost on Java is marginal (from 10.45\% to 11.94\%).
 \end{revcomment}
 
@@ -951,7 +998,7 @@ wrong is the dominant residual mode).
 
 \phantomsection\label{com:3.5}
 \begin{revcomment}{Comment 3.5.}
-The TyFlow system was mainly evaluated on small models. Evaluation on larger
+Limited model choices: The TyFlow system was mainly evaluated on small models. Evaluation on larger
 models (decoder-only, billions of parameters) is unexplored. The authors
 should consider extending the evaluation to larger models.
 \end{revcomment}
@@ -1001,7 +1048,7 @@ task [\dots] Cell entries are solved tasks at pass@1 for all models; the
 
 \phantomsection\label{com:3.6}
 \begin{revcomment}{Comment 3.6.}
-TyFlow relies strongly on the typing system of the language, but how would
+Generalizability concern: TyFlow relies strongly on the typing system of the language, but how would
 it work on a dynamically typed language such as Python? Thus, the author
 should acknowledge this in the threat to validity to make this paper more
 robust.
@@ -1027,6 +1074,7 @@ so that existing code can be converted into our decision-sequence format.
 Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information. [\dots] Parsing and adapting such languages is left to future work.
 \end{revquote}
 
+\clearpage
 \section*{Other Changes beyond the Reviewers' Requests}
 
 \begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=3pt]

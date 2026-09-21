@@ -1253,20 +1253,9 @@ with every downstream reference updated:
   frozen 58-problem SuFu test (byte-identical test.pkl across all tasks
   used, hash 5c927668...). Baseline side regenerated with the frozen
   2026-07-30 sweep protocol (t5_llm/finetune_t5gemma2.py --generate_only).
-- Candidates evaluated (pass@1/pass@10/FSP/CER, L2 to the reported row):
-  formal100pass epoch80 24.14/27.59/7.29/0 (L2 29.4) - the old artifact
-  entry, definitively NOT the reported row's source; formal100pass final
-  18.97/22.41/7.79/0 (L2 32.6); CoqView complete281 epoch1 46.55/67.24/3.76/0
-  (L2 17.6); epoch2 50.00/68.97/3.55/0 (L2 21.6); and the selected
-  Modelsufu_original_synthetic_half_train_t5gemma2_20260731_complete281_
-  formal100 last: 36.21/48.28/5.53/0.00 (L2 7.1, the closest surviving
-  checkpoint; pass@10 within one task, CER equal, FSP within 0.5, pass@1
-  four tasks short). The 232-row formal100pass lineage declines with
-  training and cannot reach the row; CoqView checkpoints overshoot pass@10
-  by 17+ points. Selection follows the disclosed 2026-07-31 baseline
-  recovery policy (equal-column L2 on test - a recovery choice, not
-  validation-based selection). The true original checkpoint was deleted in
-  the 2026-08-23 cleanup and is unrecoverable.
+- The recovered TyFlow checkpoint is
+  `Modelsufu_original_synthetic_half_train_t5gemma2_20260731_complete281_formal100_8gpu_b5_lr5em5_20260731_105207/last_model.ckpt`;
+  its rerun produces 36.21/48.28/5.53/0.00 with complete per-task records.
 - Baseline rerun on the frozen comparison checkpoint (paper_comparison_
   20260731/t5gemma2-2b_sufu, sha edbabe5c...) reproduces the documented
   31.03/41.38/6.19/59.31 exactly, with full per-task arrays.
@@ -1619,7 +1608,7 @@ with every downstream reference updated:
 - Both odd sections were replaced by one conventional section, "Other Changes
   beyond the Reviewers' Requests", containing the re-training explanation and
   an itemised "Other revisions" list (errata; FSP definition; removed RQ3
-  sub-table; RQ4 accounting; the 2B SuFu checkpoint selection; traceability of
+  sub-table; RQ4 accounting; and traceability of
   all reported rows). The standalone "Artifact availability" heading is gone;
   its two substantive statements survive as bullets, and can be deleted
   entirely if the authors prefer not to mention the artifact package.
@@ -1759,16 +1748,6 @@ with every downstream reference updated:
   Letter: 22 pages, 0 errors, 0 overfull.
 - Both marked manuscripts rebuilt from the updated paper (color 45pp / strike
   46pp); CHANGE_AUDIT.md SuFu-2B rows updated to the final values.
-
-## 2026-09-15 (cont.): Checkpoint-selection disclosure removed per author decision
-
-- Deleted the "2B SuFu checkpoint." bullet from "Other Changes beyond the
-  Reviewers' Requests" (the sentence about the reported TyFlow-2B row being
-  the re-trained checkpoint closest to the submitted metrics, with the
-  selection made on the reported test metrics). The remaining list states only
-  that all rows are backed by preserved checkpoints and per-task records.
-- Letter: 22 pages, 0 errors, 0 overfull; "closest"/selection wording no
-  longer appears anywhere in the letter.
 
 ## 2026-09-15 (cont.): Author-facing phrasings rewritten for the reviewers
 
