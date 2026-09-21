@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.NTJPEx/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.NTJPEx/new/manuscript.tex                Tue Sep 15 13:10:55 2026
+%DIF DEL /tmp/marked_build.vnM8kg/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.vnM8kg/new/manuscript.tex                Sun Sep 20 14:37:40 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -745,7 +745,7 @@ Performing program synthesis via existential proof construction embodies our two
 \DIFaddbegin 
 
 \smallskip
-\noindent \DIFadd{The $\stlc$ language above serves for exposition; }\autoref{sec:evaluation} \DIFadd{evaluates }\mainname \DIFadd{on Java and SuFu instances with fuller, though still restricted, type systems.
+\noindent \DIFadd{The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}\DIFadd{, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}\DIFadd{) therefore runs }\mainname{} \DIFadd{on Java and SuFu instances with fuller, though still restricted, type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}\DIFadd{, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}\DIFadd{.
 %DIF >  !TEX root=../manuscript.tex
 }\DIFaddend \subsection{Translating Typing Rules to Synthesis Rules}
 In summary of \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the two design choices:
@@ -1946,7 +1946,7 @@ These results support the }\DIFaddend \textbf{Derivation Vicinality} \DIFdelbegi
 }\DIFdelend \DIFaddbegin \DIFadd{, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
 }\DIFaddend 
 
-\DIFaddbegin \subsection{\DIFadd{Limitations and Future Work}}
+\DIFaddbegin \subsection{\DIFadd{Limitations and Future Work}} \label{sec:limitations}
 \paragraph{\DIFadd{Dependence on the encoder-decoder architecture.}}
 \DIFadd{The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
 The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.
@@ -2432,15 +2432,15 @@ The dominant residual mode is well-typed but semantically wrong code: 38/50 unso
 The top-1 candidate omits the opening brace of the loop body:
 }\begin{tcolorbox}
 \begin{Verbatim}[fontsize=\small]
-\DIFadd{public static List<Integer> tupleStrInt(String testStr) }{
-    \DIFadd{int count = 0;
+public static List<Integer> tupleStrInt(String testStr) {
+    int count = 0;
     List<Integer> ret = new ArrayList<>();
-    for (String s : testStr.split("}[\DIFadd{, }]\DIFadd{+"))
+    for (String s : testStr.split("[, ]+"))
         count = count << 1;
         ret.add(Integer.valueOf(s.trim()));
-    }}
-    \DIFadd{return ret;
-}\end{Verbatim}
+    }
+    return ret;
+\end{Verbatim}
 \end{tcolorbox}
 \DIFadd{Without the brace, the loop body is a single statement, the closing brace terminates the method early, and }\texttt{\DIFadd{javac}} \DIFadd{reports }\texttt{\DIFadd{illegal start of type}} \DIFadd{at the }\texttt{\DIFadd{return}} \DIFadd{statement.
 The model produces plausible token-level continuations, but nothing prevents such structural corruption.
@@ -2451,15 +2451,15 @@ The model produces plausible token-level continuations, but nothing prevents suc
 \DIFadd{MBJP task~0 (}\emph{\DIFadd{oddPosition}}\DIFadd{, checking that every odd index holds an odd number) is unsolved by }\mainname\DIFadd{-2B, yet its top-1 candidate compiles and type-checks:
 }\begin{tcolorbox}
 \begin{Verbatim}[fontsize=\small]
-\DIFadd{public static boolean oddPosition(List<Integer> nums) }{
-    \DIFadd{boolean res = false;
-    for (int i = 0; i < nums.size(); i++) }{
-        \DIFadd{if (i %DIF >  2 == 0) {
+public static boolean oddPosition(List<Integer> nums) {
+    boolean res = false;
+    for (int i = 0; i < nums.size(); i++) {
+        if (i % 2 == 0) {
             res = false;
-        }}
+        }
     }
-    \DIFadd{return res;
-}}
+    return res;
+}
 \end{Verbatim}
 \end{tcolorbox}
 \DIFadd{The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects }\texttt{\DIFadd{nums.get(i)}} \DIFadd{and never assigns }\texttt{\DIFadd{true}}\DIFadd{; the method returns }\texttt{\DIFadd{false}} \DIFadd{for every input, while the tests expect }\texttt{\DIFadd{true}} \DIFadd{for two of the three cases.

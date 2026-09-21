@@ -324,7 +324,7 @@ In terms of token length, fully unifying type reasoning and code is far more eco
 It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
 These results support the \textbf{Derivation Vicinality} paradigm of \mainname, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
 
-\subsection{Limitations and Future Work}
+\subsection{Limitations and Future Work} \label{sec:limitations}
 \paragraph{Dependence on the encoder-decoder architecture.}
 The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
 The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.

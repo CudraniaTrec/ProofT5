@@ -48,7 +48,7 @@ build_one () {  # $1 = mode (strike|color), $2 = jobname
   mkdir -p "$WORK/$1"
   cp -r "$WORK"/new/. "$WORK/$1/"
   cp "$WORK/diff.tex" "$WORK/$1/$2.tex"
-  python3 "$OUT/tools/clean_diff_markup.py" "$WORK/$1/$2.tex" "$1"
+  python3 "$OUT/tools/clean_diff_markup.py" "$WORK/$1/$2.tex" "$1" "$WORK/new"
   cd "$WORK/$1"
   pdflatex -interaction=nonstopmode "$2.tex" > /dev/null
   bibtex "$2" > /dev/null

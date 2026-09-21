@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.NTJPEx/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.NTJPEx/new/manuscript.tex                Tue Sep 15 13:10:55 2026
+%DIF DEL /tmp/marked_build.vnM8kg/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.vnM8kg/new/manuscript.tex                Sun Sep 20 14:37:40 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -750,7 +750,7 @@ Performing program synthesis via existential proof construction embodies our two
  
 
 \smallskip
-\noindent {\color{revblue}The $\stlc$ language above serves for exposition; }\autoref{sec:evaluation} {\color{revblue}evaluates }\mainname {\color{revblue}on Java and SuFu instances with fuller, though still restricted, type systems.
+\noindent {\color{revblue}The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}{\color{revblue}, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}{\color{revblue}) therefore runs }\mainname{} {\color{revblue}on Java and SuFu instances with fuller, though still restricted, type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}{\color{revblue}, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}{\color{revblue}.
 %DIF >  !TEX root=../manuscript.tex
 } \subsection{Translating Typing Rules to Synthesis Rules}
 In summary of \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the two design choices:
@@ -1920,7 +1920,7 @@ It is even comparable to, or slightly shorter than, the plain code tokens alone 
 These results support the } \textbf{Derivation Vicinality}    {\color{revblue}paradigm of } \mainname   {\color{revblue}, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
 } 
 
- \subsection{{\color{revblue}Limitations and Future Work}}
+ \subsection{{\color{revblue}Limitations and Future Work}} \label{sec:limitations}
 \paragraph{{\color{revblue}Dependence on the encoder-decoder architecture.}}
 {\color{revblue}The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
 The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.
@@ -2406,15 +2406,15 @@ The dominant residual mode is well-typed but semantically wrong code: 38/50 unso
 The top-1 candidate omits the opening brace of the loop body:
 }\begin{tcolorbox}
 \begin{Verbatim}[fontsize=\small]
-{\color{revblue}public static List<Integer> tupleStrInt(String testStr) }{
-    {\color{revblue}int count = 0;
+public static List<Integer> tupleStrInt(String testStr) {
+    int count = 0;
     List<Integer> ret = new ArrayList<>();
-    for (String s : testStr.split("}[{\color{revblue}, }]{\color{revblue}+"))
+    for (String s : testStr.split("[, ]+"))
         count = count << 1;
         ret.add(Integer.valueOf(s.trim()));
-    }}
-    {\color{revblue}return ret;
-}\end{Verbatim}
+    }
+    return ret;
+\end{Verbatim}
 \end{tcolorbox}
 {\color{revblue}Without the brace, the loop body is a single statement, the closing brace terminates the method early, and }\texttt{\color{revblue}javac} {\color{revblue}reports }\texttt{\color{revblue}illegal start of type} {\color{revblue}at the }\texttt{\color{revblue}return} {\color{revblue}statement.
 The model produces plausible token-level continuations, but nothing prevents such structural corruption.
@@ -2425,15 +2425,15 @@ The model produces plausible token-level continuations, but nothing prevents suc
 {\color{revblue}MBJP task~0 (}\emph{\color{revblue}oddPosition}{\color{revblue}, checking that every odd index holds an odd number) is unsolved by }\mainname{\color{revblue}-2B, yet its top-1 candidate compiles and type-checks:
 }\begin{tcolorbox}
 \begin{Verbatim}[fontsize=\small]
-{\color{revblue}public static boolean oddPosition(List<Integer> nums) }{
-    {\color{revblue}boolean res = false;
-    for (int i = 0; i < nums.size(); i++) }{
-        {\color{revblue}if (i %DIF >  2 == 0) {
+public static boolean oddPosition(List<Integer> nums) {
+    boolean res = false;
+    for (int i = 0; i < nums.size(); i++) {
+        if (i % 2 == 0) {
             res = false;
-        }}
+        }
     }
-    {\color{revblue}return res;
-}}
+    return res;
+}
 \end{Verbatim}
 \end{tcolorbox}
 {\color{revblue}The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects }\texttt{\color{revblue}nums.get(i)} {\color{revblue}and never assigns }\texttt{\color{revblue}true}{\color{revblue}; the method returns }\texttt{\color{revblue}false} {\color{revblue}for every input, while the tests expect }\texttt{\color{revblue}true} {\color{revblue}for two of the three cases.

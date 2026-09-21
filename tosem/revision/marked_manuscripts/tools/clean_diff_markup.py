@@ -15,11 +15,14 @@ Modes:
 Both modes re-join \\emergencystretch assignments that latexdiff split
 across \\DIFadd{=2em} groups.
 """
+import glob
+import os
 import re
 import sys
 
 path = sys.argv[1]
 mode = sys.argv[2] if len(sys.argv) > 2 else "strike"
+new_root = sys.argv[3] if len(sys.argv) > 3 else None
 with open(path, encoding="utf-8") as f:
     tex = f.read()
 
@@ -91,6 +94,58 @@ def join_emergencystretch(tex: str) -> str:
 #(all transforms and token stripping happen after \begin{document}).
 _preamble, _sep, _body = tex.partition(r"\begin{document}")
 tex = _preamble + _sep
+
+
+def restore_verbatim_envs(body: str) -> str:
+    """Rewrite verbatim-like environments that latexdiff corrupted.
+
+    Inside an entirely NEW section, latexdiff injects \\DIFadd/\\DIFdel markup
+    into Verbatim/lstlisting bodies, where it is typeset literally (and the
+    diff engine mangles braces and '%' in code).  Such environments are
+    restored wholesale from the new-side sources, matched by their first
+    intact code line; tables get the same "final form" treatment elsewhere.
+    """
+    if not new_root:
+        return body
+    src_envs = []
+    files = [os.path.join(new_root, "manuscript.tex"),
+             os.path.join(new_root, "macros.tex")]
+    files += sorted(glob.glob(os.path.join(new_root, "chapters", "*.tex")))
+    for f in files:
+        try:
+            with open(f, encoding="utf-8") as fh:
+                src = fh.read()
+        except OSError:
+            continue
+        for m in re.finditer(
+                r"\\begin\{(Verbatim|lstlisting|verbatim)\}(?:\[[^\]]*\])?", src):
+            end = re.search(r"\\end\{" + m.group(1) + r"\}", src[m.end():])
+            src_envs.append(src[m.end():m.end() + end.start()])
+
+    def fix(m):
+        head, env, body_, tail = m.group(1), m.group(2), m.group(3), m.group(4)
+        if "\\DIF" not in body_:
+            return m.group(0)
+        first = None
+        for line in body_.splitlines():
+            l = line.strip().replace("\\DIFadd{", "").rstrip("}{ ").rstrip()
+            if len(l) >= 10 and "\\DIF" not in l and not l.startswith("}"):
+                first = l
+                break
+        if first:
+            for src_body in src_envs:
+                if first in src_body:
+                    return head + src_body + tail
+        # no source match: strip markup tokens and hope for the best
+        return head + strip_tokens(body_) + tail
+
+    pat = re.compile(
+        r"(\\begin\{(Verbatim|lstlisting|verbatim)\}(?:\[[^\]]*\])?"
+        r")(.*?)(\\end\{\2\})", re.S)
+    return pat.sub(fix, body)
+
+
+_body = restore_verbatim_envs(_body)
 _body = join_emergencystretch(_body)
 
 if mode == "color":

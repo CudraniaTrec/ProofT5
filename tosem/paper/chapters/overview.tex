@@ -257,4 +257,4 @@ Performing program synthesis via existential proof construction embodies our two
 \end{itemize}
 
 \smallskip
-\noindent The $\stlc$ language above serves for exposition; \autoref{sec:evaluation} evaluates \mainname on Java and SuFu instances with fuller, though still restricted, type systems.
+\noindent The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type \tcode{bool}, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (\autoref{sec:evaluation}) therefore runs \mainname{} on Java and SuFu instances with fuller, though still restricted, type systems; the scope of the underlying rule framework is stated in \autoref{sec:meta}, and how the approach would extend to richer type systems is discussed in \autoref{sec:limitations}.
