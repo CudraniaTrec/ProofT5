@@ -693,10 +693,9 @@ analysis of the system's cost for generating the program.
 
 \textbf{(1) The base case is a single encoder--decoder call.} The system is not a multi-LLM pipeline: the encoder processes the prompt once, and the decoder generates the output token by token, reusing the encoder's representation throughout. There are no repeated LLM calls to separate models.
 
-\textbf{(2) What our method adds on top of this base.} During decoding, we add syntactic pruning (checking each generated token against the grammar), type pruning (checking completed AST fields against the type system), and a dynamic typing context (re-encoding the synthesis goal as it evolves). Each of these adds moderate per-step cost, but the encoder's computation is fully reused, so the total does not grow proportionally.
+\textbf{(2) What our method adds on top of this base.} During decoding, we add syntactic pruning (checking each generated token against the grammar), type pruning (checking completed AST fields against the type system), and a dynamic typing context (re-encoding the synthesis goal as it evolves). Each of these adds moderate per-step cost, but the encoder's computation is fully reused.
 
-\textbf{(3) The measured cost.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals (5.70 / 5.34 / 11.07 / 15.62\,s, i.e.\ $2.74\times$ the unconstrained base). Each increment has a stated cause (per-step type checking; re-encoding the evolving synthesis goal). For the compared external methods, the RQ3 setup states each method's computational budget.
-
+\textbf{(3) The measured cost.} \commentref{2.2} reports the component-wise runtime analysis for the 220M model on SuFu. Starting from the base model without checks, we add syntactic pruning, type pruning, and the dynamic typing context in turn. Average time per decoding step (extending the active hypotheses by one token) is 31.1\,ms for the base, 32.4\,ms with syntax checks, 43.7\,ms with type checks added, and 59.6\,ms with all components. Average time per task follows the same configuration order: 5.70, 5.34, 11.07, and 15.62\,s. Syntax checks add little per-step cost and reduce the number of decoding steps, so total task time decreases slightly; type checking and re-encoding the updated context account for the larger increases. 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.2 (p.~27): per-step and per-task runtime for the four configurations (Table~4).
   \item \textbf{Added} Sec.~6.2.3 (p.~28): the computational budget of each compared external method.
@@ -716,7 +715,7 @@ Limited Java Performance: Although TyFlow brings significant improvement on SuFu
 boost on Java is marginal (from 10.45\% to 11.94\%).
 \end{revcomment}
 
-\response Thanks for this observation. \commentref{1.4} explains the Java results and gives context from prior work on code representations. The pretrained baseline already has a strong Java foundation and produces fewer compilation errors than on SuFu, leaving fewer errors for type constraints to address. At 220M, Java pass@10 improves from 20.90\% to 28.36\%, and CER falls from 35.52\% to 1.53\%. At 2B, all four metrics improve on each of the three Java benchmarks (\commentref{1.3}), showing consistent benefits over the corresponding baseline.
+\response We have addressed this concern in \commentref{1.4}, which explains the smaller Java gains and their value across metrics. The pretrained baseline already has a strong Java foundation and produces fewer compilation errors than on SuFu, leaving fewer errors for type constraints to address. Even so, with the same training data, TyFlow-220M raises Java pass@10 from 20.90\% to 28.36\% (+7.46 percentage points) and reduces CER from 35.52\% to 1.53\%. For context, GrammarT5-base reports a 2.80-point improvement over CodeT5-base on Java CONCODE, also at 220M (see the reference in \commentref{1.4}). The expanded 2B experiments also show improvements on all four metrics across all three Java benchmarks (\commentref{1.3}), supporting consistent benefits over the corresponding baselines.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.1 (p.~25): the Java results at both model scales and the explanation of the 220M gains across metrics.
@@ -737,21 +736,25 @@ models (decoder-only, billions of parameters) is unexplored. The authors
 should consider extending the evaluation to larger models.
 \end{revcomment}
 
-\response Thanks for this comment. We added zero- and few-shot evaluations of three larger decoder-only models. The results and adaptation requirements are also discussed in \commentref{1.5} and \commentref{2.3}.
-
-\textbf{The added comparison.} Three open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) are evaluated on all four benchmarks, zero- and few-shot, under a separate prompt-based protocol kept distinct from the trained results (Table~3, p.~26); the evaluation now spans five model scales.
-
-\textbf{The results.} On Java, the prompted decoder-only models solve 33--45 of 67 MBJP tasks, compared with 17 of 67 for TyFlow-2B. On SuFu, the low-resource setting the method targets, none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, against 21 of 58 for TyFlow-2B.
-
-\textbf{The conclusions.} The comparison shows that TyFlow-2B can outperform these larger prompted models on a low-resource language. The representation also carries over to decoder-only models; adapting the dynamic typing context requires recomputing its key-value entries at each step, as explained in \commentref{2.3}. Implementing and evaluating this adaptation remains future work.
+\response We have addressed this concern in \commentref{1.5} (larger-model comparisons) and \commentref{2.3} (decoder-only adaptation). 
+We added evaluations of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B across all four benchmarks. These models perform well on Java: on MBJP, they solve 34--42 of 67 tasks at pass@1, compared with 17 for TyFlow-2B. On SuFu, they solve no tasks zero-shot and at most 8 of 58 with few-shot prompting, compared with 21 for TyFlow-2B, showing that more parameters alone do not ensure better performance without suitable training. 
+Our decision-sequence representation and synthesis rules can also be reused in a decoder-only model; \commentref{2.3} describes how to adapt the dynamic typing context, with implementation and evaluation planned as future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Table~3 (p.~26): the three decoder-only models on all four benchmarks.
-  \item \textbf{Added} Sec.~6.3 (p.~29): the requirements for a decoder-only adaptation.
+  \item \textbf{Added} Sec.~6.2.1 and Table~3 (p.~26): the three decoder-only models on all four benchmarks and the comparison of their Java and SuFu results with TyFlow-2B.
+  \item \textbf{Added} Sec.~6.3 (pp.~29--30): the requirements for a decoder-only adaptation.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, Table~3 and its note (p.~26) -- the decoder-only comparison and its protocol}
 To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task [\dots] Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26) -- the larger-model results on SuFu and Java}
+On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.3 (pp.~29--30) -- the decoder-only adaptation path}
+The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. [\dots] This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 
 \phantomsection\label{com:3.6}
