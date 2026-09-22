@@ -238,8 +238,8 @@ All methods are evaluated on the same 67 tasks with 10 candidates each.
 Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of \autoref{tab:model-results} (13.43/32.84); the \mainname-2B row is identical in both tables.
 
 Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
-SynCode constrains decoding itself: at each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed. It is not originally implemented for Java, so we adapt it to the grammar of our Java subset.
-Repilot pairs the LM with the Eclipse JDT completion engine: the partial program is maintained as a JDT document, and at each decoding position the engine is queried for the continuations it can legally complete, so that LM-proposed tokens inadmissible at that position are pruned.
+For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed.
+For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries.
 Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
 
 \begin{table}[ht]
@@ -277,7 +277,7 @@ SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (
 Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%);
 iterative repair repairs 59 candidates' compilability (compile errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
 \mainname-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods.
-External reliability mechanisms (post-hoc filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) never change the model's own preference and distribution over output tokens, whereas \mainname{} explicitly encodes the typing rules into the model and helps it better learn the program distribution, demonstrating the importance of the \textbf{Type Explicitness} property in~\autoref{section:intro}.
+The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas \mainname{} explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the \textbf{Type Explicitness} property in~\autoref{section:intro}.
 
 \subsubsection{RQ4: Comparison with Separated Type-Code Generation}
 We compare \mainname with approaches that separate type reasoning and code generation.
@@ -331,9 +331,7 @@ These results support the \textbf{Derivation Vicinality} paradigm of \mainname, 
 \subsection{Limitations and Future Work} \label{sec:limitations}
 \paragraph{Dependence on the encoder-decoder architecture.}
 The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
-The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.
-In a decoder-only model, supplying the context would mean prefilling the current typing context after the derivation prefix at every step and removing it again before the next step, so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule.
-We leave this adaptation to future work.
+The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision prefix as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 
 \paragraph{Dynamically typed languages.}
 The current design of \mainname relies on a type system in which the type derivation of a program can be computed automatically from the program text, so that existing code can be converted into our decision-sequence format.

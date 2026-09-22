@@ -206,8 +206,8 @@ First-order unification always terminates. It either rejects two terms or return
 Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, TyFlow's current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the architectural limitation}
-The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context. [\dots] so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule. We leave this adaptation to future work.
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the decoder-only adaptation path}
+The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. [\dots] This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- type-system expressiveness as a limitation}
@@ -544,14 +544,18 @@ Additionally, discuss whether the core ideas could be adapted to
 decoder-only architectures, even if full integration is left to future work.
 \end{revcomment}
 
-\response Thanks. We address both parts of the action item with new experiments and new text.
+\response Thanks for this comment. We summarize the larger-model comparison reported in \commentref{1.5}, then explain how TyFlow could be adapted to a decoder-only model.
 
-\textbf{(1) The comparison with larger decoder-only models.} We evaluate three open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B; 7B--30B parameters) on all four benchmarks, zero-shot and few-shot, with one greedy candidate per task (Table~3, p.~26). On Java, the prompted models solve 33--45 of 67 MBJP tasks, compared with TyFlow-2B's 17/67. On SuFu, none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8/58, against 21/58 for TyFlow-2B. These results show the value of the type-guided representation in the low-resource setting even when compared with larger models.
+\textbf{(1) The comparison with larger decoder-only models.} \commentref{1.5} gives the settings and results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B. These pretrained models have a strong Java foundation, which helps explain their higher performance on MBJP. They solve 34--42 of 67 MBJP tasks, compared with 17 for TyFlow-2B. However, their performance is much lower on the low-resource language SuFu, where none solves a task without examples, and few-shot prompting reaches at most 8 of 58, compared with 21 for TyFlow-2B.
 
-\textbf{(2) The architectural discussion.} The representation transfers unchanged to a decoder-only model. Adapting the dynamic typing context would require prefilling the current context after the derivation prefix and removing it before the next step. This requires recomputing the context's key-value entries at each step. Sec.~6.3 now explains these adaptation requirements; implementing and evaluating the adaptation remains future work.
+Model size needs to be considered together with the available language-specific training data. The larger prompted models do not outperform TyFlow-2B on SuFu, showing that more parameters alone do not ensure better results in this setting.
+
+\textbf{(2) Adapting TyFlow to a decoder-only model.} The decision-sequence representation can be used unchanged: a decoder-only model can predict the next rule or variable-assignment token from the prompt and previous decisions. The synthesis engine would still apply that decision, update the derivation tree, and check the constraints. The part that needs adaptation is the dynamic typing context. In the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence.
+
+One adaptation would supply the current typing context as temporary input after the decision prefix. The decoder would process this context to predict the next decision, after which the synthesis engine would update the goal. Before the following prediction, the old context would be removed and replaced with the updated one. Its key-value cache entries would therefore need to be recomputed at every step rather than reused. Thus, the representation and synthesis rules carry over, while context input and cache management require changes to the decoding procedure. Sec.~6.3 describes this adaptation direction; implementation and runtime evaluation remain future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Table~3 (p.~26) and Sec.~6.2.1 (p.~26): the decoder-only comparison.
+  \item \textbf{Added} Table~3 (p.~27) and Sec.~6.2.1 (p.~26): the decoder-only comparison, detailed in \commentref{1.5}.
   \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29): what a decoder-only adaptation requires.
 \end{itemize}}
 
@@ -559,8 +563,8 @@ decoder-only architectures, even if full integration is left to future work.
 On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the decoder-only adaptation limitation}
-The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context. In a decoder-only model, supplying the context would mean prefilling the current typing context after the derivation prefix at every step and removing it again before the next step, so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule. We leave this adaptation to future work.
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the decoder-only adaptation path}
+The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision prefix as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 
 \phantomsection\label{com:2.4}
@@ -578,22 +582,31 @@ refinement types), or explicitly scope the generality claims to what is
 empirically demonstrated and acknowledge the gap as a limitation.
 \end{revcomment}
 
-\response Thanks. The synthesis construction is defined at the CHC level, while the experiments evaluate type correctness in two languages, across four benchmark families with 58 SuFu and 186 Java test tasks. Following the requested scope clarification, we now distinguish the framework's formal generality from its empirical evaluation in the introduction, related work, and conclusion. Other constraint families require their own implementations and evaluations and remain future work.
+\response Thanks for this comment. TyFlow's generality comes from its construction at the CHC level: the transformation from proof rules to synthesis rules is not specific to Java or SuFu. Extending it to another constraint family requires expressing the relevant rules in the supported form and providing the required constraint-checking procedures. 
+
+Our experiments establish the benefits of this construction for type correctness in Java and SuFu. Extensions such as ownership or effect constraints would additionally require implementing their rules and solvers, preparing training examples, and evaluating both correctness and runtime. We therefore focus on type correctness in Java and SuFu in this paper and plan to explore other constraints in future work. The revised manuscript clarifies the evaluated scope and the extension path, including in Sec.~6.3 (Limitations and Future Work).
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Clarified} Sec.~1 (p.~4), Sec.~7 (p.~30), and Sec.~8 (p.~31): the distinction between the CHC-level construction and its implementation and evaluation for type correctness in two languages.
+  \item \textbf{Clarified} Sec.~1 (p.~4): the CHC-level construction, its solver requirements, and its evaluation for type correctness in Java and SuFu.
+  \item \textbf{Clarified} Sec.~7.2 (p.~31): the extension from grammar-based representations to type-correctness proofs.
+  \item \textbf{Clarified} Sec.~8 (p.~31): richer constraint families as a direction for future implementation and evaluation.
+  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the implementation and cost evaluation required to support richer type features, including effects.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~1 (p.~4) -- the scoped CHC claim in the introduction}
-Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation not only subsumes the prior work on syntactic correctness but also accommodates a broader class of Turing-computable specifications. While this paper instantiates and evaluates the framework only for type correctness in two languages, the synthesis construction itself is defined at the CHC level and is in principle applicable to other decidable constraint families; we do not evaluate such extensions empirically.
+Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation subsumes prior work on syntactic correctness and provides a common basis for constructing synthesis rules from proof rules. The construction applies to rules in the supported CHC form with suitable unification and constraint-checking procedures. We instantiate and evaluate the framework for type correctness in Java and SuFu.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~7 (p.~30) -- the scoped CHC claim in related work}
-Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. Our implementation and evaluation exercise this generality on type-correctness constraints in two languages; other CHC-representable constraint families remain a formal possibility that we do not evaluate.
+\begin{revquote}{Revised manuscript, Sec.~7.2 (p.~31) -- the extension from grammar-based representations to type-correctness proofs}
+Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. TyFlow extends this rule-based representation from syntactic structure to type-correctness proofs, with implementations and evaluations in Java and SuFu.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~8 (p.~31) -- the scoped CHC claim in the conclusion}
 Beyond type correctness, TyFlow's CHC foundation suggests a route toward richer constraint families, such as safety verification and the generation of other structural data; instantiating and evaluating these extensions remains future work.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- requirements for richer type features}
+For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
 \end{revquote}
 
 \clearpage
@@ -610,31 +623,35 @@ the token level. To demonstrate the robustness of TyFlow, comparisons
 against those works are important.
 \end{revcomment}
 
-\response Thanks for this suggestion. We compared TyFlow with rejection sampling, SynCode, Repilot (\emph{Copiloting the Copilots}), and iterative compiler repair on MBJP, all running on the same frozen checkpoint under the same sampling protocol. The question is whether these external mechanisms, which operate only on the model's output at decoding time, can match internalizing the type constraints into the model itself. The results show they cannot: all four filter, mask, or repair candidates without changing the model's own distribution over programs, whereas TyFlow changes that distribution by encoding the typing rules into the model.
+\response Thanks for this suggestion. We added comparisons using SynCode and Repilot (\emph{Copiloting the Copilots}) on MBJP, alongside rejection sampling and iterative compiler repair. We reuse their released constraint engines and adapt the surrounding generation code to our model and task format. The experiments compare these decoding-time mechanisms with TyFlow's type-guided generation; the implementations and evaluated configurations are described below.
 
-\textbf{SynCode} constrains decoding at each step by masking tokens that would violate the grammar, so every output is syntactically well-formed. It reduces the compilation-error rate (26.12\% $\to$ 21.34\%) but leaves the solved sets unchanged: constraining syntax does not help with semantic correctness, because a well-formed program can still compute the wrong result.
+\textbf{SynCode.} We reuse SynCode's released grammar-masking code and Java grammar with T5Gemma2 on MBJP. SynCode masks tokens that would violate the grammar at each decoding step to ensure syntactically well-formed outputs. In the evaluated compile-safe configuration, CER falls from 26.12\% to 21.34\%, while the solved sets remain unchanged.
 
-\textbf{Repilot} is the method proposed in \emph{Copiloting the Copilots}. It pairs the LM with the Eclipse JDT completion engine, pruning tokens that the engine cannot legally complete. In our run its pruning rarely fires, for two reasons. First, following the original implementation, punctuation and keyword tokens are accepted without querying the engine, so a large share of the model's token proposals are never checked at all. Second, when the engine is queried, it is queried at an incomplete position, where its completion list is permissive: JDT can legally continue almost any partial prefix, so few proposals are actually rejected. Repilot therefore behaves close to unconstrained decoding: compilation errors barely move (26.12\% $\to$ 25.97\%), and the solved sets are unchanged.
+\textbf{Repilot.} We reuse Repilot's modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries. CER changes from 26.12\% to 25.97\%, and the solved sets remain unchanged.
 
-\textbf{Rejection sampling} is the only external method that changes any outcome, adding three solved tasks at pass@10 and one at pass@1, but neither difference is statistically significant.
+\textbf{Rejection sampling} is the only external method that increases the number of solved tasks, adding three solved tasks at pass@10 and one at pass@1, but neither difference is statistically significant.
 
-\textbf{TyFlow-2B} solves 17/67 at pass@1 and 29/67 at pass@10 with only 3/670 compilation errors, the best result among all compared methods. TyFlow enforces the modeled type constraints during generation and reduces CER to 0.45\%, rather than filtering or repairing what the model already produces.
+\textbf{TyFlow-2B} solves 17/67 at pass@1 and 29/67 at pass@10 with only 3/670 compilation errors, the best result among all compared methods. TyFlow enforces the modeled type constraints during generation and reduces CER to 0.45\%, rather than filtering or repairing what the model already produces. These results suggest that when the model assigns too little probability to correct programs, decoding-time constraints alone offer limited gains, making a suitable representation and training is more effective way to improve the learned distribution.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Rewrote} Sec.~6.2.3 (p.~28): RQ3 is now a five-method comparison under one frozen checkpoint, and Table~5 was replaced accordingly.
-  \item \textbf{Added} Sec.~6.2.3 (p.~28): the shared-protocol statement, the reconciliation of the control with Table~2, per-method descriptions, and the paired tests.
+  \item \textbf{Rewrote} Sec.~6.2.3 (p.~28): the comparison of external generation mechanisms with TyFlow and the results in Table~5.
+  \item \textbf{Clarified} Sec.~6.2.3 (p.~28): reuse of the released SynCode and Repilot/JDT components and how their grammar masking and completion-guided token pruning are applied to MBJP generation.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the five-method setup and shared protocol}
 On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: \emph{rejection sampling}, \emph{SynCode}, \emph{Repilot}(\emph{Copiloting the Copilots}), and \emph{iterative compiler repair}. All methods are evaluated on the same 67 tasks with 10 candidates each. Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of Tab.~2 (13.43/32.84); the TyFlow-2B row is identical in both tables.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the SynCode and Repilot mechanisms}
-SynCode constrains decoding itself: at each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed. It is not originally implemented for Java, so we adapt it to the grammar of our Java subset. Repilot pairs the LM with the Eclipse JDT completion engine [\dots] Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%).
+\begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- reuse and adaptation of SynCode}
+For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the outcome and the Type Explicitness conclusion}
-None of the four external baselines significantly improves functional correctness over the ordinary control: rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$); SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67) [\dots] TyFlow-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods. External reliability mechanisms (post-hoc filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) never change the model's own preference and distribution over output tokens, whereas TyFlow explicitly encodes the typing rules into the model and helps it better learn the program distribution, demonstrating the importance of the Type Explicitness property in Sec.~1.
+\begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- reuse and adaptation of Repilot/JDT}
+For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.3 (pp.~28--29) -- the outcome and the Type Explicitness conclusion}
+None of the four external baselines significantly improves functional correctness over the ordinary control: rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$); SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67) [\dots] TyFlow-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods. The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas TyFlow explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the Type Explicitness property in Sec.~1.
 \end{revquote}
 
 \phantomsection\label{com:3.2}
