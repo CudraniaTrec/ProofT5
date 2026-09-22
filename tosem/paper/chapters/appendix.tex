@@ -98,10 +98,10 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
 \label{appendix-benchmark}
 
 \subsection{Java Benchmark}
-We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including classes, methods, variables, arrays, generic types, operators, and control flow statements. While excluding advanced Java features such as multithreading, lambda expressions, and complex reflection mechanisms.
+The implemented Java subset supports classes, methods, variables, arrays, generic types, operators, and control flow statements; it omits multithreading, lambda expressions, and complex reflection mechanisms.
 
 The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of the MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}.
-The subset admits tasks whose constructs our toolchain supports; this admission filter is a potential selection bias, mitigated by the two additional benchmarks drawn from independent sources.
+Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
 The complete grammar specification is presented below:
 
 \begin{tcolorbox}[
