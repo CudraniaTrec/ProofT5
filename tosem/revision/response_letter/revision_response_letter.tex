@@ -664,22 +664,22 @@ To demonstrate TyFlow's robustness, the authors should compare it with this
 line of work.
 \end{revcomment}
 
-\response Thanks for this comment. Iterative compiler repair is now one of the five compared methods: \texttt{javac} diagnostics are fed back to the model, which regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
+\response Thanks for this comment. Iterative compiler repair is now one of the five compared methods: \texttt{javac} diagnostics are fed back to the model, which regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
 
-Repair does improve compilability (compile errors fall from 175 to 116 of 670 candidates) but adds no solved task: the solved sets remain 10/67 at pass@1 and 16/67 at pass@10, whereas rejection sampling in the same run adds three solved tasks at pass@10 and one at pass@1 --- so feedback-based regeneration is not strictly stronger than rejection sampling on this benchmark. Note that rejection sampling's own gain is itself not statistically significant (App.~D) --- neither external method demonstrably improves functional correctness over the ordinary control.
+Compiler feedback improves compilability in our experiments: the number of candidates that fail to compile falls from 175 to 116 out of 670. However, none of the 59 candidates repaired to compile passes the functional tests, so the solved sets remain unchanged at 10/67 for pass@1 and 16/67 for pass@10. Compiler diagnostics identify compilation errors, but do not establish whether a program implements the intended behavior. The feedback therefore helps repair compilation failures without necessarily correcting the program's functionality.
 
-The methods use different computational budgets: rejection sampling draws up to 100 candidates per task, while repair starts from ten sampled candidates and uses at most two feedback rounds. The comparison therefore reports outcomes under these protocols, rather than a budget-matched ranking. Of the 59 candidates repaired to compile, none passed its tests. This illustrates the distinction between compilability and functional correctness: compiler diagnostics identify compilation failures, but do not establish whether a program computes the intended result. TyFlow complements these decoding-time mechanisms by encoding typing rules into the representation learned during training.
+Rejection sampling explores additional candidates and can find functionally correct programs through repeated generation. In our experiments, it adds one solved task at pass@1 and three at pass@10, although neither gain is statistically significant. These results show that the additional compiler feedback is useful for compilability, but does not automatically lead to higher functional correctness than repeated sampling.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.2.3 (p.~28): the repair protocol (\texttt{javac} feedback, at most two rounds, un-fine-tuned agent), its measured outcome, and the closing discussion.
+  \item \textbf{Added} Sec.~6.2.3 (pp.~28--29): the repair protocol (\texttt{javac} feedback, at most two rounds, un-fine-tuned agent), its measured outcome, and an explanation of why compiler feedback improves compilability without adding solved tasks.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the iterative-repair protocol}
-Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
+Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the repair outcome vs. rejection sampling}
-[\dots] iterative repair repairs 59 candidates' compilability (compile errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
+\begin{revquote}{Revised manuscript, Sec.~6.2.3 (pp.~28--29) -- improved compilability without additional solved tasks}
+[\dots] iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 \end{revquote}
 
 \phantomsection\label{com:3.3}
