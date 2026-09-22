@@ -384,9 +384,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 \end{table}
 
 Counts in \autoref{tab:failure-taxonomy} are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid \mainname-2B tasks include the documented budget-exhaustion (fail-closed) task.
-Invalid generation essentially disappears under \mainname{}: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
-Ranking failures persist (12--17 tasks on MBJP and TransCoder-GFG): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
-The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
+On MBJP, the baseline produces no compilable candidate for four tasks, while \mainname{} produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by \mainname{} at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
 
 \subsection{Representative Case: Invalid Generation (T5Gemma2-2B)}
 
@@ -424,7 +422,7 @@ public static boolean oddPosition(List<Integer> nums) {
 \end{Verbatim}
 \end{tcolorbox}
 The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects \texttt{nums.get(i)} and never assigns \texttt{true}; the method returns \texttt{false} for every input, while the tests expect \texttt{true} for two of the three cases.
-No typing rule is violated, so no amount of type-level pruning can reject this candidate: the failure is purely semantic.
+The candidate satisfies the implemented typing rules, but its behavior does not match the task specification. This case illustrates a general logic error rather than a failure confined to edge cases; the taxonomy does not separately count edge-case failures.
 
 \subsection{SuFu}
 

@@ -361,19 +361,19 @@ numbers.\par\smallskip
 models.
 \end{revcomment}
 
-\response Thanks for this comment. We added exactly the requested zero-shot comparison, plus a few-shot condition, for three larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) on all four benchmark families (Table~3, p.~26; protocol in the table note). The comparison contextualizes the absolute numbers:
+\response Thanks for this comment. We added the requested zero-shot comparison, plus a few-shot condition, for three larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) on all four benchmark families (Table~3, p.~27; protocol in the table note). The comparison contextualizes the absolute numbers:
 
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{SuFu (58 tasks).} None of the three models solves a single task zero-shot, and few-shot prompting reaches at most 8/58, whereas TyFlow-2B solves 21/58. The low-resource language is precisely where the type-guided representation delivers its advantage, and where scale alone does not.
-  \item \textbf{Java.} The prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models (TyFlow-2B: 17/8/31); on Java, large decoder-only models are indeed stronger in absolute terms, and we state this plainly, since it is exactly what the comparison is for.
-  \item \textbf{A caveat we flag ourselves.} Few-shot prompting brings little or no gain over zero-shot on Java for these models, which suggests they have seen this language extensively and may have been trained on these benchmarks directly; the revision therefore flags a possible data-leakage risk for the Java comparison.
+  \item \textbf{SuFu (58 tasks).} None of the three models solves a single task zero-shot, and few-shot prompting reaches at most 8/58, whereas TyFlow-2B solves 21/58. The low-resource language is precisely where the type-guided representation delivers its advantage.
+  \item \textbf{Java.} At pass@1, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively. These results provide context for performance on Java under the respective generation settings.
+  \item \textbf{A caveat we flag ourselves.} Few-shot prompting brings little or no gain over zero-shot on Java for these models, which suggests they may have seen this language extensively and may have been trained on these benchmarks directly; the revision therefore flags a possible data-leakage risk for the Java comparison.
 \end{itemize}
 
 Relative to its fine-tuned baseline T5Gemma2-2B, TyFlow-2B still improves all four benchmarks, which is the controlled comparison the paper's claims rest on.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Table~3 (p.~26): pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks, zero-shot and few-shot, with the prompt protocol in the table note.
-  \item \textbf{Added} Sec.~6.2.1 (p.~26): the reading of this comparison, including the data-leakage caveat.
+  \item \textbf{Added} Table~3 (p.~27): pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks, zero-shot and few-shot, with the prompt protocol in the table note.
+  \item \textbf{Added} Sec.~6.2.1 (p.~26): the SuFu results and the Java pass@1 comparison with TyFlow-2B, using task prompts without examples for the larger models, together with the data-leakage caveat.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, setup (p.~26) -- the setup of the decoder-only comparison}
@@ -381,7 +381,7 @@ To contextualize absolute performance, Tab.~3 reports three larger decoder-only 
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, results (p.~26) -- the decoder-only results on Java and SuFu}
-On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
+On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively. These results provide context for performance on Java under the respective generation settings. [\dots] we therefore flag a possible data-leakage risk for the Java comparison.
 \end{revquote}
 
 \phantomsection\label{com:1.6}
@@ -391,36 +391,41 @@ wrong but well-typed? Do they fail on edge cases? A qualitative analysis of
 failure modes would significantly strengthen the paper.
 \end{revcomment}
 
-\response Thanks for this suggestion. We added a full failure-analysis appendix (App.~C, p.~42--43). For every test task across the three Java benchmarks (MBJP 67, HumanEval-Java 16, TransCoder-GFG 103), we classify the outcome into one of four mutually exclusive categories, and compare the baseline with TyFlow on each category.
+\response Thanks for this suggestion. Most tasks not solved by TyFlow-2B at pass@1 have compilable candidates whose behavior does not match the task specification; some contain a correct candidate that is not ranked first. We analyze these outcomes in App.~C (pp.~42--43), comparing TyFlow-2B with its baseline on all three Java benchmarks using four mutually exclusive categories.
 
 \textbf{The four categories are:}
 \begin{enumerate}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Solved@1}: the top-1 candidate passes all test cases.
-  \item \textbf{Ranking failure}: a correct candidate exists among the ten, but it is not ranked first.
   \item \textbf{All-invalid}: no candidate compiles.
   \item \textbf{Well-typed but wrong}: at least one candidate compiles, but none passes all tests.
+  \item \textbf{Ranking failure}: a correct candidate exists among the ten, but it is not ranked first.
+  \item \textbf{Solved@1}: the top-1 candidate passes all test cases.
 \end{enumerate}
 
-\textbf{How the baseline and TyFlow compare on each category:}
+\textbf{Failure analysis of each category:}
 
 \begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
-  \item \textbf{All-invalid generation essentially disappears.} Under the baseline, 4 MBJP tasks and 2 TransCoder-GFG tasks produce no compilable candidate. Under TyFlow, the counts are 0, 0, and 2 on MBJP, HumanEval-Java, and TransCoder-GFG, respectively; the two residual GFG cases arise from budget exhaustion rather than completed ill-formed output.
-  \item \textbf{Solved@1 increases on every benchmark.} MBJP: 9 $\to$ 17 (baseline $\to$ TyFlow). TransCoder-GFG: 20 $\to$ 31. HumanEval-Java: 5 $\to$ 8. The method adds value beyond reducing compilation errors.
-  \item \textbf{Well-typed but wrong becomes the dominant residual mode.} On MBJP, 38 of TyFlow's 50 unsolved tasks produce compilable but incorrect code; on TransCoder-GFG, 53 of 72 do. This is the expected result: TyFlow enforces the implemented type constraints, not semantic correctness.
-  \item \textbf{Ranking failures persist.} On MBJP and TransCoder-GFG, 12 and 17 tasks respectively contain a correct candidate in the top ten that is not ranked first. This is a property of beam scoring, not of the representation.
+  \item \textbf{Tasks end without any compilable candidate.} On MBJP, the baseline produces no compilable candidate for four tasks, while TyFlow produces at least one for every task.
+  \item \textbf{Compilable programs with incorrect behavior.} In these cases, at least one candidate compiles, but none implements the required behavior to pass all tests. For example, of the 50 MBJP tasks that TyFlow does not solve with its first candidate, 38 fall into this category. This is also the largest remaining failure category on HumanEval-Java and TransCoder-GFG. App.~C.2 illustrates how a candidate can satisfy the implemented typing rules but fail to match the task specification. Such errors need not be limited to edge cases.
+  \item \textbf{Correct candidates generated but not ranked first.} For these tasks, TyFlow finds a solution within its ten candidates, but the first candidate is incorrect. This occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks therefore count as successes at pass@10 but not at pass@1.
+  \item \textbf{Tasks solved by the first candidate.} TyFlow improves functional correctness as well as compilability. On MBJP, the first candidate passes all tests for 17 tasks, compared with nine under the baseline. The same improvement appears on HumanEval-Java, from five solved tasks to eight, and on TransCoder-GFG, from 20 to 31.
 \end{itemize}
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} App.~C (p.~42--43): the four-category taxonomy, Table~8 with counts for the three Java benchmarks, and two representative cases.
-  \item \textbf{Added} Sec.~6.2.1 (p.~25): the sentence linking the 220M MBJP result to the taxonomy.
+  \item \textbf{Added} App.~C (p.~42): the four-category taxonomy and Table~8 comparing the 2B models on all three Java benchmarks, with an explanation of compilable-but-incorrect candidates and ranking failures.
+  \item \textbf{Added} App.~C.1--C.2 (pp.~42--43): representative compilation and semantic failures, with the distinction between general logic errors and edge-case failures clarified in C.2.
+  \item \textbf{Added} Sec.~6.2.1 (p.~25): a pointer to the failure analysis when discussing candidate ranking and compilable but incorrect programs.
 \end{itemize}}
 
-\begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure taxonomy and counts}
-Invalid generation essentially disappears under TyFlow: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output. Ranking failures persist (12--17 tasks on MBJP and TransCoder-GFG): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation. The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
+\begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure-category results}
+On MBJP, the baseline produces no compilable candidate for four tasks, while TyFlow produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by TyFlow at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~C.2, representative case (p.~43) -- the representative semantic failure case}
-The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects \texttt{nums.get(i)} and never assigns \texttt{true}; the method returns \texttt{false} for every input, while the tests expect \texttt{true} for two of the three cases. No typing rule is violated, so no amount of type-level pruning can reject this candidate: the failure is purely semantic.
+The candidate satisfies the implemented typing rules, but its behavior does not match the task specification. This case illustrates a general logic error rather than a failure confined to edge cases; the taxonomy does not separately count edge-case failures.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the pointer to failure analysis}
+The failure analysis in Appendix~C identifies ranking errors and compilable but incorrect programs among the remaining failures.
 \end{revquote}
 
 \clearpage
@@ -545,7 +550,7 @@ decoder-only architectures, even if full integration is left to future work.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26) -- the decoder-only comparison}
-On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot [\dots] On Java the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks [\dots] well above the fine-tuned 2B models.
+On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~29) -- the decoder-only adaptation limitation}
