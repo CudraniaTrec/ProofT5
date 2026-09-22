@@ -451,26 +451,24 @@ the small test sets. Consider adding at least one more widely-used benchmark
 to help contextualize the results.
 \end{revcomment}
 
-\response Thanks. We add two Java benchmarks and report confidence intervals and paired significance tests. SuFu and Java serve complementary roles in this evaluation.
+\response Thanks for this comment. \commentref{1.3} presents the expanded evaluation and statistical analysis in detail, including the benchmark settings, results, confidence intervals, and paired tests. We summarize the answers to your specific concerns below.
 
-\textbf{(1) Two widely-used benchmarks.} HumanEval-Java and TransCoder-GFG are added with fixed training/test splits of 146/16 and 414/103 tasks; the Java evaluation grows from 67 to 186 test tasks across three independent sources.
+\textbf{(1) Evaluation on additional benchmarks.} We add HumanEval-Java and TransCoder-GFG alongside MBJP. On both added benchmarks, TyFlow-2B improves over its baseline on all four metrics: pass@1, pass@10, FSP, and CER. In particular, pass@10 rises from 37.50\% to 56.25\% on HumanEval-Java and from 33.01\% to 46.60\% on TransCoder-GFG. These results show that the gains are not confined to SuFu or the original MBJP test set.
 
-\textbf{(2) Statistical stability.} We report 95\% intervals and exact paired tests at both model scales. As explained in \commentref{1.3}, the smaller test sets give wider intervals, and some differences on 220M Java and 2B SuFu are not statistically significant. These analyses are included in App.~D.
-
-\textbf{(3) SuFu's role.} SuFu evaluates the benefits of the type-guided representation in a low-resource language, where the evaluated larger decoder-only models solve no tasks zero-shot (\commentref{1.5}). The Java benchmarks test the method on a widely used programming language across three task sources.
+\textbf{(2) Statistical reliability.} At 220M, the small Java test set limits our ability to detect statistically significant improvements: the pass@1 and pass@10 differences are not significant, and only the CER difference is significant. In the 2B experiments, we expand the Java evaluation with two additional benchmarks. On the combined Java test set, improvements on all four metrics are statistically significant. \commentref{1.3} gives the confidence intervals and paired-test results.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.1.1 (p.~24): HumanEval-Java and TransCoder-GFG with their fixed splits (146/16 and 414/103).
-  \item \textbf{Added} App.~B (p.~37--40): the construction of the two benchmarks and Table~7.
-  \item \textbf{Added} App.~D (pp.~44--45): confidence intervals and paired significance tests.
+  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (pp.~39--40): HumanEval-Java and TransCoder-GFG and their construction.
+  \item \textbf{Added} Sec.~6.2.1 (p.~25) and Table~2 (p.~26): the results on the two added Java benchmarks, including the pass@10 improvements reported above.
+  \item \textbf{Added} App.~D: confidence intervals and paired significance tests, detailed and quoted in \commentref{1.3}.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added benchmarks and their splits}
 HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java, and TransCoder-GFG collects the Java programs released with TransCoder; both follow the task format of MBJP. HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~B (p.~40, Table~7) -- split statistics of the three Java benchmarks}
-HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
+\begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- improvements on the added Java benchmarks}
+TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 \end{revquote}
 
 \phantomsection\label{com:2.2}
@@ -492,29 +490,37 @@ frequently beam search exhausts all candidates due to pruning and what the
 fallback behavior is.
 \end{revcomment}
 
-\response Thanks. We address each part of the action item.
+\response Thanks for this comment. We explain the size of the encoded derivation, the measured runtime cost of each component, and the behavior of beam search below.
 
-\textbf{(1) How the synthesis tree scales with program complexity.} The synthesis derivation tree is represented as a token sequence whose length is roughly proportional to the program's own token length. On SuFu, the average TyFlow decision sequence is 410 tokens, comparable to the average program's 405 code tokens; on Java, 129 tokens vs. 142 program tokens. The derivation tree therefore grows linearly with the program, not exponentially.
+\textbf{(1) Synthesis-tree encoding and richer type systems.} We encode a synthesis derivation tree as a sequence of decisions in the order in which its goals are resolved. Each rule selection is represented by one token. Variable assignments are encoded as sequences of constructor and constant tokens. The model therefore generates tokens representing the decisions needed to reconstruct the tree, rather than the full text of every typing judgment.
 
-\textbf{(2) Runtime overhead, measured.} RQ2 now times the same 220M model in the four component configurations, reporting per-step (31.1 $\to$ 32.4 $\to$ 43.7 $\to$ 59.6\,ms) and per-task totals ($-6.38\%$ / $+94.00\%$ / $+173.88\%$, $2.74\times$ the unconstrained base); the quoted paragraph explains where each cost comes from and why syntactic pruning even lowers the per-task total.
+The resulting sequences are comparable in length to ordinary tokenized code. TyFlow generates an average of 410 tokens per program on SuFu, compared with 405 tokens per program for the ordinary text-based encoding. On Java, the corresponding averages are 129 and 142 tokens. 
+A rule token incorporates syntax that would otherwise require separate code tokens, such as punctuation.
+The same encoding applies when extending the type system as discussed in \commentref{1.1}: each added rule still uses one token per application. Adding more available rules does not mean emitting all of them, so a larger rule set does not itself cause an explosion in sequence length of our synthesis trees. Sequence length depends on how many rule applications and variable assignments the derivation requires.
 
-\textbf{(3) Scaling to richer type features.} This issue is answered in detail in \commentref{1.1}. In short, richer type features add constraints, state, and rule choices. When their checks can use first-order terms and separate solvers, the same mapping from typing rules to synthesis rules applies. Supporting these features requires implementing the corresponding rules and solvers and measuring their effects on checking cost and search.
+\textbf{(2) Runtime overhead of each component.} Our ablation study uses the 220M model on SuFu in four cumulative configurations: the base model without checks, then adding syntactic pruning, type pruning, and the dynamic typing context in turn. A decoding step extends the active hypotheses by one token, including the enabled checks and context update. In this order, average time per step is $31.1 \to 32.4 \to 43.7 \to 59.6$\,ms. Syntactic pruning is inexpensive: checking whether a proposed token fits the expected syntax adds only 1.3\,ms per step. Type pruning adds 11.3\,ms because it invokes the type checker on candidate extensions; encoding the updated typing context adds a further 15.9\,ms because the evolving synthesis goal must be processed by the encoder. 
 
-\textbf{(4) Beam exhaustion and fallback.} The instrumented run reports zero tasks that dead-end under beam~10. By design, if beam search ever ran out of candidates, the task would be counted as a failure. In practice this never occurred across all 58 SuFu tasks and all 186 Java tasks.
+Average time per task is $5.70 \to 5.34 \to 11.07 \to 15.62$\,s in the same configuration order. The overall trend is similar: type checking and context encoding account for most of the additional cost. Syntactic pruning is the exception. By eliminating invalid decisions early, it keeps search on well-formed derivations that finish in fewer steps. This reduction outweighs its small per-step overhead, lowering average task time from 5.70 to 5.34\,s.
+
+\textbf{(3) Beam-search behavior.} As explained in \commentref{1.2}, a finite beam can still discard all correct continuations. If the active beam is exhausted, search stops and retains any completed candidates. If none has been completed, the run produces no solution. In the instrumented run, however, the active beam contained 7.97 hypotheses on average with a maximum width of ten, and never became empty.
+
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.2.2 (p.~27): the runtime measurements and the Time / ms-per-step columns of Table~4.
-  \item \textbf{Added} Sec.~6.2.1 (p.~26): the discussion of how the synthesis derivation tree scales with program complexity.
-  \item \textbf{Added} Sec.~6.2.2 (p.~27): the beam-exhaustion observation (no task dead-ends under beam~10).
-  \item \textbf{Added} Sec.~6.3 (p.~30): the requirements for extending support to richer type systems.
+  \item \textbf{Added} Sec.~6.2.4 and Table~6 (p.~29): the token-length comparison between decision sequences and ordinary code; Sec.~6.3 (p.~30) discusses richer type-system extensions, also explained in \commentref{1.1}.
+  \item \textbf{Added} Sec.~6.2.2 and Table~4 (pp.~27--28): the runtime measurements for the four component configurations, including average per-step and per-task times.
+  \item \textbf{Added} Sec.~6.2.2 (p.~27): the discussion of finite-beam search and the observed active-beam size (7.97 on average, with no empty active beam in the instrumented run).
 \end{itemize}}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~27) -- the runtime measurements}
+\begin{revquote}{Revised manuscript, Sec.~6.2.4 (p.~29) -- decision-sequence length compared with code tokens}
+It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~28) -- the runtime measurements}
 Each component increases the per-step cost ($31.1 \to 32.4 \to 43.7 \to 59.6$\,ms). Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic typing context cost considerably more, as the former invokes the type checker at every step and the latter additionally re-encodes the evolving synthesis goal. The per-task totals move by $-6.38\%$ / $+94.00\%$ / $+173.88\%$ ($2.74\times$ base). [\dots]
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2 (p.~27) -- the beam-exhaustion observation}
-A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty. [\dots] With beam 10, this number averages 7.97. [\dots] In our experiments, however, the active beam never became empty.
+A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty. [\dots] We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning. With beam 10, this number averages 7.97. [\dots] In our experiments, however, the active beam never became empty.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the scope of richer type-system extensions}
