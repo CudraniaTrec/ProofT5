@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the marked-up manuscripts for the TOSEM major revision.
+# Build the marked-up manuscript for the TOSEM major revision.
 #
 #   old side: the submitted version, extracted from git (default: ce2dd2c)
 #   new side: the CURRENT working tree of tosem/paper/
@@ -8,8 +8,6 @@
 #   manuscript_marked.pdf       latexdiff look: blue underlined additions,
 #                               red struck-through deletions; tables in final
 #                               form (in-table markup breaks siunitx/booktabs)
-#   manuscript_color_marks.pdf  journal color-marks look: additions in blue,
-#                               deletions omitted; changed table cells blue
 #
 # Notes:
 # - the bibliography is NOT diffed (the new .bbl is excluded); references are
@@ -59,4 +57,3 @@ build_one () {  # $1 = mode (strike|color), $2 = jobname
 }
 
 build_one strike manuscript_marked
-build_one color  manuscript_color_marks

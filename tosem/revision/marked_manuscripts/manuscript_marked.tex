@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.vnM8kg/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.vnM8kg/new/manuscript.tex                Sun Sep 20 14:37:40 2026
+%DIF DEL /tmp/marked_build.hDinVS/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.hDinVS/new/manuscript.tex                Wed Sep 23 01:16:16 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -464,7 +464,7 @@ We use this decision sequence as a novel program representation, which satisfies
     \item \textbf{Derivation Vicinality}. The representation inherently captures both the program and its type correctness proof simultaneously, as they arise from the same construction process.
 \end{itemize}
 
-Notably, all proof rules in our system are formulated as constrained Horn clauses (see \autoref{chc-intro}). This representation not only subsumes the prior work on syntactic correctness~\cite{DBLP:conf/icse/ZhuL000C24,DBLP:conf/acl/LiangZ0LLXCZZZC25} but also accommodates a broader class of Turing-computable specifications. While this paper \DIFdelbegin \DIFdel{focuses on type constraints, our synthesis method is general and applicable to arbitrary logical constraints}\DIFdelend \DIFaddbegin \DIFadd{instantiates and evaluates the framework only for type correctness in two languages, the synthesis construction itself is defined at the CHC level and is in principle applicable to other decidable constraint families; we do not evaluate such extensions empirically}\DIFaddend .
+Notably, all proof rules in our system are formulated as constrained Horn clauses (see \autoref{chc-intro}). This representation \DIFdelbegin \DIFdel{not only subsumes the }\DIFdelend \DIFaddbegin \DIFadd{subsumes }\DIFaddend prior work on syntactic correctness~\cite{DBLP:conf/icse/ZhuL000C24,DBLP:conf/acl/LiangZ0LLXCZZZC25} \DIFdelbegin \DIFdel{but also accommodates a broader class of Turing-computable specifications. While this paper focuses on type constraints, our synthesis method is general and applicable to arbitrary logical constraints}\DIFdelend \DIFaddbegin \DIFadd{and provides a common basis for constructing synthesis rules from proof rules. The construction applies to rules in the supported CHC form with suitable unification and constraint-checking procedures. We instantiate and evaluate the framework for type correctness in Java and SuFu}\DIFaddend .
 
 \textbf{\textit{Our second contribution}} is a novel encoder-decoder model architecture tailored for our synthesis framework. During synthesis, the current proof state evolves at each step, and the model needs to extract the dynamic typing context from this state to make the next decision. Our architecture addresses this by using the encoder to process both the natural language specification and the current synthesis goal, while the decoder autoregressively generates the decision sequence. This design enables the model to access localized type information at each step without requiring global reasoning over the entire codebase, thereby satisfying the \textbf{Context Locality} property.
 
@@ -481,9 +481,11 @@ The rest of the paper is organized as follows.
 \autoref{sec:approach} proves the correctness of our framework and introduces how we prepare the training data and perform synthesis within the framework. 
 \autoref{sec:implementation} introduces our neural network architecture. 
 \autoref{sec:evaluation} describes the evaluation of our approach. 
-Finally, \autoref{sec:related} discusses related works and \autoref{sec:conclusion} concludes the paper. 
+Finally, \autoref{sec:related} discusses related work\DIFdelbegin \DIFdel{s}\DIFdelend  and \autoref{sec:conclusion} concludes the paper.
+\DIFaddbegin 
+
 %DIF >  !TEX root=../manuscript.tex
-\section{Overview \label{sec:overview}}
+\DIFaddend \section{Overview \label{sec:overview}}
 
 This section gives an overview of our approach \mainname, illustrating how it generates a well-typed program in the simply typed lambda calculus $\stlc$ (a foundational functional programming language)~\cite{DBLP:journals/jsyml/Church40}.
 
@@ -937,8 +939,16 @@ The MGU preserves maximum generality by not over-constraining variables. For ins
 In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
 %
 In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
-First-order unification is decidable and admits efficient algorithmic solutions~\cite{DBLP:journals/jacm/Robinson65}, making it suitable for our synthesis framework. \DIFaddbegin \DIFadd{This restriction excludes type systems that require }\emph{\DIFadd{higher-order unification}}\DIFadd{, which arises naturally with higher-order functions and polymorphism and is undecidable in general. Extending }\mainname \DIFadd{to such systems would need a decidable fragment (e.g., patterns) or a different variable-acquisition mechanism, and our formal results do not automatically carry over.
-}\DIFaddend 
+First-order unification \DIFdelbegin \DIFdel{is decidable and admits efficient algorithmic solutions~\mbox{%DIFAUXCMD
+\cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
+, making itsuitable for our synthesis framework}\DIFdelend \DIFaddbegin \DIFadd{always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\mbox{%DIFAUXCMD
+\cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
+. These guarantees let }\mainname \DIFadd{apply a selected typing rule and update its remaining premises.
+}
+
+\DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, }\mainname\DIFadd{'s current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework~\mbox{%DIFAUXCMD
+\cite{DBLP:journals/tcs/Goldfarb81}}\hskip0pt%DIFAUXCMD
+}\DIFaddend .
 
 \subsection{Terms and Typing Rules}
 \subsubsection{Terms}
@@ -1083,7 +1093,6 @@ There is a one-to-one correspondence between typing rules and synthesis rules.
 \begin{proof}
 The complete proof can be found in Appendix~\ref{sec:appendix-lemma1}.
 \end{proof}
-
 
 %DIF >  !TEX root=../manuscript.tex
 \section{Synthesis System}
@@ -1492,7 +1501,7 @@ To evaluate the generality of \mainname, our evaluation considers two languages 
  %
  This dataset is then split randomly into a training set of 80\% tasks and a test set of 20\% tasks.
 
- \item \textbf{Java} is a popular imperative language with a sophisticated type system. In a balance between the implementation cost and the expressiveness, we implement a subset of Java that preserves its core syntax while omitting advanced features like lambda expressions.
+ \item \textbf{Java} is a popular imperative language with a sophisticated type system. \DIFdelbegin \DIFdel{In a balance between the }\DIFdelend \DIFaddbegin \DIFadd{To balance }\DIFaddend implementation cost and \DIFdelbegin \DIFdel{the }\DIFdelend expressiveness, we implement a subset of Java that preserves its core syntax while omitting advanced features like lambda expressions.
 
  We consider the MBJP dataset\DIFaddbegin \DIFadd{~\mbox{%DIFAUXCMD
 \cite{DBLP:conf/iclr/AthiwaratkunGWL23} }\hskip0pt%DIFAUXCMD
@@ -1618,25 +1627,22 @@ The best-performing checkpoint is used for evaluation.
 \DIFdel{-2B improves it from 37.93\% (T5Gemma2-2B)}\DIFdelend \DIFaddbegin \DIFadd{37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% }\DIFaddend to \DIFaddbegin \DIFadd{36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to }\DIFaddend 50.00\% \DIFdelbegin \DIFdel{. On Java, }%DIFDELCMD < \mainname%%%
 \DIFdel{-220M improves pass}\DIFdelend \DIFaddbegin \DIFadd{(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass}\DIFaddend @10 \DIFdelbegin \DIFdel{from 20.90\% to 28.36\% , }\DIFdelend \DIFaddbegin \DIFadd{improves by 7.46--20.69 points on the same six benchmarks.
 The largest gains are on SuFu }\DIFaddend and \DIFdelbegin %DIFDELCMD < \mainname%%%
-\DIFdel{-2B improves it from 35.82\% to 40.30\% .
-The improvements are particularly pronounced on SuFu , indicating that }%DIFDELCMD < \mainname %%%
+\DIFdel{-2B improves it from 35.82\% to 40.30\% }\DIFdelend \DIFaddbegin \DIFadd{HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
+At 220M, the Java baseline has a lower CER than the SuFu baseline (35.52\% versus 83.10\%), leaving fewer compilation errors for type constraints to address. On MBJP, }\mainname{} \DIFadd{raises pass@10 from 20.90\% to 28.36\% and reduces CER to 1.53\%; the smaller pass@1 gain indicates that finding a correct candidate does not always make it the top-ranked output. The failure analysis in Appendix~\ref{appendix-failure} identifies ranking errors and compilable but incorrect programs among the remaining failures.
+}\mainname{} \DIFadd{also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture}\DIFaddend .
+\DIFdelbegin \DIFdel{The improvements are particularly pronounced on SuFu }\DIFdelend \DIFaddbegin 
+
+\DIFadd{To contextualize absolute performance, }\autoref{tab:decoder-only-compare} \DIFadd{reports three larger decoder-only models (MiMo-7B, Qwen3-14B}\DIFaddend , \DIFdelbegin \DIFdel{indicating that }%DIFDELCMD < \mainname %%%
 \DIFdel{enhances the model's ability to reason about type constraints on languages with complex type systems and limited training data.
-}\DIFdelend \DIFaddbegin \DIFadd{HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
-The 220M MBJP pass@1 gain is the smallest because there the type constraints mainly remove uncompilable candidates; the benefit shows up in pass@10 and CER instead, consistent with the failure analysis in Appendix~\ref{appendix-failure} (well-typed but wrong is the dominant residual mode).
-}\mainname{} \DIFadd{also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
+}\DIFdelend \DIFaddbegin \DIFadd{Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
+Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
 }\DIFaddend 
 
-\DIFdelbegin \DIFdel{In terms of the position of the first successful prediction (FSP), }%DIFDELCMD < \mainname %%%
-\DIFdel{consistently reduces FSP compared to the corresponding base models.
-On SuFu}\DIFdelend \DIFaddbegin \DIFadd{To contextualize absolute performance, }\autoref{tab:decoder-only-compare} \DIFadd{reports three larger decoder-only models (MiMo-7B}\DIFaddend , \DIFaddbegin \DIFadd{Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models.
-Each prompted model produces one greedy candidate per task: the zero-shot condition uses only the task prompt, and the few-shot condition prepends three solved examples for the Java benchmarks and six examples for SuFu.
-}
-
-\DIFadd{On SuFu the comparison favors }\mainname{}\DIFadd{: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas }\DIFaddend \mainname\DIFdelbegin \DIFdel{-220M reduces FSP from 7.03 to 5.48, and }%DIFDELCMD < \mainname%%%
-\DIFdelend -2B \DIFdelbegin \DIFdel{reduces it from 6.69 to 5.03}\DIFdelend \DIFaddbegin \DIFadd{solves 21; the low-resource language is where the type-guided representation delivers its advantage}\DIFaddend .
-On Java \DIFdelbegin \DIFdel{, }\DIFdelend \DIFaddbegin \DIFadd{the conclusion is the opposite: the prompted models solve 33--45 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks, well above the fine-tuned 2B models. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
-In any case, relative to its fine-tuned baseline T5Gemma2-2B, }\DIFaddend \mainname\DIFdelbegin \DIFdel{-220M reduces FSP from 8.19 to 7.94, and }%DIFDELCMD < \mainname%%%
-\DIFdelend -2B \DIFdelbegin \DIFdel{reduces it from 6.99 to 6.76}\DIFdelend \DIFaddbegin \DIFadd{delivers a consistent improvement on all four benchmarks}\DIFaddend .
+\DIFdelbegin \DIFdel{In terms of the position of the first successful prediction (FSP), }\DIFdelend \DIFaddbegin \DIFadd{On SuFu the comparison favors }\mainname{}\DIFadd{: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas }\DIFaddend \mainname\DIFdelbegin \DIFdel{consistently reduces FSP compared to the corresponding base models. On SuFu, }%DIFDELCMD < \mainname%%%
+\DIFdel{-220M reduces FSP from 7.03 to 5.48, and }%DIFDELCMD < \mainname%%%
+\DIFdel{-2B reduces it from 6.69 to 5.03. }\DIFdelend \DIFaddbegin \DIFadd{-2B solves 21; the low-resource language is where the type-guided representation delivers its advantage.
+}\DIFaddend On Java, \DIFaddbegin \DIFadd{given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. }\DIFaddend \mainname\DIFdelbegin \DIFdel{-220M reduces FSP from 8.19 to 7.94}\DIFdelend \DIFaddbegin \DIFadd{-2B solves 17/67, 8/16}\DIFaddend , and \DIFaddbegin \DIFadd{31/103, respectively. These results provide context for performance on Java under the respective generation settings. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
+In any case, relative to its fine-tuned baseline T5Gemma2-2B, }\DIFaddend \mainname-2B \DIFdelbegin \DIFdel{reduces it from 6.99 to 6.76}\DIFdelend \DIFaddbegin \DIFadd{delivers a consistent improvement on all four benchmarks}\DIFaddend .
 
 \DIFdelbegin \DIFdel{Most notably, }\DIFdelend \DIFaddbegin \begin{table}[ht]
 \centering
@@ -1753,22 +1759,31 @@ Base (no checks)         & 24.14 & 0.00
 Syntactic pruning alone gives a moderate }\DIFaddend pass@1 \DIFdelbegin \DIFdel{by +3.45\% and reduces CER by 2.13\%, demonstrating that basic structural constraints help filter trivially invalid outputs. 
 Type pruningdelivers transformative results by eliminating all compilation errors (CER drops to 0.00\%)while substantially boosting }\DIFdelend \DIFaddbegin \DIFadd{gain ($+3.45$); the turning point is type pruning, which lifts pass@1 by $+13.79$ and eliminates compilation errors outright (CER $74.26 \to 0.00$).
 Dynamic typing context leaves }\DIFaddend pass@1 \DIFdelbegin \DIFdel{to 37.93\% (+13.79\%) and }\DIFdelend \DIFaddbegin \DIFadd{and CER unchanged but improves }\DIFaddend pass@10 \DIFdelbegin \DIFdel{to 43.10\% (+6.89\%) , highlighting type correctness as critical for synthesis.
-Dynamic typing context further enhances performance, pushing pass}\DIFdelend \DIFaddbegin \DIFadd{($+17.24$ over the base) and FSP: it ranks correct candidates earlier rather than solving new tasks, which demonstrates the }\textbf{\DIFadd{Context Locality}} \DIFadd{property of~}\autoref{section:intro}\DIFadd{.
+Dynamic typing context further enhances performance, pushing pass}\DIFdelend \DIFaddbegin \DIFadd{($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the }\textbf{\DIFadd{Context Locality}} \DIFadd{property of~}\autoref{section:intro}\DIFadd{.
 }
 
 \paragraph{\DIFadd{How much the constraints prune.}}
-\DIFadd{To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam }\DIFaddend 10\DIFdelbegin \DIFdel{to 46.55\% (+10.34\%)and reducing FSP to 5.48 (-1.30)}\DIFdelend , \DIFdelbegin \DIFdel{showing that richer typing context enables generating more correct solutions among higher-ranked outputs}\DIFdelend \DIFaddbegin \DIFadd{330-step budget}\footnote{\DIFadd{The longest decision sequence in the benchmark has 330 steps, so the budget suffices to derive every reference program.}}\DIFadd{): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%.
-The lower rate is expected: type checking is more expensive, so it is applied only to the high-probability candidates about to enter the beam.
-Such candidates are rarely ill-typed, yet pruning them matters, for they would otherwise expand within the beam and crowd out well-typed derivations.
-Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates}\DIFaddend .
+\DIFadd{To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam }\DIFaddend 10\DIFdelbegin \DIFdel{to 46.55\% (+10.34\%)and reducing FSP to 5.48 (-1.30)}\DIFdelend , \DIFdelbegin \DIFdel{showing that richer typing context enables generating more correct solutions among higher-ranked outputs.
+}%DIFDELCMD < 
 
+%DIFDELCMD < %%%
 %DIF < Overall, the sequential integration of grammar and type-aware constraints progressively enhances both correctness and robustness. 
-\DIFdelbegin \DIFdel{The results validate our motivation: the type-based mechanisms are essential for ensuring type correctness.
+\DIFdel{The results validate our motivation: the type-based mechanisms are essential for ensuring type correctness.
 %DIF <  While initial grammatical checks lay the groundwork, the introduction and refinement of type-based mechanisms are essential for achieving complete functional correctness and eliminating compilation failures. 
-In particular, the effect of }\DIFdelend \DIFaddbegin \paragraph{\DIFadd{Whether the constraints over-prune.}}
-\DIFadd{By construction, pruning removes only ill-formed or ill-typed expansions, so every possibly correct derivation survives.
-The residual risk is beam search itself, which retains only a fixed number of candidates per step: the correct candidate may in theory fall outside the beam, and the retained candidates then dead-end.
-In our experiments this never occurs: under the beam-10 setting, no task dead-ends, and every task retains at least one grammar- and type-valid expansion at every step.
+In particular, }\DIFdelend \DIFaddbegin \DIFadd{330-step budget}\footnote{\DIFadd{The longest decision sequence in the benchmark has 330 steps, so the budget suffices to derive every reference program.}}\DIFadd{): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%.
+The lower rate is expected: type checking is more expensive, so it is applied only to }\DIFaddend the \DIFdelbegin \DIFdel{effect of }\DIFdelend \DIFaddbegin \DIFadd{high-probability candidates about to enter the beam.
+Such candidates are rarely ill-typed, yet pruning them matters, for they would otherwise expand within the beam and crowd out well-typed derivations.
+Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates.
+}
+
+\paragraph{\DIFadd{Whether the constraints over-prune.}}
+\DIFadd{Completeness guarantees that a well-typed program has a derivation, but it does not guarantee that the model ranks a correct prefix within a fixed beam or provide a bound on the required beam size.
+A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty.
+Training on correct decision sequences is intended to rank correct prefixes highly, but cannot rule out this case.
+We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning.
+With beam 10, this number averages 7.97.
+It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the top-20 candidate list can therefore be exhausted before all slots are filled.
+In our experiments, however, the active beam never became empty.
 }
 
 
@@ -1786,8 +1801,8 @@ Syntactic pruning even lowers the per-task total: with little per-step overhead,
 On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: }\emph{\DIFadd{rejection sampling}}\DIFaddend , \DIFdelbegin \DIFdel{the previous state-of-the-art for achieving guarantees in code generation.
 %DIF < The comparison highlights the improvements each method achieves relative to the vanilla baseline. 
 In our case, rejection sampling queries the LM repeatedly and discards those candidate programs that cannot be compiled until finding sufficient solutions or reaching a resource limit.
-Notably, rejection sampling is functionally equivalent to constrained decoding , as both methods effectively re-normalize the model's output distribution over the subspace of valid, compilable programs. By including rejection sampling, we establish a strong baseline for the performance of the model under strict correctness constraints.
-}\DIFdelend \DIFaddbegin \emph{\DIFadd{SynCode}}\DIFadd{~\mbox{%DIFAUXCMD
+Notably, rejection sampling is functionally equivalent to constrained decoding, as both methods effectively re-normalize the model's output distribution over the subspace of valid, compilable programs.
+By including rejection sampling, we establish a strong baseline for the performance of the model under strict correctness constraints. }\DIFdelend \DIFaddbegin \emph{\DIFadd{SynCode}}\DIFadd{~\mbox{%DIFAUXCMD
 \cite{ugare2024syncodellmgenerationgrammar}}\hskip0pt%DIFAUXCMD
 , }\emph{\DIFadd{Repilot}}\DIFadd{(}\emph{\DIFadd{Copiloting the Copilots}}\DIFadd{)~\mbox{%DIFAUXCMD
 \cite{DBLP:conf/sigsoft/0003X023}}\hskip0pt%DIFAUXCMD
@@ -1797,9 +1812,9 @@ Because rejection sampling and repair need diverse draws rather than beam output
 }
 
 \DIFadd{Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
-SynCode constrains decoding itself: at each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed. It is not originally implemented for Java, so we adapt it to the grammar of our Java subset.
-Repilot pairs the LM with the Eclipse JDT completion engine: the partial program is maintained as a JDT document, and at each decoding position the engine is queried for the continuations it can legally complete, so that LM-proposed tokens inadmissible at that position are pruned.
-Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics.
+For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed.
+For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries.
+Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
 }
 
 \DIFaddend \begin{table}[ht]
@@ -1856,10 +1871,9 @@ Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics bac
 rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$);
 SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67);
 Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%);
-iterative repair repairs 59 candidates' compilability (compile errors 175$\to$116 of 670) yet leaves the solved sets unchanged.
+iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 }\DIFaddend \mainname\DIFdelbegin \DIFdel{.
-This demonstrates that rejection sampling , as a post-hoc filtering technique, fails to enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM. 
-Similarly, constrained decoding, which also relies on filtering during generation, would face comparable limitations as it cannot fundamentally improve over the base LM, either.
+This demonstrates that rejection sampling , as a post-hoc filtering technique, fails to enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM. Similarly, constrained decoding, which also relies on filtering during generation, would face comparable limitations as it cannot fundamentally improve over the base LM, either.
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
@@ -1867,8 +1881,8 @@ Similarly, constrained decoding, which also relies on filtering during generatio
 \DIFdel{consistently achieves higher }\DIFdelend \DIFaddbegin \DIFadd{-2B solves 17/67 at }\DIFaddend pass@1 and \DIFaddbegin \DIFadd{29/67 at }\DIFaddend pass@10 \DIFdelbegin \DIFdel{, reflecting its ability to generate more correct and top-ranked predictions. 
 Unlike filtering-based methods, }%DIFDELCMD < \mainname %%%
 \DIFdel{explicitly incorporates typing rules and typing context during training, enabling the model to learn and utilize type constraints. 
-These results highlight that embedding type information into LMs is substantially more effective than }\DIFdelend \DIFaddbegin \DIFadd{with 3 of 670 candidates failing to compile, the best of all compared methods.
-External reliability mechanisms (}\DIFaddend post-hoc \DIFdelbegin \DIFdel{pruning approaches}\DIFdelend \DIFaddbegin \DIFadd{filtering, token-level grammar masking, completion-engine repair, compiler-feedback regeneration) never change the model's own preference and distribution over output tokens, whereas }\mainname{} \DIFadd{explicitly encodes the typing rules into the model and helps it better learn the program distribution}\DIFaddend , demonstrating the \DIFdelbegin \DIFdel{critical importance of }\DIFdelend \DIFaddbegin \DIFadd{importance of the }\DIFaddend \textbf{Type Explicitness} \DIFdelbegin \DIFdel{in }\DIFdelend \DIFaddbegin \DIFadd{property in~}\DIFaddend \autoref{section:intro}.
+These results highlight that embedding type information into LMs is substantially more effective than post-hoc pruning approaches, demonstrating the critical importance of }\DIFdelend \DIFaddbegin \DIFadd{with 3 of 670 candidates failing to compile, the best of all compared methods.
+The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas }\mainname{} \DIFadd{explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the }\DIFaddend \textbf{Type Explicitness} \DIFdelbegin \DIFdel{in }\DIFdelend \DIFaddbegin \DIFadd{property in~}\DIFaddend \autoref{section:intro}.
 
 \subsubsection{RQ4: Comparison with Separated Type-Code Generation}
 \DIFdelbegin \DIFdel{To answer RQ4, we }\DIFdelend \DIFaddbegin \DIFadd{We }\DIFaddend compare \mainname with approaches that separate type reasoning and code generation.
@@ -1926,49 +1940,35 @@ Both sequential variants achieve }\DIFdelend \DIFaddbegin \DIFadd{Adding separat
 \DIFdel{achieves 46.55\% and 28.36\% respectively.
 Moreover, they still suffer from high compilation error rates (57--64\% on SuFu}\DIFdelend and \DIFdelbegin \DIFdel{31--38\% on Java}\DIFdelend \DIFaddbegin \DIFadd{CER (on Java pass@1, Type-First merely ties }\mainname{}\DIFadd{).
 Because neither variant constrains decoding, their CER remains high (56.72--64.31 on SuFu}\DIFaddend ), whereas \DIFdelbegin %DIFDELCMD < \mainname %%%
-\DIFdel{eliminates compilation errors on SuFuand reduces them to 3.52\% on Java.
+\DIFdel{eliminates compilation errors on SuFu and reduces them to 3.52\% on Java.
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
 \DIFdel{Besides the correctness advantages, }%DIFDELCMD < \mainname %%%
 \DIFdel{also outperforms both baselines in token usage.
 In comparison, }%DIFDELCMD < \mainname %%%
-\DIFdel{reduces token consumption by 45\% on SuFu (410 vs. 752 tokens) and 48\% on Java (}\DIFdelend \DIFaddbegin \mainname{} \DIFadd{outputs only type-valid programs.
-In terms of token length, fully unifying type reasoning and code is far more economical than outputting them separately: the unified decision sequence (410 on SuFu, }\DIFaddend 129 \DIFdelbegin \DIFdel{vs.
-}\DIFdelend \DIFaddbegin \DIFadd{on Java) saves 342 and 118 tokens respectively against appending the typing rules to plain code tokens (752 and }\DIFaddend 247\DIFdelbegin \DIFdel{tokens) compared to the baselines.
+\DIFdel{reduces token consumption by 45\% on SuFu(410 vs. 752 tokens) and 48\% on Java(}\DIFdelend \DIFaddbegin \mainname{} \DIFadd{outputs only type-valid programs.
+In terms of token length, fully unifying type reasoning and code is far more economical than outputting them separately: the unified decision sequence (410 on SuFu, }\DIFaddend 129 \DIFdelbegin \DIFdel{vs. }\DIFdelend \DIFaddbegin \DIFadd{on Java) saves 342 and 118 tokens respectively against appending the typing rules to plain code tokens (752 and }\DIFaddend 247\DIFdelbegin \DIFdel{tokens)compared to the baselines.
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
 \DIFdel{These results validate }%DIFDELCMD < \mainname%%%
 \DIFdel{'s }\DIFdelend \DIFaddbegin \DIFadd{).
 It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
-These results support the }\DIFaddend \textbf{Derivation Vicinality} \DIFdelbegin \DIFdel{paradigm: by unifying type reasoning and code generation into a single synthesis process, }\DIFdelend \DIFaddbegin \DIFadd{paradigm of }\DIFaddend \mainname\DIFdelbegin \DIFdel{achieves both higher accuracy and improved efficiency.
-}\DIFdelend \DIFaddbegin \DIFadd{, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
-}\DIFaddend 
-
-\DIFaddbegin \subsection{\DIFadd{Limitations and Future Work}} \label{sec:limitations}
-\paragraph{\DIFadd{Dependence on the encoder-decoder architecture.}}
-\DIFadd{The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
-The representation itself carries over to a decoder-only model unchanged; what changes is the architecture, and with it the cost of the dynamic typing context.
-In a decoder-only model, supplying the context would mean prefilling the current typing context after the derivation prefix at every step and removing it again before the next step, so its key-value entries are recomputed at every step and never reused by later steps, and the computation is awkward to schedule.
-We leave this adaptation to future work.
+These results support the }\DIFaddend \textbf{Derivation Vicinality} paradigm \DIFdelbegin \DIFdel{: by unifying type reasoning and code generation into a single synthesis process, }\DIFdelend \DIFaddbegin \DIFadd{of }\DIFaddend \mainname\DIFdelbegin \DIFdel{achieves both higher accuracy and improved efficiency}\DIFdelend \DIFaddbegin \DIFadd{, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
 }
 
-\paragraph{\DIFadd{Dynamically typed languages.}}
-\DIFadd{The current design of }\mainname \DIFadd{relies on a type system in which the type derivation of a program can be computed automatically from the program text, so that existing code can be converted into our decision-sequence format.
-Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information.
-As a result, decision sequences cannot be automatically extracted from existing programs, which breaks the }\textbf{\DIFadd{Data Usability}} \DIFadd{property of~}\autoref{section:intro} \DIFadd{and with it the training-data pipeline.
-Parsing and adapting such languages is left to future work.
+\subsection{\DIFadd{Limitations and Future Work}} \label{sec:limitations}
+\paragraph{\DIFadd{Dependence on the encoder-decoder architecture.}}
+\DIFadd{The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
+The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision prefix as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 }
 
 \paragraph{\DIFadd{Type-system expressiveness.}}
-\DIFadd{Both evaluated type systems are relatively simple compared with the mainstream languages that have evolved over decades, such as C++: the implemented Java subset omits subtyping hierarchies, overload resolution, and mutable-state-related features, and SuFu's type system targets fusion optimization.
-The framework itself is not confined to such systems: typing rules are formulated as constrained Horn clauses (Sec.~\ref{sec:meta}), which can in principle describe more complex type systems and their languages.
-The restriction is practical rather than conceptual: writing and modeling the concrete typing rules and designing the parser for a richer system make experimentation much harder, and our measurements on SuFu and the Java subset do not establish how the approach scales to such languages.
-Migrating }\mainname{} \DIFadd{to richer type systems, and even to systems such as linear types that can to some extent guarantee functional properties of the code, is a direction for future work.
-}
+\DIFadd{Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~\ref{sec:meta}). This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work}\DIFaddend .
 
 %DIF >  !TEX root=../manuscript.tex
+\DIFaddbegin 
 
 \DIFaddend \section{Related Work}\label{sec:related}
 
@@ -1992,7 +1992,7 @@ By externalizing the complexity of constraint reasoning, this paradigm relieves 
 
 Grammar-based encoding~\cite{DBLP:conf/acl/YinN17,DBLP:conf/aaai/SunZXSMZ20,DBLP:conf/icse/ZhuL000C24} represents one such approach, where programs are parsed into ASTs and serialized into sequences of grammar rules for training and inference. 
 %DIF < This explicit syntactic representation helps models learn grammatical constraints more effectively. 
-Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. Our \DIFdelbegin \DIFdel{approach generalizes this concept to arbitrary CHC-representable constraints }\DIFdelend \DIFaddbegin \DIFadd{implementation and evaluation exercise this generality on type-correctness constraints in two languages; other CHC-representable constraint families remain a formal possibility that we do not evaluate}\DIFaddend .
+Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. \DIFdelbegin \DIFdel{Our approach generalizes this concept to arbitrary CHC-representable constraints}\DIFdelend \DIFaddbegin \mainname{} \DIFadd{extends this rule-based representation from syntactic structure to type-correctness proofs, with implementations and evaluations in Java and SuFu}\DIFaddend .
 
 Tare~\cite{DBLP:conf/icse/ZhuSZXZ23} introduces a neural approach for learning Java's type system in program repair, using specialized components to encode typing contexts and subtyping relations. While it predicts both code and types, Tare is specifically tailored to a subset of Java's type system and operates through AST traversal without achieving full type explicitness, which is a key distinction from our work.
 
@@ -2005,9 +2005,11 @@ In contrast, our work addresses three challenges that arise when adapting type-g
 First, existing synthesis systems do not provide a code representation suitable for LM training. We design synthesis decision sequences that can be derived from existing programs via type derivation trees, enabling the use of readily available codebases as training data.
 Second, existing systems do not enforce the structural correspondence between type derivations and synthesis derivations. We design our synthesis rules to satisfy Type Explicitness and Derivation Vicinality, establishing an isomorphism that makes type reasoning fully explicit in the generated sequences.
 Third, existing systems do not consider neural architectures for learning type systems. We propose a dual-encoding architecture that enables LMs to effectively learn and utilize type constraints during generation.
-%DIF >  !TEX root=../manuscript.tex
 
-\section{Conclusion \label{sec:conclusion}}
+%DIF >  !TEX root=../manuscript.tex
+\DIFaddbegin 
+
+\DIFaddend \section{Conclusion \label{sec:conclusion}}
 This paper presents \mainname, a proof-guided approach that guarantees type correctness in code generation by constructing existential type correctness proofs through a synthesis process. Through a synthesis system isomorphic to the type system and a synthesis decision sequence representation, \mainname ensures that constructing a synthesis derivation tree is equivalent to constructing an existential type correctness proof, thereby eliminating type errors during code generation, while significantly improving overall generation performance. 
 
 Beyond type correctness, \mainname's \DIFdelbegin \DIFdel{foundation on CHC enables broader applications, including }\DIFdelend \DIFaddbegin \DIFadd{CHC foundation suggests a route toward richer constraint families, such as }\DIFaddend safety verification and the generation of other structural data\DIFaddbegin \DIFadd{; instantiating and evaluating these extensions remains future work}\DIFaddend . Our core insight---that aligning program representations with underlying proof systems enhances \DIFdelbegin \DIFdel{the }\DIFdelend generation performance---opens promising directions \DIFdelbegin \DIFdel{to }\DIFdelend \DIFaddbegin \DIFadd{in }\DIFaddend other domains where structural constraints matter.
@@ -2121,11 +2123,11 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
 \label{appendix-benchmark}
 
 \subsection{Java Benchmark}
-We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including classes, methods, variables, arrays, generic types, operators, and control flow statements. While excluding advanced Java features such as multithreading, lambda expressions, and complex reflection mechanisms.
+\DIFdelbegin \DIFdel{We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including }\DIFdelend \DIFaddbegin \DIFadd{The implemented Java subset supports }\DIFaddend classes, methods, variables, arrays, generic types, operators, and control flow statements\DIFdelbegin \DIFdel{. While excluding advanced Java features such as }\DIFdelend \DIFaddbegin \DIFadd{; it omits }\DIFaddend multithreading, lambda expressions, and complex reflection mechanisms.
 
 The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of \DIFaddbegin \DIFadd{the }\DIFaddend MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}.
-The \DIFaddbegin \DIFadd{subset admits tasks whose constructs our toolchain supports; this admission filter is a potential selection bias, mitigated by the two additional benchmarks drawn from independent sources.
-The }\DIFaddend complete grammar specification is presented below:
+\DIFaddbegin \DIFadd{Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
+}\DIFaddend The complete grammar specification is presented below:
 
 \begin{tcolorbox}[
     enhanced,
@@ -2421,9 +2423,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 \end{table}
 
 \DIFadd{Counts in }\autoref{tab:failure-taxonomy} \DIFadd{are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid }\mainname\DIFadd{-2B tasks include the documented budget-exhaustion (fail-closed) task.
-Invalid generation essentially disappears under }\mainname{}\DIFadd{: the all-invalid category drops from 4/0/2 to 0/0/2 tasks, the residual GFG cases being budget exhaustion rather than ill-formed output.
-Ranking failures persist (12--17 tasks on MBJP and TransCoder-GFG): the constrained search often finds a correct derivation but does not rank it first, a property of beam scoring rather than the representation.
-The dominant residual mode is well-typed but semantically wrong code: 38/50 unsolved MBJP, 7/8 unsolved HumanEval-Java, and 53/72 unsolved GFG tasks have at least one compilable candidate with incorrect behaviour; this is exactly the boundary of what type-level constraints can guarantee.
+On MBJP, the baseline produces no compilable candidate for four tasks, while }\mainname{} \DIFadd{produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by }\mainname{} \DIFadd{at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
 }
 
 \subsection{\DIFadd{Representative Case: Invalid Generation (T5Gemma2-2B)}}
@@ -2463,7 +2463,7 @@ public static boolean oddPosition(List<Integer> nums) {
 \end{Verbatim}
 \end{tcolorbox}
 \DIFadd{The candidate has the right shape---a loop over indices with a modulo test---but the body never inspects }\texttt{\DIFadd{nums.get(i)}} \DIFadd{and never assigns }\texttt{\DIFadd{true}}\DIFadd{; the method returns }\texttt{\DIFadd{false}} \DIFadd{for every input, while the tests expect }\texttt{\DIFadd{true}} \DIFadd{for two of the three cases.
-No typing rule is violated, so no amount of type-level pruning can reject this candidate: the failure is purely semantic.
+The candidate satisfies the implemented typing rules, but its behavior does not match the task specification. This case illustrates a general logic error rather than a failure confined to edge cases; the taxonomy does not separately count edge-case failures.
 }
 
 \subsection{\DIFadd{SuFu}}
@@ -2481,7 +2481,7 @@ No typing rule is violated, so no amount of type-level pruning can reject this c
 \label{appendix-statistics-220m}
 
 \DIFadd{We pair every CodeT5-220M baseline run with the matching }\mainname\DIFadd{-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
-pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved; both runs use the same frozen checkpoint, beam size, and scoring script, with ten candidates per task.
+pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved. Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task.
 In the SuFu block all four paired differences favor }\mainname{} \DIFadd{at the 0.05 significance level.
 In the Java block only CER is significant at $n=67$, for two reasons: the pass-rate improvements themselves are modest at this scale (one additional task at pass@1, five at pass@10), and a 67-task test set yields few discordant pairs (11, 19, and 24 for pass@1, pass@10, and FSP), so the exact tests are underpowered; pooling the three Java benchmarks at the 2B scale restores significance for all four metrics (}\autoref{tab:paired-statistics-2b}\DIFadd{).
 }
