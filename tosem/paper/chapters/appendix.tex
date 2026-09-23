@@ -437,7 +437,7 @@ This section complements the point estimates in \autoref{tab:model-results} with
 \label{appendix-statistics-220m}
 
 We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
-pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved; both runs use the same frozen checkpoint, beam size, and scoring script, with ten candidates per task.
+pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved. Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task.
 In the SuFu block all four paired differences favor \mainname{} at the 0.05 significance level.
 In the Java block only CER is significant at $n=67$, for two reasons: the pass-rate improvements themselves are modest at this scale (one additional task at pass@1, five at pass@10), and a 67-task test set yields few discordant pairs (11, 19, and 24 for pass@1, pass@10, and FSP), so the exact tests are underpowered; pooling the three Java benchmarks at the 2B scale restores significance for all four metrics (\autoref{tab:paired-statistics-2b}).
 

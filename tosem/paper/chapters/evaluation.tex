@@ -22,7 +22,7 @@ To evaluate the generality of \mainname, our evaluation considers two languages 
  %
  This dataset is then split randomly into a training set of 80\% tasks and a test set of 20\% tasks.
  
- \item \textbf{Java} is a popular imperative language with a sophisticated type system. In a balance between the implementation cost and the expressiveness, we implement a subset of Java that preserves its core syntax while omitting advanced features like lambda expressions.
+ \item \textbf{Java} is a popular imperative language with a sophisticated type system. To balance implementation cost and expressiveness, we implement a subset of Java that preserves its core syntax while omitting advanced features like lambda expressions.
 
  We consider the MBJP dataset~\cite{DBLP:conf/iclr/AthiwaratkunGWL23} in our evaluation, which is the Java version of the popular MBPP dataset. Our Java subset covers the MBJP tasks admitted by our toolchain, which we split randomly into a training set of 608 tasks and a held-out test set of 67 tasks.
 
@@ -207,7 +207,7 @@ Base (no checks)         & 24.14 & 0.00
 \paragraph{Functional contribution of each component.}
 The four metric columns of \autoref{tab:ablation-combined} show which component contributes which improvement.
 Syntactic pruning alone gives a moderate pass@1 gain ($+3.45$); the turning point is type pruning, which lifts pass@1 by $+13.79$ and eliminates compilation errors outright (CER $74.26 \to 0.00$).
-Dynamic typing context leaves pass@1 and CER unchanged but improves pass@10 ($+17.24$ over the base) and FSP: it ranks correct candidates earlier rather than solving new tasks, which demonstrates the \textbf{Context Locality} property of~\autoref{section:intro}.
+Dynamic typing context leaves pass@1 and CER unchanged but improves pass@10 ($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the \textbf{Context Locality} property of~\autoref{section:intro}.
 
 \paragraph{How much the constraints prune.}
 To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam 10, 330-step budget\footnote{The longest decision sequence in the benchmark has 330 steps, so the budget suffices to derive every reference program.}): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%.
@@ -333,15 +333,5 @@ These results support the \textbf{Derivation Vicinality} paradigm of \mainname, 
 The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision prefix as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 
-\paragraph{Dynamically typed languages.}
-The current design of \mainname relies on a type system in which the type derivation of a program can be computed automatically from the program text, so that existing code can be converted into our decision-sequence format.
-Dynamically typed languages such as Python still have typing rules to a degree, but the type derivation cannot be read off the program text alone, since types depend on control flow and runtime information.
-As a result, decision sequences cannot be automatically extracted from existing programs, which breaks the \textbf{Data Usability} property of~\autoref{section:intro} and with it the training-data pipeline.
-Parsing and adapting such languages is left to future work.
-
 \paragraph{Type-system expressiveness.}
-Both evaluated type systems are relatively simple compared with the mainstream languages that have evolved over decades, such as C++: the implemented Java subset omits subtyping hierarchies, overload resolution, and mutable-state-related features, and SuFu's type system targets fusion optimization.
-The framework itself is not confined to such systems: typing rules are formulated as constrained Horn clauses (Sec.~\ref{sec:meta}), which can in principle describe more complex type systems and their languages.
-For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
-The current solver cannot handle a typing rule that requires higher-order unification, as discussed in Sec.~\ref{sec:meta}.
-Our experiments do not test either type of extension. We leave them for future work.
+Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~\ref{sec:meta}). This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
