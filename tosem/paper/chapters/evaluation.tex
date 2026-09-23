@@ -274,8 +274,8 @@ T5Gemma2-2B           & 14.93 & 23.88 & 26.12 \\
 None of the four external baselines significantly improves functional correctness over the ordinary control:
 rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$);
 SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67);
-Repilot's pruning rarely fires: following the original Repilot implementation, punctuation and keyword tokens are accepted without querying the engine, and the completion list at an incomplete position is permissive, so compilation errors barely move (26.12\% $\to$ 25.97\%);
-iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
+Following the original Repilot implementation, punctuation and keyword tokens bypass completion queries; in this configuration, CER decreases from 26.12\% to 25.97\%.
+Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 \mainname-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods.
 The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas \mainname{} explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the \textbf{Type Explicitness} property in~\autoref{section:intro}.
 
