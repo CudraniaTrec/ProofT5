@@ -588,7 +588,7 @@ Our experiments establish the benefits of this construction for type correctness
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Clarified} Sec.~1 (p.~4): the CHC-level construction, its solver requirements, and its evaluation for type correctness in Java and SuFu.
-  \item \textbf{Clarified} Sec.~7.2 (p.~31): the extension from grammar-based representations to type-correctness proofs.
+  \item \textbf{Clarified} Sec.~7.2 (p.~30): the extension from grammar-based representations to type-correctness proofs.
   \item \textbf{Clarified} Sec.~8 (p.~31): richer constraint families as a direction for future implementation and evaluation.
   \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the implementation and cost evaluation required to support richer type features, including effects.
 \end{itemize}}
@@ -597,7 +597,7 @@ Our experiments establish the benefits of this construction for type correctness
 Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation subsumes prior work on syntactic correctness and provides a common basis for constructing synthesis rules from proof rules. The construction applies to rules in the supported CHC form with suitable unification and constraint-checking procedures. We instantiate and evaluate the framework for type correctness in Java and SuFu.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~7.2 (p.~31) -- the extension from grammar-based representations to type-correctness proofs}
+\begin{revquote}{Revised manuscript, Sec.~7.2 (p.~30) -- the extension from grammar-based representations to type-correctness proofs}
 Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. TyFlow extends this rule-based representation from syntactic structure to type-correctness proofs, with implementations and evaluations in Java and SuFu.
 \end{revquote}
 
@@ -786,8 +786,8 @@ This extension path also applies to statically checkable properties of dynamical
 
 \begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=3pt]
   \item \textbf{Updated experimental results.} The revised tables report updated experimental results, with confidence intervals and paired tests in Appendix~D computed from these runs. We retrained the models and reran the evaluations because the original model checkpoints and evaluation records were lost during our migration to a new server. The main comparative findings remain unchanged: TyFlow improves over its corresponding baseline on all four metrics in each of the four original language--model-scale comparisons.
-  \item \textbf{Errata.} Algorithm~1 now composes substitutions as $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~2 reads $P(\theta(\overline{t}))$; and the proof of Lemma~4 defines $\theta_c=\sigma_n\ldots\sigma_0\sigma$. The method and the theorems are unchanged.
-  \item \textbf{FSP definition.} Sec.~6.1.3 (p.~24): a task with no correct candidate contributes the candidate-list length, a convention the submitted text left implicit.
+  \item \textbf{Errata.} Algorithm~1 now composes substitutions as $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~4.1 reads $P(\theta(\overline{t}))$; and the proof of Lemma~4.4 defines $\theta_c=\sigma_n\ldots\sigma_0\sigma$. The method and the theorems are unchanged.
+  \item \textbf{FSP definition.} Sec.~6.1.3 (p.~25): a task with no correct candidate contributes the candidate-list length, a convention the submitted text left implicit.
 \end{itemize}
 
 \medskip We hope that the revision addresses all concerns and look forward to the reviewers' feedback.
