@@ -2022,3 +2022,50 @@ with every downstream reference updated:
   paragraph" item was deleted — it was internal editing history that a
   reviewer could not make sense of.
 - Letter: 22 pages, 0 errors, 0 overfull.
+
+## 2026-09-26: Letter number forms unified; content-free sentence deleted from Sec. 6.2.1
+
+- Letter-only (no paper change): 93 word-form quantities in the letter's own
+  prose numeralized per the degpt-english skill's Number style ("ten
+  candidates" -> "10 candidates", "four categories" -> "4 categories",
+  "a five-method comparison" -> "a comparison of 5 methods", etc.).
+  Deliberately kept as words: ordinals; "at least one candidate" (matches
+  the App. C category definitions); "two-sided" (statistical term, matches
+  App. D); the pronoun "the updated one"; "one of the 5 compared methods".
+  revcomment/revquote blocks untouched; duplicated fact-groups verified
+  still verbatim-aligned after the pass. Letter compiled 31 pages,
+  0 errors before the manuscript edit below.
+- Manuscript edit (evaluation.tex, Sec. 6.2.1, decoder-only paragraph):
+  deleted the content-free sentence "These results provide context for
+  performance on Java under the respective generation settings." — it
+  carried no information beyond the numbers in the preceding sentences
+  (degpt-english diagnostic 2; delete over hedge). Propagated: the same
+  sentence removed from the letter's Comment 1.5 Java bullet, and the
+  Comment 2.3 quotation now quotes the revised passage. No number, claim,
+  or other wording changed.
+- README.md: stale "29 页" in the file-tree line corrected to 31.
+- PENDING (the session's /tmp filled up at edit time, blocking shell
+  commands): manuscript.pdf and revision_response_letter.pdf must be
+  recompiled (paper: pdflatex + bibtex + pdflatex x2; letter: pdflatex x2)
+  and the letter's page anchors re-verified against the rebuilt manuscript
+  (the deletion is one sentence on p. 26, so page-flow risk is low, but it
+  must be checked before submission); build_marked.sh re-run afterwards.
+  Not yet committed.
+
+## 2026-09-26（续）：重建论文 PDF；修正 Letter 中 Table 3 的页码
+
+- 论文 PDF 此前落后于源码（`evaluation.tex` 于 09-26 06:57 修改，`manuscript.pdf`
+  仍是 09-23 07:36 的版本）。已用 latexmk 完整重建：45 页，0 error。
+- 重建后发现：删掉那一句腾出的行导致浮动体上移——Table 3 由 p.27 移到 p.26，
+  Sec. 6.2.2 的正文由 p.26 移到 p.27。已逐页比对重建前后 45 页的正文，除
+  pp.26--27 外无任何差异，确认页码位移仅由该删句引起。
+- Letter 中 4 处 `(Table~3, p.~27)`、3 处 `Table~3 (p.~27)`、1 处
+  `Table~3 (pp.~26--27)`、1 处 `Table~3 and its note (pp.~26--27)` 已一并改为
+  p.26。其余 20 余个页锚（Sec. 1 p.4、Sec. 2 p.9、Sec. 3 p.12、Sec. 6.1.1
+  p.24、Sec. 6.2.1 p.25/26、Sec. 6.2.2 p.27/28、Sec. 6.2.3 p.28、Sec. 6.2.4
+  p.29、Sec. 6.3 pp.29--30、Sec. 7.2 p.30、Sec. 8 p.31、App. B p.37/pp.39--40、
+  App. C p.42/C.2 p.43、App. D p.44/pp.44--45、Table 2 p.26、Tables 4/6/8）
+  已按 `manuscript.aux` 的 `\newlabel` 页码与各引文实际所在页逐一复核，全部一致。
+- Letter 重新编译：31 页，0 error，0 overfull。
+- 待办（未做）：标记稿 `marked_manuscripts/manuscript_marked.pdf` 仍为 09-23 版本，
+  已落后于最新论文；若需作为补充材料上传，须运行 `./build_marked.sh` 重建。

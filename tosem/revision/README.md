@@ -25,7 +25,7 @@ tosem/revision/
 ├── CHANGE_AUDIT.md                    # 全量改动审计：投稿版→修订版每一处数据/文本变动及原因、证据
 ├── references/                        # 下载的 major revision 回复写作规范（R→A→C 模板）与来源说明
 ├── response_letter/
-│   ├── revision_response_letter.pdf   # ★ 提交件：response letter（兼 cover letter，29 页；五节结构，末节为 Other Changes beyond the Reviewers' Requests）
+│   ├── revision_response_letter.pdf   # ★ 提交件：response letter（兼 cover letter，31 页；五节结构，末节为 Other Changes beyond the Reviewers' Requests）
 │   └── revision_response_letter.tex   # 其 LaTeX 源（编译产出上面的 PDF）
 └── marked_manuscripts/
     ├── manuscript_marked.pdf          # 内部核对用：latexdiff 标记版（蓝下划线新增 + 红色删除线）

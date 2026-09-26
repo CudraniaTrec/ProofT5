@@ -204,6 +204,14 @@ Calibration (this repo's response letter, pre-fix): the same protocol
 quantity appeared as "ten candidates per task" in the letter's own prose and
 as "10 candidates each" in the quoted manuscript text — one fact, two forms.
 
+Post-fix (2026-09-26): 93 word-form quantities in the letter's own prose were
+numeralized. Kept as words, deliberately: ordinals; "at least one candidate"
+(matches the App. C category definitions); "two-sided" (statistical term,
+matches App. D); the pronoun "the updated one"; "one of the 5 compared
+methods". The manuscript itself still mixes forms (App. C/D say "ten
+candidates", Sec. 6.2.3 says "10 candidates") — that is on the propagation
+list, not fixed in the letter.
+
 Keep as words:
 
 - Ordinals: "the first candidate", "the second term".
