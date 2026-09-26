@@ -8,6 +8,11 @@ Start with the following maintained documents:
 - `../artifacts/major_revision_20260824/MANIFEST.json`: machine-readable hashes
   and exact paths for the frozen datasets, checkpoints, scores, and candidate
   outputs.
+- `../artifacts/rq3clean_mbjp_20260914/` and `../artifacts/sufu_2b_rerun_20260915/`:
+  frozen reruns backing the final RQ3 comparison (Table 5) and the 2B SuFu
+  rows with their Appendix D paired statistics.
+- `../tosem/revision/README.md`: submission-material index for the major
+  revision (response letter, marked manuscript, change log, audit).
 - `experiments/BASELINE_STRENGTHENING_PROTOCOL_20260909.md`: holdout-selected
   retraining protocol behind the HumanEval-Java and TransCoder-GFG baselines.
 - `experiments/JAVA_JOINT23_FROZEN_EVALUATION_PROTOCOL_20260823.md`: frozen

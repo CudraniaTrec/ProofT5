@@ -1,6 +1,6 @@
 # ProofT5 Project Structure
 
-Last updated: 2026-09-15
+Last updated: 2026-09-26
 
 This note records the current local structure of `/data2/x/hzc/prooft5`.
 It is meant as a memory aid for future work, especially because several
@@ -58,11 +58,14 @@ gitignored `third_party/baselines/` tree.
 There is no `paper/ase2026` directory in this checkout at the time of writing.
 The visible manuscript directory here is `tosem/paper`.
 
-Current revision supplement:
+Current revision supplement (frozen evidence packages, newest last):
 
-artifacts/major_revision_evaluation_20260905/
-  rq2_runtime_2b/                 # 2B SuFu runtime records
-  java_statistics_combined.json   # merged Java statistical results
+artifacts/major_revision_evaluation_20260905/  # RQ2 runtime records (220M/2B),
+                                               # merged Java statistics, SuFu decode stats
+artifacts/rq3clean_mbjp_20260914/              # RQ3 five-row rerun on the leak-clean
+                                               # clean673 checkpoint (backs Table 5)
+artifacts/sufu_2b_rerun_20260915/              # 2B SuFu baseline/TyFlow pair rerun and
+                                               # paired statistics (backs Table 2, App. D)
 
 The submission-facing response draft, author modification table, pending
 text-edit checklist, and the review decision are consolidated under
@@ -427,17 +430,13 @@ scripts/build_language_runtimes.sh
 
 ## Common Commands
 
-The versioned external Java and synthetic SuFu dataset expansion is documented
-in `DATASET_EXPANSION_20260730.md`. It currently includes HumanEval, McEval,
-NaturalCodeBench, and a mechanically translated 1,581-row MXEval MathQA Java
-set, plus two SuFu suites. Its generated task directories under `Utils/data/`
-are ignored, while the reproducible builders are:
-
-```text
-scripts/build_java_external_datasets.py
-scripts/build_sufu_synthetic_dataset.py
-scripts/audit_expanded_dataset_roundtrip.py
-```
+The versioned external Java and synthetic SuFu dataset expansion (HumanEval,
+McEval, NaturalCodeBench, a mechanically translated 1,581-row MXEval MathQA
+Java set, plus two SuFu suites) was documented in `DATASET_EXPANSION_20260730.md`
+with reproducible builders under `scripts/`; both the document and the builders
+were removed in the 2026-09-15 cleanup (commit `dd00827`) and remain retrievable
+from git history. The generated task directories under `Utils/data/` are
+gitignored.
 
 ProofT5 checkpoint/eval example:
 

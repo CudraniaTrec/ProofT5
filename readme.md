@@ -1,3 +1,7 @@
+> **说明（2026-09-26）**：本文件描述的是项目早期（CodeT5/Coq 路线）的结构，仅作历史参考，其中提及的 `wandb/` 等目录已不存在。
+> 当前维护的仓库结构、运行环境与冻结实验入口见 [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) 与 [docs/README.md](docs/README.md)；
+> TOSEM 大修（论文、response letter、标记稿）见 [tosem/revision/README.md](tosem/revision/README.md)。
+
 ## 项目结构
 1. coq_model/ : 存储Coq证明相关的文件
    - program_model.py : java程序的Coq证明，在Python中的建模，以及（反）序列化函数
