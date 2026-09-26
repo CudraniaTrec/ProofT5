@@ -9,7 +9,7 @@
 | 上传内容 | 文件路径 | 说明 |
 |---|---|---|
 | 修订后论文（干净稿） | `/data2/x/hzc/prooft5/tosem/paper/manuscript.pdf` | 45 页，未标记任何修改痕迹 |
-| Response letter（同时充当 cover letter） | `/data2/x/hzc/prooft5/tosem/revision/response_letter/revision_response_letter.pdf` | 29 页（约 11,400 词，每页约 390 词，对齐参考件阅读密度）；含 Summary of changes，分节为 Response to the Editor / Reviewer 1–3 / Other Changes beyond the Reviewers' Requests；每条意见为独立单元（分隔线 + Comment X.Y. 标签 + 浅底原文块 → Response. → Changes made. 逐条具体修改 → 修订稿引文），意见间带可点击交叉引用 |
+| Response letter（同时充当 cover letter） | `/data2/x/hzc/prooft5/tosem/revision/response_letter/revision_response_letter.pdf` | 31 页（约 12,350 词，每页约 400 词，对齐参考件阅读密度）；含 Summary of changes，分节为 Response to the Editor / Reviewer 1–3 / Other Changes beyond the Reviewers' Requests；每条意见为独立单元（分隔线 + Comment X.Y. 标签 + 浅底原文块 → Response. → Changes made. 逐条具体修改 → 修订稿引文）；2026-09-26 起各条 response 自包含可独立阅读——同一事实在多处出现时保持逐字对齐（仅 Editor 总览保留指向详细回复的导航链接） |
 
 **注意**：
 - 本次不单独提交 cover letter——response letter 即 cover letter（按作者指示）；审稿决定信只要求提交修订稿并附一封说明如何回应审稿意见的 cover letter，**未要求带标记的版本**，故 response letter 中也不提标记版。
