@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.2v7mur/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.2v7mur/new/manuscript.tex                Wed Sep 23 07:36:13 2026
+%DIF DEL /tmp/marked_build.SPIVmW/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.SPIVmW/new/manuscript.tex                Sun Sep 27 12:59:48 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -1345,9 +1345,13 @@ There exists a type derivation tree $T_1$ whose root node is labeled $\welltyped
 The synthesis derivation tree $T$ guaranteed by the completeness theorem is precisely the tree obtained through the translation process described in \autoref{sec:translation}.
 \end{corollary}
 
-The soundness and completeness theorems ensure the correspondence between well-typed programs and synthesis derivation trees. This correspondence works in both directions: every well-typed program can be represented as a synthesis derivation tree (completeness), and every synthesis derivation tree yields a well-typed program (soundness). Together, these results confirm that constructing a synthesis derivation tree is equivalent to constructing an existential type correctness proof: the isomorphism with type derivation trees provides the proof structure, while the synthesized assignment provides the witness (the program) that makes the existential statement $\exists p.\; \welltyped{p}$ hold.
+The soundness and completeness theorems \DIFdelbegin \DIFdel{ensure }\DIFdelend \DIFaddbegin \DIFadd{establish }\DIFaddend the correspondence between well-typed programs and synthesis derivation trees \DIFdelbegin \DIFdel{. This correspondence works }\DIFdelend in both directions: every well-typed program can be represented as a synthesis derivation tree (completeness), and every synthesis derivation tree yields a well-typed program (soundness). Together, these results confirm that constructing a synthesis derivation tree is equivalent to constructing an existential type correctness proof: the isomorphism with type derivation trees provides the proof structure, while the synthesized assignment provides the witness (the program) that makes the existential statement $\exists p.\; \welltyped{p}$ hold.
+\DIFaddbegin 
+
+\DIFadd{The two theorems characterize the search space of }\mainname\DIFadd{: they guarantee that it is neither weakened nor strengthened, but say nothing about how the search proceeds inside that space.
+That is what the decision-sequence representation, model training, and the pruning techniques are for: they make the search more effective without moving its boundary.
 %DIF >  !TEX root=../manuscript.tex
-\section{Language Model Design}
+}\DIFaddend \section{Language Model Design}
 \label{sec:implementation}
 
 \subsection{Model Architecture}
@@ -1482,7 +1486,7 @@ When a branch is pruned due to syntactic or type errors, we terminate its sequen
 We design our evaluation to answer the following research questions.
 \begin{itemize}
     \item \textbf{RQ1:} How does \mainname compare with \DIFdelbegin \DIFdel{the existing code generation methods}\DIFdelend \DIFaddbegin \DIFadd{its base models across model scales and benchmarks}\DIFaddend ?
-    \item \textbf{RQ2:} How does each component of \mainname contribute\DIFdelbegin \DIFdel{s}\DIFdelend  to the overall performance\DIFaddbegin \DIFadd{, and what runtime cost does it introduce}\DIFaddend ?
+    \item \textbf{RQ2:} How does each component of \mainname contribute\DIFdelbegin \DIFdel{s}\DIFdelend  to the overall performance\DIFaddbegin \DIFadd{, how does the pruning behave, and what runtime cost does it introduce}\DIFaddend ?
     \item \textbf{RQ3:} How does \DIFdelbegin \DIFdel{the correctness of }\DIFdelend \mainname compare with \DIFaddbegin \DIFadd{other reliability-oriented generation approaches, including }\DIFaddend rejection sampling, \DIFdelbegin \DIFdel{the previous method for ensuring the correctness of code generation}\DIFdelend \DIFaddbegin \DIFadd{token-level constrained decoding, completion-engine repair, and iterative compiler-feedback repair}\DIFaddend ?
     \item \textbf{RQ4:} How does \mainname compare with variants that generate the type derivation tree and the program separately instead of simultaneously?
 \end{itemize}
@@ -1641,7 +1645,7 @@ Each prompted model produces one greedy candidate per task: the zero-shot condit
 \DIFdelbegin \DIFdel{In terms of the position of the first successful prediction (FSP), }\DIFdelend \DIFaddbegin \DIFadd{On SuFu the comparison favors }\mainname{}\DIFadd{: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas }\DIFaddend \mainname\DIFdelbegin \DIFdel{consistently reduces FSP compared to the corresponding base models. On SuFu, }%DIFDELCMD < \mainname%%%
 \DIFdel{-220M reduces FSP from 7.03 to 5.48, and }%DIFDELCMD < \mainname%%%
 \DIFdel{-2B reduces it from 6.69 to 5.03. }\DIFdelend \DIFaddbegin \DIFadd{-2B solves 21; the low-resource language is where the type-guided representation delivers its advantage.
-}\DIFaddend On Java, \DIFaddbegin \DIFadd{given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. }\DIFaddend \mainname\DIFdelbegin \DIFdel{-220M reduces FSP from 8.19 to 7.94}\DIFdelend \DIFaddbegin \DIFadd{-2B solves 17/67, 8/16}\DIFaddend , and \DIFaddbegin \DIFadd{31/103, respectively. These results provide context for performance on Java under the respective generation settings. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
+}\DIFaddend On Java, \DIFaddbegin \DIFadd{given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. }\DIFaddend \mainname\DIFdelbegin \DIFdel{-220M reduces FSP from 8.19 to 7.94}\DIFdelend \DIFaddbegin \DIFadd{-2B solves 17/67, 8/16}\DIFaddend , and \DIFaddbegin \DIFadd{31/103, respectively. Moreover, few-shot prompting on Java brings little or no gain over zero-shot for these models, which suggests that they have seen this language extensively and may even have been trained on these benchmarks directly; we therefore flag a possible data-leakage risk for the Java comparison.
 In any case, relative to its fine-tuned baseline T5Gemma2-2B, }\DIFaddend \mainname-2B \DIFdelbegin \DIFdel{reduces it from 6.99 to 6.76}\DIFdelend \DIFaddbegin \DIFadd{delivers a consistent improvement on all four benchmarks}\DIFaddend .
 
 \DIFdelbegin \DIFdel{Most notably, }\DIFdelend \DIFaddbegin \begin{table}[ht]
@@ -1681,7 +1685,8 @@ T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2
 }%DIFDELCMD < 
 
 %DIFDELCMD < %%%
-\DIFdelend \subsubsection{RQ2: Contributions of Individual Components in \mainname}
+\DIFdelend \subsubsection{RQ2: Contributions\DIFaddbegin \DIFadd{, Pruning Behavior, and Runtime Cost }\DIFaddend of Individual Components\DIFdelbegin \DIFdel{in }%DIFDELCMD < \mainname%%%
+\DIFdelend }
 \DIFdelbegin \DIFdel{To answer RQ2, we }\DIFdelend \DIFaddbegin \DIFadd{We }\DIFaddend conduct an ablation study on the SuFu benchmark and the \mainname-220M model to quantify the contributions of each component in \mainname. Starting from the base case where \mainname synthesizes decision sequences with no checks, system components (syntactic pruning, type pruning, and dynamic typing context, as introduced in \autoref{sec:implementation}) are incrementally added, and the impact on performance metrics is evaluated at each stage. 
 %DIF < \autoref{tab:ablation-combined} summarizes the results.
 \DIFaddbegin \autoref{tab:ablation-combined} \DIFadd{summarizes the results.

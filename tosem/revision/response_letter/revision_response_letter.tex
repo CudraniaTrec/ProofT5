@@ -198,7 +198,7 @@ Dependent-type systems such as Lean are different because elaboration may need t
   \item \textbf{Added} Sec.~2 (p.~9): the overview now enumerates the gap between $\lambda\!\rightarrow$ and real languages (subtyping, polymorphism, type inference, overloading resolution, mutable state) and points to the evaluation and the Limitations discussion.
   \item \textbf{Clarified} Sec.~3 (p.~12): why TyFlow uses first-order unification, why higher-order functions do not by themselves require higher-order unification, and when the current solver no longer applies.
   \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30): why the dynamic typing context is not directly portable to a decoder-only model.
-  \item \textbf{Clarified} Sec.~6.3, ``Type-system expressiveness'' (p.~30): which features can use first-order terms and which require a different solver.
+  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): which features can use first-order terms and which require a different solver.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~2 (p.~9) -- the acknowledged gap between the example language and real languages}
@@ -236,20 +236,31 @@ of candidate tokens are eliminated at each level? This would help readers
 understand the practical search space reduction.
 \end{revcomment}
 
-\response Thanks for this criticism. We now measure the constrained decoder, and we state explicitly what the completeness theorem does and does not imply for search.
+\response Thanks for this criticism. The two paragraphs raise separate questions, and we answer them in turn.  
 
-\textbf{(1) Completeness, branching factor, and beam behavior.}
+\textbf{(1) What completeness guarantees, and the observed beam-search behavior.}
 
-\emph{What completeness guarantees.} The theorem is existential: it guarantees a derivation for every well-typed program, but it does not guarantee that the LM ranks a correct prefix within the beam, and it gives no bound on the required beam size. If all correct prefixes fall outside the beam, later decoding cannot recover them. Training on correct decision sequences is intended to assign higher probability to suitable choices.
+Completeness bounds what our method can reach, not how likely the search is to reach it, and we claim no bound on the latter. Relative to vanilla code generation, we have not narrowed the search space of programs, and we have improved how well the search works. We have also added the questions and limitations raised here to the completeness discussion (Sec.~4.4, p.~20).
 
-\emph{Observed beam-10 behavior.} We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning. At each step, the decoder applies grammar pruning, ranks the remaining expansions, and incrementally type-checks at most the 20 highest-scoring expansions to construct the next active beam. Theoretically, a finite beam can discard all correct prefixes even when the beam size is relatively large, so a subsequent active beam can become empty. However, this did not occur in the evaluated run where the beam width sets its maximum to 10: the active beam contained 7.97 hypotheses on average and never became empty. The average is lower than 10 because a completed program is moved to the output set, while rejected candidates do not fill an active slot.
+\emph{What completeness guarantees.} The theorem (Sec.~4.4, p.~20) states that for every well-typed program there exists a synthesis derivation tree from which that program is extracted. The guarantee is about reachability: the encoding and the synthesis rules exclude no well-typed program. The program the theorem promises to exist therefore remains reachable at every step. What the theorem does not say is where the model ranks that derivation, or how wide a beam has to be to keep it.
 
-\textbf{(2) Pruning rates.} Instrumenting the decoder on the SuFu tasks (beam~10, 330-step budget) gives: syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\% (type checking is applied only to the high-probability candidates about to enter the beam, which is why its rate is lower). A final, complete type check on finished derivations rejects 21.2\% of the completed candidates (113/533).
+\emph{How the search is improved.} Within that unchanged search space, TyFlow raises the chance that the search finds a correct program in two ways. 
+The type analysis is explicit: a vanilla code generation model emits program text token by token and must maintain the type reasoning implicitly, whereas TyFlow emits a decision sequence in which each step selects a synthesis rule and the variables that rule requires. The type reasoning is settled by the rule's premises rather than left to the model. 
+The explicit representation also gives us lightweight pruning: branches on which a typing rule fails to apply or a constraint check fails are cut, so the engine detects a wrong decision as soon as the model makes it and removes that path from the beam, reducing the chance that the search ends without a correct program.
+
+\emph{The beam-search behavior we observe.} We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning. With beam 10 it averages 7.97, below 10 because finished or rejected candidates do not fill active slots. And in the evaluated run the active beam never became empty.
+
+\textbf{(2) Pruning rates.} Instrumenting the decoder on the SuFu tasks (beam~10, 330-step budget) gives: syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\% (type checking is applied only to the high-probability candidates about to enter the beam, which is why its rate is lower). A final, complete type check on finished derivations rejects 21.2\% of the completed candidates.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Added} Sec.~4.4 (p.~20): the two theorems as a statement about the search space --- neither weakened nor strengthened --- together with how the representation, model training, and pruning improve the search within that space.
   \item \textbf{Added} Sec.~6.2.2 (p.~27): ``Whether the constraints over-prune'': what completeness does and does not guarantee, the theoretical possibility of beam exhaustion, and the observed beam-10 behavior.
   \item \textbf{Added} Sec.~6.2.2 (p.~27): ``How much the constraints prune'': instrumented rates (59.1\% syntactic, 8.2\% type, 21.2\% final check) and the 330-step budget.
 \end{itemize}}
+
+\begin{revquote}{Revised manuscript, Sec.~4.4 (p.~20) -- the two theorems as a statement about the search space}
+The two theorems characterize the search space of TyFlow: they guarantee that it is neither weakened nor strengthened, but say nothing about how the search proceeds inside that space. That is what the decision-sequence representation, model training, and the pruning techniques are for: they make the search more effective without moving its boundary.
+\end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Whether the constraints over-prune'' (p.~27) -- completeness and the observed beam-10 behavior}
 Completeness guarantees that a well-typed program has a derivation, but it does not guarantee that the model ranks a correct prefix within a fixed beam or provide a bound on the required beam size. A finite beam can discard all correct prefixes, and the retained hypotheses may later have no valid continuation, leaving the active beam empty. [\dots] With beam 10, this number averages 7.97. [\dots] In our experiments, however, the active beam never became empty.
@@ -671,7 +682,7 @@ against those works are important.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Rewrote} Sec.~6.2.3 (p.~28): the comparison of external generation mechanisms with TyFlow and the results in Table~5.
-  \item \textbf{Clarified} Sec.~6.2.3 (p.~28): reuse of the released SynCode and Repilot/JDT components and how their grammar masking and completion-guided token pruning are applied to MBJP generation.
+  \item \textbf{Added} Sec.~6.2.3 (p.~28): reuse of the released SynCode and Repilot/JDT components and how their grammar masking and completion-guided token pruning are applied to MBJP generation.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (p.~28) -- the five-method setup and shared protocol}
@@ -816,7 +827,7 @@ robust.
 If these rules faithfully capture a static checker's checks for the selected subset, the generated programs would pass those checks. This guarantee concerns the modeled static properties, not all runtime behavior. Our current experiments cover Java and SuFu; implementing the Python rules and derivation extraction and evaluating the adaptation remain future work. Sec.~6.3 now explains this extension path and the scope of the guarantee.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Clarified} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the extension through statically checkable typing rules, automatic derivation extraction, the resulting guarantee, and the remaining implementation and evaluation work.
+  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the extension through statically checkable typing rules, automatic derivation extraction, the resulting guarantee, and the remaining implementation and evaluation work.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~1, ``Data Usability'' (p.~3) -- the Data Usability property}

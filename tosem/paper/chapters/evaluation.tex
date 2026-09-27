@@ -3,7 +3,7 @@
 We design our evaluation to answer the following research questions.
 \begin{itemize}
     \item \textbf{RQ1:} How does \mainname compare with its base models across model scales and benchmarks?
-    \item \textbf{RQ2:} How does each component of \mainname contribute to the overall performance, and what runtime cost does it introduce?
+    \item \textbf{RQ2:} How does each component of \mainname contribute to the overall performance, how does the pruning behave, and what runtime cost does it introduce?
     \item \textbf{RQ3:} How does \mainname compare with other reliability-oriented generation approaches, including rejection sampling, token-level constrained decoding, completion-engine repair, and iterative compiler-feedback repair?
     \item \textbf{RQ4:} How does \mainname compare with variants that generate the type derivation tree and the program separately instead of simultaneously?
 \end{itemize}
@@ -145,7 +145,7 @@ T5Gemma2-2B   & \multicolumn{2}{c}{9}  & \multicolumn{2}{c}{5}  & \multicolumn{2
 \end{threeparttable}
 \end{table}
 
-\subsubsection{RQ2: Contributions of Individual Components in \mainname}
+\subsubsection{RQ2: Contributions, Pruning Behavior, and Runtime Cost of Individual Components}
 We conduct an ablation study on the SuFu benchmark and the \mainname-220M model to quantify the contributions of each component in \mainname. Starting from the base case where \mainname synthesizes decision sequences with no checks, system components (syntactic pruning, type pruning, and dynamic typing context, as introduced in \autoref{sec:implementation}) are incrementally added, and the impact on performance metrics is evaluated at each stage. 
 \autoref{tab:ablation-combined} summarizes the results.
 
