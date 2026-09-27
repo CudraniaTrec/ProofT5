@@ -285,7 +285,7 @@ points.\par\smallskip
 reliability. [\dots] Missing failure analysis and confidence intervals.
 \end{revcomment}
 
-\response Thanks for this comment. We address the dataset size and the statistical uncertainty separately.
+\response Thanks for this comment. We address the dataset size, the statistical uncertainty, and the missing failure analysis separately.
 
 \textbf{(1) Expanded evaluation.}
 
@@ -306,14 +306,21 @@ These results show that the improvements are not confined to the original MBJP s
   \item \textbf{SuFu.} At 220M, all 4 paired differences are significant on the 58-task test set. Pass@10 improves from 32.76\% to 53.45\%, with 95\% intervals of [22.08,45.58] and [40.80,65.67], respectively ($p=2.35{\times}10^{-3}$). At 2B, pass@10 improves from 37.93\% to 48.28\%, with 95\% intervals of [26.56,50.80] for the baseline and [35.93,60.84] for TyFlow, but the paired difference is not significant ($p=0.307$). The small test set limits the precision of these estimates.
 \end{itemize}
 
+\textbf{(3) Failure analysis.} App.~C (pp.~42--43) classifies every test task of the 3 Java benchmarks into 4 mutually exclusive categories and compares TyFlow-2B with its baseline in each. Most tasks that TyFlow-2B does not solve at pass@1 are compilable but behaviorally incorrect---38 of the 50 unsolved MBJP tasks, and the largest remaining category on the other 2 benchmarks. The second pattern is ranking failure, where a correct candidate exists among the 10 candidates but is not ranked first.
+
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (pp.~39--40): the sources, task characteristics, and fixed splits of HumanEval-Java and TransCoder-GFG.
   \item \textbf{Added} Sec.~6.2.1 (p.~25): the results of TyFlow-2B and its T5Gemma2-2B baseline on HumanEval-Java and TransCoder-GFG.
   \item \textbf{Added} App.~D (pp.~44--45): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
+  \item \textbf{Added} App.~C (pp.~42--43): the 4-category failure analysis of all 3 Java benchmarks, with the TyFlow-2B/baseline comparison and representative cases.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added Java benchmarks and their fixed splits}
 HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java [\dots], and TransCoder-GFG collects the Java programs released with TransCoder [\dots]; both follow the task format of MBJP. HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, App.~B (p.~39) -- the sources and task characteristics of the two added benchmarks}
+HumanEval-Java is the Java port of HumanEval [\dots]: short Python-style algorithm snippets (string/list manipulation, digit arithmetic, parity and divisibility tests, a few short geometry/number-theory problems) transcribed into a single Java method per task. TransCoder-GFG reuses the GeeksforGeeks Java programs released with TransCoder [\dots]: one- or two-sentence specifications (numeric, string, or array algorithms; standard-library types only) paired with a self-contained Java method. Tab.~7 summarizes the three Java evaluation splits used in this paper.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the results on the expanded benchmark set}
@@ -330,6 +337,10 @@ The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the 2B SuFu outcomes}
 On SuFu only the compilation-error difference is significant at the 2B scale: TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure taxonomy and its 4 categories}
+This section classifies the failing tasks of the Java evaluation and presents representative cases. For each benchmark and model, every test task is assigned to one of four mutually exclusive categories: Solved@1 (the top-1 candidate passes all tests); Ranking failure (some candidate in the top ten passes, but not the top-1 one); All-invalid (no candidate passes and none of the ten candidates compiles); and Well-typed but wrong (no candidate passes, but at least one candidate compiles---the failure is semantic, not syntactic).
 \end{revquote}
 % endregion
 
