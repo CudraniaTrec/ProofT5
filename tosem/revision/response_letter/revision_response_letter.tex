@@ -95,6 +95,7 @@ We thank the reviewers and the editor for their valuable comments. We have revis
 
 \section*{Response to the Editor}
 
+% region Editor's comment
 \begin{revcomment}{Editor's comment.}
 All the reviewers agree that the paper investigates an important topic.
 However, reviewers also point out major concerns that need to be addressed
@@ -129,12 +130,14 @@ summarized above.
 \end{itemize}
 
 Beyond these 6 cross-cutting concerns, we respond to every other reviewer comment and question individually in Comments~1.1--3.6 below.
+% endregion
 
 \clearpage
 \section*{Response to Reviewer 1}
 
 We thank the reviewer for the positive assessment of the formalization, its generality over grammar-based approaches, and the ablation study.
 
+% region Comment 1.1
 \phantomsection\label{com:1.1}
 \begin{revcomment}{Comment 1.1.}
 The example language ($\lambda\!\rightarrow$) is extremely simple. While it
@@ -158,15 +161,17 @@ encoder-decoder architectures limits near-term applicability.
 
 \textbf{(1) The running example and richer type systems.}
 
-\emph{The difference from real languages.} The example language is deliberately simple and is used only to demonstrate how TyFlow converts typing rules into synthesis rules. It contains Boolean and function types with explicitly annotated, monomorphic bindings. Unlike mainstream languages, it does not include features like subtyping, polymorphism, type inference, overloading, or mutable state. We now acknowledge this gap explicitly in the overview.
+TyFlow is not tied to the example language. A richer statically typed language is supported by the same method: define its program, type, and context terms, express its typing rules as constrained Horn clauses, and implement the required computable constraints. The transformation from typing rules to synthesis rules is unchanged. Because this language-specific implementation requires substantial engineering effort, we currently instantiate TyFlow only for Java and SuFu.
 
-\emph{Extension to richer type systems.} TyFlow is not tied to this example language. To support a richer statically typed language, we define its program, type, and context terms, express its typing rules as constrained Horn clauses, and implement the required computable constraints. The transformation from typing rules to synthesis rules remains unchanged. Because this language-specific implementation requires substantial engineering effort, we currently instantiate TyFlow only for Java and SuFu.
+\emph{The difference from real languages.} The example language is deliberately simple and is used only to demonstrate how TyFlow converts typing rules into synthesis rules. It contains Boolean and function types with explicitly annotated, monomorphic bindings. Unlike mainstream languages, it does not include features like subtyping, polymorphism, type inference, overloading, or mutable state. We now acknowledge this gap explicitly in the overview.
 
 \textbf{(2) The first-order unification restriction.}
 
-\emph{Why we use it.} To apply a typing rule, TyFlow needs unification to terminate, decide whether the rule conclusion matches the current goal, and return a principal substitution for the remaining premises. First-order unification provides these guarantees: it is decidable and returns a most-general unifier that is unique up to variable renaming. We therefore use first-order unification as a sufficient condition.
+Higher-order functions and polymorphism do not by themselves require higher-order unification, so TyFlow supports them. What the restriction excludes is elaboration that must infer an unknown type constructor or predicate, as in dependent types.
 
-\needspace{16\baselineskip}\emph{Higher-order functions do not require higher-order unification.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate. The following 2 terms show the difference:
+\emph{Why we use first-order unification.} To apply a typing rule, TyFlow needs unification to terminate, decide whether the rule conclusion matches the current goal, and return a principal substitution for the remaining premises. First-order unification provides these guarantees: it is decidable and returns a most-general unifier that is unique up to variable renaming. We therefore use first-order unification as a sufficient condition.
+
+\needspace{16\baselineskip}\emph{When higher-order unification is needed.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate. The following 2 terms show the difference:
 \[
   \operatorname{Arrow}(\alpha,\beta)
   \qquad\text{versus}\qquad
@@ -215,7 +220,9 @@ The decision-sequence representation and synthesis rules can be used unchanged w
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- type-system expressiveness as a limitation}
 For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~3).
 \end{revquote}
+% endregion
 
+% region Comment 1.2
 \phantomsection\label{com:1.2}
 \begin{revcomment}{Comment 1.2.}
 The practical implications of completeness deserve more discussion.
@@ -253,7 +260,9 @@ Completeness guarantees that a well-typed program has a derivation, but it does 
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``How much the constraints prune'' (p.~27) -- the measured pruning rates}
 To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam 10, 330-step budget): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%. The lower rate is expected: type checking is more expensive, so it is applied only to the high-probability candidates about to enter the beam. Such candidates are rarely ill-typed, yet pruning them matters, for they would otherwise expand within the beam and crowd out well-typed derivations. Type checking during search is provisional (only completed AST fields are checked); the whole program is checked once when the derivation finishes, and this final check rejects 21.2\% of the completed candidates.
 \end{revquote}
+% endregion
 
+% region Comment 1.3
 \phantomsection\label{com:1.3}
 \begin{revcomment}{Comment 1.3.}
 The SuFu test set has only \textasciitilde58 tasks (20\% of 290), and the Java
@@ -313,7 +322,9 @@ The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the 2B SuFu outcomes}
 On SuFu only the compilation-error difference is significant at the 2B scale: TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 \end{revquote}
+% endregion
 
+% region Comment 1.4
 \phantomsection\label{com:1.4}
 \begin{revcomment}{Comment 1.4.}
 On Java, TyFlow-220M improves pass@1 from 10.45\% to only 11.94\%, less than
@@ -350,7 +361,9 @@ TyFlow improves code generation accuracy at both scales and on every benchmark: 
 \begin{revquote}{Revised manuscript, App.~B (p.~37) -- the implemented Java grammar and evaluated tasks}
 The implemented Java subset supports classes, methods, variables, arrays, generic types, operators, and control flow statements; it omits multithreading, lambda expressions, and complex reflection mechanisms. [\dots] Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
 \end{revquote}
+% endregion
 
+% region Comment 1.5
 \phantomsection\label{com:1.5}
 \begin{revcomment}{Comment 1.5.}
 The paper compares only with fine-tuned CodeT5 and T5Gemma2 variants. The
@@ -385,7 +398,9 @@ To contextualize absolute performance, Tab.~3 reports three larger decoder-only 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, results (p.~26) -- the decoder-only results on Java and SuFu}
 On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively. [\dots] we therefore flag a possible data-leakage risk for the Java comparison.
 \end{revquote}
+% endregion
 
+% region Comment 1.6
 \phantomsection\label{com:1.6}
 \begin{revcomment}{Comment 1.6.}
 What do the remaining failing programs look like? Are they semantically
@@ -429,12 +444,14 @@ The candidate satisfies the implemented typing rules, but its behavior does not 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the pointer to failure analysis}
 The failure analysis in Appendix~C identifies ranking errors and compilable but incorrect programs among the remaining failures.
 \end{revquote}
+% endregion
 
 \clearpage
 \section*{Response to Reviewer 2}
 
 We thank the reviewer for the positive assessment of the theoretical foundation, the framework design, and the ablation study.
 
+% region Comment 2.1
 \phantomsection\label{com:2.1}
 \begin{revcomment}{Comment 2.1.}
 W1: Limited evaluation benchmarks. The evaluation uses only a limited number of SuFu test tasks and Java test
@@ -483,7 +500,9 @@ HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broade
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- improvements on the added Java benchmarks}
 TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 \end{revquote}
+% endregion
 
+% region Comment 2.2
 \phantomsection\label{com:2.2}
 \begin{revcomment}{Comment 2.2.}
 W2: Scalability concerns are insufficiently addressed.\par\smallskip
@@ -539,7 +558,9 @@ A finite beam can discard all correct prefixes, and the retained hypotheses may 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the scope of richer type-system extensions}
 For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~3). [\dots] Implementing and evaluating these extensions remains future work.
 \end{revquote}
+% endregion
 
+% region Comment 2.3
 \phantomsection\label{com:2.3}
 \begin{revcomment}{Comment 2.3.}
 W3: Comparison with modern LLMs is absent. The baselines are CodeT5-220M and T5Gemma2-2B, and both are relatively
@@ -579,7 +600,9 @@ On SuFu the comparison favors TyFlow: none of the three solves a single task zer
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30) -- the decoder-only adaptation path}
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision prefix as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
+% endregion
 
+% region Comment 2.4
 \phantomsection\label{com:2.4}
 \begin{revcomment}{Comment 2.4.}
 W4: The CHC generality claim is overclaimed relative to the evidence. The paper repeatedly emphasizes that CHCs can encode ``any Turing-computable
@@ -621,12 +644,14 @@ Beyond type correctness, TyFlow's CHC foundation suggests a route toward richer 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- requirements for richer type features}
 For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
 \end{revquote}
+% endregion
 
 \clearpage
 \section*{Response to Reviewer 3}
 
 We thank the reviewer for the positive assessment of the typing-based extension of grammar-guided generation and of the rigor of the isomorphism between type derivations and synthesis derivations.
 
+% region Comment 3.1
 \phantomsection\label{com:3.1}
 \begin{revcomment}{Comment 3.1.}
 Missing comparisons against token-level constrained decoding works such as
@@ -666,7 +691,9 @@ For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (pp.~28--29) -- the outcome and the Type Explicitness conclusion}
 None of the four external baselines significantly improves functional correctness over the ordinary control: rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$); SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67) [\dots] TyFlow-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods. The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas TyFlow explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the Type Explicitness property in Sec.~1.
 \end{revquote}
+% endregion
 
+% region Comment 3.2
 \phantomsection\label{com:3.2}
 \begin{revcomment}{Comment 3.2.}
 Missing comparison against iterative refinement approaches: Compared to
@@ -694,7 +721,9 @@ Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and
 \begin{revquote}{Revised manuscript, Sec.~6.2.3 (pp.~28--29) -- improved compilability without additional solved tasks}
 [\dots] Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 \end{revquote}
+% endregion
 
+% region Comment 3.3
 \phantomsection\label{com:3.3}
 \begin{revcomment}{Comment 3.3.}
 The TyFlow system requires multiple LLM calls to obtain all synthesis
@@ -721,7 +750,9 @@ Rejection sampling repeatedly draws candidates and keeps those that pass Java co
 \begin{revquote}{Revised manuscript, Sec.~6.2.2, ``Runtime cost'' (p.~28) -- the runtime measurements}
 Syntactic pruning adds little (roughly $+4\%$); type pruning and the dynamic typing context cost considerably more, as the former invokes the type checker at every step and the latter additionally re-encodes the evolving synthesis goal.
 \end{revquote}
+% endregion
 
+% region Comment 3.4
 \phantomsection\label{com:3.4}
 \begin{revcomment}{Comment 3.4.}
 Limited Java Performance: Although TyFlow brings significant improvement on SuFu, its performance
@@ -741,7 +772,9 @@ TyFlow improves code generation accuracy at both scales and on every benchmark: 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~25) -- the Java gains across correctness and compilation metrics}
 At 220M, the Java baseline has a lower CER than the SuFu baseline (35.52\% versus 83.10\%), leaving fewer compilation errors for type constraints to address. On MBJP, TyFlow raises pass@10 from 20.90\% to 28.36\% and reduces CER to 1.53\%; the smaller pass@1 gain indicates that finding a correct candidate does not always make it the top-ranked output. The failure analysis in Appendix~C identifies ranking errors and compilable but incorrect programs among the remaining failures.
 \end{revquote}
+% endregion
 
+% region Comment 3.5
 \phantomsection\label{com:3.5}
 \begin{revcomment}{Comment 3.5.}
 Limited model choices: The TyFlow system was mainly evaluated on small models. Evaluation on larger
@@ -769,7 +802,9 @@ On SuFu the comparison favors TyFlow: none of the three solves a single task zer
 \begin{revquote}{Revised manuscript, Sec.~6.3 (pp.~29--30) -- the decoder-only adaptation path}
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. [\dots] This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
+% endregion
 
+% region Comment 3.6
 \phantomsection\label{com:3.6}
 \begin{revcomment}{Comment 3.6.}
 Generalizability concern: TyFlow relies strongly on the typing system of the language, but how would
@@ -793,6 +828,7 @@ The decision sequences of $\mathcal{S}$ and source code should be automatically 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- the extension path and scope of the guarantee}
 This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
 \end{revquote}
+% endregion
 
 \clearpage
 \section*{Other Changes beyond the Reviewers' Requests}
