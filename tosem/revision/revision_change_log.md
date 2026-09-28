@@ -2120,3 +2120,30 @@ with every downstream reference updated:
 - 分页无变化（仍 46 页；App. C p.43、App. D p.45、Tab. 7 p.40、App. B p.37/40
   各锚逐一复核不变），letter 无需改动；引文核对 72/72 对齐；论文重编译
   0 error；p.39--40 渲染目检通过。
+
+## 2026-09-28（续二）：Comment 1.6 逐类分析标题与四分类列表同步
+
+- 逐类分析（Failure analysis of each category）的四个条目标题原为描述性改写
+  （"Tasks end without any compilable candidate" 等），与上方分类列表的正式
+  类目名（All-invalid / Well-typed but wrong / Ranking failure / Solved@1，
+  与论文 App. C 一致）不同名。已改为逐一使用正式类目名，并删去与上方定义
+  重复的复述句；顺序本就一致，未改动；全部数字（38/50、12/1/17、17 vs 9、
+  5→8、20→31）与 Table 8 及 App. C 原文核对无误。
+- Letter 重编译：32 页、0 error、0 overfull，引文 72/72 对齐，p.14 渲染目检
+  通过。仅 letter 改动，论文未动，页锚无影响。未提交。
+
+## 2026-09-28（续三）：Comment 1.6 的 changes made 与引文同步复核
+
+- 复核结论：标题同步后单元合理；全部数字与 Table 8 吻合（MBJP TyFlow 行
+  17+12+0+38=67；12/1/17 ranking；17 vs 9、5→8、20→31）；item 1（分类 +
+  Table 8 在 p.43）与 item 3（Sec. 6.2.1 指针句在 p.25）页码准确、引文支撑到位。
+- 修复两处（均在 changes made 第 2 条）：
+  - 页码 (pp.~43--44) → (p.~44)：pdftotext 确认 C.1 与 C.2 两个代表性案例均
+    在 p.44（p.43 是分类定义与 Table 8，属 item 1 范围）。
+  - 补 App.~C.1 引文（"Without the brace, ... nothing prevents such structural
+    corruption."，逐字取自 appendix.tex；\texttt 命令与论文原写法一致），
+    使 item 2 的"compilation and semantic failures"两个半句各有引文支撑。
+  - 技术备注：新引文最初用 \tcode 导致 check_quote_alignment.py 不对齐
+    （\tcode 宏体含 \small/\spaceskip，归一化剥不净），改用与论文原文一致的
+    \texttt 后 73/73 全对齐。
+- Letter 重编译：32 页、0 error、0 overfull；p.14--15 渲染目检通过。未提交。

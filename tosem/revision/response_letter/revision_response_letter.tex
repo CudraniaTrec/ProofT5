@@ -441,20 +441,24 @@ failure modes would significantly strengthen the paper.
 \textbf{Failure analysis of each category:}
 
 \begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
-  \item \textbf{Tasks end without any compilable candidate.} On MBJP, the baseline produces no compilable candidate for 4 tasks, while TyFlow produces at least one for every task.
-  \item \textbf{Compilable programs with incorrect behavior.} In these cases, at least one candidate compiles, but none implements the required behavior to pass all tests. For example, of the 50 MBJP tasks that TyFlow does not solve with its first candidate, 38 fall into this category. This is also the largest remaining failure category on HumanEval-Java and TransCoder-GFG. App.~C.2 illustrates how a candidate can satisfy the implemented typing rules but fail to match the task specification. Such errors need not be limited to edge cases.
-  \item \textbf{Correct candidates generated but not ranked first.} For these tasks, TyFlow finds a solution within its 10 candidates, but the first candidate is incorrect. This occurs on 12 MBJP tasks, 1 HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks therefore count as successes at pass@10 but not at pass@1.
-  \item \textbf{Tasks solved by the first candidate.} TyFlow improves functional correctness as well as compilability. On MBJP, the first candidate passes all tests for 17 tasks, compared with 9 under the baseline. The same improvement appears on HumanEval-Java, from 5 solved tasks to 8, and on TransCoder-GFG, from 20 to 31.
+  \item \textbf{All-invalid.} On MBJP, the baseline produces no compilable candidate for 4 tasks, while TyFlow produces at least one compilable candidate for every task.
+  \item \textbf{Well-typed but wrong.} Of the 50 MBJP tasks that TyFlow does not solve, 38 fall into this category; it is also the largest remaining category on HumanEval-Java and TransCoder-GFG. App.~C.2 illustrates how a candidate can satisfy the implemented typing rules but fail to match the task specification; such errors need not be limited to edge cases.
+  \item \textbf{Ranking failure.} This occurs on 12 MBJP tasks, 1 HumanEval-Java task, and 17 TransCoder-GFG tasks: TyFlow finds a solution within its 10 candidates, but not as the first one, so these tasks count as successes at pass@10 but not at pass@1.
+  \item \textbf{Solved@1.} TyFlow improves functional correctness as well as compilability. On MBJP, the first candidate passes all tests for 17 tasks, compared with 9 under the baseline. The same improvement appears on HumanEval-Java, from 5 solved tasks to 8, and on TransCoder-GFG, from 20 to 31.
 \end{itemize}
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} App.~C (p.~43): the 4-category taxonomy and Table~8 comparing the 2B models on all 3 Java benchmarks, with an explanation of compilable-but-incorrect candidates and ranking failures.
-  \item \textbf{Added} App.~C.1--C.2 (pp.~43--44): representative compilation and semantic failures, with the distinction between general logic errors and edge-case failures clarified in C.2.
+  \item \textbf{Added} App.~C.1--C.2 (p.~44): representative compilation and semantic failures, with the distinction between general logic errors and edge-case failures clarified in C.2.
   \item \textbf{Added} Sec.~6.2.1 (p.~25): a pointer to the failure analysis when discussing candidate ranking and compilable but incorrect programs.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, App.~C (p.~43) -- the failure-category results}
 On MBJP, the baseline produces no compilable candidate for four tasks, while TyFlow produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by TyFlow at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, App.~C.1, representative case (p.~44) -- the representative compilation failure case}
+Without the brace, the loop body is a single statement, the closing brace terminates the method early, and \texttt{javac} reports \texttt{illegal start of type} at the \texttt{return} statement. The model produces plausible token-level continuations, but nothing prevents such structural corruption.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~C.2, representative case (p.~44) -- the representative semantic failure case}
