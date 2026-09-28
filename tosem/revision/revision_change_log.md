@@ -2069,3 +2069,54 @@ with every downstream reference updated:
 - Letter 重新编译：31 页，0 error，0 overfull。
 - 待办（未做）：标记稿 `marked_manuscripts/manuscript_marked.pdf` 仍为 09-23 版本，
   已落后于最新论文；若需作为补充材料上传，须运行 `./build_marked.sh` 重建。
+
+## 2026-09-28：Comment 1.5 同步修复；附录 B 新增 prompt 模板示例
+
+- Comment 1.5（letter）三处与论文/内部不同步的修复：
+  - response 首段的章节指针 `Sec.~6.1.1 benchmark runs` → `Sec.~6.2.1`（6.1.1 是
+    Benchmark 小节，只有数据集定义；fine-tuned 模型的 benchmark runs 及
+    "0-shot 用同一 prompt" 的声明在 Sec. 6.2.1 的 Table 3 表注）。
+  - changes made 第 1 条的协议归属 `in the table note` → `in the Sec.~6.2.1
+    setup text and the table note`（完整 prompt 协议在 setup 正文段，表注只有
+    0-shot 一句；同时使 setup 段的 revquote 有对应的 changes-made 认领）。
+  - Comment 3.5 的 Table 3 表注引文补上漏掉的末词 `below`（引文须逐字；
+    check_quote_alignment.py 因末尾句点剥离+子串匹配漏报此类缺词）。
+  - 复验：引文脚本 72/72 对齐；letter 重编译 0 undefined。
+- 论文附录 B 新增两个 prompt 模板示例（应作者要求，内容均取自 artifact 真实数据）：
+  - B.1 末尾（Java）：模板一句话定义（imports + class skeleton + javadoc；
+    模型补全方法体；MBJP/HumanEval-Java 的 javadoc 另含可执行示例调用）+
+    `Example Java Prompt (MBJP)` 盒（MBJP/765 IsPolite，逐字取自
+    `t5_llm/data/mbjp_t5.json`）。
+  - B.3 描述段后（SuFu）：模板一句话定义（描述 + 给定程序前缀（inductive
+    定义与库函数）；目标函数与 `main` 为待合成部分）+ `Example SuFu Prompt`
+    盒（test split 任务 `incre-tests-synduce-constraints-sortedlist-min`，
+    逐字取自 `t5_llm/data/sufu_original_test_t5.json`）。两盒均用
+    `enhanced, breakable`，与语法盒跨页样式一致。
+  - 数据来源核实记录：SuFu 任务 = `nl`（描述）+ `prefix`（定义前缀）+
+    `postfix`（目标）三段结构（`artifact/data/sufu/test.pkl`）；MBJP prompt
+    即 mxeval 原始 prompt（`artifact/data/mbjp/plain_baseline.json`）。
+- 分页影响：论文 45 → 46 页（App. C 42→43，App. D 44→45，Tab. 7 39→40）。
+  Letter 全部页锚随之更新（App. B p.37 不变、p.39→40；App. C 42/43→43/44；
+  App. D 44→45、44--45→45--46；开头"45 pages"→"46 pages"），并在
+  "Other Changes beyond the Reviewers' Requests" 新增 Prompt templates 披露条目。
+  Letter 重编译 32 页、0 undefined、0 overfull、72/72 引文对齐、块序检查通过。
+- README.md：letter 页数 31→32（含词数约 12,700）、论文页数 45→46 两处修正。
+- 标记稿已重建（`build_marked.sh`，基线 ce2dd2c）：47 页（diff 标记版正常偏长）。
+- 已确认（作者，2026-09-28）：decoder-only 的 zero-shot 与 fine-tuned 模型使用
+  完全相同的 task prompt，`*_noio_*` 变体未被采用（repo 中仅存的
+  `run_single_large_condition_20260901.sh` 里的 noio 数据路径与
+  `--reject_io_examples` 旗标不代表最终论文协议）。因此论文 Table 3 表注与
+  letter Comments 1.5/2.3/3.5 中 "same/identical task prompt" 的表述无需改动。
+
+## 2026-09-28（续）：附录 B 措辞微调（审稿人视角自查后）
+
+- B.2 删除与新 prompt 示例盒矛盾的旧词数说明："(median 12 LoC, 21--35-word
+  prompts)" → "(median 12 LoC)"（Tab. 7 的 prompt 词数中位为 HEJ 88 / GFG 65，
+  "21--35" 与之及示例盒均冲突，疑为描述长度的陈旧残留）。
+- B.1 示例盒引入句补风格说明："The following prompt from MBJP illustrates the
+  template:" → "The following prompt from MBJP, reproduced in the original
+  mxeval release format, illustrates the template:"（预防审稿人把 mxeval 原始
+  Javadoc 惯例 `* *` / `> ...` 误读为排版失误）。
+- 分页无变化（仍 46 页；App. C p.43、App. D p.45、Tab. 7 p.40、App. B p.37/40
+  各锚逐一复核不变），letter 无需改动；引文核对 72/72 对齐；论文重编译
+  0 error；p.39--40 渲染目检通过。

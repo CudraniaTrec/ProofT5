@@ -89,7 +89,7 @@
 {\color{accent!55}\hrule height 0.9pt}
 \vspace{4pt}
 
-We thank the reviewers and the editor for their valuable comments. We have revised our paper accordingly. Every reviewer comment is quoted below in italics, followed by our response and by a summary of the changes we made in the paper; section and page numbers refer to the revised manuscript (45 pages).
+We thank the reviewers and the editor for their valuable comments. We have revised our paper accordingly. Every reviewer comment is quoted below in italics, followed by our response and by a summary of the changes we made in the paper; section and page numbers refer to the revised manuscript (46 pages).
 
 \textbf{Summary of changes.} The revision adds 2 Java benchmarks (HumanEval-Java and TransCoder-GFG) that enlarge the Java evaluation to 186 tasks, a statistical analysis with 95\% intervals and exact paired tests (App.~D), and a task-level failure taxonomy (App.~C). It also adds runtime and pruning measurements of the constrained decoder (RQ2). The comparison with other generation methods now covers 3 decoder-only models of 7B--30B parameters (Table~3) and 4 reliability-oriented approaches (RQ3, Table~5). A new Limitations subsection (Sec.~6.3) discusses the encoder-decoder dependence, dynamically typed languages, and type-system expressiveness.
 
@@ -121,8 +121,8 @@ summarized above.
 \response Thanks. Each of the 6 concerns is addressed with new experiments or new analyses, as summarized below:
 
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{Failure analysis.} Every test task of the 3 Java benchmarks is classified into 4 categories in App.~C (p.~42--43, Table~8), with 2 representative cases; the dominant residual mode of TyFlow is well-typed but semantically wrong code. Detailed response: \commentref{1.6}.
-  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added, so the Java evaluation spans 186 test tasks from 3 independent sources, analyzed jointly in App.~D (p.~44). Detailed responses: \commentref{1.3} and \commentref{2.1}.
+  \item \textbf{Failure analysis.} Every test task of the 3 Java benchmarks is classified into 4 categories in App.~C (pp.~43--44, Table~8), with 2 representative cases; the dominant residual mode of TyFlow is well-typed but semantically wrong code. Detailed response: \commentref{1.6}.
+  \item \textbf{Benchmarks.} HumanEval-Java (146/16) and TransCoder-GFG (414/103) are added, so the Java evaluation spans 186 test tasks from 3 independent sources, analyzed jointly in App.~D (p.~45). Detailed responses: \commentref{1.3} and \commentref{2.1}.
   \item \textbf{Scalability.} RQ2 measures the pruning strength of each component, the beam-exhaustion behavior, and the per-step and per-task runtime (up to $2.74\times$ the unconstrained base); scaling to richer type systems is discussed in the Limitations subsection. Detailed responses: \commentref{1.2} and \commentref{2.2}.
   \item \textbf{Larger and more recent LLMs.} Zero- and few-shot pass@1 results for MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all 4 benchmarks are added (Table~3, p.~26): these models perform well on Java, while TyFlow-2B outperforms them on SuFu under both prompting conditions. Detailed responses: \commentref{1.5} and \commentref{2.3}.
   \item \textbf{State-of-the-art techniques.} RQ3 is rewritten as a comparison of 5 methods on MBJP (rejection sampling, SynCode, Repilot, iterative compiler repair); none of the 4 external methods significantly improves functional correctness, while TyFlow-2B is the best of all compared methods. Detailed responses: \commentref{3.1} and \commentref{3.2}.
@@ -300,26 +300,26 @@ reliability. [\dots] Missing failure analysis and confidence intervals.
 \end{itemize}
 These results show that the improvements are not confined to the original MBJP split: they recur on 2 independently sourced Java benchmarks. The large CER reductions are consistent with the purpose of type-constrained generation, while the pass-rate and FSP gains show that the benefit is not limited to rejecting uncompilable outputs.
 
-\textbf{(2) Confidence intervals and significance tests.} New App.~D (p.~44) pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval and an exact two-sided paired test for every metric. For pass@1 and pass@10, we use Wilson intervals and McNemar tests; for FSP, a $t$-interval over per-task ranks and an exact sign test; and for CER, a Wilson interval over candidates and an exact sign test on per-task error fractions. All 4 metric differences favor TyFlow in each language--scale block. All 4 are statistically significant for SuFu at 220M and for pooled Java at 2B (186 tasks), and CER is significant in all 4 blocks. The detailed results are:
+\textbf{(2) Confidence intervals and significance tests.} New App.~D (p.~45) pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval and an exact two-sided paired test for every metric. For pass@1 and pass@10, we use Wilson intervals and McNemar tests; for FSP, a $t$-interval over per-task ranks and an exact sign test; and for CER, a Wilson interval over candidates and an exact sign test on per-task error fractions. All 4 metric differences favor TyFlow in each language--scale block. All 4 are statistically significant for SuFu at 220M and for pooled Java at 2B (186 tasks), and CER is significant in all 4 blocks. The detailed results are:
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{Java.} At 2B, the 2 added benchmarks increase the Java test set to 186 paired tasks. On this larger test set, pass@10 improves from 33.33\% to 46.24\%, with 95\% intervals of [26.96,40.38] and [39.22,53.41], respectively. The paired difference is significant ($p=5.36{\times}10^{-4}$), as are the other 3 metric differences. At 220M, the Java evaluation contains the 67 MBJP test tasks, and the small test set provides few paired observations: pass@10 improves from 20.90\% to 28.36\%, with 95\% intervals of [12.88,32.07] for the baseline and [18.97,40.09] for TyFlow. The paired difference is not significant ($p=0.359$), and only the CER difference is significant.
   \item \textbf{SuFu.} At 220M, all 4 paired differences are significant on the 58-task test set. Pass@10 improves from 32.76\% to 53.45\%, with 95\% intervals of [22.08,45.58] and [40.80,65.67], respectively ($p=2.35{\times}10^{-3}$). At 2B, pass@10 improves from 37.93\% to 48.28\%, with 95\% intervals of [26.56,50.80] for the baseline and [35.93,60.84] for TyFlow, but the paired difference is not significant ($p=0.307$). The small test set limits the precision of these estimates.
 \end{itemize}
 
-\textbf{(3) Failure analysis.} App.~C (pp.~42--43) classifies every test task of the 3 Java benchmarks into 4 mutually exclusive categories and compares TyFlow-2B with its baseline in each. Most tasks that TyFlow-2B does not solve at pass@1 are compilable but behaviorally incorrect---38 of the 50 unsolved MBJP tasks, and the largest remaining category on the other 2 benchmarks. The second pattern is ranking failure, where a correct candidate exists among the 10 candidates but is not ranked first.
+\textbf{(3) Failure analysis.} App.~C (pp.~43--44) classifies every test task of the 3 Java benchmarks into 4 mutually exclusive categories and compares TyFlow-2B with its baseline in each. Most tasks that TyFlow-2B does not solve at pass@1 are compilable but behaviorally incorrect---38 of the 50 unsolved MBJP tasks, and the largest remaining category on the other 2 benchmarks. The second pattern is ranking failure, where a correct candidate exists among the 10 candidates but is not ranked first.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (pp.~39--40): the sources, task characteristics, and fixed splits of HumanEval-Java and TransCoder-GFG.
+  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (p.~40): the sources, task characteristics, and fixed splits of HumanEval-Java and TransCoder-GFG.
   \item \textbf{Added} Sec.~6.2.1 (p.~25): the results of TyFlow-2B and its T5Gemma2-2B baseline on HumanEval-Java and TransCoder-GFG.
-  \item \textbf{Added} App.~D (pp.~44--45): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
-  \item \textbf{Added} App.~C (pp.~42--43): the 4-category failure analysis of all 3 Java benchmarks, with the TyFlow-2B/baseline comparison and representative cases.
+  \item \textbf{Added} App.~D (pp.~45--46): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
+  \item \textbf{Added} App.~C (pp.~43--44): the 4-category failure analysis of all 3 Java benchmarks, with the TyFlow-2B/baseline comparison and representative cases.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added Java benchmarks and their fixed splits}
 HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broaden the evaluation beyond MBJP. HumanEval-Java adapts the HumanEval problems to Java [\dots], and TransCoder-GFG collects the Java programs released with TransCoder [\dots]; both follow the task format of MBJP. HumanEval-Java uses a fixed split of 146 training and 16 test tasks, and TransCoder-GFG uses a fixed split of 414 training and 103 test tasks.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~B (p.~39) -- the sources and task characteristics of the two added benchmarks}
+\begin{revquote}{Revised manuscript, App.~B (p.~40) -- the sources and task characteristics of the two added benchmarks}
 HumanEval-Java is the Java port of HumanEval [\dots]: short Python-style algorithm snippets (string/list manipulation, digit arithmetic, parity and divisibility tests, a few short geometry/number-theory problems) transcribed into a single Java method per task. TransCoder-GFG reuses the GeeksforGeeks Java programs released with TransCoder [\dots]: one- or two-sentence specifications (numeric, string, or array algorithms; standard-library types only) paired with a self-contained Java method. Tab.~7 summarizes the three Java evaluation splits used in this paper.
 \end{revquote}
 
@@ -327,19 +327,19 @@ HumanEval-Java is the Java port of HumanEval [\dots]: short Python-style algorit
 TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks. [\dots] TyFlow also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~D (p.~44) -- the paired-test definitions and the 220M outcomes}
+\begin{revquote}{Revised manuscript, App.~D (p.~45) -- the paired-test definitions and the 220M outcomes}
 We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER). pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks [\dots] Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task. In the SuFu block all four paired differences favor TyFlow at the 0.05 significance level. In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. The significance tests use only the tasks on which the two models differ, since tasks where both models agree carry no information about the difference: 11 tasks for pass@1, 19 for pass@10, and 24 for FSP, out of the 67. With so few informative tasks, only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~D (p.~44) -- the pooled 186-task Java analysis}
+\begin{revquote}{Revised manuscript, App.~D (p.~45) -- the pooled 186-task Java analysis}
 The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply. In the combined analysis all four paired differences favor TyFlow at the 0.05 significance level (Tab.~10).
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~D (p.~44) -- the 2B SuFu outcomes}
+\begin{revquote}{Revised manuscript, App.~D (p.~45) -- the 2B SuFu outcomes}
 On SuFu only the compilation-error difference is significant at the 2B scale: TyFlow-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors TyFlow in the exact sign test. The pass@1, pass@10, and FSP differences favor TyFlow in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure taxonomy and its 4 categories}
+\begin{revquote}{Revised manuscript, App.~C (p.~43) -- the failure taxonomy and its 4 categories}
 This section classifies the failing tasks of the Java evaluation and presents representative cases. For each benchmark and model, every test task is assigned to one of four mutually exclusive categories: Solved@1 (the top-1 candidate passes all tests); Ranking failure (some candidate in the top ten passes, but not the top-1 one); All-invalid (no candidate passes and none of the ten candidates compiles); and Well-typed but wrong (no candidate passes, but at least one candidate compiles---the failure is semantic, not syntactic).
 \end{revquote}
 % endregion
@@ -397,18 +397,17 @@ numbers.\par\smallskip
 models.
 \end{revcomment}
 
-\response Thanks for this comment. We added the requested zero-shot comparison, plus a few-shot condition, for 3 larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) on all 4 benchmark families (Table~3, p.~26; protocol in the table note). The comparison contextualizes the absolute numbers:
+\response Thanks for this comment. We added the requested comparison on 3 larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B); the full per-cell numbers are in Table~3 (p.~26). 
+The \emph{zero-shot} prompt is identical to the prompt given to T5Gemma2-2B and TyFlow-2B in the Sec.~6.2.1 benchmark runs (the task specification only). The \emph{few-shot} prompt takes that same task prompt and prepends 3 solved examples for the Java benchmarks, 6 for SuFu. Each prompted model produces one greedy candidate per task. None of the 3 prompted models is fine-tuned on our training data; only T5Gemma2-2B and TyFlow-2B are fine-tuned.
 
 \begin{itemize}[leftmargin=1.4em]
-  \item \textbf{SuFu (58 tasks).} None of the 3 models solves a single task zero-shot, and few-shot prompting reaches at most 8/58, whereas TyFlow-2B solves 21/58. The low-resource language is precisely where the type-guided representation delivers its advantage.
-  \item \textbf{Java.} At pass@1, the 3 larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
-  \item \textbf{A caveat we flag ourselves.} Few-shot prompting brings little or no gain over zero-shot on Java for these models, which suggests they may have seen this language extensively and may have been trained on these benchmarks directly; the revision therefore flags a possible data-leakage risk for the Java comparison.
+  \item \textbf{SuFu (zero-shot).} All 3 prompted models score 0/58. Few-shot lifts at most one of them to 8/58, while TyFlow-2B scores 21/58. The type-guided representation helps the most where the prompted models have effectively no prior on the language.
+  \item \textbf{Java.} The 3 prompted models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1 zero-shot (each range gives the lowest and highest scores of the 3 models). In comparison, TyFlow-2B solves 17/67, 8/16, and 31/103 respectively. 
+  Few-shot prompting only nudges these numbers: the same 3 models move to 33--45 on MBJP, 10--14 on HumanEval-Java, and 43--52 on TransCoder-GFG (Tab.~3). The flat few-shot curve on Java suggests these models may have seen these benchmarks during their own pre-training; we therefore flag a possible data-leakage risk for the Java comparison.
 \end{itemize}
 
-Relative to its fine-tuned baseline T5Gemma2-2B, TyFlow-2B still improves all 4 benchmarks, which is the controlled comparison the paper's claims rest on.
-
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Table~3 (p.~26): pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all 4 benchmarks, zero-shot and few-shot, with the prompt protocol in the table note.
+  \item \textbf{Added} Table~3 (p.~26): pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all 4 benchmarks, zero-shot and few-shot, with the prompt protocol in the Sec.~6.2.1 setup text and the table note.
   \item \textbf{Added} Sec.~6.2.1 (p.~26): the SuFu results and the Java pass@1 comparison with TyFlow-2B, using task prompts without examples for the larger models, together with the data-leakage caveat.
 \end{itemize}}
 
@@ -429,7 +428,7 @@ wrong but well-typed? Do they fail on edge cases? A qualitative analysis of
 failure modes would significantly strengthen the paper.
 \end{revcomment}
 
-\response Thanks for this suggestion. Most tasks not solved by TyFlow-2B at pass@1 have compilable candidates whose behavior does not match the task specification; some contain a correct candidate that is not ranked first. We analyze these outcomes in App.~C (pp.~42--43), comparing TyFlow-2B with its baseline on all 3 Java benchmarks using 4 mutually exclusive categories.
+\response Thanks for this suggestion. Most tasks not solved by TyFlow-2B at pass@1 have compilable candidates whose behavior does not match the task specification; some contain a correct candidate that is not ranked first. We analyze these outcomes in App.~C (pp.~43--44), comparing TyFlow-2B with its baseline on all 3 Java benchmarks using 4 mutually exclusive categories.
 
 \textbf{The 4 categories are:}
 \begin{enumerate}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
@@ -449,16 +448,16 @@ failure modes would significantly strengthen the paper.
 \end{itemize}
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} App.~C (p.~42): the 4-category taxonomy and Table~8 comparing the 2B models on all 3 Java benchmarks, with an explanation of compilable-but-incorrect candidates and ranking failures.
-  \item \textbf{Added} App.~C.1--C.2 (pp.~42--43): representative compilation and semantic failures, with the distinction between general logic errors and edge-case failures clarified in C.2.
+  \item \textbf{Added} App.~C (p.~43): the 4-category taxonomy and Table~8 comparing the 2B models on all 3 Java benchmarks, with an explanation of compilable-but-incorrect candidates and ranking failures.
+  \item \textbf{Added} App.~C.1--C.2 (pp.~43--44): representative compilation and semantic failures, with the distinction between general logic errors and edge-case failures clarified in C.2.
   \item \textbf{Added} Sec.~6.2.1 (p.~25): a pointer to the failure analysis when discussing candidate ranking and compilable but incorrect programs.
 \end{itemize}}
 
-\begin{revquote}{Revised manuscript, App.~C (p.~42) -- the failure-category results}
+\begin{revquote}{Revised manuscript, App.~C (p.~43) -- the failure-category results}
 On MBJP, the baseline produces no compilable candidate for four tasks, while TyFlow produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by TyFlow at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, App.~C.2, representative case (p.~43) -- the representative semantic failure case}
+\begin{revquote}{Revised manuscript, App.~C.2, representative case (p.~44) -- the representative semantic failure case}
 The candidate satisfies the implemented typing rules, but its behavior does not match the task specification. This case illustrates a general logic error rather than a failure confined to edge cases; the taxonomy does not separately count edge-case failures.
 \end{revquote}
 
@@ -499,7 +498,7 @@ We evaluate the 2 added benchmarks at the 2B scale, comparing the baseline T5Gem
 
 Regarding SuFu itself: it is deliberately included as a low-resource language on which the pretrained baseline has almost no prior, so it isolates the benefit of the type-guided representation (the baseline's compilation-error rate there is 83.10\% at 220M). The Java benchmarks, which derive from mainstream sources, carry the mainstream-language evidence.
 
-\textbf{(2) Statistical reliability.} New App.~D (pp.~44--45) pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval and an exact two-sided paired test for every metric: for pass@1 and pass@10, Wilson intervals and McNemar tests; for FSP, a $t$-interval over per-task ranks and an exact sign test; for CER, a Wilson interval over candidates and an exact sign test on per-task error fractions. The outcomes are:
+\textbf{(2) Statistical reliability.} New App.~D (pp.~45--46) pairs every baseline--TyFlow run on the same tasks and reports a 95\% interval and an exact two-sided paired test for every metric: for pass@1 and pass@10, Wilson intervals and McNemar tests; for FSP, a $t$-interval over per-task ranks and an exact sign test; for CER, a Wilson interval over candidates and an exact sign test on per-task error fractions. The outcomes are:
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{Java, pooled 186 tasks at 2B.} All 4 metric differences are significant. Pass@10 improves from 33.33\% to 46.24\%, with 95\% intervals of [26.96,40.38] and [39.22,53.41]; the paired difference is significant ($p=5.36{\times}10^{-4}$), as are the other 3 metric differences.
   \item \textbf{Java at 220M (67 tasks).} All 4 differences favor TyFlow, but only CER reaches significance. Pass@10 improves from 20.90\% to 28.36\%, with 95\% intervals of [12.88,32.07] for the baseline and [18.97,40.09] for TyFlow; the paired pass@10 difference is not significant ($p=0.359$). The small test set provides few paired observations.
@@ -509,9 +508,9 @@ Regarding SuFu itself: it is deliberately included as a low-resource language on
 We use fixed test splits throughout, so every comparison in the paper and in this letter refers to the same tasks.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (pp.~39--40): HumanEval-Java and TransCoder-GFG and their construction.
+  \item \textbf{Added} Sec.~6.1.1 (p.~24) and App.~B (p.~40): HumanEval-Java and TransCoder-GFG and their construction.
   \item \textbf{Added} Sec.~6.2.1 (p.~25) and Table~2 (p.~26): the results on the 2 added Java benchmarks, including the pass@10 improvements reported above.
-  \item \textbf{Added} App.~D (pp.~44--45): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
+  \item \textbf{Added} App.~D (pp.~45--46): 95\% intervals and exact paired tests at the 220M and 2B scales (Tables~9--10), including the pooled 186-task Java analysis.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.1.1 (p.~24) -- the two added benchmarks and their splits}
@@ -645,7 +644,7 @@ Our experiments establish the benefits of this construction for type correctness
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Clarified} Sec.~1 (p.~4): the CHC-level construction, its solver requirements, and its evaluation for type correctness in Java and SuFu.
-  \item \textbf{Clarified} Sec.~7.2 (p.~30): the extension from grammar-based representations to type-correctness proofs.
+  \item \textbf{Clarified} Sec.~7.2 (pp.~30--31): the extension from grammar-based representations to type-correctness proofs.
   \item \textbf{Clarified} Sec.~8 (p.~31): richer constraint families as a direction for future implementation and evaluation.
   \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the implementation and cost evaluation required to support richer type features, including effects.
 \end{itemize}}
@@ -654,7 +653,7 @@ Our experiments establish the benefits of this construction for type correctness
 Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation subsumes prior work on syntactic correctness and provides a common basis for constructing synthesis rules from proof rules. The construction applies to rules in the supported CHC form with suitable unification and constraint-checking procedures. We instantiate and evaluate the framework for type correctness in Java and SuFu.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~7.2 (p.~30) -- the extension from grammar-based representations to type-correctness proofs}
+\begin{revquote}{Revised manuscript, Sec.~7.2 (pp.~30--31) -- the extension from grammar-based representations to type-correctness proofs}
 Grammar-based encoding can be viewed as a special case of our framework when grammar rules are expressed as CHCs. TyFlow extends this rule-based representation from syntactic structure to type-correctness proofs, with implementations and evaluations in Java and SuFu.
 \end{revquote}
 
@@ -813,7 +812,7 @@ Our decision-sequence representation and synthesis rules can also be reused in a
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, Table~3 and its note (p.~26) -- the decoder-only comparison and its protocol}
-To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task [\dots] Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models.
+To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task [\dots] Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models below.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26) -- the larger-model results on SuFu and Java}
@@ -858,6 +857,7 @@ This extension path also applies to statically checkable properties of dynamical
   \item \textbf{Updated experimental results.} The revised tables report updated experimental results, with confidence intervals and paired tests in Appendix~D computed from these runs. We retrained the models and reran the evaluations because the original model checkpoints and evaluation records were lost during our migration to a new server. The main comparative findings remain unchanged: TyFlow improves over its corresponding baseline on all 4 metrics in each of the 4 original language--model-scale comparisons.
   \item \textbf{Errata.} Algorithm~1 now composes substitutions as $\sigma_{i-1}\ldots\sigma_0\sigma$; the statement after Lemma~4.1 reads $P(\theta(\overline{t}))$; and the proof of Lemma~4.4 defines $\theta_c=\sigma_n\ldots\sigma_0\sigma$. The method and the theorems are unchanged.
   \item \textbf{FSP definition.} Sec.~6.1.3 (p.~25): a task with no correct candidate contributes the candidate-list length, a convention the submitted text left implicit.
+  \item \textbf{Prompt templates.} App.~B now shows the concrete prompt template used by the evaluation: an example MBJP prompt (imports, class skeleton, and Javadoc) and an example SuFu prompt (the task description followed by the given program prefix of inductive definitions and library functions).
 \end{itemize}
 
 \medskip We hope that the revision addresses all concerns and look forward to the reviewers' feedback.

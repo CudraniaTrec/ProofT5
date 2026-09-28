@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.0L6kNy/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.0L6kNy/new/manuscript.tex                Mon Sep 28 02:50:13 2026
+%DIF DEL /tmp/marked_build.tJ3xLL/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.tJ3xLL/new/manuscript.tex                Mon Sep 28 06:38:13 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -747,7 +747,7 @@ Performing program synthesis via existential proof construction embodies our two
 \DIFaddbegin 
 
 \smallskip
-\noindent \DIFadd{The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}\DIFadd{, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}\DIFadd{) therefore runs }\mainname{} \DIFadd{on Java and SuFu instances with fuller, though still restricted, type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}\DIFadd{, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}\DIFadd{.
+\noindent \DIFadd{The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}\DIFadd{, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}\DIFadd{) therefore runs }\mainname{} \DIFadd{on Java and SuFu instances with fuller type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}\DIFadd{, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}\DIFadd{.
 %DIF >  !TEX root=../manuscript.tex
 }\DIFaddend \subsection{Translating Typing Rules to Synthesis Rules}
 In summary of \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the two design choices:
@@ -2241,7 +2241,45 @@ The Java subset retains sufficient expressiveness to represent core imperative p
 \end{Verbatim}
 \end{tcolorbox}
 
-\DIFaddbegin \subsection{\DIFadd{HumanEval-Java and TransCoder-GFG}}
+\DIFaddbegin \DIFadd{Every Java task is presented to the model as a single prompt with a fixed template: the import statements, a class skeleton that declares the target method, and a Javadoc comment carrying the natural-language description; the model completes the body of the declared method. The MBJP and HumanEval-Java prompts additionally embed executable example calls with their expected outputs in the Javadoc. The following prompt from MBJP, reproduced in the original mxeval release format, illustrates the template:
+}
+
+\begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=Example Java Prompt (MBJP)
+]
+\begin{Verbatim}[fontsize=\small, xleftmargin=1em]
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+import java.math.*;
+
+
+class IsPolite {
+    /**
+     * * Write a function to find nth polite number.
+     *
+     * > isPolite(7)
+     * 11
+     * > isPolite(4)
+     * 7
+     * > isPolite(9)
+     * 13
+     */
+    public static int isPolite(int n) {
+\end{Verbatim}
+\end{tcolorbox}
+
+\subsection{\DIFadd{HumanEval-Java and TransCoder-GFG}}
 
 \textbf{\DIFadd{HumanEval-Java}} \DIFadd{is the Java port of HumanEval~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/corr/abs-2107-03374}}\hskip0pt%DIFAUXCMD
@@ -2274,7 +2312,7 @@ TransCoder-GFG (414 / 103)~\mbox{%DIFAUXCMD
 \footnotesize \DIFaddFL{Cell entries are }\emph{\DIFaddFL{median (range)}}\DIFaddFL{; prompt length counts whitespace-separated words on the full prompt (imports + class skeleton + javadoc); gold LoC counts non-blank lines of the canonical reference solution; difficulty labels for TransCoder-GFG (easy / medium / hard) are 53 / 49 / 1.
 }\end{table}
 
-\DIFadd{HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC, 21--35-word prompts), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
+\DIFadd{HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
 }
 
 \paragraph{\DIFadd{HumanEval-Java and TransCoder-GFG baselines.}}
@@ -2289,8 +2327,51 @@ The SuFu dataset is sourced from the GitHub repository accompanying the SuperFus
 The SuFu language features a type system that explicitly specifies those intermediate data structures to be optimized, and all code fragments operating on these data structures.
 The SuFu programs in this dataset are drawn from two primary lines of prior work. The first source consists of fusion tasks primarily collected from classical textbooks such as Introduction to Algorithms, while the second originates from research on program restructuring, where the goal is to transform a reference program into specific target forms such as divide-and-conquer or single-pass. 
 Each program is supplemented with a natural language description. These descriptions were first generated by the GPT-o3-mini model and then carefully reviewed and edited by human experts to correct inaccuracies and improve clarity.
+\DIFaddbegin \DIFadd{Each task prompt concatenates this description with the relevant inductive definitions and library functions, which are given as a program prefix; the remaining program, i.e., the target function and the }\tcode{main} \DIFadd{expression, is the part to be synthesized. The following prompt from the test split illustrates the format:
+}\DIFaddend 
 
-A key issue with the SuFu language is that when an algorithm description is provided, the initial SuFu program still needs to be manually constructed.
+\DIFaddbegin \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=gray!5,
+    colframe=black,
+    boxrule=0.5pt,
+    arc=2pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=Example SuFu Prompt
+]
+\textit{\DIFadd{Write a sufu program that, given a custom list type (ending with elt), checks if the list is sorted in non-decreasing order. If it is sorted, it computes the minimum element of the list; otherwise, it returns 0.}}
+\begin{Verbatim}[fontsize=\small, xleftmargin=1em]
+\DIFadd{Inductive List = elt Int | cons }{\DIFadd{Int, List}}\DIFadd{;
+is_sorted = let aux = (fix (
+    }\f\DIFadd{: Int -> List -> Bool. }\pre\DIFadd{: Int. }\xs\DIFadd{: List.
+    match xs with
+      elt x -> <= pre x
+    | cons }{\DIFadd{h, t}} \DIFadd{-> and (<= pre h) (f h t)
+    end
+)) in
+        }\xs\DIFadd{: List.
+        match xs with
+          elt x -> true
+        | cons }{\DIFadd{h, t}} \DIFadd{-> aux h t
+        end;
+min = }\a\DIFadd{: Int. \b: Int.
+    if (> a b) then b
+    else a;
+spec = fix (
+    }\f\DIFadd{: List -> Int. }\xs\DIFadd{: List.
+    match xs with
+      elt w -> w
+    | cons }{\DIFadd{h, t}} \DIFadd{-> min h (f t)
+    end
+);
+}\end{Verbatim}
+\end{tcolorbox}
+
+\DIFaddend A key issue with the SuFu language is that when an algorithm description is provided, the initial SuFu program still needs to be manually constructed.
 However, manually constructing SuFu programs from algorithmic descriptions is highly challenging and requires considerable domain expertise in functional programming. 
 Directly prompting language models to generate SuFu code from natural language descriptions often results in programs that are syntactically or semantically flawed, typically containing multiple type errors. 
 
