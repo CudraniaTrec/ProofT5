@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.SPIVmW/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.SPIVmW/new/manuscript.tex                Sun Sep 27 12:59:48 2026
+%DIF DEL /tmp/marked_build.0L6kNy/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.0L6kNy/new/manuscript.tex                Mon Sep 28 02:50:13 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -2131,7 +2131,7 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
 \DIFdelbegin \DIFdel{We have carefully designed a subset of the Java programming language that encompasses the fundamental syntactic constructs, including }\DIFdelend \DIFaddbegin \DIFadd{The implemented Java subset supports }\DIFaddend classes, methods, variables, arrays, generic types, operators, and control flow statements\DIFdelbegin \DIFdel{. While excluding advanced Java features such as }\DIFdelend \DIFaddbegin \DIFadd{; it omits }\DIFaddend multithreading, lambda expressions, and complex reflection mechanisms.
 
 The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of \DIFaddbegin \DIFadd{the }\DIFaddend MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}.
-\DIFaddbegin \DIFadd{Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
+\DIFaddbegin \DIFadd{Evaluation uses only tasks built from constructs this grammar supports, so the reported results apply to this supported subset.
 }\DIFaddend The complete grammar specification is presented below:
 
 \begin{tcolorbox}[
@@ -2488,7 +2488,7 @@ The candidate satisfies the implemented typing rules, but its behavior does not 
 \DIFadd{We pair every CodeT5-220M baseline run with the matching }\mainname\DIFadd{-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
 pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved. Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task.
 In the SuFu block all four paired differences favor }\mainname{} \DIFadd{at the 0.05 significance level.
-In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. With 67 tasks, the comparisons yield 11, 19, and 24 discordant or nonzero pairs for pass@1, pass@10, and FSP, respectively; only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant (}\autoref{tab:paired-statistics-2b}\DIFadd{).
+In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. The significance tests use only the tasks on which the two models differ, since tasks where both models agree carry no information about the difference: 11 tasks for pass@1, 19 for pass@10, and 24 for FSP, out of the 67. With so few informative tasks, only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant (}\autoref{tab:paired-statistics-2b}\DIFadd{).
 }
 
 \begin{table}[ht]

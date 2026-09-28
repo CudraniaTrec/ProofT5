@@ -328,7 +328,7 @@ TyFlow improves code generation accuracy at both scales and on every benchmark: 
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the paired-test definitions and the 220M outcomes}
-We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER). pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks [\dots] Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task. In the SuFu block all four paired differences favor TyFlow at the 0.05 significance level. In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. With 67 tasks, the comparisons yield 11, 19, and 24 discordant or nonzero pairs for pass@1, pass@10, and FSP, respectively; only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant.
+We pair every CodeT5-220M baseline run with the matching TyFlow-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER). pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks [\dots] Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task. In the SuFu block all four paired differences favor TyFlow at the 0.05 significance level. In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. The significance tests use only the tasks on which the two models differ, since tasks where both models agree carry no information about the difference: 11 tasks for pass@1, 19 for pass@10, and 24 for FSP, out of the 67. With so few informative tasks, only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~D (p.~44) -- the pooled 186-task Java analysis}
@@ -356,13 +356,14 @@ discuss why Java gains are smaller.\par\smallskip
 introduces potential selection bias.
 \end{revcomment}
 
-\response Thanks for this comment. The Java results show gains in both functional correctness and compilability. We explain below why the improvement is smaller at pass@1 and how the other results help assess its value.
+\response Thanks for this comment. The Java results show gains of TyFlow in both functional correctness and compilability. We explain below why the improvement is smaller at pass@1 and how the other results help assess its value.
 
 \textbf{(1) Why the Java gains differ from SuFu.} TyFlow improves code generation by preventing type errors during generation. Java is a mainstream programming language for which the pretrained baseline already has a strong foundation, whereas SuFu is a low-resource language. Consistent with this difference, the 220M Java baseline produces fewer compilation errors than the SuFu baseline (CER 35.52\% versus 83.10\%). This leaves fewer errors for our type constraints to address and therefore less room for improvement on Java.
 
 \textbf{(2) The value of the Java improvements.} For a mainstream language such as Java, the improvement is substantial given that TyFlow and the baseline use the same training data. At 220M, TyFlow improves pass@10 by 7.46 percentage points (35.7\% relative), a larger absolute gain than the 2.80-point improvement reported by GrammarT5-base over CodeT5-base on Java CONCODE, also at 220M.\footnote{Qihao Zhu et al. \href{https://doi.org/10.1145/3597503.3639125}{``GrammarT5: Grammar-Integrated Pretrained Encoder-Decoder Neural Model for Code.''} ICSE 2024, Table~4. These gains are measured on different tasks and metrics.} Our expanded experiments confirm this on 2 additional Java benchmarks: at 2B, pass@1 improves from 31.25\% to 50.00\% on HumanEval-Java and from 19.42\% to 30.10\% on TransCoder-GFG, with all 4 metrics improving on both benchmarks (pass@10 from 37.50\% to 56.25\% and from 33.01\% to 46.60\%), and on the pooled 186-task Java test set all 4 differences are statistically significant (App.~D, Tab.~10).
 
-\textbf{(3) Subset Restriction.} Our experiments use a supported Java subset, but tasks are selected by grammar rather than model performance. Both methods are evaluated on the same tasks, and TyFlow improves over the baseline across 3 independently sourced Java benchmarks and a SuFu benchmark. These consistent gains provide evidence that the improvement is not specific to one selected benchmark.
+\textbf{(3) Selection Bias.} We do not find evidence that our results are driven by selection bias. Our Java tasks were selected by grammar rather than by model performance, both methods are run on the same tasks, and App.~B defines the supported subset the evaluation draws from.
+The grammar subset does not favor TyFlow. The language features we keep are the ones the baseline already handles well (Sec.~6.2.1). Those we omit, such as multithreading, lambda expressions, and reflection, are rarer in the training data, so the baseline is more likely to make mistakes on them, and type constraints have the most to fix there.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Clarified} Sec.~6.2.1 (p.~25): why the 220M Java baseline's lower compilation-error rate leaves less room for improvement than on SuFu.
@@ -379,7 +380,7 @@ TyFlow improves code generation accuracy at both scales and on every benchmark: 
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, App.~B (p.~37) -- the implemented Java grammar and evaluated tasks}
-The implemented Java subset supports classes, methods, variables, arrays, generic types, operators, and control flow statements; it omits multithreading, lambda expressions, and complex reflection mechanisms. [\dots] Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
+The implemented Java subset supports classes, methods, variables, arrays, generic types, operators, and control flow statements; it omits multithreading, lambda expressions, and complex reflection mechanisms. [\dots] Evaluation uses only tasks built from constructs this grammar supports, so the reported results apply to this supported subset.
 \end{revquote}
 % endregion
 

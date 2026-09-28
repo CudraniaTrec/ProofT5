@@ -101,7 +101,7 @@ For any synthesis derivation tree $T_2$, there exists a type derivation tree $T_
 The implemented Java subset supports classes, methods, variables, arrays, generic types, operators, and control flow statements; it omits multithreading, lambda expressions, and complex reflection mechanisms.
 
 The Java subset retains sufficient expressiveness to represent core imperative programming paradigms. Our evaluation shows that it covers approximately 78\% of the Java programs in the original MBJP dataset, which is the Java version of the MBPP dataset and available at \href{https://github.com/amazon-science/mxeval}{amazon-science/mxeval}.
-Evaluation includes tasks whose constructs this grammar supports, so the reported results apply to this supported subset.
+Evaluation uses only tasks built from constructs this grammar supports, so the reported results apply to this supported subset.
 The complete grammar specification is presented below:
 
 \begin{tcolorbox}[
@@ -439,7 +439,7 @@ This section complements the point estimates in \autoref{tab:model-results} with
 We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
 pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved. Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task.
 In the SuFu block all four paired differences favor \mainname{} at the 0.05 significance level.
-In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. With 67 tasks, the comparisons yield 11, 19, and 24 discordant or nonzero pairs for pass@1, pass@10, and FSP, respectively; only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant (\autoref{tab:paired-statistics-2b}).
+In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. The significance tests use only the tasks on which the two models differ, since tasks where both models agree carry no information about the difference: 11 tasks for pass@1, 19 for pass@10, and 24 for FSP, out of the 67. With so few informative tasks, only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant (\autoref{tab:paired-statistics-2b}).
 
 \begin{table}[ht]
 \centering
