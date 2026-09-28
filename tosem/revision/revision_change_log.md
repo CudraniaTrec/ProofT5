@@ -2147,3 +2147,23 @@ with every downstream reference updated:
     （\tcode 宏体含 \small/\spaceskip，归一化剥不净），改用与论文原文一致的
     \texttt 后 73/73 全对齐。
 - Letter 重编译：32 页、0 error、0 overfull；p.14--15 渲染目检通过。未提交。
+
+## 2026-09-28（续四）：R1 修改模式向 R2/R3 同步
+
+- 模式比对：R1 本轮形成三类修改——(a) Comment 1.5 的自足协议块（zero-shot
+  prompt 与 fine-tuned 模型相同 / few-shot 定义 / 每模型一个 greedy 候选 /
+  3 个 prompted 模型未微调 / 隔离出微调增益）、(b) 模型分数区间附解释括号
+  "(each range gives the lowest and highest scores of the 3 models)" 与
+  few-shot 具体数字（33--45 / 10--14 / 43--52）、(c) 1.6 的类目名同步。
+- 同步改动：
+  - Comment 2.3（R2 W3，与 1.5 同一事实）：协议句替换为 1.5 的逐字协议块 +
+    隔离句；结果句补 "zero-shot" 限定与区间解释括号；few-shot 句补三个具体
+    数字（与 1.5 逐字同款）；补 Sec.~6.2.1 setup 引文（caption 改为与 1.5
+    一致的 setup/results 命名）。
+  - Comment 3.5（R3，同一事实）：协议句同样替换为 1.5 的逐字协议块（保留其
+    自有的结论句与 6.3 段）。
+- 检查后无需改动：2.1 vs 1.3（数字一致）、3.4 vs 1.4（数字一致）、2.2 的页锚
+  （Table 6 = p.29，引文 p.27/28/30）、3.1--3.3 引文（p.28）、3.6 引文
+  （Sec.1 p.3、Sec.6.3 p.30）——全部逐一用 pdftotext/aux 核验无误。
+- Letter 重编译：32 页、0 error、0 overfull、51 条 revquote / 74 片段引文
+  全对齐；p.20、p.28--29 渲染目检通过。未提交。
