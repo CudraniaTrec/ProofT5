@@ -2325,3 +2325,60 @@ with every downstream reference updated:
   流程叙述）；2.3(1)、2.2(1)(3)、Editor bullets 的块首结论句（均为对审稿人
   明确问题的直接回答，无重复尾句）。作者如觉得仍有别扭处可再指认。
 - Letter 重编译：32 页、0 error、76/76 引文对齐。未提交。
+
+## 2026-09-28（续十三）：清除未定义术语 "decision prefix" 及同类自造词
+
+- 作者指出 "decision prefix" 从未定义即使用。排查：letter 3 处 response 句
+  （1.1(3)、2.3(2)、3.5）+ 1 处 revquote；论文 Sec.~6.3（evaluation.tex）1 处。
+- 替换词采用论文既有表述（model.tex/overview-LM："the synthesis decisions
+  generated so far"），非新造词：letter 三句 → "after the synthesis decisions
+  generated so far"；论文 Sec.~6.3 与 2.3(2) 的 revquote 同步为
+  "append the current typing context to the synthesis decisions generated
+  so far"（skill 规则：改源文档后引文取新文本）。
+- 同类自造词清查（degpt-english 诊断 3）另修复两处：
+  - Editor 总览 "the dominant residual mode" → "the largest remaining failure
+    category"（与 1.3(3)/1.6 的措辞一致）；
+  - 3.1 "In the evaluated compile-safe configuration" → "With SynCode's
+    grammar masking enabled"（平实描述实际做法）。
+- 待作者定夺：1.5/2.1 的 "the type-guided representation" 是规范名
+  "decision-sequence representation" 的同义变体（skill 诊断 1），是否统一由
+  作者决定。
+- 论文因措辞微调重编译：46 页、全部页锚无漂移（Tab.~3 p.26、6.3 p.29、
+  App.~C p.43、App.~D p.45）；letter 重编译：32 页、0 error、76/76 引文对齐；
+  letter 与论文中 "decision prefix" 均清零。未提交。
+
+## 2026-09-28（续十四）：统一 "decision-sequence representation" 术语
+
+- 作者定夺：1.5、2.1、2.3 三处的 "the type-guided representation" 统一为
+  规范名 "the decision-sequence representation"（全信现共 9 处，含 2.3(2)
+  与 3.5 的迁移论证），同义变体清零。
+- Letter 重编译：32 页、0 error、76/76 引文对齐。未提交。
+
+## 2026-09-28（续十五）：decoder-only 适配段改写为平实版
+
+- 作者反馈 "One adaptation would supply the current typing context..." 段对
+  非专业审稿人偏难。1.1(3)、2.3(2)、3.5 三处（同一事实）由四句压缩为两句：
+  "One adaptation is to append the current typing context (the changing
+  synthesis goal) to the decisions generated so far at every step, so that
+  the decoder sees both when predicting the next decision. Because the
+  context changes after every decision, this appended part has to be
+  rewritten at every step, and the model cannot reuse its cached
+  computations for it."
+  - 删除 "temporary input / removed and replaced with the updated one /
+    key-value cache entries" 等实现层措辞，改用 plainer 的 "append /
+    rewritten at every step / cannot reuse its cached computations"；
+  - 括号内补一处同位语说明（typing context = the changing synthesis goal），
+    使 3.5 无前文铺垫也能独立读懂；
+  - 论文 Sec.~6.3 原文与 2.3(2) 的 revquote 保留技术性原句（逐字引用受保护，
+    实现细节由引文承载）。
+- 三处逐字一致。Letter 重编译：32 页、0 error、76/76 引文对齐。未提交。
+
+## 2026-09-28（续十六）：2.3(1) 与 1.5 逐字对齐；适配句措辞统一
+
+- 作者将 2.3(1) 重构为与 1.5 相同的结构（简短开头 + 协议段 + SuFu/Java 两条
+  逐字相同的 bullet），并删除与 bullet 结尾重复的 "Model size needs to be
+  considered..." 段——符合重复单元逐字一致的原则。
+- 统一三处适配句的动词：2.3(2) 的 "has to be updated"（作者新措辞）同步到
+  1.1(3) 与 3.5（原为 "rewritten"），三份拷贝逐字一致。
+- Letter 重编译：32 页、0 error、76/76 引文对齐。含论文 Sec.~6.3 的
+  "decision prefix" 清除与重编译，一并提交。
