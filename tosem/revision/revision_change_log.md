@@ -2201,3 +2201,127 @@ with every downstream reference updated:
   并把续五加在覆盖段的 SuFu-58 句移入该句以避免重复。
 - Letter 重编译：回到 32 页、0 error、0 overfull、52 条 revquote / 76 片段
   引文全对齐；p.16--17 渲染目检通过。
+
+## 2026-09-28（续七）：全部 response 结论先行（开宗明义）改写
+
+- 原则：每条 response 开头先给 short answers（最终结论/关键数字），再保留
+  原有的分点展开；小点内部同样把结论提到描述之前。逐单元改动：
+  - Editor：Benchmarks/Scalability 两条 bullet 各补一句结论（improvements
+    recur + pooled 显著；beam 从不为空 + syntactic pruning 降低总时长）。
+  - 1.1：开头给三条 short answers（不绑定示例语言 / 一阶合一的排除范围 /
+    decoder-only 迁移路径）。
+  - 1.2：开头给三条 short answers（completeness 只保证可达性 / 59.1%+8.2%+
+    21.2% 剪枝率 / beam 从不为空）。
+  - 1.3：开头给三条 short answers；块 (1) 前置结论句（gains 不限于原
+    MBJP split，句尾旧总结句相应改写）；块 (2) 汇总句前移、方法句后置；
+    块 (3) 结论句与 App.~C 句对调。
+  - 1.4：开头补直接原因（baseline 已强于 Java，可修的错误更少）。
+  - 1.5：开头给 short answer（prompted 模型强于 Java / TyFlow-2B 于 SuFu
+    明显占优 / 主动标注数据泄漏风险）。
+  - 2.1：开头给三条 short answers；块 (1) 前置结论句并删去句尾旧总结；
+    块 (2) 汇总句前移（与 1.3(2) 同构）。
+  - 2.2：开头给三条 short answers（410 vs 405 / 2.74× 与 syntactic 降总时长 /
+    beam 从不为空）；块 (1) token 数前移并删除第二段重复句；块 (2) 前置结论；
+    块 (3) 观测提前、理论解释后置（fallback 行为保留）。
+  - 2.3：开头给两条 short answers；块 (1) 前置结论句（prompted 强于 Java /
+    TyFlow-2B 于 SuFu 占优）。
+  - 2.4：开头直接点明选择 action item 的第二方案（scope claims + 承认
+    gap），并删除后文重复的 "We therefore focus..." 句。
+  - 3.1：开头给 short answer（外部方法均无显著功能正确性提升 / TyFlow-2B
+    最优）。
+  - 3.2：开头给 short answer（编译性改善 175→116 / 无新增 solved task）。
+  - 3.3：开头给三条 short answers（单次 encoder--decoder 调用 / 31.1→59.6ms /
+    syntactic pruning 降总时长）。
+  - 3.5：开头给 short answer（强于 Java / SuFu zero-shot 全零 vs TyFlow-2B 21）。
+  - 1.6、3.4、3.6 原本已结论先行，未改动；各小点数字均与 Table 3/8 及 App. D
+    复核一致。
+- Letter 重编译：33 页、0 error、0 overfull、52 条 revquote / 76 片段引文全对
+  齐；p.3、p.18 渲染目检通过。README 页数词数同步（33 页、约 13,700 词）。未提交。
+
+## 2026-09-28（续八）：撤销 "The short answers" 句式；结论只保留在分点开头
+
+- 作者更正：response 开头不使用 "The short answers:" 这类句式（判定为 AI 味
+  表达，永远禁用）；开头恢复原有简洁结构（感谢 + 路线图句），已撤销续七中
+  全部 12 处开头改写（1.1、1.2、1.3、1.4、1.5、2.1、2.2、2.3、3.1、3.2、
+  3.3、3.5）。
+- 保留并调整分点层面的结论先行：
+  - 1.3(1)(2)(3)、2.1(1)(2)、2.2(1)(2)(3)、2.3(1)、Editor 两条 bullet 的
+    结论前置改动保留；
+  - 1.4 的直接原因结论改写入子点 (1) 开头（原开头恢复）；
+  - 2.2(2) 去掉 "attributable" 列表腔；2.2(3) 去掉 "The theoretical
+    picture:" 引导语，观测句直接前置；
+  - 2.4 开头（无分点单元，结论必须落在开头）保留，措辞自然。
+- 复核：全文无 "short answer"/"in short" 残留；letter 重编译回到 32 页、
+  0 error、0 overfull、76/76 引文对齐；p.4/6/7 渲染目检通过。
+  README 页数 33→32、词数约 13,300。未提交。
+
+## 2026-09-28（续九）：按 degpt-english skill 复查新增开头的术语与文风
+
+- 术语（对照 skill 规范术语表）：
+  - 2.2(2) 开头的自造词 "context re-encoding" → 规范名 "the dynamic typing
+    context"；
+  - 1.4(1) 开头 "the pretrained baseline" → 规范名 "the baseline"（下一句
+    作者原文里的 "pretrained baseline" 属既有文本，列入 propagation 清单）；
+  - 2.3(1) "The prompted models" → 规范行 "The larger prompted models"；
+  - 1.3(1)/2.1(1) 自造简称 "the original MBJP split/test set" → 平实表述
+    "the original 67 MBJP test tasks"；
+  - 2.2(3) "In the instrumented run ... hypotheses" 在 R2 节内无定义 → 改用
+    论文自己的定义句（"the number of active hypotheses present at each
+    decoding step after pruning averages 7.97 at beam 10"）；
+  - 保留：language--scale block（作者既有）、pooled 186-task（App. D 原词）。
+- 文风（破折号与脚手架）：
+  - 删除我引入的三处 em-dash（2.2(1) 两处、2.2(3) 一处）及 1.3(3) 开头的
+    既有 em-dash（该句现为模块开头）；
+  - 1.2 changes-made 里作者原有的 "--- neither weakened nor strengthened ---"
+    → 逗号从句（App. C 引文内的 "compiles---the failure is semantic" 为逐字
+    引用，受保护不动）；
+  - 2.4 开头删 "Concretely," 并消掉双冒号；
+  - 1.3 结果段删去与块 (1) 前置结论重复的 "These results show..." 句。
+- 感谢句统一（skill：名词不得为变化而变化）：criticism/suggestion/question
+  → 全部 "Thanks for this comment."（15 处 + 1.1 的 "Thanks."）。
+- Letter 重编译：33 页、0 error、76/76 引文对齐；vbox 0.4pt 超高为分页噪音。
+  README 33 页。未提交。
+
+## 2026-09-28（续十）：结论先行不等于强行放第一句
+
+- 作者更正原则：结论要靠前，但不强制放在第一句——原文若已是自然因果链
+  （机制 → 证据 → 结论）且结论收得足够早，保持原链；强行前置会造成
+  结论重复与逻辑倒序。
+- 按此恢复两处：1.4(1) 整段恢复作者原文（机制 → 语言差异 → CER 证据 →
+  "less room for improvement" 收尾；含 "the pretrained baseline" 原措辞）；
+  2.2(2) 撤销前置结论句（与块内第二段 "The overall trend is similar..."
+  的收尾重复）。
+- 其余保留的结论前置均为"块首 announcing"形态且无重复尾句：1.3(1)、
+  2.1(1) 的覆盖段前结论句；1.3(2)/2.1(2) 汇总句前移；1.3(3) 结论与
+  App. C 描述对调；2.2(1) token 数前移（原重复段已删）；2.2(3) 观测提前；
+  2.3(1) 块首结论句。
+- Letter 重编译：回到 32 页、0 error、76/76 引文对齐、15 处感谢句统一。
+  未提交。
+
+## 2026-09-28（续十一）：多余换行排查
+
+- 全文审计三类换行：LaTeX 段落空行、\\\\ 强制换行、引用框内 \\par\\smallskip。
+- 发现并修复 1 处：2.2(3) 段落与 Changes made 之间的连续空行（qa-checklist
+  第 2 项；在 PDF 中产生多余垂直空隙，并曾把 letter 顶到 33 页）→ 折叠为单
+  空行，letter 回到 32 页。
+- 排查后确认无问题的：正文中句中单换行（LaTeX 视为空格，无输出影响）；
+  comment 引用框内 \\par\\smallskip 分隔（审稿人原文的分段格式，有意为之）；
+  \\\\ 强制换行仅出现在标题块与落款（合法）；主题段之间的段落边界（如
+  "Regarding SuFu itself" 尾段、3.2 的两个主题段）为有意分段；2.2(1) 的
+  "A rule token..." 一句与后续行相邻、渲染为同段，无孤立段落。
+- Letter 重编译：32 页、0 error、76/76 引文对齐。未提交。
+
+## 2026-09-28（续十二）：1.3(2) 同类模式恢复（实验方法在前，结论随后）
+
+- 作者更正原则的适用范围扩大：凡"块首结论句跑到了实验描述之前"的，一律
+  恢复为"先方法、后结论"——结论放在第一段的方法句之后即可，不必顶到块首。
+- 恢复四处：1.3(2) 与 2.1(2) 的显著性汇总句移回方法句之后（并恢复原句式
+  "For pass@1 and pass@10, we use Wilson intervals and McNemar tests; ..."）；
+  1.3(1) 与 2.1(1) 撤销块首结论句（作者已同步精简了 1.3/2.1 结果段的旧尾句，
+  块内以 "Results. The 2 added benchmarks show improvements on all 4 metrics:"
+  与 "On both added benchmarks, TyFlow-2B improves over its baseline on all 4
+  metrics." 自然承接结论）。
+- 保留（判定不同类）：1.3(3) 结论先行（该块是定性分析的直接回答，非实验
+  流程叙述）；2.3(1)、2.2(1)(3)、Editor bullets 的块首结论句（均为对审稿人
+  明确问题的直接回答，无重复尾句）。作者如觉得仍有别扭处可再指认。
+- Letter 重编译：32 页、0 error、76/76 引文对齐。未提交。
