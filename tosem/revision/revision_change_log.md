@@ -2167,3 +2167,37 @@ with every downstream reference updated:
   （Sec.1 p.3、Sec.6.3 p.30）——全部逐一用 pdftotext/aux 核验无误。
 - Letter 重编译：32 页、0 error、0 overfull、51 条 revquote / 74 片段引文
   全对齐；p.20、p.28--29 渲染目检通过。未提交。
+
+## 2026-09-28（续五）：Comment 2.1 与 Comment 1.3 的背景设置同步
+
+- 对应关系：Comment 2.1（R2 W1）与 Comment 1.3（R1）讲同一事实，Editor 总览
+  亦将两者配对。逐句比对后发现 1.3 交代了而 2.1 缺失的背景设置四处，已补齐：
+  - "SuFu remains a 58-task test set because the source repository contains
+    290 programs."（R2 原话即点名 SuFu 任务数有限，此处交代为何仍是 58）；
+  - "Both systems use the same Java training tasks..."（公平性设置）；
+  - "We report pass@1, pass@10, FSP, and CER, so the evaluation covers
+    functional correctness, candidate ranking, and compilation errors."
+    （指标覆盖说明；随之删去结果句中重复的指标罗列）；
+  - App.~D 汇总句（"All 4 metric differences favor TyFlow ... CER is
+    significant in all 4 blocks."）置于四条 outcome 之前，与 1.3 同构。
+- 补 App.~D 引文一条（paired-test definitions and the 220M outcomes，与 1.3
+  逐字相同）：2.1 的 changes made 第 3 条声称新增 App.~D，此前无本地引文支撑。
+- 一致性修正：1.3 response 的 "New App.~D (p.~45)" → "(pp.~45--46)"
+  （与 2.1 及两处 changes made 一致；App. D 全节跨 45--46）。
+- 保留作者并行编辑：2.1 覆盖段中 "Both follow the task format of MBJP;"
+  半句已被作者删除，按现状保留。
+- Letter 重编译：33 页（R2 节增补后跨页）、0 error、0 overfull、52 条
+  revquote / 76 片段引文全对齐；p.16--17 渲染目检通过。letter 对论文的页码
+  引用不受自身分页影响（论文未动）。README 页数 32→33、词数约 13,100。未提交。
+
+## 2026-09-28（续六）：作者删减复核与定稿
+
+- 作者并行删减三处，复核结论：(b) 删结尾句 "We use fixed test splits
+  throughout..."（协议句已含 fixed test tasks）与 (c) 删 SuFu-2B 条目末尾
+  "The small test set limits..."（Java-220M 条目仍保留一处小样本提醒）均无
+  信息损失，保留删减；(a) 整段删除 "Regarding SuFu itself..." 会使 W1 的
+  "SuFu is niche / unclear how findings generalize" 子问失去直接回应，故压缩
+  为一句放回原位（58 题来源 + 低资源定位 + 83.10% CER 佐证 + 隔离论证），
+  并把续五加在覆盖段的 SuFu-58 句移入该句以避免重复。
+- Letter 重编译：回到 32 页、0 error、0 overfull、52 条 revquote / 76 片段
+  引文全对齐；p.16--17 渲染目检通过。
