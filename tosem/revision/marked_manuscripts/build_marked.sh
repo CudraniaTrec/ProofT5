@@ -57,3 +57,4 @@ build_one () {  # $1 = mode (strike|color), $2 = jobname
 }
 
 build_one strike manuscript_marked
+build_one color manuscript_marked_color

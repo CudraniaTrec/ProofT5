@@ -2538,3 +2538,21 @@ with every downstream reference updated:
   far"）按抽象层级保留不动。
 - 论文重编译：46 页、页锚无漂移；letter 重编译：32 页、0 error、78/78 引文
   对齐。
+
+## 2026-09-29（续七）：全文 AI 味扫描、同步核查与 color 标记版恢复
+
+- AI 味全文扫描（degpt-english 四诊断 + 禁用项）：禁用脚手架/自造词/em-dash
+  零残留；"Additionally/Notably" 仅出现在受保护的审稿人引用与论文引文中；
+  修复 3.1 TyFlow-2B 块结尾的 skill 诊断 2 典型句（"These results suggest
+  ..., suggesting ..." 双重视态、论点埋尾 → 直接两从句陈述，论点前置、
+  claim 强度不变）；无双空行、无残缺句。
+- 同步核查：引文核对 78/78 逐字通过；论文 46 页全部页锚审计无漂移
+  （Sec.~1 p.4 / 2 p.5(起) / 3 p.11-12 / 5 p.20 / 6 p.24 / 6.2.x pp.25-29 /
+  6.3 p.29 / 7-8 pp.30-31 / App.~B p.37、40 / C p.43 / D p.45）；Table 5
+  （p.28）与 Table 2（p.26）数字抽查一致。
+- color 标记版恢复：build_marked.sh 增加,color 构建调用，同时产出删除线版
+  （47 页）与 color 版 manuscript_marked_color.pdf（46 页）。
+- 构建工具修复（clean_diff_markup.py restore_verbatim_envs）：latexdiff 对
+  全新 Verbatim 框的花括号损坏（"cons }{Int, List}};" 形）使首行无法与源
+  匹配、回退路径泄漏 \DIFadd/\color 标记。修复后按行剥离 DIF 标记、在
+  损坏点截断探测源框，两版附录 DIF 泄漏清零；SuFu 提示框两版渲染目检通过。

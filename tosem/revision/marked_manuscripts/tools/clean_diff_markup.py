@@ -126,16 +126,30 @@ def restore_verbatim_envs(body: str) -> str:
         head, env, body_, tail = m.group(1), m.group(2), m.group(3), m.group(4)
         if "\\DIF" not in body_:
             return m.group(0)
-        first = None
+
+        def probes_for(line):
+            l = re.sub(r"\\DIFadd\{|\\DIFadd|\\DIFdel\{|\\DIFdel|\\DIFaddFL|\\DIFdelFL",
+                       "", line.strip())
+            l = l.replace("\\n{}", " ").replace("\\n", " ")
+            l = l.rstrip("}{ ").strip()
+            if len(l) < 10 or "\\DIF" in l:
+                return []
+            out = []
+            # latexdiff mangles braces at group boundaries ("cons }{Int, List}};"):
+            # cut the probe at the first such close-open pair so it can match
+            # the intact source line
+            cut = min([c for c in (l.find("{}("), l.find("}{"), l.find("{}"))
+                       if c > 0] + [len(l)])
+            if cut < len(l):
+                out.append(l[:cut].strip())
+            out.append(l)
+            return [p for p in out if len(p) >= 10]
+
         for line in body_.splitlines():
-            l = line.strip().replace("\\DIFadd{", "").rstrip("}{ ").rstrip()
-            if len(l) >= 10 and "\\DIF" not in l and not l.startswith("}"):
-                first = l
-                break
-        if first:
-            for src_body in src_envs:
-                if first in src_body:
-                    return head + src_body + tail
+            for probe in probes_for(line):
+                for src_body in src_envs:
+                    if probe in src_body:
+                        return head + src_body + tail
         # no source match: strip markup tokens and hope for the best
         return head + strip_tokens(body_) + tail
 
