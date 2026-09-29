@@ -2505,3 +2505,21 @@ with every downstream reference updated:
   encoder--decoder call"；"In short," 属禁用脚手架词一并去除；补冠词
   "the static problem description"。
 - Letter 重编译：32 页、0 error、78/78 引文对齐。
+
+## 2026-09-29（续五）：3.4/3.5 与对应单元的同步检查
+
+- 对应关系：3.4 ↔ 1.4（同一关切；selection bias 仅 1.4 有，3.4 正确缺席）；
+  3.5 ↔ 1.5 + 2.3（比较 + 适配，3.5 同时覆盖两者）。
+- 3.4 复核：共享事实（CER 35.52/83.10、+7.46pp/35.7%、GrammarT5 2.80 及脚注、
+  2B 数字、pooled 显著性）与 1.4 全部一致，单段结构对一句话 comment 合比例，
+  无需同步；"the pretrained baseline" 既有措辞列 propagation 清单。
+- 3.5 同步三处（与 1.5/2.3 的共享事实措辞对齐）：
+  - 开头补 "open-weight"（1.5/2.3 均有）；
+  - 数据泄漏句统一为 "may have seen these benchmarks during their own
+    pre-training"（原 "trained on these benchmarks directly" 为同事实异
+    措辞，且比 1.5/2.3 的表述更强）；
+  - MBJP 分数区间补简短说明 "(the range spans the 3 models)"（1.5/2.3 有
+    完整版括号说明，3.5 单独阅读需知 34--42 为三模型范围）。
+- 3.5 的协议段与适配段此前已逐字对齐 ✓；按 comment 分量省略 HEJ/TCG
+  zero-shot 与 few-shot Java 数字属合比例压缩，保留。
+- Letter 重编译：32 页、0 error、78/78 引文对齐。未提交。
