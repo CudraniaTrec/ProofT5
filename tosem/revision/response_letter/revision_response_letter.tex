@@ -653,19 +653,32 @@ refinement types), or explicitly scope the generality claims to what is
 empirically demonstrated and acknowledge the gap as a limitation.
 \end{revcomment}
 
-\response Thanks for this comment. We take the second option of your action item and scope the claims to what is empirically demonstrated, acknowledging the gap as a limitation. TyFlow's generality comes from its construction at the CHC level: the transformation from proof rules to synthesis rules is not specific to Java or SuFu. The evaluated scope is type correctness in Java and SuFu, and richer constraint families are stated as future work. Extending it to another constraint family requires expressing the relevant rules in the supported form and providing the required constraint-checking procedures. 
+\response Thanks for this comment. The two type systems in our evaluation use different categories of constraints, which gives the evaluation sufficient diversity and representativeness. But we have also tightened overly general statements in the paper, explicitly scoping the generality claims to what is
+empirically demonstrated.
 
-Our experiments establish the benefits of this construction for type correctness in Java and SuFu. Extensions such as ownership or effect constraints would additionally require implementing their rules and solvers, preparing training examples, and evaluating both correctness and runtime. The revised manuscript clarifies the evaluated scope and the extension path, including in Sec.~6.3 (Limitations and Future Work).
+SuFu is a functional language: its typing rules cover inductive type declarations, recursive definitions with pattern matching, and the label/unlabel/rewrite constructs specific to its optimization framework. Java, in contrast, is an imperative, class-based language: its typing rules cover classes and methods, arrays, generic types, and implicit conversions such as auto-unboxing. The two rule sets restrict largely different constructs, which gives our evaluation sufficient diversity and representativeness.
+% And typing rules themselves do not differ in nature from other rule families: a rule in any family states the conditions under which a construct is well formed, expressed as premises and constraints over terms, and TyFlow's construction turns such rules into synthesis rules in the same way.
+
+We went through the paper and tightened statements that were more general than what we evaluate, including the two statements you quote. The introduction and related work now state the evaluated scope in the terms quoted below; the CHC-expressiveness statement in Sec.~3 now describes the formalism itself; and Sec.~8 presents richer constraint families as a direction for future work. Sec.~6.3 also states what supporting richer type features requires. 
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Clarified} Sec.~1 (p.~4): the CHC-level construction, its solver requirements, and its evaluation for type correctness in Java and SuFu.
+  \item \textbf{Tightened} Sec.~3 (p.~12): the CHC-expressiveness statement is now about the formalism itself.
+  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the implementation and cost evaluation required to support richer type features, including effects.
   \item \textbf{Clarified} Sec.~7.2 (pp.~30--31): the extension from grammar-based representations to type-correctness proofs.
   \item \textbf{Clarified} Sec.~8 (p.~31): richer constraint families as a direction for future implementation and evaluation.
-  \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): the implementation and cost evaluation required to support richer type features, including effects.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~1 (p.~4) -- the scoped CHC claim in the introduction}
 Notably, all proof rules in our system are formulated as constrained Horn clauses (see Sec.~3.1.1). This representation subsumes prior work on syntactic correctness and provides a common basis for constructing synthesis rules from proof rules. The construction applies to rules in the supported CHC form with suitable unification and constraint-checking procedures. We instantiate and evaluate the framework for type correctness in Java and SuFu.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~3 (p.~12) -- the tightened CHC-expressiveness statement}
+It is well known that any Turing-computable function can be encoded using Horn clauses (HCs) [\dots]. Consequently, CHCs are at least as expressive as HCs, and any Turing-computable function can be expressed using CHCs.
+\end{revquote}
+
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- requirements for richer type features}
+For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~7.2 (pp.~30--31) -- the extension from grammar-based representations to type-correctness proofs}
@@ -674,10 +687,6 @@ Grammar-based encoding can be viewed as a special case of our framework when gra
 
 \begin{revquote}{Revised manuscript, Sec.~8 (p.~31) -- the scoped CHC claim in the conclusion}
 Beyond type correctness, TyFlow's CHC foundation suggests a route toward richer constraint families, such as safety verification and the generation of other structural data; instantiating and evaluating these extensions remains future work.
-\end{revquote}
-
-\begin{revquote}{Revised manuscript, Sec.~6.3, ``Type-system expressiveness'' (p.~30) -- requirements for richer type features}
-For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
 \end{revquote}
 % endregion
 

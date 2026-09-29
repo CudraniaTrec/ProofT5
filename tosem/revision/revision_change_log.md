@@ -2382,3 +2382,65 @@ with every downstream reference updated:
   1.1(3) 与 3.5（原为 "rewritten"），三份拷贝逐字一致。
 - Letter 重编译：32 页、0 error、76/76 引文对齐。含论文 Sec.~6.3 的
   "decision prefix" 清除与重编译，一并提交。
+
+## 2026-09-29：Comment 2.4 重写（多样性论证 + 引用句逐条交代）
+
+- 作者给出论证方向：类型规则与其他规则本质相同（都是"前提 + 约束"的限制，
+  差别只在限制的内容），且 SuFu 与 Java 的类型系统 enforce 的约束类别差异
+  很大，因此评测虽只含类型规则，已具备多样性与代表性。
+- 2.4 response 重写为三分点：
+  - (1) 两个类型系统的限制类别基本不相交（SuFu：归纳类型、fix 递归、match
+    模式匹配、label/unlabel/rewrite 优化构造；Java：类与方法、数组、泛型、
+    auto-unboxing 等隐式转换）——全部以 App.~B 语法与 intro 的 unboxing
+    例子为据；
+  - (2) 类型规则与其他规则家族的差别在"限制的内容"，不在框架的处理方式；
+    ownership/effects 的扩展所需（规则、求解器、训练数据、评估）为 future
+    work（Sec.~6.3、Sec.~8）；
+  - (3) 审稿人引用的两句话逐条交代：intro/related 的 "arbitrary" 措辞已
+    改写为引文中的限定版本；Sec.~3 的 CHC 表达力陈述保留为对形式化本身
+    的陈述，"which ensures the expressiveness of our framework" 推断已
+    从论文中删除。
+- 论文侧修改：methods_meta.tex Sec.~3 删除该推断从句（源文档优先，revquote
+  取新文本）。重编译：46 页、全部页锚无漂移（Sec.~3 句在 p.12，与 caption
+  一致；Sec.~7.2 pp.30--31、Sec.~8 p.31 均复核）。
+- 2.4 的 changes made 增加第 2 条（Sec.~3）并按论文出现顺序重排（1 → 3 →
+  6.3 → 7.2 → 8），引文同步重排并新增 Sec.~3 引文。
+- Letter 重编译：33 页（2.4 扩写 +1 页）、0 error、53 条 revquote / 78 片段
+  引文全对齐；p.22--23 渲染目检通过。README 页数 32→33。未提交。
+
+## 2026-09-29（续）：2.4 框架更正——不承认 gap/limitation
+
+- 作者更正：2.4 此前写法（"We take the second option of your action item…
+  acknowledges the gap as a limitation"）是向审稿人示弱，绝对不可。response
+  重写为两点：
+  - (1) 论文采用的两个类型系统已使用不同类别的约束（SuFu：归纳类型声明、
+    fix 递归、match 模式匹配、label/unlabel/rewrite 优化构造；Java：类与
+    方法、数组、泛型、auto-unboxing 等隐式转换），评测具有足够的多样性和
+    代表性；并以"类型规则与其他规则家族本质相同（前提+约束的同构体）、
+    构造统一处理"收尾；
+  - (2) 论文措辞已收紧：intro/related work 按引文中的限定表述、Sec.~3 的
+    CHC 表达力陈述只描述形式化本身、Sec.~8 将更丰富的约束家族表述为未来
+    方向、Sec.~6.3 说明支持更丰富类型特征所需的工作。
+- 措辞上不再出现 "take the second option / acknowledges the gap as a
+  limitation"；changes made 第 2 条动词改为 "Tightened"，Sec.~3 引文
+  caption 同步。审稿人引用框内的 "gap/limitation" 原文受保护不动。
+- Letter 重编译：回到 32 页、0 error、78/78 引文对齐；p.22 渲染目检通过。
+  论文 Sec.~3 的收紧保持不变（该修改即 (2) 所指的措辞收紧）。未提交。
+
+## 2026-09-29（续）：2.4 去掉强行的分点小标题
+
+- 作者更正：2.4 用 \textbf 强拆两个小标题不像人写的。response 改为三段自然
+  行文：第一段（感谢 + 两个要点各一句：两类型系统已用不同类别的约束、
+  措辞已收紧），第二段（SuFu/Java 规则类别的具体展开 + 类型规则与其他规则
+  家族同构的收尾），第三段（措辞收紧的具体位置：intro/related、Sec.~3、
+  Sec.~8、Sec.~6.3，含审稿人引用的两句话）。
+- Letter 重编译：32 页、0 error、78/78 引文对齐。未提交。
+
+## 2026-09-29（续二）：2.4 定稿
+
+- 作者修改 2.4 response：开头段合并两点（多样性/代表性 + 措辞收紧并
+  "explicitly scoping the generality claims"）；多样性段恢复结论句
+  "which gives our evaluation sufficient diversity and representativeness"
+  （作者确认重复可接受）；"While Java" → "Java, in contrast,"（修正 While
+  从句接冒号的语法断裂）；"类型规则与其他规则家族同构" 句由作者注释保留。
+- Letter 重编译：32 页、0 error、78/78 引文对齐。
