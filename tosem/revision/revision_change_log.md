@@ -2523,3 +2523,18 @@ with every downstream reference updated:
 - 3.5 的协议段与适配段此前已逐字对齐 ✓；按 comment 分量省略 HEJ/TCG
   zero-shot 与 few-shot Java 数字属合比例压缩，保留。
 - Letter 重编译：32 页、0 error、78/78 引文对齐。未提交。
+
+## 2026-09-29（续六）："decision tokens generated so far" 术语替换
+
+- 作者决定：decoder-only 适配讨论中 "the decisions generated so far (at
+  every step)" 不直观，改为 "the decision tokens generated so far"，并去掉
+  挂靠歧义的 "at every step"（后句 "updated at every step" 保留）。该说法
+  与论文既有 token 级表述一致（model.tex："outputs a token representing the
+  synthesis rule or variable assignments"；2.2(1)："Each rule selection is
+  represented by 1 token"），非新造词。
+- 替换 5 处：letter 1.1(3)/2.3(2)/3.5 三句（逐字一致）+ 2.3(2) 的 revquote
+  + 论文 Sec.~6.3（evaluation.tex 源头，revquote 取新文本）。overview-LM/
+  model.tex 的抽象表述（"the sequence of synthesis decisions generated so
+  far"）按抽象层级保留不动。
+- 论文重编译：46 页、页锚无漂移；letter 重编译：32 页、0 error、78/78 引文
+  对齐。
