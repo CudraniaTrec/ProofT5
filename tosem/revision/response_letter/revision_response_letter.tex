@@ -777,11 +777,12 @@ decisions. To show the practicality of TyFlow, it is important to provide an
 analysis of the system's cost for generating the program.
 \end{revcomment}
 
-\response Thanks for this comment. We first clarify the base case, then explain what our method adds on top of it.
+\response Thanks for this comment. We first clarify the base case of our LLM query process, then explain what our method adds on top of it and provide an
+analysis of the system's cost. We unify the generation of all synthesis decisions into one LM call with multiple output tokens, much like a vanilla encoder--decoder call.
 
-\textbf{(1) The base case is a single encoder--decoder call.} The system is not a multi-LLM pipeline: the encoder processes the prompt once, and the decoder generates the output token by token, reusing the encoder's representation throughout. There are no repeated LLM calls to separate models.
+\textbf{(1) The base case is a single encoder--decoder call.} The encoder processes the problem description once, and the decoder generates the output token by token, reusing the encoder's representation throughout. There are no repeated LLM calls to separate models.
 
-\textbf{(2) What our method adds on top of this base.} During decoding, we add syntactic pruning (checking each generated token against the grammar), type pruning (checking completed AST fields against the type system), and a dynamic typing context (re-encoding the synthesis goal as it evolves). Each of these adds moderate per-step cost, while the static prompt encoding is reused throughout generation.
+\textbf{(2) What our method adds on top of this base.} During decoding, we add syntactic pruning (checking each generated token against the grammar), type pruning (checking completed AST fields against the type system), and a dynamic typing context (re-encoding the synthesis goal as it evolves). Each of these adds moderate per-step cost, while the encoding of the static problem description is reused throughout generation.
 
 \textbf{(3) The measured cost.} For the 220M model on SuFu, we measure the runtime of each component: starting from the base model without checks, we add syntactic pruning, type pruning, and the dynamic typing context in turn. Average time per decoding step (extending the active hypotheses by 1 token) is 31.1\,ms for the base, 32.4\,ms with syntax checks, 43.7\,ms with type checks added, and 59.6\,ms with all components. Average time per task follows the same configuration order: 5.70, 5.34, 11.07, and 15.62\,s. Syntax checks add little per-step cost and reduce the number of decoding steps, so total task time decreases slightly; type checking and re-encoding the updated context account for the larger increases. 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]

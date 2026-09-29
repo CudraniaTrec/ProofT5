@@ -2492,3 +2492,16 @@ with every downstream reference updated:
 - 同步检查：changes made 两条与引文一致；response 全部数字与 Table 5
   （p.28）及引文一致（26.12→21.34/25.97、+3/+1、17/67、29/67、3/670、
   0.45%）；letter 重编译 32 页、78/78 引文对齐。未提交。
+
+## 2026-09-29（续四）：3.3 开头补"单次 LM 调用"总结句
+
+- 作者在 3.3 开头新增总结句：所有 synthesis decisions 在一次 LM 调用中以
+  多输出 token 方式生成、与普通 encoder--decoder 调用一致——直接回答
+  审稿人 "multiple LLM calls" 的疑问；块 (1)(2) 相应改为 "problem
+  description" 表述。合理性确认：直接回应问题，且 vanilla 类比让非专业
+  审稿人秒懂。
+- 修正三处客观语言错误（作者草稿）：we unifies → we unify；vallina →
+  vanilla；"like what a ... call behaves" → "much like a vanilla
+  encoder--decoder call"；"In short," 属禁用脚手架词一并去除；补冠词
+  "the static problem description"。
+- Letter 重编译：32 页、0 error、78/78 引文对齐。
