@@ -2444,3 +2444,51 @@ with every downstream reference updated:
   （作者确认重复可接受）；"While Java" → "Java, in contrast,"（修正 While
   从句接冒号的语法断裂）；"类型规则与其他规则家族同构" 句由作者注释保留。
 - Letter 重编译：32 页、0 error、78/78 引文对齐。
+
+## 2026-09-29（续二）：3.1 补充"token 级方法为何不如 rejection sampling"的讨论
+
+- 作者指出 Table 5 中 SynCode/Repilot 表现弱于 rejection sampling 需要解释。
+  在 Rejection sampling 段后新增 "Why the token-level methods do not
+  outperform rejection sampling." 段，两步论证：
+  - rejection sampling 只在生成后过滤，正确的程序不会被挤掉（能产出的正确
+    候选必然编译通过而被保留），而实验中正确程序也从未被剪枝挤掉
+    （SynCode/Repilot 的 solved sets 与 control 完全相同，10/67 与 16/67），
+    因此解码期剪枝没有可兑现的优势；
+  - token 级剪枝为效率只做部分检查（grammar masking 与补全查询远少于编译
+    检查，标点与关键字绕过查询），所以仍留下不可编译候选（CER 21.34% /
+    25.97%），过滤不如 rejection sampling 彻底。
+- 该段为 letter 侧论证，数字均来自本单元与 Table 5 已有内容，无需新增
+  changes made 或论文修改。
+- Letter 重编译：32 页、0 error、78/78 引文对齐；p.24 渲染目检通过。未提交。
+
+## 2026-09-29（续三）：3.1 补全句子与 Rejection sampling 描述
+
+- 补全作者未完成的句子："The uncompilable candidates within the beam may
+  occupy the slots that correct candidates would otherwise fill, pushing
+  them out of the beam and causing correct candidates to be lost."（对应
+  "挤占正确 candidate 的空间、把它挤出去、导致正确 candidate 丢失"三层）。
+- Rejection sampling 块补方法描述（与其他两个方法块同构）："This method
+  repeatedly draws candidates from the model and keeps those that pass Java
+  compilation, for up to 100 candidates per task."——措辞对应论文 Sec.~6.2.3
+  原句（"for up to ten ten-draw rounds (100 candidates) per task"），数字
+  按全信 Number style 用阿拉伯数字；3.3 的引文保持逐字（受保护）。
+- 顺手折叠该处双空行。Letter 重编译：32 页、0 error、78/78 引文对齐。
+  未提交。
+
+## 2026-09-29（续三）：3.1 作者修改复核（10 compilable candidates）
+
+- 作者将 Rejection sampling 描述改为 "keeps those that pass Java
+  compilation, for up to 10 compilable candidates per task"（原为
+  "up to 100 candidates per task"）。经实验脚本核实
+  （scripts/launch_rq3clean_rs_mbjp_20260914.py）：协议为每轮重抽 10 个、
+  只填补 compile-pass 空槽、每题最终至多 10 个候选
+  （--expected_candidates 10、--max_arms_per_problem 10、counts[p]<10 才
+  重抽；100 是抽取预算）。作者的表述更准确地描述了被评测的集合，并与
+  "All methods are evaluated ... with 10 candidates each" 对齐，使拥挤
+  论证（10 个槽位被不可编译候选占据）成立。保留。
+- 另两处作者精简：拥挤句删 "pushing them out of the beam and"；结论句删
+  "and filters less completely"（过滤差距已由 SynCode/Repilot 块的 CER
+  数字呈现）。均合理，保留。
+- 同步检查：changes made 两条与引文一致；response 全部数字与 Table 5
+  （p.28）及引文一致（26.12→21.34/25.97、+3/+1、17/67、29/67、3/670、
+  0.45%）；letter 重编译 32 页、78/78 引文对齐。未提交。
