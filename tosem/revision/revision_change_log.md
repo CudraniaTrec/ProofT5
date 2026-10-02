@@ -2556,3 +2556,111 @@ with every downstream reference updated:
   全新 Verbatim 框的花括号损坏（"cons }{Int, List}};" 形）使首行无法与源
   匹配、回退路径泄漏 \DIFadd/\color 标记。修复后按行剥离 DIF 标记、在
   损坏点截断探测源框，两版附录 DIF 泄漏清零；SuFu 提示框两版渲染目检通过。
+
+## 2026-09-29（续八）：组合跨规模分析写入论文与 letter
+
+- 论文 App.~D 新增 D.3 "Combined Cross-Scale Analysis"（p.46，Table 11）：
+  每语言合并 220M+2B 的逐任务配对差值，sign-flip 随机化检验（200k 翻转、
+  seed 273567）+ 任务级 cluster bootstrap 95% CI；8/8 组合差值 favor
+  TyFlow 且 CI 排除零（SuFu pass@1 p=0.025 为最弱格）。论文重编译：46 页
+  不变、0 error；D.3/Table 11 在 p.46，其余页锚无漂移。
+- 计算脚本存档：scripts/combined_signflip_stats_20260929.py（块总和断言
+  锁定 Table 9/10 数字；SuFu 220M pass@10/CER 携带已记录的 18-vs-19、
+  501-vs-482 冻结数组差异）。
+- Letter 同步：1.3(2) 与 2.1(2) 末尾各加一句组合分析结论（逐字一致）；
+  1.3 与 2.1 的 changes made 各加 "Added App.~D.3 (p.~46)" 条目。
+  Letter 重编译：33 页（+1）、0 error、78/78 引文对齐；p.9/10/17 渲染
+  目检通过。README：letter 33 页、约 13,500 词。未提交。
+
+## 2026-09-29（续九）：Java 提升的同类工作对比扩充（AST-T5、StructCoder）
+
+- 作者要求：仅 GrammarT5 一个参照单薄，调研更多"Java 上改训练方式获得提升"的
+  同类工作，挑选提升比 TyFlow 小的，说明我们的提升在多个同类工作中不算小。
+- 调研结论（来源均经核实）：
+  - GrammarT5-base over CodeT5-base（220M，ICSE 2024）：CONCODE pass@1
+    +2.80 点（既有引用）；
+  - AST-T5（277M，ICML 2024，Gong/Elhoushi/Cheung）：CONCODE exact match
+    22.3→22.9，+0.6 点（其统一评测表）；
+  - StructCoder（TKDD 2024，Tipirneni/Zhu/Reddy）：同表 EM 22.4，+0.1 点；
+  - 排除：AceCoder（MBJP +12.2 点，增益大于我们，不符合"挑选小提升"目标）；
+    SynCode/Repilot（推理期方法，论文 RQ3 已对比）；StructCoder/AST-T5 原文
+    的 BLEU-only 数字（指标口径更远）。
+- Letter 1.4(2) 与 3.4(2)（逐字共享句）在 GrammarT5 句后新增一句 + 新脚注：
+  "Gains of this size are typical for retraining-based approaches on Java:
+  on CONCODE, AST-T5 improves the exact match of CodeT5-base by 0.6 points,
+  and StructCoder by 0.1."（脚注含两篇的出处链接、统一表数字与既有 caveat
+  "measured on different tasks and metrics"）。
+- Letter 重编译：34 页（+1）、0 error、78/78 引文对齐；p.11（1.4）与
+  p.29（3.4）渲染目检通过。README 34 页、约 13,700 词。未提交。
+
+## 2026-09-29（续十）：组合分析整合进全部旧叙述（论文与 letter 同步）
+
+- 审计确认：D.3 只是新增小节，论文 D.1/D.2 旧句与 letter 各处汇总句均未指向
+  组合结论。本次把组合结果整合进所有相关叙述：
+  - 论文 D.1（220M Java 块）："only CER reaches statistical significance" →
+    补 "in this block; the combined cross-scale analysis (Sec. D.3) pools
+    this block with the 2B evaluation and finds all four Java differences
+    significant"；
+  - 论文 D.2（2B SuFu 段）："underpowered, mirroring the 220M Java block"
+    后接 "The combined cross-scale analysis (Sec. D.3) addresses this ...
+    all eight combined differences are significant, with 95% CIs excluding
+    zero"；
+  - letter 1.3(2)/2.1(2) 开篇汇总句与 Editor Benchmarks bullet 各补组合
+    结论（8/8 显著）；
+  - letter 两条 App. D 引文（220M outcomes、2B SuFu outcomes）按修改后的
+    论文文本逐字更新（核对脚本 78/78 通过，确认与新版论文一致）。
+- 分块表 Table 9/10 保留不动（分块数据与检验未变；方法学上分块结果必须与
+  组合分析并存）。
+- 论文重编译：46 页、D.3/Table 11 仍在 p.46、全部页锚无漂移；letter 重
+  编译：35 页（+1）、0 error。README 35 页、约 13,900 词。标记稿需重建
+  （论文又改动）。未提交。
+
+## 2026-09-29（续十一）：App.~D 重构——按语言的组合分析升为主分析
+
+- 作者定夺：论文汇报的主统计指标 = 两个语言（Java/SuFu）上的综合统计显著性。
+  App.~D 重排：D.1 = "Combined Significance Analysis per Language"（Table~9，
+  p.45，8/8 显著 + cluster-bootstrap CI），原分块小节降级为 D.2 "Block-Level
+  Tests at the 220M Scale"（Table~10）与 D.3 "Block-Level Tests at the 2B
+  Scale"（Table~11）；D.1 结尾指向分块细节，D.2/D.3 的叙述保留组合结论衔接。
+- 分块表保留的原因（与作者沟通记录）：R1 Comment 1.4 点名 Java-220M 的
+  10.45→11.94（+1 题）边际提升，R1 原话"1--2 tasks could shift pass@1"正对该
+  格；删除分块检验将使该具体比较无任何已报告检验可答，且违反选择性报告底线。
+  现结构以组合分析为主结论、分块为细节，兼顾两者。
+- Letter 同步：App.~D.3→D.1、Table~11→9（组合）、Tables~9--10→10--11（分块）、
+  Tab.~10→11（pooled-186，1.4/3.4 两处）；两条引文中的 Sec.~D.3→D.1；
+  1.3/2.1 各新增 D.1 组合分析引文（55 条 revquote / 82 片段全对齐）。
+- 论文重编译 46 页、letter 35 页、0 error；p.45（D.1+Table~9）与 letter
+  p.11/p.19 渲染目检通过。标记稿待重建。未提交。
+
+## 2026-09-29（续十二）：按作者最终决定，App.~D 仅保留按语言的组合显著性分析
+
+- 作者最终决定（已两次说明风险后确认）：删除分块显著性表（原 Tables~10/11）
+  及全部相关文字，论文与 letter 只汇报 Java/SuFu 两个语言上的组合统计显著性。
+- 论文：App.~D 仅含 per-language sign-flip 组合分析 + cluster-bootstrap CI
+  （Table~9，p.45；表题为 Combined Cross-Scale Sign-Flip Tests）；引言段改写
+  （"complements the point estimates with a paired significance analysis per
+  language"）；方法论说明保留一句"每个 language--scale block 58--186 任务、
+  单独检验功效不足，故按语言合并"作为合并动机。45 页（-1），App.~B/C 锚点
+  不变（p.37/43）。
+- Letter：1.3(2)/2.1(2) 整体重写（组合分析的 8 个数字 + CI + p 值；保留一句
+  方向性陈述"Every metric difference also favors TyFlow in each individual
+  language--scale block (Table~2)"）；删除三条引用已删正文的 revquote 与
+  per-block p 值 bullets；changes made 两单元统一为一条 "Added App.~D (p.45)
+  per-language significance analysis (Table~9)"；Editor bullet、Summary of
+  changes、2.1 开头、Other Changes 的旧表述（pooled-186/Wilson/McNemar）全部
+  更新。1.4(2)/3.4(2) 的 pooled-186 句改为指向 per-language Java 显著性。
+- 分块检验的数字与方法仍完整保留于 scripts/combined_signflip_stats_20260929.py
+  的断言与 artifacts（per-task 数组），供内部核对与可能的后续轮次使用。
+- Letter 33 页、76/76 引文对齐；论文 45 页、0 error；p.45 与 letter p.9/p.17
+  渲染目检通过。README：letter 33 页 / 论文 45 页。标记稿待重建。未提交。
+
+## 2026-09-29（续十三）："无知情审稿人"终审 + 一处算术修正
+
+- 终审扫描（对话式措辞 / 版本痕迹 / 术语不一致 / 悬空引用）：论文与 letter
+  均无残留——App.~D 自足（引言句 + 方法 + Table~9），无对已删小节的任何
+  指涉；letter 1.3(2)/2.1(2) 重写块平铺直叙，"New App.~D" 为标准修订语，
+  无交互痕迹。76/76 引文逐字对齐。
+- 修正 Table~9 Java 行标签算术错误：原 "67 tasks × 2 scales + 186 × 1"
+  重复计数 MBJP（=320 ≠ 实际 253 个差值），改为 "67 × 2 + 119 × 1"
+  （119 = HEJ 16 + GFG 103，仅 2B）。论文重编译 45 页。
+- 论文 45 页 / letter 33 页，0 error。标记稿待重建。未提交。

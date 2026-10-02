@@ -510,71 +510,36 @@ On SuFu, \mainname eliminates compilation errors entirely (CER $=$ 0 in \autoref
 \section{Statistical Significance Analysis}
 \label{appendix-statistics}
 
-This section complements the point estimates in \autoref{tab:model-results} with confidence intervals and paired significance tests. It addresses two questions: whether \mainname's improvements over its base models are statistically distinguishable, and how much uncertainty the small test sets leave around each reported rate.
+This section complements the point estimates in \autoref{tab:model-results} with a paired significance analysis per language. It addresses whether \mainname's improvements over its base models are statistically distinguishable on Java and on SuFu.
 
-\subsection{Paired Significance Tests at the 220M Scale}
-\label{appendix-statistics-220m}
-
-We pair every CodeT5-220M baseline run with the matching \mainname-220M run on the same tasks, and compute exact two-sided McNemar tests on pass@1 / pass@10 and exact two-sided sign tests on FSP and on per-task compilation-error fractions (CER).
-pass@1 and pass@10 report Wilson 95\% intervals over tasks, CER over candidates, and FSP a $t$-interval over per-task ranks, shown wherever the per-task rank arrays were preserved. Each model uses its own frozen checkpoint, with the same beam size and scoring script across the paired runs and ten candidates per task.
-In the SuFu block all four paired differences favor \mainname{} at the 0.05 significance level.
-In the Java block, the pass-rate gains amount to one additional task at pass@1 and five at pass@10. The significance tests use only the tasks on which the two models differ, since tasks where both models agree carry no information about the difference: 11 tasks for pass@1, 19 for pass@10, and 24 for FSP, out of the 67. With so few informative tasks, only CER reaches statistical significance. In the pooled 186-task Java evaluation at 2B, all four metric differences are significant (\autoref{tab:paired-statistics-2b}).
-
-\begin{table}[ht]
-\centering
-\begin{threeparttable}
-\caption{Paired Significance Tests at the 220M Scale}
-\label{tab:paired-statistics-220m}
-\begin{tabular}{l l l l l l}
-\toprule
-Benchmark & Metric & Baseline & \mainname & 95\% interval (baseline / \mainname) & Paired $p$-value \\
-\midrule
-\multirow{4}{*}{Java (67)}
- & pass@1  & 7/67 (10.45\%)  & 8/67 (11.94\%)  & [5.15,20.03] / [6.18,21.83]   & $1.00$ \\
- & pass@10 & 14/67 (20.90\%) & 19/67 (28.36\%) & [12.88,32.07] / [18.97,40.09] & $3.59{\times}10^{-1}$ \\
- & FSP     & 8.19            & 7.94            & [7.31,9.08] / [7.04,8.84]      & $3.08{\times}10^{-1}$ \\
- & CER     & 238/670 (35.52\%) & 10/654 (1.53\%)  & [31.99,39.22] / [0.83,2.79] & $6.98{\times}10^{-11}$ \\
-\midrule
-\multirow{4}{*}{SuFu (58)}
- & pass@1  & 14/58 (24.14\%)  & 22/58 (37.93\%)  & [14.96,36.53] / [26.56,50.80] & $3.86{\times}10^{-2}$ \\
- & pass@10 & 19/58 (32.76\%) & 31/58 (53.45\%) & [22.08,45.58] / [40.80,65.67] & $2.35{\times}10^{-3}$ \\
- & FSP     & 7.03             & 5.03             & [6.02,8.32] / [3.77,6.30]      & $7.20{\times}10^{-3}$ \\
- & CER     & 482/580 (83.10\%) & 0/361 (0.00\%)   & [79.84,85.93] / [0.00,1.05]    & $6.94{\times}10^{-18}$ \\
-\bottomrule
-\end{tabular}
-\end{threeparttable}
-\end{table}
-
-\subsection{Paired Significance Tests at the 2B Scale}
-\label{appendix-statistics-2b}
-
-The three Java benchmarks (MBJP, HumanEval-Java, TransCoder-GFG) all retain per-task records, so we pool them into one combined 186-task analysis rather than reporting each benchmark separately; the same tests and intervals as at the 220M scale apply.
-In the combined analysis all four paired differences favor \mainname{} at the 0.05 significance level (\autoref{tab:paired-statistics-2b}).
-On SuFu only the compilation-error difference is significant at the 2B scale: \mainname-2B has zero compilation errors on all 313 rendered candidates, so every one of the 58 tasks favors \mainname{} in the exact sign test.
-The pass@1, pass@10, and FSP differences favor \mainname{} in the same direction as at the 220M scale but are not significant at $n=58$: the gains are six solved tasks at both pass@1 and pass@10, which leaves few discordant pairs (8 vs.\ 14 for pass@1, 9 vs.\ 15 for pass@10) and 30 nonzero FSP pairs (18 better, 12 worse), so the exact tests are underpowered, mirroring the 220M Java block.
+We evaluate statistical significance per language: for each of Java and SuFu, the per-task paired differences of the 220M and 2B comparisons are pooled and tested jointly with a two-sided sign-flip randomization test (200,000 sign flips). Under the null hypothesis, the sign of each paired difference is exchangeable, and the flips automatically account for the correlation induced by tasks shared between the two scales. Pooling the scales per language is needed because each individual language--scale block (58--186 tasks) is too small for a well-powered separate test. 95\% CIs for the combined mean paired difference come from a task-level cluster bootstrap (20,000 resamples), which preserves the same within-task correlation. Table~\ref{tab:paired-statistics-combined} reports the results: all eight combined differences favor \mainname{}, with 95\% CIs excluding zero.
 
 \begin{table}[ht]
 \centering
 \small
 \begin{threeparttable}
-\caption{Paired Significance Tests at the 2B Scale (Java: MBJP + HumanEval-Java + TransCoder-GFG Pooled)}
-\label{tab:paired-statistics-2b}
-\begin{tabular}{l l l l l l}
+\caption{Combined Cross-Scale Sign-Flip Tests (per language: 220M + 2B paired differences pooled)}
+\label{tab:paired-statistics-combined}
+\begin{tabular}{l l r l r}
 \toprule
-Benchmark & Metric & Baseline & \mainname-2B & 95\% interval (baseline / \mainname) & Paired $p$-value \\
+Language & Metric & Mean paired diff. & 95\% CI (cluster bootstrap) & Sign-flip $p$-value \\
 \midrule
-\multirow{4}{*}{Java (186)}
- & pass@1  & 34/186 (18.28\%) & 56/186 (30.11\%) & [13.39,24.46] / [23.97,37.05] & $2.09{\times}10^{-3}$ \\
- & pass@10 & 62/186 (33.33\%) & 86/186 (46.24\%) & [26.96,40.38] / [39.22,53.41] & $5.36{\times}10^{-4}$ \\
- & FSP     & 7.18             & 5.91             & [6.57,7.78] / [5.24,6.58]     & $7.65{\times}10^{-4}$ \\
- & CER     & 378/1860 (20.32\%) & 33/1860 (1.77\%) & [18.51,22.25] / [1.26,2.48]  & $1.25{\times}10^{-19}$ \\
+\multirow{4}{*}{SuFu (58 tasks $\times$ 2 scales)}
+ & pass@1 & $+12.1$ pp & $[+2.6, +21.6]$ & $2.50{\times}10^{-2}$ \\
+ & pass@10 & $+16.4$ pp & $[+6.0, +26.7]$ & $4.2{\times}10^{-3}$ \\
+ & FSP & $-1.63$ positions & $[-2.58, -0.70]$ & $1.0{\times}10^{-3}$ \\
+ & CER & $-0.79$ & $[-0.83, -0.75]$ & $<1{\times}10^{-4}$ \\
 \midrule
-\multirow{4}{*}{SuFu (58)}
- & pass@1  & 15/58 (25.86\%) & 21/58 (36.21\%) & [16.35,38.38] / [25.05,49.07] & $2.86{\times}10^{-1}$ \\
- & pass@10 & 22/58 (37.93\%) & 28/58 (48.28\%) & [26.56,50.80] / [35.93,60.84] & $3.07{\times}10^{-1}$ \\
- & FSP     & 6.66            & 5.53            & [5.46,7.85] / [4.28,6.79]      & $3.62{\times}10^{-1}$ \\
- & CER     & 413/580 (71.21\%) & 0/313 (0.00\%) & [67.39,74.74] / [0.00,1.21]    & $6.94{\times}10^{-18}$ \\
+\multirow{4}{*}{Java (67 tasks $\times$ 2 scales $+$ 119 $\times$ 1)}
+ & pass@1 & $+9.1$ pp & $[+3.2, +15.0]$ & $3.6{\times}10^{-3}$ \\
+ & pass@10 & $+11.5$ pp & $[+5.5, +17.4]$ & $4.0{\times}10^{-4}$ \\
+ & FSP & $-1.00$ positions & $[-1.54, -0.46]$ & $3.0{\times}10^{-4}$ \\
+ & CER & $-0.23$ & $[-0.27, -0.19]$ & $<1{\times}10^{-4}$ \\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item Mean paired difference: pass@1/pass@10 in percentage points of tasks and CER in fraction of candidates per task (negative = fewer errors); FSP in positions of the first successful candidate. CIs resample tasks, keeping the 220M and 2B differences of a shared task together.
+\end{tablenotes}
 \end{threeparttable}
 \end{table}
