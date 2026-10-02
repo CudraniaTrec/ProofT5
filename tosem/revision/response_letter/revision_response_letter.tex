@@ -163,7 +163,7 @@ encoder-decoder architectures limits near-term applicability.
 
 TyFlow is not tied to the example language. A richer statically typed language is supported by the same method: define its program, type, and context terms, express its typing rules as constrained Horn clauses, and implement the required computable constraints. The transformation from typing rules to synthesis rules is unchanged. Because this language-specific implementation requires substantial engineering effort, we currently instantiate TyFlow only for Java and SuFu.
 
-\emph{The difference from real languages.} The example language is deliberately simple and is used only to demonstrate how TyFlow converts typing rules into synthesis rules. It contains Boolean and function types with explicitly annotated, monomorphic bindings. Unlike mainstream languages, it does not include features like subtyping, polymorphism, type inference, overloading, or mutable state. We now acknowledge this gap explicitly in the overview.
+\emph{The difference from real languages.} The example language is deliberately simple and is used only to demonstrate how TyFlow converts typing rules into synthesis rules. It contains Boolean and function types with explicitly annotated, monomorphic bindings. Unlike mainstream languages, it does not include features like subtyping, polymorphism, type inference, overloading, or mutable state, but these features can be supported in the same way as in the running example. We now acknowledge this gap explicitly in the overview.
 
 \textbf{(2) The first-order unification restriction.}
 
