@@ -13,7 +13,7 @@
 
 **注意**：
 - 本次不单独提交 cover letter——response letter 即 cover letter（按作者指示）；审稿决定信只要求提交修订稿并附一封说明如何回应审稿意见的 cover letter，**未要求带标记的版本**，故 response letter 中也不提标记版。
-- 标记稿（`marked_manuscripts/manuscript_marked.pdf`，latexdiff 删除线样式）保留作内部核对用；若 ScholarOne 提供 supplementary material 位、且您希望审稿人直接看改动，可作为补充材料上传。2026-09-29 起恢复生成蓝色 color 标记版（`manuscript_marked_color.pdf`，新增标蓝、不显示删除内容），与删除线版一同由 `build_marked.sh` 产出。
+- 标记稿（`marked_manuscripts/manuscript_marked.pdf`，latexdiff 删除线样式）保留作内部核对用；若 ScholarOne 提供 supplementary material 位、且您希望审稿人直接看改动，可作为补充材料上传。蓝色 color 标记版已于 2026-09-29 按作者决定移除，仅保留删除线版。
 
 ## 二、全部文件与用途
 
@@ -60,7 +60,7 @@ pdflatex revision_response_letter.tex && pdflatex revision_response_letter.tex
 - **样式**：latexdiff 默认样式（新增文字蓝色下划线、删除文字红色删除线），完整保留增删信息。
 - **表格**：以终稿形式呈现（表内标记会破坏 siunitx/booktabs）。
 - **参考文献**：不做 diff，由 bibtex 重新生成。
-- **历史**：2026-09-23 之前另有蓝色 color 标记版（新增标蓝、不显示删除内容），同日按作者决定删除、仅保留本版；`build_marked.sh` 同时产出删除线版与 color 版（2026-09-29 恢复）。
+- **历史**：2026-09-23 之前另有蓝色 color 标记版（新增标蓝、不显示删除内容），同日按作者决定删除、仅保留本版；`build_marked.sh` 仅产出删除线版。
 - 已知细节（debug 记录见 `revision_change_log.md`）：需绕过 latexdiff preamble 定义、`\cmidrule`/`\multirow` 参数、threeparttable 标签宽度测量、microtype 对字体命令参数的解析等问题，均已由 `tools/clean_diff_markup.py` 处理。
 
 ## 五、投稿前检查清单

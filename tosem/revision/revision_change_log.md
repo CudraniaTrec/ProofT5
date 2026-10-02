@@ -2664,3 +2664,9 @@ with every downstream reference updated:
   重复计数 MBJP（=320 ≠ 实际 253 个差值），改为 "67 × 2 + 119 × 1"
   （119 = HEJ 16 + GFG 103，仅 2B）。论文重编译 45 页。
 - 论文 45 页 / letter 33 页，0 error。标记稿待重建。未提交。
+
+## 2026-09-29（续十四）：标记稿随 45 页论文重建；color 版按作者决定移除
+
+- 删除线版 manuscript_marked.pdf 重建（基线 ce2dd2c，46 页），与最新论文
+  同步；color 版（作者删除）未恢复，build_marked.sh 移除 color 构建行，
+  README 同步改回"仅删除线版"。
