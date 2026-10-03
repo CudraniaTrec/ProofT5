@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.IrjOxE/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.IrjOxE/new/manuscript.tex                Fri Oct  2 13:08:58 2026
+%DIF DEL /tmp/marked_build.nMO7ZW/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.nMO7ZW/new/manuscript.tex                Sat Oct  3 07:09:16 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -941,16 +941,17 @@ In our synthesis framework, unification enables typing rules to be applied by al
 In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
 First-order unification \DIFdelbegin \DIFdel{is decidable and admits efficient algorithmic solutions~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
-, making itsuitable for our synthesis framework}\DIFdelend \DIFaddbegin \DIFadd{always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\mbox{%DIFAUXCMD
+, making it suitable for our synthesis framework. }\DIFdelend \DIFaddbegin \DIFadd{always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
 . These guarantees let }\mainname \DIFadd{apply a selected typing rule and update its remaining premises.
+}\DIFaddend 
+
+\DIFaddbegin \DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\mbox{%DIFAUXCMD
+\cite{DBLP:journals/tcs/Goldfarb81}}\hskip0pt%DIFAUXCMD
+.
 }
 
-\DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, }\mainname\DIFadd{'s current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework~\mbox{%DIFAUXCMD
-\cite{DBLP:journals/tcs/Goldfarb81}}\hskip0pt%DIFAUXCMD
-}\DIFaddend .
-
-\subsection{Terms and Typing Rules}
+\DIFaddend \subsection{Terms and Typing Rules}
 \subsubsection{Terms}
 \label{terms-intro}
 We begin by defining the object language through a structured set of terms. A \emph{term} is a symbolic expression that represents programs, types, contexts, or other syntactic entities in the object language. Each term type is specified inductively: terms are constructed from constants, variables, and composite structures via constructors. For any given term type \tcode{T}, the syntax conforms to the general form:

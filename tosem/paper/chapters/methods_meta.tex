@@ -56,7 +56,7 @@ In our synthesis framework, unification enables typing rules to be applied by al
 In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
 First-order unification always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\cite{DBLP:journals/jacm/Robinson65}. These guarantees let \mainname apply a selected typing rule and update its remaining premises.
 
-Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, \mainname's current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework~\cite{DBLP:journals/tcs/Goldfarb81}.
+Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\cite{DBLP:journals/tcs/Goldfarb81}.
 
 \subsection{Terms and Typing Rules}
 \subsubsection{Terms}

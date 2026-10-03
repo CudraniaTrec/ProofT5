@@ -171,7 +171,7 @@ Higher-order functions and polymorphism do not by themselves require higher-orde
 
 \emph{Why we use first-order unification.} To apply a typing rule, TyFlow needs unification to terminate, decide whether the rule conclusion matches the current goal, and return a principal substitution for the remaining premises. First-order unification provides these guarantees: it is decidable and returns a most-general unifier that is unique up to variable renaming. We therefore use first-order unification as a sufficient condition.
 
-\needspace{16\baselineskip}\emph{When higher-order unification is needed.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a function, type constructor, or predicate. The following 2 terms show the difference:
+\needspace{16\baselineskip}\emph{When higher-order unification is needed.} A higher-order function takes or returns a function value, and the type checker needs to determine the type of that value. Higher-order unification is needed only when the unknown metavariable to be solved in the typing rule is itself a higher-order function, type constructor, or predicate. The following 2 terms show the difference:
 \[
   \operatorname{Arrow}(\alpha,\beta)
   \qquad\text{versus}\qquad
@@ -190,13 +190,26 @@ The program passes a function as a value, but $\operatorname{Stream}$ and $\oper
 
 \emph{Support for real-world type systems.} Java supports function values, but its type checking does not require unification over unknown type-level functions, type constructors, or predicates. Its program, type, and context syntax can be represented as first-order terms. The Java Language Specification handles generic inference through constraint reduction, incorporation, and resolution over inference variables.\footnote{\href{https://docs.oracle.com/javase/specs/jls/se25/html/jls-18.html}{\emph{The Java Language Specification}, Java SE 25, Sec.~18, ``Type Inference.''}} Features such as subtyping, generic bounds, overload applicability, and lambda target typing can therefore be handled through typing rules and language-specific constraints. Supporting these features requires substantial implementation work, but it does not require higher-order unification as long as rule application only instantiates ordinary term variables.
 
-Dependent-type systems such as Lean are different because elaboration may need to infer an unknown type constructor or predicate. Lean therefore uses higher-order unification together with heuristics and backtracking.\footnote{Leonardo de Moura, Jeremy Avigad, Soonho Kong, and Cody Roux. \href{https://doi.org/10.1007/978-3-319-21401-6_3}{``Elaboration in Dependent Type Theory.''} CADE-25, 2015.} The current TyFlow solver cannot directly support these cases. A decidable fragment with principal unifiers, such as higher-order patterns, could be incorporated, but this would require a new unifier. General higher-order unification remains outside our current framework.
+Dependent-type systems such as Lean are different. Their elaboration may need to infer an unknown predicate or other higher-order entity, so applying a typing rule there requires higher-order unification. Lean handles these problems automatically with heuristics-guided elaboration: it solves the decidable fragment it recognizes and searches among the remaining candidate solutions with heuristics and backtracking.\footnote{Leonardo de Moura, Jeremy Avigad, Soonho Kong, and Cody Roux. \href{https://doi.org/10.1007/978-3-319-21401-6_3}{``Elaboration in Dependent Type Theory.''} CADE-25, 2015.} 
+A simple example is the induction rule for natural numbers, where the schematic parameter $P$ ranges over predicates rather than terms:
+\[
+  \frac{\Gamma \vdash p_0 : P\ \tcode{zero}
+        \qquad
+        \Gamma \vdash p_s : \forall n.\; P\ n \to P\ (\tcode{succ}\ n)
+        \qquad
+        \Gamma \vdash t : \tcode{Nat}}
+       {\Gamma \vdash \operatorname{ind}(P, p_0, p_s, t) : P\ t}
+\]
+In Lean, $P$ is implicit and absent from the surface syntax, so applying this rule means inferring the predicate. When $t$ is a compound term such as \tcode{2 * n}, the candidate predicates are infinitely many and incomparable, the heuristics may fail, and Lean reports ``motive is not clear'' until the user supplies the predicate by hand.
+The analogous step in TyFlow is the automatic derivation of metavariables once a rule is selected, and TyFlow currently requires this step to be deterministic: first-order unification always terminates. Following these real languages, one could instead force higher-order unification into a solvable fragment through heuristic search and branch-and-bound-style strategies. Building such a solver amounts to implementing a new unifier together with its own search strategy, which requires substantial engineering effort. 
+
+This does not conflict with the completeness of CHCs: rules with predicate parameters remain expressible as CHCs, and what first-order unification cannot provide is their automatic, deterministic application. Languages such as Java rarely create such problems, since their unknowns are ordinary types rather than predicates.
 
 \textbf{(3) The architecture restriction.} The representation and synthesis rules of TyFlow can be reused in a decoder-only model. The model predicts the next rule or variable-assignment token from the prompt and previous decisions, and the synthesis engine still applies that decision, updates the derivation tree, and checks the constraints. The part that needs adaptation is the dynamic typing context: in the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence. One adaptation is to append the current typing context (the changing synthesis goal) to the decision tokens generated so far, so that the decoder sees both when predicting the next decision. Because the context changes after every decision, this appended part has to be updated at every step, and the model cannot reuse its cached computations for it. Sec.~6.3 (pp.~29--30) describes this adaptation path; implementing it and evaluating its runtime remain future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~2 (p.~9): the overview now enumerates the gap between $\lambda\!\rightarrow$ and real languages (subtyping, polymorphism, type inference, overloading resolution, mutable state) and points to the evaluation and the Limitations discussion.
-  \item \textbf{Clarified} Sec.~3 (p.~12): why TyFlow uses first-order unification, why higher-order functions do not by themselves require higher-order unification, and when the current solver no longer applies.
+  \item \textbf{Clarified} Sec.~3 (p.~12): why TyFlow uses first-order unification, that most languages' typing rules require only first-order unification, and that the few languages needing more can be supported through decidable fragments with a different unifier.
   \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30): why the dynamic typing context is not directly portable to a decoder-only model.
   \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): which features can use first-order terms and which require a different solver.
 \end{itemize}}
@@ -208,7 +221,7 @@ The $\lambda^{\rightarrow}$ language above serves for exposition: it is delibera
 \begin{revquote}{Revised manuscript, Sec.~3 (p.~12) -- the role and boundary of first-order unification}
 First-order unification always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming. These guarantees let TyFlow apply a selected typing rule and update its remaining premises.
 
-Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. If a typing rule creates such a problem, TyFlow's current solver cannot handle it. A decidable fragment could be supported with a different unifier, but general higher-order unification remains outside the current framework.
+Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable.
 \end{revquote}
 
 \begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30) -- the decoder-only adaptation path}
@@ -236,19 +249,19 @@ of candidate tokens are eliminated at each level? This would help readers
 understand the practical search space reduction.
 \end{revcomment}
 
-\response Thanks for this comment. The two paragraphs raise separate questions, and we answer them in turn.  
+\response Thanks for this comment. The two paragraphs raise questions about what completeness guarantees and the pruning rates, and we answer them in turn.  
 
 \textbf{(1) What completeness guarantees, and the observed beam-search behavior.}
 
-Completeness bounds what our method can reach, not how likely the search is to reach it, and we claim no bound on the latter. Relative to vanilla code generation, we have not narrowed the search space of programs, and we have improved how well the search works. We have also added the questions and limitations raised here to the completeness discussion (Sec.~4.4, p.~20).
+Completeness bounds what our method can reach, not how likely the search is to reach it, and we claim no bound on the latter. The vanilla text-based tokenization and code generationh can not guarantee the target program can be found either. Relative to it, we have not narrowed the search space of programs, and we have improved how well the search works. We have also added the questions and limitations raised here to the completeness discussion (Sec.~4.4, p.~20).
 
 \emph{What completeness guarantees.} The theorem (Sec.~4.4, p.~20) states that for every well-typed program there exists a synthesis derivation tree from which that program is extracted. The guarantee is about reachability: the encoding and the synthesis rules exclude no well-typed program. The program the theorem promises to exist therefore remains reachable at every step. What the theorem does not say is where the model ranks that derivation, or how wide a beam has to be to keep it.
 
 \emph{How the search is improved.} Within that unchanged search space, TyFlow raises the chance that the search finds a correct program in two ways. 
-The type analysis is explicit: a vanilla code generation model emits program text token by token and must maintain the type reasoning implicitly, whereas TyFlow emits a decision sequence in which each step selects a synthesis rule and the variables that rule requires. The type reasoning is settled by the rule's premises rather than left to the model. 
-The explicit representation also gives us lightweight pruning: branches on which a typing rule fails to apply or a constraint check fails are cut, so the engine detects a wrong decision as soon as the model makes it and removes that path from the beam, reducing the chance that the search ends without a correct program.
+The type analysis is explicit: a vanilla code generation model emits program text token by token and must maintain the type reasoning process implicitly, whereas TyFlow emits a decision sequence in which each step selects a synthesis rule and the variables that rule requires. The type reasoning is settled by the rule's premises rather than left to the model. 
+The explicit representation also gives us lightweight pruning: when a typing rule fails to apply or a constraint check fails, the corresponding branches are cut. So the engine detects a wrong decision as soon as the model makes it and removes that path from the beam, reducing the chance that the search ends without a correct program.
 
-\emph{The beam-search behavior we observe.} We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning. With beam 10 it averages 7.97, below 10 because finished or rejected candidates do not fill active slots. And in the evaluated run the active beam never became empty.
+\emph{The beam-search behavior we observe.} We measure the branching factor as the number of active hypotheses present at each decoding step after pruning. With beam 10 it averages 7.97, below 10 because finished or rejected candidates do not fill active slots. And in the evaluated run the active beam never became empty.
 
 \textbf{(2) Pruning rates.} Instrumenting the decoder on the SuFu tasks (beam~10, 330-step budget) gives: syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\% (type checking is applied only to the high-probability candidates about to enter the beam, which is why its rate is lower). A final, complete type check on finished derivations rejects 21.2\% of the completed candidates.
 
@@ -590,7 +603,7 @@ Additionally, discuss whether the core ideas could be adapted to
 decoder-only architectures, even if full integration is left to future work.
 \end{revcomment}
 
-\response Thanks for this comment. We report the larger-model comparison in full, then explain how TyFlow could be adapted to a decoder-only model.
+\response Thanks for this comment. In our evaluation, TyFlow shows consistant improvements over its baselines even the 2B baseline makes less type mistakes than the 220m baseline. We will further report the larger-model comparison in full, then explain how TyFlow could be adapted to a decoder-only model.
 
 \textbf{(1) The comparison with larger decoder-only models.} We added the comparison on 3 larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B); the full per-cell numbers are in Table~3 (p.~26). 
 The \emph{zero-shot} prompt is identical to the prompt given to T5Gemma2-2B and TyFlow-2B in the Sec.~6.2.1 benchmark runs (the task specification only). The \emph{few-shot} prompt takes that same task prompt and prepends 3 solved examples for the Java benchmarks, 6 for SuFu. Each prompted model produces one greedy candidate per task. None of the 3 prompted models is fine-tuned on our training data; only T5Gemma2-2B and TyFlow-2B are fine-tuned.
@@ -740,7 +753,7 @@ line of work.
 
 Compiler feedback improves compilability in our experiments: the number of candidates that fail to compile falls from 175 to 116 out of 670. However, none of the 59 candidates repaired to compile passes the functional tests, so the solved sets remain unchanged at 10/67 for pass@1 and 16/67 for pass@10. Compiler diagnostics identify compilation errors, but do not establish whether a program implements the intended behavior. The feedback therefore helps repair compilation failures without necessarily correcting the program's functionality.
 
-Rejection sampling explores additional candidates and can find functionally correct programs through repeated generation. In our experiments, it adds 1 solved task at pass@1 and 3 at pass@10, although neither gain is statistically significant. These results show that the additional compiler feedback is useful for compilability, but does not automatically lead to higher functional correctness than repeated sampling. And TyFlow performs better than these two methods since our representation helps model in better understanding the program structure and type reasoning.
+Rejection sampling explores additional candidates and can find functionally correct programs through repeated generation. In our experiments, it adds 1 solved task at pass@1 and 3 at pass@10, although neither gain is statistically significant. These results show that the additional compiler feedback is useful for compilability, but does not automatically lead to higher functional correctness than repeated sampling. And TyFlow performs better than these two methods since our representation helps model in better understanding the program structure and type reasoning process.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~6.2.3 (pp.~28--29): the repair protocol (\texttt{javac} feedback, at most 2 rounds, un-fine-tuned agent), its measured outcome, and an explanation of why compiler feedback improves compilability without adding solved tasks.
@@ -763,8 +776,7 @@ decisions. To show the practicality of TyFlow, it is important to provide an
 analysis of the system's cost for generating the program.
 \end{revcomment}
 
-\response Thanks for this comment. We first clarify the base case of our LLM query process, then explain what our method adds on top of it and provide an
-analysis of the system's cost. We unify the generation of all synthesis decisions into one LM call with multiple output tokens, much like a vanilla encoder--decoder call.
+\response Thanks for this comment. TyFlow unifies the generation of all synthesis decisions into one LLM call with multiple output tokens, much like a vanilla encoder--decoder call. We will first clarify the base case of our LLM query process, then explain what our method adds on top of it and provide an analysis of the system's cost. 
 
 \textbf{(1) The base case is a single encoder--decoder call.} The encoder processes the problem description once, and the decoder generates the output token by token, reusing the encoder's representation throughout. There are no repeated LLM calls to separate models.
 
