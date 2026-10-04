@@ -205,12 +205,12 @@ The analogous step in TyFlow is the automatic derivation of metavariables once a
 
 This does not conflict with the completeness of CHCs: rules with predicate parameters remain expressible as CHCs, and what first-order unification cannot provide is their automatic, deterministic application. Languages such as Java rarely create such problems, since their unknowns are ordinary types rather than predicates.
 
-\textbf{(3) The architecture restriction.} The representation and synthesis rules of TyFlow can be reused in a decoder-only model. The model predicts the next rule or variable-assignment token from the prompt and previous decisions, and the synthesis engine still applies that decision, updates the derivation tree, and checks the constraints. The part that needs adaptation is the dynamic typing context: in the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence. One adaptation is to append the current typing context (the changing synthesis goal) to the decision tokens generated so far, so that the decoder sees both when predicting the next decision. Because the context changes after every decision, this appended part has to be updated at every step, and the model cannot reuse its cached computations for it. Sec.~6.3 (pp.~29--30) describes this adaptation path; implementing it and evaluating its runtime remain future work.
+\textbf{(3) The architecture restriction.} The representation and synthesis rules of TyFlow can be reused in a decoder-only model. The model predicts the next rule or variable-assignment token from the prompt and previous decisions, and the synthesis engine still applies that decision, updates the derivation tree, and checks the constraints. The part that needs adaptation is the dynamic typing context: in the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence. One adaptation is to append the current typing context (the changing synthesis goal) to the decision tokens generated so far, so that the decoder sees both when predicting the next decision. Because the context changes after every decision, this appended part has to be updated at every step, and the model cannot reuse its cached computations for it. Sec.~6.3 (p.~30) describes this adaptation path; implementing it and evaluating its runtime remain future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Sec.~2 (p.~9): the overview now enumerates the gap between $\lambda\!\rightarrow$ and real languages (subtyping, polymorphism, type inference, overloading resolution, mutable state) and points to the evaluation and the Limitations discussion.
   \item \textbf{Clarified} Sec.~3 (p.~12): why TyFlow uses first-order unification, that most languages' typing rules require only first-order unification, and that the few languages needing more can be supported through decidable fragments with a different unifier.
-  \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30): why the dynamic typing context is not directly portable to a decoder-only model.
+  \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~30): why the dynamic typing context is not directly portable to a decoder-only model.
   \item \textbf{Added} Sec.~6.3, ``Type-system expressiveness'' (p.~30): which features can use first-order terms and which require a different solver.
 \end{itemize}}
 
@@ -224,7 +224,7 @@ First-order unification always terminates. It either rejects two terms or return
 Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30) -- the decoder-only adaptation path}
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~30) -- the decoder-only adaptation path}
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. [\dots] This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 
@@ -336,12 +336,9 @@ HumanEval-Java is the Java port of HumanEval [\dots]: short Python-style algorit
 TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks. [\dots] TyFlow also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
 \end{revquote}
 
-
-
 \begin{revquote}{Revised manuscript, App.~D (p.~45) -- the per-language significance analysis}
 We evaluate statistical significance per language: for each of Java and SuFu, the per-task paired differences of the 220M and 2B comparisons are pooled and tested jointly with a two-sided sign-flip randomization test (200,000 sign flips). Under the null hypothesis, the sign of each paired difference is exchangeable, and the flips automatically account for the correlation induced by tasks shared between the two scales. Pooling the scales per language is needed because each individual language--scale block (58--186 tasks) is too small for a well-powered separate test. [\dots] all eight combined differences favor TyFlow, with 95\% CIs excluding zero.
 \end{revquote}
-
 
 \begin{revquote}{Revised manuscript, App.~C (p.~43) -- the failure taxonomy and its 4 categories}
 This section classifies the failing tasks of the Java evaluation and presents representative cases. For each benchmark and model, every test task is assigned to one of four mutually exclusive categories: Solved@1 (the top-1 candidate passes all tests); Ranking failure (some candidate in the top ten passes, but not the top-1 one); All-invalid (no candidate passes and none of the ten candidates compiles); and Well-typed but wrong (no candidate passes, but at least one candidate compiles---the failure is semantic, not syntactic).
@@ -524,7 +521,6 @@ HumanEval-Java and TransCoder-GFG are two additional Java benchmarks that broade
 TyFlow improves code generation accuracy at both scales and on every benchmark: [\dots] pass@1 rises [\dots] 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
 \end{revquote}
 
-
 \begin{revquote}{Revised manuscript, App.~D (p.~45) -- the per-language significance analysis}
 We evaluate statistical significance per language: for each of Java and SuFu, the per-task paired differences of the 220M and 2B comparisons are pooled and tested jointly with a two-sided sign-flip randomization test (200,000 sign flips). Under the null hypothesis, the sign of each paired difference is exchangeable, and the flips automatically account for the correlation induced by tasks shared between the two scales. Pooling the scales per language is needed because each individual language--scale block (58--186 tasks) is too small for a well-powered separate test. [\dots] all eight combined differences favor TyFlow, with 95\% CIs excluding zero.
 \end{revquote}
@@ -620,7 +616,7 @@ One adaptation is to append the current typing context (the changing synthesis g
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
   \item \textbf{Added} Table~3 (p.~26) and Sec.~6.2.1 (p.~26): the decoder-only comparison.
-  \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30): what a decoder-only adaptation requires.
+  \item \textbf{Added} Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~30): what a decoder-only adaptation requires.
 \end{itemize}}
 
 \begin{revquote}{Revised manuscript, Sec.~6.2.1, setup (p.~26) -- the setup of the decoder-only comparison}
@@ -631,7 +627,7 @@ To contextualize absolute performance, Tab.~3 reports three larger decoder-only 
 On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (pp.~29--30) -- the decoder-only adaptation path}
+\begin{revquote}{Revised manuscript, Sec.~6.3, ``Dependence on the encoder-decoder architecture'' (p.~30) -- the decoder-only adaptation path}
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision tokens generated so far as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 % endregion
@@ -833,35 +829,25 @@ models (decoder-only, billions of parameters) is unexplored. The authors
 should consider extending the evaluation to larger models.
 \end{revcomment}
 
-\response Thanks for this comment. We report the larger-model comparison in full, then explain how TyFlow could be adapted to a larger decoder-only model.
+\response Thanks for this comment. Our evaluation has included the experiments at the 2B scale, where the baseline T5Gemma2-2B and TyFlow-2B share the same training data and procedure (Sec.~6.2, Table~1, p.~26). At this scale, training on decision sequences rather than plain code improves every metric on every benchmark, reflecting the effectiveness of our decision-sequence representation. TyFlow improves consistently over its baselines even though the 2B baseline commits fewer type errors than the 220M baseline.
 
-\textbf{(1) The comparison with larger decoder-only models.} We added the comparison on 3 larger open-weight decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B); the full per-cell numbers are in Table~3 (p.~26). 
-The \emph{zero-shot} prompt is identical to the prompt given to T5Gemma2-2B and TyFlow-2B in the Sec.~6.2.1 benchmark runs (the task specification only). The \emph{few-shot} prompt takes that same task prompt and prepends 3 solved examples for the Java benchmarks, 6 for SuFu. Each prompted model produces one greedy candidate per task. None of the 3 prompted models is fine-tuned on our training data; only T5Gemma2-2B and TyFlow-2B are fine-tuned.
+For scaling beyond 2B, the natural target is a decoder-only model, since the largest open models use this architecture.
+The representation carries over without essential change: a decoder-only model receives the same information (the task specification, the current typing context, and the decision tokens generated so far) and predicts the same next decision token, while the synthesis engine that applies decisions and checks constraints is architecture-independent.
+What needs adaptation is how the dynamic typing context reaches the model: in the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence, whereas a decoder-only model must append this context to the decision tokens generated so far. Since the context changes after every decision, this appended segment has to be updated at every step and its key-value entries recomputed, which raises an engineering cost in the decoding procedure (Sec.~6.3, p.~30).
 
-\begin{itemize}[leftmargin=1.4em]
-  \item \textbf{SuFu (zero-shot).} All 3 prompted models score 0/58. Few-shot lifts at most one of them to 8/58, while TyFlow-2B scores 21/58. The decision-sequence representation helps the most where the prompted models have effectively no prior on the language.
-  \item \textbf{Java.} The 3 prompted models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B) solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1 zero-shot (each range gives the lowest and highest scores of the 3 models). In comparison, TyFlow-2B solves 17/67, 8/16, and 31/103 respectively. 
-  Few-shot prompting only nudges these numbers: the same 3 models move to 33--45 on MBJP, 10--14 on HumanEval-Java, and 43--52 on TransCoder-GFG (Tab.~3). The flat few-shot curve on Java suggests these models may have seen these benchmarks during their own pre-training; we therefore flag a possible data-leakage risk for the Java comparison.
-\end{itemize}
-
-\textbf{(2) Adapting TyFlow to a larger decoder-only model.} The decision-sequence representation can be used unchanged: a decoder-only model can predict the next rule or variable-assignment token from the prompt and previous decisions. The synthesis engine would still apply that decision, update the derivation tree, and check the constraints. The part that needs adaptation is the dynamic typing context. In the current encoder-decoder design, the encoder processes the changing synthesis goal separately from the decision sequence.
-
-One adaptation is to append the current typing context (the changing synthesis goal) to the decision tokens generated so far, so that the decoder sees both when predicting the next decision. Because the context changes after every decision, this appended part has to be updated at every step, and the model cannot reuse its cached computations for it. Thus, the representation and synthesis rules carry over, while context input and cache management require changes to the decoding procedure. Sec.~6.3 describes this adaptation direction; implementation and runtime evaluation remain future work.
+Moreover, encoder-decoder and decoder-only models of comparable size have repeatedly been found to perform similarly: the T5 ablations show only modest differences between the two architectures at matched budgets,\footnote{Colin Raffel, Noam Shazeer, Adam Roberts, et al. \href{https://jmlr.org/papers/v21/20-074.html}{``Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer''}. JMLR 21, 2020.} and instruction-finetuned encoder-decoder models remain competitive with same-size or larger decoder-only models.\footnote{Hyung Won Chung, Le Hou, Shayne Longpre, et al. \href{https://arxiv.org/abs/2210.11416}{``Scaling Instruction-Finetuned Language Models''}. 2022.}
+We therefore consider the 2B results representative of what the representation contributes at a given scale; training and evaluating a decoder-only instantiation remains future work.
 
 \changesmade{\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-  \item \textbf{Added} Sec.~6.2.1 and Table~3 (p.~26): the 3 decoder-only models on all 4 benchmarks and the comparison of their Java and SuFu results with TyFlow-2B.
-  \item \textbf{Added} Sec.~6.3 (pp.~29--30): the requirements for a decoder-only adaptation.
+  \item \textbf{Added} Sec.~6.2.1 and Table~3 (p.~26): three prompted decoder-only models on all 4 benchmarks, to contextualize absolute performance (also requested under AE-4 and R2-W3).
+  \item \textbf{Added} Sec.~6.3 (p.~30): the requirements for a decoder-only adaptation.
 \end{itemize}}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.1, Table~3 and its note (p.~26) -- the decoder-only comparison and its protocol}
-To contextualize absolute performance, Tab.~3 reports three larger decoder-only models (MiMo-7B, Qwen3-14B, Qwen3-30B-A3B), prompted with the same task prompt in all conditions, alongside our two fine-tuned 2B encoder-decoder models. Each prompted model produces one greedy candidate per task [\dots] Cell entries are solved tasks at pass@1 for all models; the 0-shot condition uses the same prompt as the two fine-tuned models below.
+\begin{revquote}{Revised manuscript, Sec.~6.2 (p.~26) -- improvements at both trained scales}
+TyFlow improves code generation accuracy at both scales and on every benchmark: pass@1 rises [\dots] from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks. [\dots] TyFlow also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks.
 \end{revquote}
 
-\begin{revquote}{Revised manuscript, Sec.~6.2.1 (p.~26) -- the larger-model results on SuFu and Java}
-On SuFu the comparison favors TyFlow: none of the three solves a single task zero-shot, and few-shot prompting reaches at most 8 of 58, whereas TyFlow-2B solves 21 [\dots] On Java, given the task prompt without examples, the three larger models solve 34--42 of 67 MBJP tasks, 3--14 of 16 HumanEval-Java tasks, and 38--52 of 103 TransCoder-GFG tasks at pass@1. TyFlow-2B solves 17/67, 8/16, and 31/103, respectively.
-\end{revquote}
-
-\begin{revquote}{Revised manuscript, Sec.~6.3 (pp.~29--30) -- the decoder-only adaptation path}
+\begin{revquote}{Revised manuscript, Sec.~6.3 (p.~30) -- the decoder-only adaptation path}
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. [\dots] This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 \end{revquote}
 % endregion

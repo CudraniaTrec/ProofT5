@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.nMO7ZW/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.nMO7ZW/new/manuscript.tex                Sat Oct  3 07:09:16 2026
+%DIF DEL /tmp/marked_build.GKxZFy/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.GKxZFy/new/manuscript.tex                Sun Oct  4 04:10:45 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -946,7 +946,7 @@ First-order unification \DIFdelbegin \DIFdel{is decidable and admits efficient a
 . These guarantees let }\mainname \DIFadd{apply a selected typing rule and update its remaining premises.
 }\DIFaddend 
 
-\DIFaddbegin \DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\mbox{%DIFAUXCMD
+\DIFaddbegin \DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/tcs/Goldfarb81}}\hskip0pt%DIFAUXCMD
 .
 }
