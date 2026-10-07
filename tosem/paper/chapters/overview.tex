@@ -53,7 +53,7 @@ data Context = empty | Context, Var:Type
 %
 In this paper, we define the syntax as a set of inductive data types over several built-in base types (e.g., \tcode{string}, \tcode{bool}). 
 Here, the syntax of $\stlc$ consists of three data types (\autoref{figure:stlc-syntax}):
-\tcode{Prog} and \tcode{Type} define programs and types in $\stlc$ as the standard simply typed lambda calculus, above the base type \tcode{bool}; and 
+\tcode{Prog} and \tcode{Type} define programs and types of the standard simply typed lambda calculus over the base type \tcode{bool}; and 
 \tcode{Context} specifies a context for variable types, where \tcode{empty} denotes the empty context, and ${(\snoc{\Gamma}{\tt x}{\tt t})}$ extends a context $\Gamma$ by binding the type \tcode{t} to the variable \tcode{x}.
 
 To specify the type system, we require the definition of each typing rule (which defines how types are assigned to program constructs) together with an executable type checker.
@@ -117,7 +117,7 @@ Given the inputs in \autoref{figure:sample-task}, \mainname aims to generate wel
 For example, in \autoref{figure:sample-type-tree}, the \rulename{T-App} rule restricts the top-level operator of the program to be a function application, the \rulename{T-Abs} rule restricts the function term to be a lambda abstraction, and the application of \rulename{T-Var} defines that the body of the lambda abstraction is a variable. 
 In other words, \textbf{typing rules inherently serve a program synthesis role}. This observation allows us to construct a synthesis system directly grounded in typing rules, enabling simultaneous program synthesis and type reasoning.
 
-We illustrate the synthesis process of \mainname in detail as shown in \autoref{tab:synthesis-process}, where we use \sk{purple} to distinguish the unknown variables (i.e., placeholders to be filled in) in each goal, which will be instantiated later during the synthesis.
+We illustrate the synthesis process of \mainname in \autoref{tab:synthesis-process}, where we use \sk{purple} to distinguish the unknown variables (i.e., placeholders to be filled in) in each goal, which will be instantiated later during the synthesis.
 %
 For the $\stlc$ language, \mainname begins by specifying the synthesis goal as $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$. This synthesis goal is a typing judgment with unknown variables, and it corresponds to constructing an existential proof of $\exists \sk{p}, \sk{t}.\; \stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$: the unknown variables in the typing judgment are exactly the existential variables to be witnessed in the proof. The initial context $\tcode{empty}$ indicates that no variables have been bound at the beginning.
 
@@ -155,16 +155,16 @@ Given the initial synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, the
     \item First, \mainname $\alpha$-renames the rule by replacing all variables in the rule with fresh ones to avoid name conflicts. Under this renaming, \rulename{T-App} takes the following form.
     $$\frac{\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}} \quad \stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}}{\stlctype{\sk{\Gamma_1}}{\app{\sk{p_1}}{\sk{p_2}}}{\sk{t_2}}} $$
     
-    \item Subsequently, \mainname attempts to unify the rule's conclusion judgment with the current synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, accumulating the induced constraints as the equations shown below. If unification fails, the rule application is considered invalid and discarded.
+    \item Subsequently, \mainname matches the rule's conclusion against the current synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, accumulating the induced constraints as the equations shown below.
     $$
     \sk{\Gamma_1} = \tcode{empty} \ \ \wedge\ \ \app{\sk{p_1}}{\sk{p_2}} = \sk{p}  \ \ \wedge \ \  \sk{t_2} = \sk{t}
     $$
 
-    \item \label{action3}Thereafter, \mainname attempts to resolve these constraints via unification, yielding a substitution that maps variables to their values. If unification fails, the rule application is rejected.
+    \item \label{action3}Thereafter, \mainname resolves these constraints via unification, yielding a substitution that maps variables to their values. If unification fails, the rule application is rejected.
     $$\sigma_1=\big\{ \sk{\Gamma_1} \mapsto \tcode{empty}, \quad \sk{p} \mapsto \app{\sk{p_1}}{\sk{p_2}}, \quad \sk{t} \mapsto \sk{t_2}\big\}$$
 
-    \item Finally, \mainname constructs synthesis subgoals by applying the substitution to each premise of \rulename{T-App}, which has two premises corresponding to the function and the argument of the application, 
-    $\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ and $\stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}$, and \mainname will generate two subgoals:
+    \item Finally, \mainname applies the substitution to each premise of \rulename{T-App}, which has two premises corresponding to the function and the argument of the application, 
+    $\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ and $\stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}$, and obtains two subgoals:
     \begin{gather*}
     \stlctype{\tcode{empty}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}} \quad \stlctype{\tcode{empty}}{\sk{p_2}}{\sk{t_1}}
     \end{gather*}
@@ -209,7 +209,7 @@ $$\begin{array}{ll}
 
 The unknown variables in the premise prevent \mainname from evaluating the predicate. 
 %
-To address this issue, \mainname will query the LM to provide an assignment to all such variables, such as follows:
+To address this issue, \mainname will query the LM to provide an assignment to all such variables, as follows:
 %Therefore, it is necessary to instantiate these variables ($\sk{x_1}, \sk{x_2}, \sk{t_3},$ and $\sk{t_5}$ in this example) to obtain their concrete values.
 %More generally, \mainname requires the LM to generate an assignment for all variables that, after applying the substitution, remain in the typing rules but are not present in any subgoals. 
 %Suppose the LM generates the following assignment:
@@ -219,7 +219,7 @@ To address this issue, \mainname will query the LM to provide an assignment to a
 
 By further applying $\sigma_4$, the premise becomes $\checkBinding{(\snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}})}{\tcode{x}}{\tcode{bool}}$, which is completely known; then, \mainname can evaluate the predicate and confirm that it is satisfied.
 %
-At this time, no new subgoal is generated, so the synthesis process for this branch is complete, where the result is the composition of $\sigma_3$ and $\sigma_4$ (i.e., applying both substitutions in sequence):
+At this point, no new subgoal is generated, so the synthesis process for this branch is complete; the result is the composition of $\sigma_3$ and $\sigma_4$ (i.e., applying both substitutions in sequence):
 \[
 \sigma_4 \sigma_3 = \big\{
 \sk{\Gamma_3} \mapsto \snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}},\ 
@@ -257,4 +257,4 @@ Performing program synthesis via existential proof construction embodies our two
 \end{itemize}
 
 \smallskip
-\noindent The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type \tcode{bool}, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (\autoref{sec:evaluation}) therefore runs \mainname{} on Java and SuFu instances with fuller type systems; the scope of the underlying rule framework is stated in \autoref{sec:meta}, and how the approach would extend to richer type systems is discussed in \autoref{sec:limitations}.
+\noindent The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type \tcode{bool}, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (\autoref{sec:evaluation}) therefore runs \mainname{} on its Java and SuFu instantiations, which have fuller type systems; the scope of the underlying rule framework is stated in \autoref{sec:meta}, and how the approach would extend to richer type systems is discussed in \autoref{sec:limitations}.

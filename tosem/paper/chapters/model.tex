@@ -22,7 +22,7 @@ Unlike standard encoder-decoder models that encode only a static input, our arch
 
 As described in \autoref{sec:query-resolution-lm}, the query resolution task is delegated to the LM, which takes the natural language prompt, the synthesis decisions generated so far, and the current synthesis goal as input and outputs a token representing the synthesis rule or variable assignments.
 
-Meanwhile, \mainname maintains a synthesis decision sequence where each newly generated token is appended, representing the next synthesis decision. This sequence incrementally constructs an existential type correctness proof. Due to its autoregressive nature, the growing sequence is fed to the transformer decoder, allowing the LM to leverage the full history of synthesis decisions when predicting the next token.
+Meanwhile, \mainname maintains a synthesis decision sequence to which each newly generated token is appended, representing the next synthesis decision. This sequence incrementally constructs an existential type correctness proof. Due to its autoregressive nature, the growing sequence is fed to the transformer decoder, allowing the LM to leverage the full history of synthesis decisions when predicting the next token.
 
 \paragraph{Model Inference Process.}
 At each synthesis step:
@@ -45,7 +45,7 @@ Our dual-encoding architecture is built upon standard Transformer encoder-decode
 
 \subsection{Term Encoding}
 \label{sec:term-encoding}
-Terms, as defined in \autoref{terms-intro}, are inductively constructed from constants and constructors. Following the approach of GrammarT5~\cite{DBLP:conf/icse/ZhuL000C24}, we serialize the abstract syntax tree (AST) of a term using a pre-order traversal, outputting each constructor or constant as a token in sequence. When a term contains unknown variables (not yet instantiated during synthesis), we represent them using a unified unknown token $\langle?\rangle$.
+Terms, as defined in \autoref{terms-intro}, are inductively constructed from constants and constructors. Following the approach of GrammarT5~\cite{DBLP:conf/icse/ZhuL000C24}, we serialize the abstract syntax tree (AST) of a term using a pre-order traversal, outputting each constructor or constant as a token in sequence. When a term contains unknown variables (not yet instantiated during synthesis), we represent them using a single shared unknown token $\langle?\rangle$.
 
 For example, consider the STLC program $\tcode{abs}(\tcode{"x"}, \tcode{bool}, \tcode{var}(\tcode{"x"}))$, which represents the identity function $\lambda x{:}\tcode{bool}.\, x$. Its AST has the constructor $\tcode{abs}$ at the root, with three children: the constant $\tcode{"x"}$ (the variable name), the constant $\tcode{bool}$ (the type annotation), and the subtree $\tcode{var}(\tcode{"x"})$. The pre-order traversal yields the token sequence illustrated in \autoref{fig:term-encoding}.
 

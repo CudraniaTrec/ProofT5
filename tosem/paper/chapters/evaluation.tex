@@ -14,11 +14,11 @@ We design our evaluation to answer the following research questions.
 To evaluate the generality of \mainname, our evaluation considers two languages with very different characteristics, SuFu~\cite{DBLP:journals/pacmpl/JiZPXH24} and Java.
 %Correspondingly, we used two datasets: the SuFu dataset and the MBJP~\cite{DBLP:conf/iclr/AthiwaratkunGWL23} dataset.
 \begin{itemize}
- \item \textbf{SuFu} is an ML-style functional language designed for automatic program optimization. This language uses a customized type system for extracting operations for optimization on data structures.
+ \item \textbf{SuFu} is an ML-style functional language designed for automatic program optimization. This language uses a customized type system that extracts the operations on data structures to be optimized.
  %
  This language has limited code resources, making it representative for evaluating \mainname under low-resource conditions.
 
- We collect SuFu programs from its GitHub repository, which comprises 290 programs with test cases. For each program, we manually supply a natural language description, along with the relevant inductive definitions and library functions, thus collecting a dataset of code generation tasks.
+ We collect SuFu programs from its GitHub repository, which comprises 290 programs with test cases. For each program, we manually supply a natural language description, along with the relevant inductive definitions and library functions, thus forming a dataset of code generation tasks.
  %
  This dataset is then split randomly into a training set of 80\% tasks and a test set of 20\% tasks.
  
@@ -107,7 +107,7 @@ Scale & Benchmark & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\u
 \end{threeparttable}
 \end{table}
 
-\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmarks.
+\mainname improves code generation accuracy at both scales and on every benchmark: pass@1 rises from 24.14\% to 37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% to 36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to 50.00\% (HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass@10 improves by 7.46--20.69 points on the same six benchmark settings.
 The largest gains are on SuFu and HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
 At 220M, the Java baseline has a lower CER than the SuFu baseline (35.52\% versus 83.10\%), leaving fewer compilation errors for type constraints to address. On MBJP, \mainname{} raises pass@10 from 20.90\% to 28.36\% and reduces CER to 1.53\%; the smaller pass@1 gain indicates that finding a correct candidate does not always make it the top-ranked output. The failure analysis in Appendix~\ref{appendix-failure} identifies ranking errors and compilable but incorrect programs among the remaining failures.
 \mainname{} also drops CER to 0.00\% on SuFu and 0.45\% / 1.30\% / 2.75\% on the three Java benchmarks; the small residual Java CER comes from static-analysis errors the type system does not capture.
@@ -207,7 +207,7 @@ Base (no checks)         & 24.14 & 0.00
 \paragraph{Functional contribution of each component.}
 The four metric columns of \autoref{tab:ablation-combined} show which component contributes which improvement.
 Syntactic pruning alone gives a moderate pass@1 gain ($+3.45$); the turning point is type pruning, which lifts pass@1 by $+13.79$ and eliminates compilation errors outright (CER $74.26 \to 0.00$).
-Dynamic typing context leaves pass@1 and CER unchanged but improves pass@10 ($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the \textbf{Context Locality} property of~\autoref{section:intro}.
+Dynamic typing context leaves pass@1 and CER unchanged but improves pass@10 ($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the \textbf{Context Locality} property from~\autoref{section:intro}.
 
 \paragraph{How much the constraints prune.}
 To measure the pruning strength, we instrument the constrained decoder on the SuFu tasks (beam 10, 330-step budget\footnote{The longest decision sequence in the benchmark has 330 steps, so the budget suffices to derive every reference program.}): syntactic pruning removes 59.1\% of all vocabulary proposals, and type pruning a further 8.2\%.
@@ -221,7 +221,7 @@ A finite beam can discard all correct prefixes, and the retained hypotheses may 
 Training on correct decision sequences is intended to rank correct prefixes highly, but cannot rule out this case.
 We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning.
 With beam 10, this number averages 7.97.
-It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the top-20 candidate list can therefore be exhausted before all slots are filled.
+It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the per-step candidate pool can therefore be exhausted before all slots are filled.
 In our experiments, however, the active beam never became empty.
 
 
@@ -233,14 +233,14 @@ Syntactic pruning even lowers the per-task total: with little per-step overhead,
 
 \subsubsection{RQ3: Comparison with Reliability-Oriented Generation Methods}
 We compare \mainname{} with methods that pursue correct code by constraining or repairing the output of a trained model.
-On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: \emph{rejection sampling}, \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar}, \emph{Repilot}(\emph{Copiloting the Copilots})~\cite{DBLP:conf/sigsoft/0003X023}, and \emph{iterative compiler repair}.
+On MBJP, four such methods are applied to the same frozen T5Gemma2-2B checkpoint selected in RQ1, each adding its own pruning or repair mechanism: \emph{rejection sampling}, \emph{SynCode}~\cite{ugare2024syncodellmgenerationgrammar}, \emph{Repilot}(\emph{Copiloting the Copilots})~\cite{DBLP:conf/sigsoft/0003X023}, and \emph{iterative compiler repair}.
 All methods are evaluated on the same 67 tasks with 10 candidates each.
-Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of \autoref{tab:model-results} (13.43/32.84); the \mainname-2B row is identical in both tables.
+Because rejection sampling and repair need diverse draws rather than beam output, the vanilla baseline uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of \autoref{tab:model-results} (13.43/32.84); the \mainname-2B row is identical in both tables.
 
-Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
-For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed.
+Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten rounds of ten draws (100 candidates) per task.
+For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate the grammar, so every output is syntactically well-formed.
 For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries.
-Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
+Iterative compiler repair feeds \texttt{javac} diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the non-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
 
 \begin{table}[ht]
 \centering
@@ -271,11 +271,10 @@ T5Gemma2-2B           & 14.93 & 23.88 & 26.12 \\
 \end{threeparttable}
 \end{table}
 
-None of the four external baselines significantly improves functional correctness over the ordinary control:
+None of the four external baselines significantly improves functional correctness over the vanilla baseline:
 rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$);
-SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67);
-Following the original Repilot implementation, punctuation and keyword tokens bypass completion queries; in this configuration, CER decreases from 26.12\% to 25.97\%.
-Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
+SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67). Repilot's CER barely moves (26.12\% to 25.97\%), consistent with its policy of bypassing completion queries for punctuation and keywords.
+Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates made compilable by repair passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 \mainname-2B solves 17/67 at pass@1 and 29/67 at pass@10 with 3 of 670 candidates failing to compile, the best of all compared methods.
 The evaluated external mechanisms constrain or revise generated programs without updating the underlying model parameters, whereas \mainname{} explicitly encodes the typing rules into the model and helps it better learn the program distribution, supporting the value of the \textbf{Type Explicitness} property in~\autoref{section:intro}.
 
@@ -325,8 +324,8 @@ Language & Model & {pass@1 (\%)\tnote{\updir}} & {pass@10 (\%)\tnote{\updir}} & 
 Adding separated type reasoning improves over the ordinary trained baseline on both languages (e.g., Type-First 31.03 vs.\ 24.14 pass@1 on SuFu), and unifying the two into one process improves further: both separated variants trail \mainname{} on pass@10 and CER (on Java pass@1, Type-First merely ties \mainname{}).
 Because neither variant constrains decoding, their CER remains high (56.72--64.31 on SuFu), whereas \mainname{} outputs only type-valid programs.
 In terms of token length, fully unifying type reasoning and code is far more economical than outputting them separately: the unified decision sequence (410 on SuFu, 129 on Java) saves 342 and 118 tokens respectively against appending the typing rules to plain code tokens (752 and 247).
-It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
-These results support the \textbf{Derivation Vicinality} paradigm of \mainname, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
+It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds few tokens and sometimes removes some.
+These results support the \textbf{Derivation Vicinality} paradigm of \mainname: interleaving each program fragment with its type derivation yields higher accuracy and efficiency than generating the two separately.
 
 \subsection{Limitations and Future Work} \label{sec:limitations}
 \paragraph{Dependence on the encoder-decoder architecture.}
@@ -334,4 +333,8 @@ The current architecture is designed for encoder-decoder models: at each synthes
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision tokens generated so far as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 
 \paragraph{Type-system expressiveness.}
-Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~\ref{sec:meta}). This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
+Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
+
+This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
+
+Across these extensions, the construction remains the same: because CHCs are Turing-complete, a computable type-checking algorithm can be expressed with CHCs, and the type-checking process of a program is converted into the decision sequences used for training (Sec.~\ref{sec:meta}). Computability does not imply termination on every program: in some systems, such as dependent-type elaboration and C++ template instantiation, the type check of certain programs does not terminate. Preparing training data for such a program times out, just as the corresponding compiler hangs on it, so these programs are excluded from the training data.

@@ -1,6 +1,6 @@
 % !TEX root=../manuscript.tex
 \subsection{Translating Typing Rules to Synthesis Rules}
-In summary of \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the two design choices:
+Summarizing \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the following two design choices:
 \begin{itemize} 
     \item When applying a rule, instead of pattern matching, \mainname introduces rule parameters as fresh variables and solves the constraints between variables via unification.
     \item Whenever an executable predicate requires the value of an unknown variable, \mainname acquires this value directly from the LM.

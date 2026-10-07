@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.yJKXKE/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.yJKXKE/new/manuscript.tex                Tue Oct  6 03:38:39 2026
+%DIF DEL /tmp/marked_build.dtHI1r/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.dtHI1r/new/manuscript.tex                Wed Oct  7 13:39:26 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -347,7 +347,7 @@ Recently, language models (LMs) have achieved great success in code generation~\
 %
 LMs typically treat programs as plain text, encoding them as sequences of tokens and generating code by iteratively predicting the next token given the current partial program. After being trained on large corpora of code and natural language, such LMs can generate programs on demand with high accuracy.
 
-However, language models (LMs) frequently struggle with type systems, often producing code that violates basic type constraints. 
+However, \DIFdelbegin \DIFdel{language models (LMs ) }\DIFdelend \DIFaddbegin \DIFadd{LMs }\DIFaddend frequently struggle with type systems, often producing code that violates basic type constraints. 
 Empirical studies indicate that type errors alone account for 33.6\% of failed LM-generated programs~\cite{DBLP:journals/ese/TambonDNKDA25, DBLP:journals/corr/abs-2407-06153}. 
 Notably, even cutting-edge tools powered by state-of-the-art LMs can generate code that fails to compile.
 For instance, an evaluation of GitHub Copilot on LeetCode revealed that 24\% of its suggestions resulted in compilation errors~\cite{DBLP:conf/msr/NguyenN22}, which mainly resulted from type errors~\cite{DBLP:journals/corr/abs-2504-09246}. 
@@ -358,7 +358,7 @@ This type validity problem becomes particularly pronounced in resource-limited l
 Ensuring type correctness is also useful beyond reducing type errors. 
 First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system. %DIF < It is better to give an important decidable property to astonish the reviewer.
 For example, Rust \DIFdelbegin \DIFdel{ensured }\DIFdelend \DIFaddbegin \DIFadd{ensures }\DIFaddend no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. 
-Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
+Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, \DIFdelbegin \DIFdel{by }\DIFdelend assisting LMs through external facilities for satisfying the constraints during training and inference \DIFdelbegin \DIFdel{, }\DIFdelend \DIFaddbegin \DIFadd{further improves }\DIFaddend the overall performance of the model\DIFdelbegin \DIFdel{will further improve, possibly because }\DIFdelend \DIFaddbegin \DIFadd{. A possible reason is that }\DIFaddend the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
 Ensuring type correctness in practice, however, remains challenging. 
@@ -424,7 +424,7 @@ These approaches leverage external type checkers and reject untypable programs g
 %
 However, such an external patch cannot bridge the gap in principle.
 %
-Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution among well-typed programs\DIFdelbegin \DIFdel{.}\DIFdelend ~\cite{DBLP:conf/nips/ParkWBPD24}.
+Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution \DIFdelbegin \DIFdel{among }\DIFdelend \DIFaddbegin \DIFadd{over }\DIFaddend well-typed programs\DIFdelbegin \DIFdel{.}\DIFdelend ~\cite{DBLP:conf/nips/ParkWBPD24}.
 %
 For example, in our sample task, \toolname{CodeT5} assigns a low probability to the expected expression (\autoref{fig:codet5-correct}), possibly because the LM is unaware of the auto-unboxing rule and thus incorrectly identifies it as ill-typed.
 %
@@ -437,7 +437,7 @@ However, the separation between program generation and type reasoning introduces
 As a result, this approach not only hinders learning efficiency but also causes inconsistencies between type reasoning and generated code. As our evaluation will later demonstrate, it does not yield satisfactory performance.
 
 % our approach
-Building on these insights, we aim to propose a new synthesis system that \emph{reconciles type systems internally with LMs}. 
+Building on these insights, we \DIFdelbegin \DIFdel{aim to }\DIFdelend propose a new synthesis system that \emph{reconciles type systems \DIFdelbegin \DIFdel{internally }\DIFdelend with LMs \DIFaddbegin \DIFadd{internally}\DIFaddend }. 
 Our approach leverages the fact that LMs are not confined to generating programs as plain text; they can be incorporated into any search-based system that constructs programs via sequences of decisions, with each decision made in a specific context. 
 For any such system, an LM can be trained to predict the optimal decision at each step, enabling program synthesis by interacting with the LM throughout the search process.
 
@@ -454,7 +454,7 @@ Specifically, we expect the system $\mathcal S$ to satisfy the following propert
 \[
 \exists p.\; \mathsf{welltyped}(p)
 \]
-must explicitly construct a witness program $p$. Thus, there exists an extraction function $\mathsf{extract}$ such that $\mathsf{extract}(\Pi) = p$. We leverage this insight to design a novel synthesis system and program representation that unifies program generation with type reasoning.
+must explicitly construct a witness program $p$. Thus, there exists an extraction function $\mathsf{extract}$ such that $\mathsf{extract}(\Pi) = p$. We leverage this insight to design a novel synthesis system and program representation that \DIFdelbegin \DIFdel{unifies }\DIFdelend \DIFaddbegin \DIFadd{unify }\DIFaddend program generation with type reasoning.
 
 Based on this observation, the process of constructing an existential proof can be reformulated as a program synthesis process. The proof is built by applying typing rules step by step, where each step makes a \textit{decision} that either applies a rule to decompose the current goal into subgoals, or instantiates a variable within the context. Since the program is embedded within the proof, this sequence of decisions simultaneously determines the program being synthesized.
 
@@ -540,7 +540,7 @@ data Context = empty | Context, Var:Type
 %
 In this paper, we define the syntax as a set of inductive data types over several built-in base types (e.g., \tcode{string}, \tcode{bool}). 
 Here, the syntax of $\stlc$ consists of three data types (\autoref{figure:stlc-syntax}):
-\tcode{Prog} and \tcode{Type} define programs and types in $\stlc$ as the standard simply typed lambda calculus, above the base type \tcode{bool}; and 
+\tcode{Prog} and \tcode{Type} define programs and types \DIFdelbegin \DIFdel{in $\stlc$ as }\DIFdelend \DIFaddbegin \DIFadd{of }\DIFaddend the standard simply typed lambda calculus \DIFdelbegin \DIFdel{, above }\DIFdelend \DIFaddbegin \DIFadd{over }\DIFaddend the base type \tcode{bool}; and 
 \tcode{Context} specifies a context for variable types, where \tcode{empty} denotes the empty context, and ${(\snoc{\Gamma}{\tt x}{\tt t})}$ extends a context $\Gamma$ by binding the type \tcode{t} to the variable \tcode{x}.
 
 To specify the type system, we require the definition of each typing rule (which defines how types are assigned to program constructs) together with an executable type checker.
@@ -606,7 +606,7 @@ Given the inputs in \autoref{figure:sample-task}, \mainname aims to generate wel
 For example, in \autoref{figure:sample-type-tree}, the \rulename{T-App} rule restricts the top-level operator of the program to be a function application, the \rulename{T-Abs} rule restricts the function term to be a lambda abstraction, and the application of \rulename{T-Var} defines that the body of the lambda abstraction is a variable. 
 In other words, \textbf{typing rules inherently serve a program synthesis role}. This observation allows us to construct a synthesis system directly grounded in typing rules, enabling simultaneous program synthesis and type reasoning.
 
-We illustrate the synthesis process of \mainname in detail as shown in \autoref{tab:synthesis-process}, where we use \sk{purple} to distinguish the unknown variables (i.e., placeholders to be filled in) in each goal, which will be instantiated later during the synthesis.
+We illustrate the synthesis process of \mainname in \DIFdelbegin \DIFdel{detail as shown in }\DIFdelend \autoref{tab:synthesis-process}, where we use \sk{purple} to distinguish the unknown variables (i.e., placeholders to be filled in) in each goal, which will be instantiated later during the synthesis.
 %
 For the $\stlc$ language, \mainname begins by specifying the synthesis goal as $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$. This synthesis goal is a typing judgment with unknown variables, and it corresponds to constructing an existential proof of $\exists \sk{p}, \sk{t}.\; \stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$: the unknown variables in the typing judgment are exactly the existential variables to be witnessed in the proof. The initial context $\tcode{empty}$ indicates that no variables have been bound at the beginning.
 
@@ -644,16 +644,18 @@ Given the initial synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, the
     \item First, \mainname $\alpha$-renames the rule by replacing all variables in the rule with fresh ones to avoid name conflicts. Under this renaming, \rulename{T-App} takes the following form.
     $$\frac{\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}} \quad \stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}}{\stlctype{\sk{\Gamma_1}}{\app{\sk{p_1}}{\sk{p_2}}}{\sk{t_2}}} $$
 
-    \item Subsequently, \mainname attempts to unify the rule's conclusion judgment with the current synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, accumulating the induced constraints as the equations shown below. If unification fails, the rule application is considered invalid and discarded.
-    $$
+    \item Subsequently, \mainname \DIFdelbegin \DIFdel{attempts to unify }\DIFdelend \DIFaddbegin \DIFadd{matches }\DIFaddend the rule's conclusion \DIFdelbegin \DIFdel{judgment with }\DIFdelend \DIFaddbegin \DIFadd{against }\DIFaddend the current synthesis goal $\stlctype{\tcode{empty}}{\sk{p}}{\sk{t}}$, accumulating the induced constraints as the equations shown below.
+    \DIFdelbegin \DIFdel{If unification fails, the rule application is considered invalid and discarded.
+    }\DIFdelend $$
     \sk{\Gamma_1} = \tcode{empty} \ \ \wedge\ \ \app{\sk{p_1}}{\sk{p_2}} = \sk{p}  \ \ \wedge \ \  \sk{t_2} = \sk{t}
     $$
 
-    \item \label{action3}Thereafter, \mainname attempts to resolve these constraints via unification, yielding a substitution that maps variables to their values. If unification fails, the rule application is rejected.
+    \item \label{action3}Thereafter, \mainname \DIFdelbegin \DIFdel{attempts to resolve }\DIFdelend \DIFaddbegin \DIFadd{resolves }\DIFaddend these constraints via unification, yielding a substitution that maps variables to their values. If unification fails, the rule application is rejected.
     $$\sigma_1=\big\{ \sk{\Gamma_1} \mapsto \tcode{empty}, \quad \sk{p} \mapsto \app{\sk{p_1}}{\sk{p_2}}, \quad \sk{t} \mapsto \sk{t_2}\big\}$$
 
-    \item Finally, \mainname constructs synthesis subgoals by applying the substitution to each premise of \rulename{T-App}, which has two premises corresponding to the function and the argument of the application, 
-    $\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ and $\stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}$, and \mainname will generate two subgoals:
+    \item Finally, \mainname \DIFdelbegin \DIFdel{constructs synthesis subgoals by applying }\DIFdelend \DIFaddbegin \DIFadd{applies }\DIFaddend the substitution to each premise of \rulename{T-App}, which has two premises corresponding to the function and the argument of the application, 
+    $\stlctype{\sk{\Gamma_1}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}}$ and $\stlctype{\sk{\Gamma_1}}{\sk{p_2}}{\sk{t_1}}$, and \DIFdelbegin %DIFDELCMD < \mainname %%%
+\DIFdel{will generate }\DIFdelend \DIFaddbegin \DIFadd{obtains }\DIFaddend two subgoals:
     \begin{gather*}
     \stlctype{\tcode{empty}}{\sk{p_1}}{\arr{\sk{t_1}}{\sk{t_2}}} \quad \stlctype{\tcode{empty}}{\sk{p_2}}{\sk{t_1}}
     \end{gather*}
@@ -698,7 +700,7 @@ $$\begin{array}{ll}
 
 The unknown variables in the premise prevent \mainname from evaluating the predicate. 
 %
-To address this issue, \mainname will query the LM to provide an assignment to all such variables, such as follows:
+To address this issue, \mainname will query the LM to provide an assignment to all such variables, \DIFdelbegin \DIFdel{such }\DIFdelend as follows:
 %Therefore, it is necessary to instantiate these variables ($\sk{x_1}, \sk{x_2}, \sk{t_3},$ and $\sk{t_5}$ in this example) to obtain their concrete values.
 %More generally, \mainname requires the LM to generate an assignment for all variables that, after applying the substitution, remain in the typing rules but are not present in any subgoals. 
 %Suppose the LM generates the following assignment:
@@ -708,7 +710,7 @@ To address this issue, \mainname will query the LM to provide an assignment to a
 
 By further applying $\sigma_4$, the premise becomes $\checkBinding{(\snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}})}{\tcode{x}}{\tcode{bool}}$, which is completely known; then, \mainname can evaluate the predicate and confirm\DIFdelbegin \DIFdel{s}\DIFdelend  that it is satisfied.
 %
-At this time, no new subgoal is generated, so the synthesis process for this branch is complete, where the result is the composition of $\sigma_3$ and $\sigma_4$ (i.e., applying both substitutions in sequence):
+At this \DIFdelbegin \DIFdel{time}\DIFdelend \DIFaddbegin \DIFadd{point}\DIFaddend , no new subgoal is generated, so the synthesis process for this branch is complete\DIFdelbegin \DIFdel{, where }\DIFdelend \DIFaddbegin \DIFadd{; }\DIFaddend the result is the composition of $\sigma_3$ and $\sigma_4$ (i.e., applying both substitutions in sequence):
 \[
 \sigma_4 \sigma_3 = \big\{
 \sk{\Gamma_3} \mapsto \snoc{\tcode{empty}}{\tcode{x}}{\tcode{bool}},\ 
@@ -747,10 +749,10 @@ Performing program synthesis via existential proof construction embodies our two
 \DIFaddbegin 
 
 \smallskip
-\noindent \DIFadd{The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}\DIFadd{, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}\DIFadd{) therefore runs }\mainname{} \DIFadd{on Java and SuFu instances with fuller type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}\DIFadd{, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}\DIFadd{.
+\noindent \DIFadd{The $\stlc$ language above serves for exposition: it is deliberately minimal, containing only the base type }\tcode{bool}\DIFadd{, function types, and explicitly annotated, monomorphic bindings. Real languages additionally involve subtyping, polymorphism, type inference, overloading resolution, and mutable state, none of which $\stlc$ exercises. The evaluation (}\autoref{sec:evaluation}\DIFadd{) therefore runs }\mainname{} \DIFadd{on its Java and SuFu instantiations, which have fuller type systems; the scope of the underlying rule framework is stated in }\autoref{sec:meta}\DIFadd{, and how the approach would extend to richer type systems is discussed in }\autoref{sec:limitations}\DIFadd{.
 %DIF >  !TEX root=../manuscript.tex
 }\DIFaddend \subsection{Translating Typing Rules to Synthesis Rules}
-In summary of \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the two design choices:
+\DIFdelbegin \DIFdel{In summary of }\DIFdelend \DIFaddbegin \DIFadd{Summarizing }\DIFaddend \autoref{subsection:moti-representation}, \mainname extends typing rules for synthesis with the \DIFaddbegin \DIFadd{following }\DIFaddend two design choices:
 \begin{itemize} 
     \item When applying a rule, instead of pattern matching, \mainname introduces rule parameters as fresh variables and solves the constraints between variables via unification.
     \item Whenever an executable predicate requires the value of an unknown variable, \mainname acquires this value directly from the LM.
@@ -891,7 +893,7 @@ In this section, we introduce the necessary preliminaries on constrained Horn cl
 \subsection{Preliminaries}
 \subsubsection{Constrained Horn Clauses}
 \label{chc-intro}
-Constrained Horn clauses (CHCs) are a fragment of first-order logic with applications to program verification and synthesis~\cite{DBLP:conf/synasc/GurfinkelB19}. A constrained Horn clause, in this setting, is a universally quantified implication of the canonical form:
+Constrained Horn clauses (CHCs) are a fragment of first-order logic with applications to program verification and synthesis~\cite{DBLP:conf/synasc/GurfinkelB19}. A constrained Horn clause, in this setting, is a universally quantified implication \DIFdelbegin \DIFdel{of }\DIFdelend \DIFaddbegin \DIFadd{in }\DIFaddend the canonical form:
 \begin{center}
 \begin{prooftree}[rule margin=0.5ex, separation=1em]
 \hypo{P_1(\overline{x}_1)}
@@ -906,7 +908,7 @@ Constrained Horn clauses (CHCs) are a fragment of first-order logic with applica
 \end{center}
 Each clause consists of zero or more premises, where each premise is a judgment formed by applying an uninterpreted predicate $P_i$ to terms $\overline{x}_i$. It also includes a constraint $\phi(\overline{y})$, a computable function over terms $\overline{y}$, and concludes with a single judgment $P(\overline{x}_0)$.
 %
-This rule states that the judgment $P(\overline{x}_0)$ can be derived whenever all the premises $P_i(\overline{x}_i)$ are derivable and the constraint $\phi(\overline{y})$ holds. Without loss of generality, we can assume that every variable of terms in $\overline{y}$ occurs among a term in the premises or conclusion, namely $FV(\overline{y})\subseteq \bigcup_{i=0}^n FV(\overline{x}_i)$, which ensures that the constraints are always deterministic and checkable given the premises and conclusion.
+This rule states that the judgment $P(\overline{x}_0)$ can be derived whenever all the premises $P_i(\overline{x}_i)$ are derivable and the constraint $\phi(\overline{y})$ holds. Without loss of generality, we can assume that every variable \DIFdelbegin \DIFdel{of terms }\DIFdelend \DIFaddbegin \DIFadd{occurring }\DIFaddend in $\overline{y}$ \DIFdelbegin \DIFdel{occurs among a term in }\DIFdelend \DIFaddbegin \DIFadd{also occurs in some term of }\DIFaddend the premises or \DIFaddbegin \DIFadd{the }\DIFaddend conclusion, namely $FV(\overline{y})\subseteq \bigcup_{i=0}^n FV(\overline{x}_i)$, which ensures that the constraints are always deterministic and checkable given the premises and conclusion.
 
 \begin{example}
 Consider the typing rule \textsc{T-App} for function application in $\stlc$:
@@ -938,17 +940,16 @@ The MGU preserves maximum generality by not over-constraining variables. For ins
 
 In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
 %
-In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
+\DIFdelbegin \DIFdel{In this paper, we restrict ourselves to }\emph{\DIFdel{first-order unification}}%DIFAUXCMD
+\DIFdel{, where variables range only over termsand not over functions or predicates}\DIFdelend \DIFaddbegin \DIFadd{The CHC form introduced above is a fragment of first-order logic: predicates are applied to first-order terms, so the unification performed in rule application is first-order by construction}\DIFaddend .
 First-order unification \DIFdelbegin \DIFdel{is decidable and admits efficient algorithmic solutions~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
-, making it suitable for our synthesis framework. }\DIFdelend \DIFaddbegin \DIFadd{always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\mbox{%DIFAUXCMD
+, making it suitable for our synthesis framework. }\DIFdelend \DIFaddbegin \DIFadd{always terminates. It either fails to unify the terms or returns a most-general unifier that is unique up to variable renaming~\mbox{%DIFAUXCMD
 \cite{DBLP:journals/jacm/Robinson65}}\hskip0pt%DIFAUXCMD
 . These guarantees let }\mainname \DIFadd{apply a selected typing rule and update its remaining premises.
 }\DIFaddend 
 
-\DIFaddbegin \DIFadd{Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\mbox{%DIFAUXCMD
-\cite{DBLP:journals/tcs/Goldfarb81}}\hskip0pt%DIFAUXCMD
-.
+\DIFaddbegin \DIFadd{Because CHCs are Turing-complete (}\autoref{chc-intro}\DIFadd{), any computable type check can be encoded as constrained Horn clauses over first-order terms; this covers languages with function types and function values. The derivations produced during checking can then be extracted as training decision sequences.
 }
 
 \DIFaddend \subsection{Terms and Typing Rules}
@@ -996,9 +997,9 @@ In general, terms may contain known and unknown components, so in the remainder 
     This allows multiple substitutions to be applied sequentially.
     A substitution $\sigma$ can also operate on a list of terms $\overline{t} = [t_1, t_2, \ldots, t_n]$, yielding a new list $\sigma(\overline{t}) = [\sigma(t_1), \sigma(t_2), \ldots, \sigma(t_n)]$ where $\sigma$ is applied to each term individually.
 
-    \item An \textbf{assignment} is a special case of a substitution whose codomain ranges over ground terms.
+    \item An \textbf{assignment} is a special case of a substitution whose codomain \DIFdelbegin \DIFdel{ranges over }\DIFdelend \DIFaddbegin \DIFadd{consists of }\DIFaddend ground terms.
     %that is, it is a function $\sigma : \mathcal{V}_0 \to \mathcal{G}_\mathcal{T}$, where $\mathcal{G}_\mathcal{T} \subseteq \mathcal{T}$ is the set of ground terms. 
-    Assignments serve as the ultimate objective of the synthesis, as we require that the typing judgments, as synthesis goals, can be instantiated with no remaining uncertainties.
+    Assignments \DIFdelbegin \DIFdel{serve as }\DIFdelend \DIFaddbegin \DIFadd{are }\DIFaddend the ultimate objective of \DIFdelbegin \DIFdel{the synthesis, as we require that the typing judgments, as synthesis goals, can be }\DIFdelend \DIFaddbegin \DIFadd{synthesis, since the synthesis goal must be fully }\DIFaddend instantiated with no \DIFdelbegin \DIFdel{remaining uncertainties}\DIFdelend \DIFaddbegin \DIFadd{variables left unknown}\DIFaddend .
 \end{enumerate}
 
 
@@ -1007,7 +1008,7 @@ We formalize the typing rules of the object language as CHCs for their expressiv
 %
 The user should also provide at least one typing rule whose conclusion is $\welltyped{p}$, the top-level judgment asserting that program $p$ is well-typed. For example, in $\stlc$, this judgment can be defined as $\exists t.\; \stlctype{\tcode{empty}}{p}{t}$, meaning that the program $p$ is well-typed under the empty context.
 
-A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{derivable} from a given set of typing rules if there exists a finite derivation tree whose root is labeled with $P(\overline{t})$, each internal node corresponds to the application of a typing rule, and all constraints of typing rules are satisfied. The type derivation tree is precisely this tree structure that witnesses the derivability of a typing judgment.
+A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{derivable} from a given set of typing rules if there exists a finite derivation tree whose root is labeled with $P(\overline{t})$, each internal node corresponds to the application of a typing rule, and all constraints of typing rules are satisfied. \DIFdelbegin \DIFdel{The }\DIFdelend \DIFaddbegin \DIFadd{A }\DIFaddend type derivation tree is precisely this tree structure that witnesses the derivability of a typing judgment.
 %
 From a logical perspective, a type derivation tree is a \textbf{type correctness proof}: it proves that the typing judgment at the root holds. This correspondence between derivation trees and proofs is central to our approach. Later, we will show that a synthesis derivation tree corresponds to constructing an \textbf{existential type correctness proof} when the program is unknown: the synthesis process simultaneously discovers the program and constructs a proof of its type correctness.
 
@@ -1053,9 +1054,9 @@ A typing rule in \autoref{T-Rule} can be translated into a synthesis rule in \au
   \item \textbf{Conclusion translation.} The conclusion $P(\overline{x}_0)$ of the typing rule is replaced by a synthesis judgment $P(\overline{x}) \leadsto \sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ (with the same predicate $P$), where $\overline{x}$ is a sequence of newly introduced variables and can be instantiated with respect to the synthesis goal. $\mvhzc(\overline{x})$ denotes the set of variables in $\overline{x}$, which are the only variables that need to be synthesized. 
   $\sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ indicates that the final assignment is restricted to only those variables in $\overline{x}$.
 
-  \item \textbf{Adding unification.} The unification step is added at the beginning of the synthesis rule, which unifies the variables $\overline{x}$ in the synthesis goal with the variables $\overline{x}_0$ in the conclusion of the typing judgment, yielding a substitution $\sigma$ that is the MGU of the unification problem. 
+  \item \textbf{Adding unification.} The unification step is added at the beginning of the synthesis rule, which unifies the variables $\overline{x}$ in the synthesis goal with the variables $\overline{x}_0$ in the conclusion of the typing \DIFdelbegin \DIFdel{judgment}\DIFdelend \DIFaddbegin \DIFadd{rule}\DIFaddend , yielding a substitution $\sigma$ that is the MGU of the unification problem. 
 
-  \item \textbf{Adding Free variables acquisition.} The variables appearing in $\overline{x}_0$ but not in any of the $\overline{x}_i$ are collected into $\overline{x}_f$, defined as $\overline{x}_f = \text{list}(\mvhzc(\overline{x}_0) \setminus \bigcup_{i=1}^n \mvhzc(\overline{x}_i))$. We refer to $\overline{x}_f$ as the \emph{free variables} of the synthesis rule: they may not be bound by any premise even after unification, and thus should be acquired from external sources, yielding the assignment $\sigma_0$.
+  \item \textbf{Adding \DIFdelbegin \DIFdel{Free variables }\DIFdelend \DIFaddbegin \DIFadd{free-variable }\DIFaddend acquisition.} The variables appearing in $\overline{x}_0$ but not in any of the $\overline{x}_i$ are collected into $\overline{x}_f$, defined as $\overline{x}_f = \text{list}(\mvhzc(\overline{x}_0) \setminus \bigcup_{i=1}^n \mvhzc(\overline{x}_i))$. We refer to $\overline{x}_f$ as the \emph{free variables} of the synthesis rule: they may not be bound by any premise even after unification, and thus should be acquired from external sources, yielding the assignment $\sigma_0$.
 
   \item \textbf{Premises translation.} Each premise $P_i(\overline{x}_i)$ is replaced by $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)) \leadsto \sigma_i$, where $\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)$ instantiates the original terms $\overline{x}_i$ with substitutions from previous steps, and $\sigma_i$ is the assignment synthesized for the subgoal $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i))$ ($i\geq1$).
 
@@ -1111,7 +1112,7 @@ This isomorphism ensures that the constructed synthesis derivation trees maintai
 \end{figure}
 
 \subsection{Construction of Synthesis Derivation Trees}
-In this subsection, we will first describe the application of synthesis rules (\autoref{sec:synthesis-rule-application}), then introduce the concept of synthesis derivation trees (\autoref{sec:synthesis-derivation-tree}), and finally present the algorithmic construction of synthesis derivation trees, where it is realized by a sequence of query resolutions (\autoref{sec:synthtree-construction-query}).
+In this subsection, we will first describe the application of synthesis rules (\autoref{sec:synthesis-rule-application}), then introduce the concept of synthesis derivation trees (\autoref{sec:synthesis-derivation-tree}), and finally present the algorithmic construction of synthesis derivation trees, \DIFdelbegin \DIFdel{where it is realized by }\DIFdelend \DIFaddbegin \DIFadd{which is realized through }\DIFaddend a sequence of query resolutions (\autoref{sec:synthtree-construction-query}).
 \subsubsection{Synthesis Rule Application}
 \label{sec:synthesis-rule-application}
 Each synthesis rule as in \autoref{S-Rule} specifies how to start from a partially instantiated typing judgment $P(\overline{x})$, search for an assignment $\sigma$ to all variables in $\overline{x}$, then derive $P(\sigma(\overline{x}))$ using the corresponding typing rule. This procedure can be detailed as follows:
@@ -1127,7 +1128,7 @@ Each synthesis rule as in \autoref{S-Rule} specifies how to start from a partial
     % However, in practice, it is rare for $\overline{x}_f$ and $\overline{x}_i$ to have no shared variables initially, but to share variables after being instantiated by $\sigma$. If such a situation arises, it is more likely due to the selection of an inappropriate synthesis rule.
     % Therefore, we adopt an eager design approach: synthesizing the assignment $\sigma_0$ for free variables immediately after the unification step. This design encourages the LM to generate the necessary assignment right after choosing the synthesis rule, ensuring semantic coherence throughout the synthesis process.
 
-    \emergencystretch=2em \item \textbf{Sub-Derivation Steps:} Then, synthesize assignments for all subgoals in sequence. For each subgoal \DIFdelbegin \DIFdel{$P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$}\DIFdelend \DIFaddbegin \DIFadd{$P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \allowbreak\leadsto \sigma_i$}\DIFaddend , begin with an instantiation for variables in $\overline{x}_i$ with the substitutions $\sigma_{i-1}, \ldots, \sigma_0, \sigma$ in previous steps.
+    \emergencystretch=2em \item \textbf{Sub-Derivation Steps:} Then, synthesize assignments for all subgoals in sequence. For each subgoal \DIFdelbegin \DIFdel{$P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \leadsto \sigma_i$, begin with an instantiation for }\DIFdelend \DIFaddbegin \DIFadd{$P_i(\sigma_{i-1}\ldots\sigma_0\sigma(\overline{x}_i)) \allowbreak\leadsto \sigma_i$, begin by instantiating the }\DIFaddend variables in $\overline{x}_i$ with the substitutions $\sigma_{i-1}, \ldots, \sigma_0, \sigma$ \DIFdelbegin \DIFdel{in }\DIFdelend \DIFaddbegin \DIFadd{from the }\DIFaddend previous steps.
     This refines the subgoal and propagates synthesis information from earlier subgoals. Subsequently, synthesize the assignment $\sigma_i$ for the current subgoal by recursively applying synthesis rules.
 
     \emergencystretch=0pt \item \textbf{Constraint Checking Step:} After all synthesis subgoals have been solved, \mainname checks whether the constraint $\phi(\overline{y})$  is satisfied under the combined assignment $\sigma_n \ldots \sigma_0 \sigma$. 
@@ -1152,7 +1153,7 @@ For any successful application of the synthesis rule in \autoref{S-Rule}, the su
 \label{sec:synthesis-derivation-tree}
 To formalize the structure of synthesis derivations, we introduce the concept of synthesis derivation trees in analogy to type derivation trees in type systems. 
 
-A \emph{synthesis derivation tree} is a rooted tree that witnesses the derivability of a synthesis judgment through the application of synthesis rules. More formally, a synthesis derivation tree for a synthesis judgment $P(\skhzc{\overline{t}}) \leadsto \theta$ is a tree where: (1) the root node is labeled with $P(\skhzc{\overline{t}}) \leadsto \theta$; (2) each node is labeled with a synthesis judgment and annotated with both the synthesis rule used and the assignment for its free variables; (3) the children of each internal node correspond to the subgoals of the annotated synthesis rule; (4) for each synthesis rule, all steps including unification, assignment acquisition, subgoals synthesis and constraint checking succeed.
+A \emph{synthesis derivation tree} is a rooted tree that witnesses the derivability of a synthesis judgment through the application of synthesis rules. More formally, a synthesis derivation tree for a synthesis judgment $P(\skhzc{\overline{t}}) \leadsto \theta$ is a tree where: (1) the root node is labeled with $P(\skhzc{\overline{t}}) \leadsto \theta$; (2) each node is labeled with a synthesis judgment and annotated with both the synthesis rule used and the assignment for its free variables; (3) the children of each internal node correspond to the subgoals of the annotated synthesis rule; (4) for each synthesis rule, all steps including unification, assignment acquisition, subgoal\DIFdelbegin \DIFdel{s}\DIFdelend  synthesis and constraint checking succeed.
 
 By Lemma~\ref{lemma:assignment}, the existence of a synthesis derivation tree for a synthesis judgment $P(\overline{t}) \leadsto \theta$ guarantees that there is an assignment $\theta$ satisfying the synthesis goal $P(\overline{t})$, that is, $\theta$ maps all variables to ground terms and \DIFdelbegin \DIFdel{$P(\sigma(\overline{t}))$ }\DIFdelend \DIFaddbegin \DIFadd{$P(\theta(\overline{t}))$ }\DIFaddend is derivable with respect to typing rules.
 
@@ -1230,7 +1231,7 @@ For a synthesis goal of the form $P(\overline{t})$, the task is to synthesize an
 This process is detailed in \autoref{alg:synthtree}. In this algorithm, only two functions act as black boxes: the selection of synthesis rules and the acquisition of assignments for free variables. Both can be viewed as query problems. Synthesis rule selection is a single-step query that chooses one rule from a finite set of candidates, while assignment acquisition is a multi-step query that constructs a ground term for each free variable using a finite set of constructors and constants.
 
 Consequently, our approach reduces the synthesis problem to finding appropriate solvers for these two specific query problems. This makes our framework more general and modular, as the extracted query resolution problems can be implemented independently. 
-Moreover, the in-time checking mechanisms (unification and constraint verification, etc.) in \autoref{alg:synthtree} significantly restrict the search space compared to naive enumeration-based approaches. 
+Moreover, the \DIFdelbegin \DIFdel{in-time }\DIFdelend \DIFaddbegin \DIFadd{online }\DIFaddend checking mechanisms (unification and constraint verification\DIFdelbegin \DIFdel{, etc.}\DIFdelend ) in \autoref{alg:synthtree} significantly restrict the search space compared to naive enumeration-based approaches. 
 %This structured decomposition not only simplifies implementation but also enables leveraging existing LMs tailored for query-based tasks to address each component effectively.
 
 \subsection{Query Resolution}
@@ -1258,8 +1259,8 @@ Beyond the code generation scenario in which natural language serves as input, \
 We generate such queries by translating existing type derivation trees of target programs, which involves recording the contextual information and the ground truth decision at each step of synthesis rule application.
 
 % By capturing these query-answer pairs throughout the synthesis process, we can provide the LM with supervised training examples that demonstrate how to make appropriate synthesis rule selections and variable assignments at each decision point.
-The translation is performed by traversing the type derivation tree. When we visit its root node, we begin constructing the synthesis derivation tree from the root node too. 
-For the $i$-th child labeled $P_i(\overline{x}_i)$ of the current node $n_1$ in the type derivation tree, upon entering its corresponding subtree, we construct the synthesis derivation tree for the $i$-th subgoal $P_i(\sigma_{i-1} \ldots \sigma_0 \sigma(\overline{x}_i))$ too.
+The translation is performed by traversing the type derivation tree. When we visit its root node, we \DIFaddbegin \DIFadd{also }\DIFaddend begin constructing the synthesis derivation tree from the root node\DIFdelbegin \DIFdel{too}\DIFdelend . 
+For the $i$-th child labeled $P_i(\overline{x}_i)$ of the current node $n_1$ in the type derivation tree, upon entering its corresponding subtree, we construct the synthesis derivation tree for the $i$-th subgoal $P_i(\sigma_{i-1} \ldots \sigma_0 \sigma(\overline{x}_i))$\DIFdelbegin \DIFdel{too}\DIFdelend .
 
 When we return to the node $n_1$, the synthesis derivation trees for all subgoals have been constructed, allowing us to build node $n_2$ in the synthesis derivation tree. At every stage of the synthesis process, there is a node in the type derivation tree corresponding to the current synthesis goal.
 
@@ -1286,7 +1287,7 @@ If $\,\overline{x}$ is unifiable with $\overline{x}_c$, then in the application 
   The complete proof can be found in the Appendix~\ref{sec:appendix-lemma3}.
 \end{proof}
 
-With Lemma~\ref{lemma:translation}, we can conclude that given a type derivation tree $T_1$ whose root node is labeled $\welltyped{p_c}$, we can start from the synthesis goal $\welltyped{\sk{p}}$, where $\sk{p}$ is a variable representing the program to be synthesized, and construct a synthesis derivation tree $T_2$ by translating from $T_1$ such that the root node of $T_2$ is labeled $\welltyped{\sk{p}} \leadsto \theta$, where $\theta(\sk{p}) = p_c$.
+With Lemma~\ref{lemma:translation}, \DIFdelbegin \DIFdel{we can conclude that }\DIFdelend given a type derivation tree $T_1$ whose root node is labeled $\welltyped{p_c}$, we can start from the synthesis goal $\welltyped{\sk{p}}$, where $\sk{p}$ is a variable representing the program to be synthesized\DIFdelbegin \DIFdel{, and construct }\DIFdelend \DIFaddbegin \DIFadd{. Translating $T_1$ then yields }\DIFaddend a synthesis derivation tree $T_2$ \DIFdelbegin \DIFdel{by translating from $T_1$ such that the root node of $T_2$ }\DIFdelend \DIFaddbegin \DIFadd{whose root node }\DIFaddend is labeled $\welltyped{\sk{p}} \leadsto \theta$, where $\theta(\sk{p}) = p_c$.
 
 \subsection{Isomorphism between Type Derivation Trees and Synthesis Derivation Trees}
 \label{sec:isomorphism}
@@ -1375,7 +1376,7 @@ Unlike standard encoder-decoder models that encode only a static input, our arch
 
 As described in \autoref{sec:query-resolution-lm}, the query resolution task is delegated to the LM, which takes the natural language prompt, the synthesis decisions generated so far, and the current synthesis goal as input and outputs a token representing the synthesis rule or variable assignments.
 
-Meanwhile, \mainname maintains a synthesis decision sequence where each newly generated token is appended, representing the next synthesis decision. This sequence incrementally constructs an existential type correctness proof. Due to its autoregressive nature, the growing sequence is fed to the transformer decoder, allowing the LM to leverage the full history of synthesis decisions when predicting the next token.
+Meanwhile, \mainname maintains a synthesis decision sequence \DIFdelbegin \DIFdel{where }\DIFdelend \DIFaddbegin \DIFadd{to which }\DIFaddend each newly generated token is appended, representing the next synthesis decision. This sequence incrementally constructs an existential type correctness proof. Due to its autoregressive nature, the growing sequence is fed to the transformer decoder, allowing the LM to leverage the full history of synthesis decisions when predicting the next token.
 
 \paragraph{Model Inference Process.}
 At each synthesis step:
@@ -1398,7 +1399,7 @@ Our dual-encoding architecture is built upon standard Transformer encoder-decode
 
 \subsection{Term Encoding}
 \label{sec:term-encoding}
-Terms, as defined in \autoref{terms-intro}, are inductively constructed from constants and constructors. Following the approach of GrammarT5~\cite{DBLP:conf/icse/ZhuL000C24}, we serialize the abstract syntax tree (AST) of a term using a pre-order traversal, outputting each constructor or constant as a token in sequence. When a term contains unknown variables (not yet instantiated during synthesis), we represent them using a unified unknown token $\langle?\rangle$.
+Terms, as defined in \autoref{terms-intro}, are inductively constructed from constants and constructors. Following the approach of GrammarT5~\cite{DBLP:conf/icse/ZhuL000C24}, we serialize the abstract syntax tree (AST) of a term using a pre-order traversal, outputting each constructor or constant as a token in sequence. When a term contains unknown variables (not yet instantiated during synthesis), we represent them using a \DIFdelbegin \DIFdel{unified }\DIFdelend \DIFaddbegin \DIFadd{single shared }\DIFaddend unknown token $\langle?\rangle$.
 
 For example, consider the STLC program $\tcode{abs}(\tcode{"x"}, \tcode{bool}, \tcode{var}(\tcode{"x"}))$, which represents the identity function $\lambda x{:}\tcode{bool}.\, x$. Its AST has the constructor $\tcode{abs}$ at the root, with three children: the constant $\tcode{"x"}$ (the variable name), the constant $\tcode{bool}$ (the type annotation), and the subtree $\tcode{var}(\tcode{"x"})$. The pre-order traversal yields the token sequence illustrated in \autoref{fig:term-encoding}.
 
@@ -1498,11 +1499,11 @@ We design our evaluation to answer the following research questions.
 To evaluate the generality of \mainname, our evaluation considers two languages with very different characteristics, SuFu~\cite{DBLP:journals/pacmpl/JiZPXH24} and Java.
 %Correspondingly, we used two datasets: the SuFu dataset and the MBJP~\cite{DBLP:conf/iclr/AthiwaratkunGWL23} dataset.
 \begin{itemize}
- \item \textbf{SuFu} is an ML-style functional language designed for automatic program optimization. This language uses a customized type system for extracting operations for optimization on data structures.
+ \item \textbf{SuFu} is an ML-style functional language designed for automatic program optimization. This language uses a customized type system \DIFdelbegin \DIFdel{for extracting operations for optimization }\DIFdelend \DIFaddbegin \DIFadd{that extracts the operations }\DIFaddend on data structures \DIFaddbegin \DIFadd{to be optimized}\DIFaddend .
  %
  This language has limited code resources, making it representative for evaluating \mainname under low-resource conditions.
 
- We collect SuFu programs from its GitHub repository, which comprises 290 programs with test cases. For each program, we manually supply a natural language description, along with the relevant inductive definitions and library functions, thus collecting a dataset of code generation tasks.
+ We collect SuFu programs from its GitHub repository, which comprises 290 programs with test cases. For each program, we manually supply a natural language description, along with the relevant inductive definitions and library functions, thus \DIFdelbegin \DIFdel{collecting }\DIFdelend \DIFaddbegin \DIFadd{forming }\DIFaddend a dataset of code generation tasks.
  %
  This dataset is then split randomly into a training set of 80\% tasks and a test set of 20\% tasks.
 
@@ -1630,7 +1631,7 @@ The best-performing checkpoint is used for evaluation.
 \mainname \DIFdelbegin \DIFdel{consistently }\DIFdelend improves code generation accuracy \DIFdelbegin \DIFdel{across both base models. On SuFu, }%DIFDELCMD < \mainname%%%
 \DIFdel{-220M improves }\DIFdelend \DIFaddbegin \DIFadd{at both scales and on every benchmark: }\DIFaddend pass@\DIFdelbegin \DIFdel{10 from 32.76\% (CodeT5-220M) }\DIFdelend \DIFaddbegin \DIFadd{1 rises from 24.14\% }\DIFaddend to \DIFdelbegin \DIFdel{46.55\% , and }%DIFDELCMD < \mainname%%%
 \DIFdel{-2B improves it from 37.93\% (T5Gemma2-2B)}\DIFdelend \DIFaddbegin \DIFadd{37.93\% (SuFu) and from 10.45\% to 11.94\% (MBJP) at 220M, and from 25.86\% }\DIFaddend to \DIFaddbegin \DIFadd{36.21\% (SuFu), 13.43\% to 25.37\% (MBJP), 31.25\% to }\DIFaddend 50.00\% \DIFdelbegin \DIFdel{. On Java, }%DIFDELCMD < \mainname%%%
-\DIFdel{-220M improves pass}\DIFdelend \DIFaddbegin \DIFadd{(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass}\DIFaddend @10 \DIFdelbegin \DIFdel{from 20.90\% to 28.36\% , }\DIFdelend \DIFaddbegin \DIFadd{improves by 7.46--20.69 points on the same six benchmarks.
+\DIFdel{-220M improves pass}\DIFdelend \DIFaddbegin \DIFadd{(HumanEval-Java), and 19.42\% to 30.10\% (TransCoder-GFG) at 2B; pass}\DIFaddend @10 \DIFdelbegin \DIFdel{from 20.90\% to 28.36\% , }\DIFdelend \DIFaddbegin \DIFadd{improves by 7.46--20.69 points on the same six benchmark settings.
 The largest gains are on SuFu }\DIFaddend and \DIFdelbegin %DIFDELCMD < \mainname%%%
 \DIFdel{-2B improves it from 35.82\% to 40.30\% }\DIFdelend \DIFaddbegin \DIFadd{HumanEval-Java, where the type constraints remove most uncompilable candidates while the base models often still produce them.
 At 220M, the Java baseline has a lower CER than the SuFu baseline (35.52\% versus 83.10\%), leaving fewer compilation errors for type constraints to address. On MBJP, }\mainname{} \DIFadd{raises pass@10 from 20.90\% to 28.36\% and reduces CER to 1.53\%; the smaller pass@1 gain indicates that finding a correct candidate does not always make it the top-ranked output. The failure analysis in Appendix~\ref{appendix-failure} identifies ranking errors and compilable but incorrect programs among the remaining failures.
@@ -1765,7 +1766,7 @@ Base (no checks)         & 24.14 & 0.00
 Syntactic pruning alone gives a moderate }\DIFaddend pass@1 \DIFdelbegin \DIFdel{by +3.45\% and reduces CER by 2.13\%, demonstrating that basic structural constraints help filter trivially invalid outputs. 
 Type pruningdelivers transformative results by eliminating all compilation errors (CER drops to 0.00\%)while substantially boosting }\DIFdelend \DIFaddbegin \DIFadd{gain ($+3.45$); the turning point is type pruning, which lifts pass@1 by $+13.79$ and eliminates compilation errors outright (CER $74.26 \to 0.00$).
 Dynamic typing context leaves }\DIFaddend pass@1 \DIFdelbegin \DIFdel{to 37.93\% (+13.79\%) and }\DIFdelend \DIFaddbegin \DIFadd{and CER unchanged but improves }\DIFaddend pass@10 \DIFdelbegin \DIFdel{to 43.10\% (+6.89\%) , highlighting type correctness as critical for synthesis.
-Dynamic typing context further enhances performance, pushing pass}\DIFdelend \DIFaddbegin \DIFadd{($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the }\textbf{\DIFadd{Context Locality}} \DIFadd{property of~}\autoref{section:intro}\DIFadd{.
+Dynamic typing context further enhances performance, pushing pass}\DIFdelend \DIFaddbegin \DIFadd{($+17.24$ over the base) and FSP: it ranks correct candidates earlier, which demonstrates the }\textbf{\DIFadd{Context Locality}} \DIFadd{property from~}\autoref{section:intro}\DIFadd{.
 }
 
 \paragraph{\DIFadd{How much the constraints prune.}}
@@ -1788,7 +1789,7 @@ A finite beam can discard all correct prefixes, and the retained hypotheses may 
 Training on correct decision sequences is intended to rank correct prefixes highly, but cannot rule out this case.
 We measure the effective branching factor as the number of active hypotheses present at each decoding step after pruning.
 With beam 10, this number averages 7.97.
-It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the top-20 candidate list can therefore be exhausted before all slots are filled.
+It is lower than 10 because completed programs are moved to the output set, while end-of-sequence and rejected candidates do not fill active slots; the per-step candidate pool can therefore be exhausted before all slots are filled.
 In our experiments, however, the active beam never became empty.
 }
 
@@ -1804,7 +1805,7 @@ Syntactic pruning even lowers the per-task total: with little per-step overhead,
 \subsubsection{RQ3: Comparison with \DIFdelbegin \DIFdel{Rejection Sampling}\DIFdelend \DIFaddbegin \DIFadd{Reliability-Oriented Generation Methods}\DIFaddend }
 \DIFdelbegin \DIFdel{To answer RQ3, we compare }%DIFDELCMD < \mainname %%%
 \DIFdel{with two baselines: the vanilla CodeT5-220M (without any post-processing)and CodeT5-220M with rejection sampling}\DIFdelend \DIFaddbegin \DIFadd{We compare }\mainname{} \DIFadd{with methods that pursue correct code by constraining or repairing the output of a trained model.
-On MBJP, four such methods are applied on top of the same frozen T5Gemma2-2B checkpoint selected in RQ1, adding their own pruning or repair mechanisms on top: }\emph{\DIFadd{rejection sampling}}\DIFaddend , \DIFdelbegin \DIFdel{the previous state-of-the-art for achieving guarantees in code generation.
+On MBJP, four such methods are applied to the same frozen T5Gemma2-2B checkpoint selected in RQ1, each adding its own pruning or repair mechanism: }\emph{\DIFadd{rejection sampling}}\DIFaddend , \DIFdelbegin \DIFdel{the previous state-of-the-art for achieving guarantees in code generation.
 %DIF < The comparison highlights the improvements each method achieves relative to the vanilla baseline. 
 In our case, rejection sampling queries the LM repeatedly and discards those candidate programs that cannot be compiled until finding sufficient solutions or reaching a resource limit.
 Notably, rejection sampling is functionally equivalent to constrained decoding, as both methods effectively re-normalize the model's output distribution over the subspace of valid, compilable programs.
@@ -1814,13 +1815,13 @@ By including rejection sampling, we establish a strong baseline for the performa
 \cite{DBLP:conf/sigsoft/0003X023}}\hskip0pt%DIFAUXCMD
 , and }\emph{\DIFadd{iterative compiler repair}}\DIFadd{.
 All methods are evaluated on the same 67 tasks with 10 candidates each.
-Because rejection sampling and repair need diverse draws rather than beam output, the ordinary control uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of }\autoref{tab:model-results} \DIFadd{(13.43/32.84); the }\mainname\DIFadd{-2B row is identical in both tables.
+Because rejection sampling and repair need diverse draws rather than beam output, the vanilla baseline uses the temperature-sampling decoding protocol (temperature 0.8, top-$p$ 0.95), so its scores (14.93/23.88) differ from the beam-10 row of }\autoref{tab:model-results} \DIFadd{(13.43/32.84); the }\mainname\DIFadd{-2B row is identical in both tables.
 }
 
-\DIFadd{Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten ten-draw rounds (100 candidates) per task.
-For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate a given grammar, so every output is syntactically well-formed.
+\DIFadd{Rejection sampling repeatedly draws candidates and keeps those that pass Java compilation, for up to ten rounds of ten draws (100 candidates) per task.
+For SynCode, we reuse its released grammar-masking code and Java grammar with T5Gemma2 on MBJP. At each step it masks the tokens that would violate the grammar, so every output is syntactically well-formed.
 For Repilot, we reuse its modified Eclipse JDT completion engine and adapt it to T5Gemma2 on MBJP. During generation, the partial Java program is maintained as a JDT document, and completion queries guide token pruning. Following the original policy, punctuation and keywords bypass these queries.
-Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the un-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
+Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics back to the model and regenerates the candidate for at most two rounds; the repair agent is the non-fine-tuned T5Gemma2-2B, since the fine-tuned model never learned to consume diagnostics. We cap repair at two rounds per candidate to bound the additional generation cost and stop earlier if the candidate compiles.
 }
 
 \DIFaddend \begin{table}[ht]
@@ -1873,14 +1874,13 @@ Iterative compiler repair feeds }\texttt{\DIFadd{javac}} \DIFadd{diagnostics bac
 \end{table}
 
 %DIF <  \autoref{tab:model-compare-sufu-java} compares the pass@1 and pass@10 results of three model variants (CodeT5-220M, CodeT5-220M with rejection sampling, and \mainname-220M) on both the SuFu and Java benchmarks.
-\DIFdelbegin \DIFdel{On both datasets, rejection sampling can provide only minor improvements over the baseline, much less than the improvements achieved by }\DIFdelend \DIFaddbegin \DIFadd{None of the four external baselines significantly improves functional correctness over the ordinary control:
+\DIFdelbegin \DIFdel{On both datasets, rejection sampling can provide only minor improvements over the baseline, much less than the improvements achieved by }\DIFdelend \DIFaddbegin \DIFadd{None of the four external baselines significantly improves functional correctness over the vanilla baseline:
 rejection sampling adds three solved tasks at pass@10 (19 vs.\ 16 of 67) and one at pass@1 (11 vs.\ 10; McNemar $p=1.00$ and $p=0.25$);
-SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67);
-Following the original Repilot implementation, punctuation and keyword tokens bypass completion queries; in this configuration, CER decreases from 26.12\% to 25.97\%.
-Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates repaired to compile passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
+SynCode, Repilot, and iterative repair leave the solved sets exactly unchanged (10/67 and 16/67). Repilot's CER barely moves (26.12\% to 25.97\%), consistent with its policy of bypassing completion queries for punctuation and keywords.
+Iterative repair reduces compilation failures from 175 to 116 of 670 candidates, but none of the 59 candidates made compilable by repair passes the functional tests. Compiler diagnostics help resolve compilation errors, but do not establish whether a program implements the intended behavior, explaining why improved compilability does not translate into additional solved tasks here.
 }\DIFaddend \mainname\DIFdelbegin \DIFdel{.
-This demonstrates that rejection sampling , as a post-hoc filtering technique, fails to enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM. 
-Similarly, constrained decoding, which also relies on filtering during generation, would face comparable limitations as it cannot fundamentally improve over the base LM, either. }%DIFDELCMD < 
+This demonstrates that rejection sampling , as a post-hoc filtering technique, fails to enhance the LM's ability to generate correct code and is thus limited by the candidate quality produced by the base LM. Similarly, constrained decoding, which also relies on filtering during generation, would face comparable limitations as it cannot fundamentally improve over the base LM, either.
+}%DIFDELCMD < 
 
 %DIFDELCMD < %%%
 \DIFdel{In contrast, }%DIFDELCMD < \mainname %%%
@@ -1960,21 +1960,28 @@ In terms of token length, fully unifying type reasoning and code is far more eco
 %DIFDELCMD < %%%
 \DIFdel{These results validate }%DIFDELCMD < \mainname%%%
 \DIFdel{'s }\DIFdelend \DIFaddbegin \DIFadd{).
-It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds little and sometimes removes tokens.
-These results support the }\DIFaddend \textbf{Derivation Vicinality} paradigm \DIFdelbegin \DIFdel{: by unifying type reasoning and code generation into a single synthesis process, }\DIFdelend \DIFaddbegin \DIFadd{of }\DIFaddend \mainname\DIFdelbegin \DIFdel{achieves both higher accuracy and improved efficiency}\DIFdelend \DIFaddbegin \DIFadd{, that interleaving each program fragment with its type derivation is more accurate and more efficient than generating them separately.
-}
+It is even comparable to, or slightly shorter than, the plain code tokens alone (405 on SuFu, 142 on Java): a type derivation rule absorbs the redundant syntactic elements of the code (such as equals signs and semicolons) into a single rule token, so our representation adds few tokens and sometimes removes some.
+These results support the }\DIFaddend \textbf{Derivation Vicinality} paradigm \DIFdelbegin \DIFdel{: by unifying type reasoning and code generation into a single synthesis process, }%DIFDELCMD < \mainname %%%
+\DIFdel{achieves both higher accuracy and improved efficiency. }\DIFdelend \DIFaddbegin \DIFadd{of }\mainname\DIFadd{: interleaving each program fragment with its type derivation yields higher accuracy and efficiency than generating the two separately.
+}\DIFaddend 
 
-\subsection{\DIFadd{Limitations and Future Work}} \label{sec:limitations}
+\DIFaddbegin \subsection{\DIFadd{Limitations and Future Work}} \label{sec:limitations}
 \paragraph{\DIFadd{Dependence on the encoder-decoder architecture.}}
 \DIFadd{The current architecture is designed for encoder-decoder models: at each synthesis step, an encoder processes the evolving synthesis goal to provide the dynamic typing context.
 The decision-sequence representation and synthesis rules can be used unchanged with a decoder-only model. One adaptation would append the current typing context to the decision tokens generated so far as temporary input for predicting the next decision, then replace it with the updated context before the following prediction. This requires recomputing the context's key-value entries at each step and adapting cache management to the changing context. Implementing this decoding procedure and evaluating its runtime are directions for future work.
 }
 
 \paragraph{\DIFadd{Type-system expressiveness.}}
-\DIFadd{Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost. Rules requiring higher-order unification would need a suitable solver for a supported decidable fragment (Sec.~\ref{sec:meta}). This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work}\DIFaddend .
+\DIFadd{Our evaluation covers a Java subset and SuFu, while the CHC-based construction provides a path to richer type systems through rules in the supported form and suitable unification and constraint-checking procedures. For features that can be represented with first-order terms, such as many forms of subtyping, overloading, effects, and type classes, we need to implement the typing rules and solvers and then measure their cost.
+}
+
+\DIFadd{This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
+}
+
+\DIFadd{Across these extensions, the construction remains the same: because CHCs are Turing-complete, a computable type-checking algorithm can be expressed with CHCs, and the type-checking process of a program is converted into the decision sequences used for training (Sec.~\ref{sec:meta}). Computability does not imply termination on every program: in some systems, such as dependent-type elaboration and C++ template instantiation, the type check of certain programs does not terminate. Preparing training data for such a program times out, just as the corresponding compiler hangs on it, so these programs are excluded from the training data.
+}
 
 %DIF >  !TEX root=../manuscript.tex
-\DIFaddbegin 
 
 \DIFaddend \section{Related Work}\label{sec:related}
 
@@ -2018,7 +2025,7 @@ Third, existing systems do not consider neural architectures for learning type s
 \DIFaddend \section{Conclusion \label{sec:conclusion}}
 This paper presents \mainname, a proof-guided approach that guarantees type correctness in code generation by constructing existential type correctness proofs through a synthesis process. Through a synthesis system isomorphic to the type system and a synthesis decision sequence representation, \mainname ensures that constructing a synthesis derivation tree is equivalent to constructing an existential type correctness proof, thereby eliminating type errors during code generation, while significantly improving overall generation performance. 
 
-Beyond type correctness, \mainname's \DIFdelbegin \DIFdel{foundation on CHC enables broader applications, including }\DIFdelend \DIFaddbegin \DIFadd{CHC foundation suggests a route toward richer constraint families, such as }\DIFaddend safety verification and the generation of other structural data\DIFaddbegin \DIFadd{; instantiating and evaluating these extensions remains future work}\DIFaddend . Our core insight---that aligning program representations with underlying proof systems enhances \DIFdelbegin \DIFdel{the }\DIFdelend generation performance---opens promising directions \DIFdelbegin \DIFdel{to }\DIFdelend \DIFaddbegin \DIFadd{in }\DIFaddend other domains where structural constraints matter.
+Beyond type correctness, \mainname's \DIFdelbegin \DIFdel{foundation on CHC enables broader applications, including }\DIFdelend \DIFaddbegin \DIFadd{CHC foundation suggests a route toward richer constraint families, such as }\DIFaddend safety verification and the generation of other \DIFdelbegin \DIFdel{structural data}\DIFdelend \DIFaddbegin \DIFadd{structured data; instantiating and evaluating these extensions remains future work}\DIFaddend . Our core \DIFdelbegin \DIFdel{insight---that }\DIFdelend \DIFaddbegin \DIFadd{insight is that }\DIFaddend aligning program representations with underlying proof systems enhances \DIFdelbegin \DIFdel{the generation performance---opens promising directions to }\DIFdelend \DIFaddbegin \DIFadd{generation performance, which opens promising directions in }\DIFaddend other domains where structural constraints matter.
 
 % \section*{Data-Availability Statement}
 % An anonymized artifact supporting this paper—including experimental results, datasets, and source code—is available in an anonymous repository at \url{https://anonymous.4open.science/r/tacs-EF32}. We plan to submit this artifact for Artifact Evaluation upon paper notification.
@@ -2313,7 +2320,7 @@ TransCoder-GFG (414 / 103)~\mbox{%DIFAUXCMD
 \footnotesize \DIFaddFL{Cell entries are }\emph{\DIFaddFL{median (range)}}\DIFaddFL{; prompt length counts whitespace-separated words on the full prompt (imports + class skeleton + javadoc); gold LoC counts non-blank lines of the canonical reference solution; difficulty labels for TransCoder-GFG (easy / medium / hard) are 53 / 49 / 1.
 }\end{table}
 
-\DIFadd{HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as the additional benchmarks).
+\DIFadd{HumanEval-Java and TransCoder-GFG problems are short single-method snippets (median 12 LoC), whereas MBJP is the densest and most example-rich benchmark (median 27 LoC, prompt with three executable example cases and a gold solution about twice as long as those in the additional benchmarks).
 }
 
 \paragraph{\DIFadd{HumanEval-Java and TransCoder-GFG baselines.}}
@@ -2325,7 +2332,7 @@ TransCoder-GFG (414 / 103)~\mbox{%DIFAUXCMD
 \DIFaddend \subsection{SuFu Benchmark}
 
 The SuFu dataset is sourced from the GitHub repository accompanying the SuperFusion research paper (\href{https://github.com/jiry17/SuFu}{jiry17/SuFu}). SuperFusion is an advanced program optimization tool that processes SuFu programs as input and applies a series of transformations to improve computational efficiency. 
-The SuFu language features a type system that explicitly specifies those intermediate data structures to be optimized, and all code fragments operating on these data structures.
+The SuFu language features a type system that explicitly specifies th\DIFdelbegin \DIFdel{os}\DIFdelend e intermediate data structures to be optimized, and all code fragments operating on these data structures.
 The SuFu programs in this dataset are drawn from two primary lines of prior work. The first source consists of fusion tasks primarily collected from classical textbooks such as Introduction to Algorithms, while the second originates from research on program restructuring, where the goal is to transform a reference program into specific target forms such as divide-and-conquer or single-pass. 
 Each program is supplemented with a natural language description. These descriptions were first generated by the GPT-o3-mini model and then carefully reviewed and edited by human experts to correct inaccuracies and improve clarity.
 \DIFaddbegin \DIFadd{Each task prompt concatenates this description with the relevant inductive definitions and library functions, which are given as a program prefix; the remaining program, i.e., the target function and the }\tcode{main} \DIFadd{expression, is the part to be synthesized. The following prompt from the test split illustrates the format:
@@ -2473,7 +2480,7 @@ For each benchmark and model, every test task is assigned to one of four mutuall
 }\textbf{\DIFadd{Solved@1}} \DIFadd{(the top-1 candidate passes all tests);
 }\textbf{\DIFadd{Ranking failure}} \DIFadd{(some candidate in the top ten passes, but not the top-1 one);
 }\textbf{\DIFadd{All-invalid}} \DIFadd{(no candidate passes and none of the ten candidates compiles); and
-}\textbf{\DIFadd{Well-typed but wrong}} \DIFadd{(no candidate passes, but at least one candidate compiles---the failure is semantic, not syntactic).
+}\textbf{\DIFadd{Well-typed but wrong}} \DIFadd{(no candidate passes, but at least one candidate compiles; the failure is semantic, not syntactic).
 }
 
 \begin{table}[ht]
@@ -2509,7 +2516,7 @@ Benchmark & Model & {Solved@1} & {Ranking} & {All-invalid} & {\shortstack{Well-t
 \end{threeparttable}
 \end{table}
 
-\DIFadd{Counts in }\autoref{tab:failure-taxonomy} \DIFadd{are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid }\mainname\DIFadd{-2B tasks include the documented budget-exhaustion (fail-closed) task.
+\DIFadd{Counts in }\autoref{tab:failure-taxonomy} \DIFadd{are derived from per-candidate statuses of the frozen runs; timeouts and unfilled slots count as invalid, and the two TransCoder-GFG all-invalid }\mainname\DIFadd{-2B tasks include one task that exhausts the step budget and is counted as invalid (fail-closed).
 On MBJP, the baseline produces no compilable candidate for four tasks, while }\mainname{} \DIFadd{produces at least one for every task. On HumanEval-Java, neither model has a task with no compilable candidate; on TransCoder-GFG, both models have two such tasks. Most tasks not solved by }\mainname{} \DIFadd{at pass@1 have at least one compilable candidate but no candidate passing all tests. On MBJP, for example, this accounts for 38 of the 50 tasks not solved at pass@1; it is also the largest remaining failure category on the other two benchmarks. In other cases, a correct candidate is generated but not ranked first: this occurs on 12 MBJP tasks, one HumanEval-Java task, and 17 TransCoder-GFG tasks. These tasks count as successes at pass@10 but not at pass@1.
 }
 
@@ -2529,7 +2536,7 @@ public static List<Integer> tupleStrInt(String testStr) {
     return ret;
 \end{Verbatim}
 \end{tcolorbox}
-\DIFadd{Without the brace, the loop body is a single statement, the closing brace terminates the method early, and }\texttt{\DIFadd{javac}} \DIFadd{reports }\texttt{\DIFadd{illegal start of type}} \DIFadd{at the }\texttt{\DIFadd{return}} \DIFadd{statement.
+\DIFadd{Without the brace, the loop body is a single statement; the closing brace therefore terminates the method early, and }\texttt{\DIFadd{javac}} \DIFadd{reports }\texttt{\DIFadd{illegal start of type}} \DIFadd{at the }\texttt{\DIFadd{return}} \DIFadd{statement.
 The model produces plausible token-level continuations, but nothing prevents such structural corruption.
 }
 

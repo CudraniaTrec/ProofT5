@@ -6,7 +6,7 @@ In this section, we introduce the necessary preliminaries on constrained Horn cl
 \subsection{Preliminaries}
 \subsubsection{Constrained Horn Clauses}
 \label{chc-intro}
-Constrained Horn clauses (CHCs) are a fragment of first-order logic with applications to program verification and synthesis~\cite{DBLP:conf/synasc/GurfinkelB19}. A constrained Horn clause, in this setting, is a universally quantified implication of the canonical form:
+Constrained Horn clauses (CHCs) are a fragment of first-order logic with applications to program verification and synthesis~\cite{DBLP:conf/synasc/GurfinkelB19}. A constrained Horn clause, in this setting, is a universally quantified implication in the canonical form:
 \begin{center}
 \begin{prooftree}[rule margin=0.5ex, separation=1em]
 \hypo{P_1(\overline{x}_1)}
@@ -21,7 +21,7 @@ Constrained Horn clauses (CHCs) are a fragment of first-order logic with applica
 \end{center}
 Each clause consists of zero or more premises, where each premise is a judgment formed by applying an uninterpreted predicate $P_i$ to terms $\overline{x}_i$. It also includes a constraint $\phi(\overline{y})$, a computable function over terms $\overline{y}$, and concludes with a single judgment $P(\overline{x}_0)$.
 %
-This rule states that the judgment $P(\overline{x}_0)$ can be derived whenever all the premises $P_i(\overline{x}_i)$ are derivable and the constraint $\phi(\overline{y})$ holds. Without loss of generality, we can assume that every variable of terms in $\overline{y}$ occurs among a term in the premises or conclusion, namely $FV(\overline{y})\subseteq \bigcup_{i=0}^n FV(\overline{x}_i)$, which ensures that the constraints are always deterministic and checkable given the premises and conclusion.
+This rule states that the judgment $P(\overline{x}_0)$ can be derived whenever all the premises $P_i(\overline{x}_i)$ are derivable and the constraint $\phi(\overline{y})$ holds. Without loss of generality, we can assume that every variable occurring in $\overline{y}$ also occurs in some term of the premises or the conclusion, namely $FV(\overline{y})\subseteq \bigcup_{i=0}^n FV(\overline{x}_i)$, which ensures that the constraints are always deterministic and checkable given the premises and conclusion.
 
 \begin{example}
 Consider the typing rule \textsc{T-App} for function application in $\stlc$:
@@ -53,10 +53,10 @@ The MGU preserves maximum generality by not over-constraining variables. For ins
 
 In our synthesis framework, unification enables typing rules to be applied by aligning the schematic parameters in a rule's conclusion with the current synthesis goal. When a typing rule is selected, unification extracts the relationship between the goal's unknowns and the rule's parameters, propagating known information and establishing constraints between unknowns.
 %
-In this paper, we restrict ourselves to \emph{first-order unification}, where variables range only over terms and not over functions or predicates. 
-First-order unification always terminates. It either rejects two terms or returns a most-general unifier that is unique up to variable renaming~\cite{DBLP:journals/jacm/Robinson65}. These guarantees let \mainname apply a selected typing rule and update its remaining premises.
+The CHC form introduced above is a fragment of first-order logic: predicates are applied to first-order terms, so the unification performed in rule application is first-order by construction.
+First-order unification always terminates. It either fails to unify the terms or returns a most-general unifier that is unique up to variable renaming~\cite{DBLP:journals/jacm/Robinson65}. These guarantees let \mainname apply a selected typing rule and update its remaining premises.
 
-Supporting higher-order functions does not by itself require higher-order unification. The latter is needed only when an unknown to be solved is itself a higher-order function, type constructor, or predicate. Most languages never create such problems: their unknowns are ordinary types, and first-order unification suffices for applying their typing rules. The few languages that do, such as dependent-type systems, can be supported through a decidable fragment with principal unifiers, such as higher-order patterns, by using a different unifier, since general higher-order unification is undecidable~\cite{DBLP:journals/tcs/Goldfarb81}.
+Because CHCs are Turing-complete (\autoref{chc-intro}), any computable type check can be encoded as constrained Horn clauses over first-order terms; this covers languages with function types and function values. The derivations produced during checking can then be extracted as training decision sequences.
 
 \subsection{Terms and Typing Rules}
 \subsubsection{Terms}
@@ -103,9 +103,9 @@ In general, terms may contain known and unknown components, so in the remainder 
     This allows multiple substitutions to be applied sequentially.
     A substitution $\sigma$ can also operate on a list of terms $\overline{t} = [t_1, t_2, \ldots, t_n]$, yielding a new list $\sigma(\overline{t}) = [\sigma(t_1), \sigma(t_2), \ldots, \sigma(t_n)]$ where $\sigma$ is applied to each term individually.
     
-    \item An \textbf{assignment} is a special case of a substitution whose codomain ranges over ground terms.
+    \item An \textbf{assignment} is a special case of a substitution whose codomain consists of ground terms.
     %that is, it is a function $\sigma : \mathcal{V}_0 \to \mathcal{G}_\mathcal{T}$, where $\mathcal{G}_\mathcal{T} \subseteq \mathcal{T}$ is the set of ground terms. 
-    Assignments serve as the ultimate objective of the synthesis, as we require that the typing judgments, as synthesis goals, can be instantiated with no remaining uncertainties.
+    Assignments are the ultimate objective of synthesis, since the synthesis goal must be fully instantiated with no variables left unknown.
 \end{enumerate}
 
 
@@ -114,7 +114,7 @@ We formalize the typing rules of the object language as CHCs for their expressiv
 %
 The user should also provide at least one typing rule whose conclusion is $\welltyped{p}$, the top-level judgment asserting that program $p$ is well-typed. For example, in $\stlc$, this judgment can be defined as $\exists t.\; \stlctype{\tcode{empty}}{p}{t}$, meaning that the program $p$ is well-typed under the empty context.
 
-A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{derivable} from a given set of typing rules if there exists a finite derivation tree whose root is labeled with $P(\overline{t})$, each internal node corresponds to the application of a typing rule, and all constraints of typing rules are satisfied. The type derivation tree is precisely this tree structure that witnesses the derivability of a typing judgment.
+A judgment $P(\overline{t})$, where $\overline{t}$ are ground terms, is \emph{derivable} from a given set of typing rules if there exists a finite derivation tree whose root is labeled with $P(\overline{t})$, each internal node corresponds to the application of a typing rule, and all constraints of typing rules are satisfied. A type derivation tree is precisely this tree structure that witnesses the derivability of a typing judgment.
 %
 From a logical perspective, a type derivation tree is a \textbf{type correctness proof}: it proves that the typing judgment at the root holds. This correspondence between derivation trees and proofs is central to our approach. Later, we will show that a synthesis derivation tree corresponds to constructing an \textbf{existential type correctness proof} when the program is unknown: the synthesis process simultaneously discovers the program and constructs a proof of its type correctness.
 
@@ -160,9 +160,9 @@ A typing rule in \autoref{T-Rule} can be translated into a synthesis rule in \au
   \item \textbf{Conclusion translation.} The conclusion $P(\overline{x}_0)$ of the typing rule is replaced by a synthesis judgment $P(\overline{x}) \leadsto \sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ (with the same predicate $P$), where $\overline{x}$ is a sequence of newly introduced variables and can be instantiated with respect to the synthesis goal. $\mvhzc(\overline{x})$ denotes the set of variables in $\overline{x}$, which are the only variables that need to be synthesized. 
   $\sigma_n \ldots \sigma_0 \sigma|_{\mvhzc(\overline{x})}$ indicates that the final assignment is restricted to only those variables in $\overline{x}$.
 
-  \item \textbf{Adding unification.} The unification step is added at the beginning of the synthesis rule, which unifies the variables $\overline{x}$ in the synthesis goal with the variables $\overline{x}_0$ in the conclusion of the typing judgment, yielding a substitution $\sigma$ that is the MGU of the unification problem. 
+  \item \textbf{Adding unification.} The unification step is added at the beginning of the synthesis rule, which unifies the variables $\overline{x}$ in the synthesis goal with the variables $\overline{x}_0$ in the conclusion of the typing rule, yielding a substitution $\sigma$ that is the MGU of the unification problem. 
   
-  \item \textbf{Adding Free variables acquisition.} The variables appearing in $\overline{x}_0$ but not in any of the $\overline{x}_i$ are collected into $\overline{x}_f$, defined as $\overline{x}_f = \text{list}(\mvhzc(\overline{x}_0) \setminus \bigcup_{i=1}^n \mvhzc(\overline{x}_i))$. We refer to $\overline{x}_f$ as the \emph{free variables} of the synthesis rule: they may not be bound by any premise even after unification, and thus should be acquired from external sources, yielding the assignment $\sigma_0$.
+  \item \textbf{Adding free-variable acquisition.} The variables appearing in $\overline{x}_0$ but not in any of the $\overline{x}_i$ are collected into $\overline{x}_f$, defined as $\overline{x}_f = \text{list}(\mvhzc(\overline{x}_0) \setminus \bigcup_{i=1}^n \mvhzc(\overline{x}_i))$. We refer to $\overline{x}_f$ as the \emph{free variables} of the synthesis rule: they may not be bound by any premise even after unification, and thus should be acquired from external sources, yielding the assignment $\sigma_0$.
   
   \item \textbf{Premises translation.} Each premise $P_i(\overline{x}_i)$ is replaced by $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)) \leadsto \sigma_i$, where $\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i)$ instantiates the original terms $\overline{x}_i$ with substitutions from previous steps, and $\sigma_i$ is the assignment synthesized for the subgoal $P_i(\sigma_{i-1} \cdots \sigma_0 \sigma(\overline{x}_i))$ ($i\geq1$).
   

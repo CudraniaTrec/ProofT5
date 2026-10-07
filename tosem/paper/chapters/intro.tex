@@ -5,7 +5,7 @@ Recently, language models (LMs) have achieved great success in code generation~\
 %
 LMs typically treat programs as plain text, encoding them as sequences of tokens and generating code by iteratively predicting the next token given the current partial program. After being trained on large corpora of code and natural language, such LMs can generate programs on demand with high accuracy.
 
-However, language models (LMs) frequently struggle with type systems, often producing code that violates basic type constraints. 
+However, LMs frequently struggle with type systems, often producing code that violates basic type constraints. 
 Empirical studies indicate that type errors alone account for 33.6\% of failed LM-generated programs~\cite{DBLP:journals/ese/TambonDNKDA25, DBLP:journals/corr/abs-2407-06153}. 
 Notably, even cutting-edge tools powered by state-of-the-art LMs can generate code that fails to compile.
 For instance, an evaluation of GitHub Copilot on LeetCode revealed that 24\% of its suggestions resulted in compilation errors~\cite{DBLP:conf/msr/NguyenN22}, which mainly resulted from type errors~\cite{DBLP:journals/corr/abs-2504-09246}. 
@@ -13,7 +13,7 @@ This type validity problem becomes particularly pronounced in resource-limited l
 
 Ensuring type correctness is also useful beyond reducing type errors. 
 First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system. For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. 
-Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, by assisting LMs through external facilities for satisfying the constraints during training and inference, the overall performance of the model will further improve, possibly because the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
+Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, assisting LMs through external facilities for satisfying the constraints during training and inference further improves the overall performance of the model. A possible reason is that the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
 Ensuring type correctness in practice, however, remains challenging. 
@@ -78,7 +78,7 @@ These approaches leverage external type checkers and reject untypable programs g
 %
 However, such an external patch cannot bridge the gap in principle.
 %
-Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution among well-typed programs~\cite{DBLP:conf/nips/ParkWBPD24}.
+Constrained decoding can only exclude ill-typed programs; it does not help the model learn type systems, and thus cannot improve, and may even worsen, the distribution over well-typed programs~\cite{DBLP:conf/nips/ParkWBPD24}.
 %
 For example, in our sample task, \toolname{CodeT5} assigns a low probability to the expected expression (\autoref{fig:codet5-correct}), possibly because the LM is unaware of the auto-unboxing rule and thus incorrectly identifies it as ill-typed.
 %
@@ -91,7 +91,7 @@ However, the separation between program generation and type reasoning introduces
 As a result, this approach not only hinders learning efficiency but also causes inconsistencies between type reasoning and generated code. As our evaluation will later demonstrate, it does not yield satisfactory performance.
 
 % our approach
-Building on these insights, we aim to propose a new synthesis system that \emph{reconciles type systems internally with LMs}. 
+Building on these insights, we propose a new synthesis system that \emph{reconciles type systems with LMs internally}. 
 Our approach leverages the fact that LMs are not confined to generating programs as plain text; they can be incorporated into any search-based system that constructs programs via sequences of decisions, with each decision made in a specific context. 
 For any such system, an LM can be trained to predict the optimal decision at each step, enabling program synthesis by interacting with the LM throughout the search process.
 
@@ -108,7 +108,7 @@ Specifically, we expect the system $\mathcal S$ to satisfy the following propert
 \[
 \exists p.\; \mathsf{welltyped}(p)
 \]
-must explicitly construct a witness program $p$. Thus, there exists an extraction function $\mathsf{extract}$ such that $\mathsf{extract}(\Pi) = p$. We leverage this insight to design a novel synthesis system and program representation that unifies program generation with type reasoning.
+must explicitly construct a witness program $p$. Thus, there exists an extraction function $\mathsf{extract}$ such that $\mathsf{extract}(\Pi) = p$. We leverage this insight to design a novel synthesis system and program representation that unify program generation with type reasoning.
 
 Based on this observation, the process of constructing an existential proof can be reformulated as a program synthesis process. The proof is built by applying typing rules step by step, where each step makes a \textit{decision} that either applies a rule to decompose the current goal into subgoals, or instantiates a variable within the context. Since the program is embedded within the proof, this sequence of decisions simultaneously determines the program being synthesized.
 
