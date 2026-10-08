@@ -1,32 +1,46 @@
 Dear Editors of ACM Transactions on Software Engineering and Methodology,
 
-We are pleased to submit our manuscript entitled "TyFlow: A Type-Aware Approach to Neural Code Models" for consideration for publication in TOSEM.
+We are pleased to submit the revised version of our manuscript entitled
+"TyFlow: A Type-Aware Approach to Neural Code Models" (manuscript
+TOSEM-2026-0076), prepared in response to the Major Revision decision of
+June 16, 2026.
 
-Summary:
-This paper addresses the challenge of ensuring type correctness in neural code generation by internalizing type reasoning within the generation process itself.
+All comments from the editor and the three reviewers have been addressed
+with new experiments, new analyses, and targeted revisions to the paper.
+The main additions are a failure taxonomy over all Java test tasks
+(App. C), two added Java benchmarks that enlarge the evaluation to 186
+tasks together with a per-language significance analysis (App. B, App. D),
+a comparison with three larger decoder-only models (Table 3), a comparison
+with four reliability-oriented generation methods (Table 5), runtime and
+pruning measurements of the constrained decoder (RQ2), and a new
+Limitations subsection (Sec. 6.3). A point-by-point response to every
+comment accompanies this submission.
 
-Key Contributions:
-- A novel type-guided program synthesis framework that maintains an isomorphism between type derivation trees and synthesis derivation trees
-- A new code representation based on synthesis decision sequences, which inherently guarantees type correctness
-- Comprehensive evaluation demonstrating that our approach eliminates type errors and significantly improves functional correctness
+Files provided with this submission:
 
-Why TOSEM:
-We believe this work is well-suited for TOSEM due to its strong methodological contribution at the intersection of programming languages and machine learning. Our approach provides a principled foundation for integrating formal type systems into neural code generation, offering both theoretical insights (the isomorphism between type derivations and synthesis derivations) and practical improvements (guaranteed type correctness with better functional accuracy). This aligns well with TOSEM's emphasis on rigorous methodology in software engineering.
+1. manuscript.pdf - the revised manuscript (clean version, 45 pages).
 
-Conference Extended Version:
-This is an original submission and is not an extended version of any previously published conference paper.
+2. manuscript_marked.pdf - the same revised manuscript with all changes
+   marked: additions shown in blue, deletions struck through in red.
 
-Conflict of Interest:
-The authors declare no conflicts of interest.
+3. revision_response_letter.pdf - the response letter: each reviewer
+   comment quoted in full, followed by our detailed response, a summary
+   of the changes made, and the corresponding passages quoted from the
+   revised manuscript.
 
-Additional Statement:
-The manuscript has not been published in any peer-reviewed venue and is not under consideration by any other journal. A preprint version is available on arXiv.
+This is an original submission and is not an extended version of any
+previously published conference paper. The manuscript has not been
+published in any peer-reviewed venue and is not under consideration by
+any other journal. A preprint version is available on arXiv. The authors
+declare no conflicts of interest.
 
-Thank you for considering our submission. We look forward to your response.
+Thank you for considering our revised submission. We look forward to the
+reviewers' feedback.
 
 Sincerely,
 
-Zhechong Huang, Zhao Zhang, Ruyi Ji, Tingxuan Xia, Qihao Zhu, Qinxiang Cao, Zeyu Sun, Wiggin Zhou, Yingfei Xiong
+Zhechong Huang, Zhao Zhang, Ruyi Ji, Tingxuan Xia, Qihao Zhu, Qinxiang
+Cao, Zeyu Sun, Wiggin Zhou, Yingfei Xiong
 
 Corresponding Author:
 Yingfei Xiong
