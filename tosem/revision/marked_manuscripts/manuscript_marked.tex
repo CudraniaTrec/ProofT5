@@ -1,7 +1,7 @@
 \documentclass[manuscript,screen]{acmart}
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /tmp/marked_build.dtHI1r/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
-%DIF ADD /tmp/marked_build.dtHI1r/new/manuscript.tex                Wed Oct  7 13:39:26 2026
+%DIF DEL /tmp/marked_build.v4pSQb/orig/tosem/paper/manuscript.tex   Tue Jun 30 03:55:36 2026
+%DIF ADD /tmp/marked_build.v4pSQb/new/manuscript.tex                Thu Oct  8 02:33:05 2026
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{booktabs}%表格
@@ -356,8 +356,8 @@ This type validity problem becomes particularly pronounced in resource-limited l
 %DIF < Theoretically, while enhancing type systems with additional symbolic constraints could improve code safety, such strengthened systems would inevitably suffer from even scarcer training data, creating a fundamental limitation for data-driven approaches. 
 %DIF < Despite the challenge, recent research offers a promising benefit: by reducing the LMs' burden of learning these constraints implicitly, we can free up their capacity for mastering program semantics and algorithmic logic, thereby significantly boosting overall performance. This aligns with findings in syntactic learning, where explicit structural guidance has been shown to enhance correctness across model scales~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}.
 Ensuring type correctness is also useful beyond reducing type errors. 
-First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system. %DIF < It is better to give an important decidable property to astonish the reviewer.
-For example, Rust \DIFdelbegin \DIFdel{ensured }\DIFdelend \DIFaddbegin \DIFadd{ensures }\DIFaddend no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. 
+First, the type system is essentially a static analysis system, and in theory, we can incorporate any \DIFdelbegin \DIFdel{decidable }\DIFdelend \DIFaddbegin \DIFadd{computable }\DIFaddend constraint into the type system. %DIF < It is better to give an important decidable property to astonish the reviewer.
+For example, Rust \DIFdelbegin \DIFdel{ensured }\DIFdelend \DIFaddbegin \DIFadd{ensures }\DIFaddend no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any \DIFdelbegin \DIFdel{decidable }\DIFdelend \DIFaddbegin \DIFadd{computable }\DIFaddend safety property of the code. 
 Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, \DIFdelbegin \DIFdel{by }\DIFdelend assisting LMs through external facilities for satisfying the constraints during training and inference \DIFdelbegin \DIFdel{, }\DIFdelend \DIFaddbegin \DIFadd{further improves }\DIFaddend the overall performance of the model\DIFdelbegin \DIFdel{will further improve, possibly because }\DIFdelend \DIFaddbegin \DIFadd{. A possible reason is that }\DIFaddend the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
@@ -1978,7 +1978,7 @@ The decision-sequence representation and synthesis rules can be used unchanged w
 \DIFadd{This extension path also applies to statically checkable properties of dynamically typed languages such as Python: we can select a statically checkable subset and model its typing rules. Automatically recovering derivations under these rules would provide training decision sequences, while the corresponding synthesis rules would ensure that generated programs satisfy the modeled static checks, rather than guarantee all runtime behavior. Implementing and evaluating these extensions remains future work.
 }
 
-\DIFadd{Across these extensions, the construction remains the same: because CHCs are Turing-complete, a computable type-checking algorithm can be expressed with CHCs, and the type-checking process of a program is converted into the decision sequences used for training (Sec.~\ref{sec:meta}). Computability does not imply termination on every program: in some systems, such as dependent-type elaboration and C++ template instantiation, the type check of certain programs does not terminate. Preparing training data for such a program times out, just as the corresponding compiler hangs on it, so these programs are excluded from the training data.
+\DIFadd{Across these extensions, the construction remains the same: because CHCs are Turing-complete, a computable type-checking algorithm can be expressed with CHCs, and the type-checking process of a program is converted into the decision sequences used for training (Sec.~\ref{sec:meta}). Computability does not imply termination on every program: in some systems, such as dependent-type elaboration and C++ template instantiation, the type check of certain programs does not terminate. Preparing training data for such a program times out, just as the corresponding compiler hangs on it, so these programs are not valid under the original semantics of the language and are excluded from the training data.
 }
 
 %DIF >  !TEX root=../manuscript.tex

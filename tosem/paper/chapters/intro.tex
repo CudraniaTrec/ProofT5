@@ -12,7 +12,7 @@ For instance, an evaluation of GitHub Copilot on LeetCode revealed that 24\% of 
 This type validity problem becomes particularly pronounced in resource-limited languages or those with complex type systems~\cite{DBLP:journals/corr/abs-2406-00515,DBLP:journals/corr/abs-2410-03981}.
 
 Ensuring type correctness is also useful beyond reducing type errors. 
-First, the type system is essentially a static analysis system, and in theory, we can incorporate any decidable constraint into the type system. For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any decidable safety property of the code. 
+First, the type system is essentially a static analysis system, and in theory, we can incorporate any computable constraint into the type system. For example, Rust ensures no invalid memory access through an ownership type system. Therefore, by enriching the type system, we can enforce any computable safety property of the code. 
 Second, as revealed by recent studies~\cite{zhang2025gramtransbettercoderepresentation, DBLP:conf/acl/LiangZ0LLXCZZZC25}, even if LMs can learn to satisfy simple code constraints such as syntactic correctness given sufficient training data, assisting LMs through external facilities for satisfying the constraints during training and inference further improves the overall performance of the model. A possible reason is that the computational resources of the model can then be saved for higher-level tasks, such as algorithm design and aligning the semantics between the programs and the natural language description. 
 
 % challenges in avoiding type errors
