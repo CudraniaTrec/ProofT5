@@ -1,0 +1,46 @@
+Response to the Editor and Reviewers
+
+We thank the editor and the three reviewers for their constructive
+comments. Every concern has been addressed with new experiments, new
+analyses, and targeted revisions to the paper. A point-by-point response
+accompanies this submission as a separate file. The main additions:
+
+- Failure analysis (App. C). Every test task of the three Java benchmarks
+  is classified into four mutually exclusive categories, with
+  representative failure cases.
+
+- Expanded evaluation (Sec. 6.1, App. B, App. D). Two added Java
+  benchmarks (HumanEval-Java and TransCoder-GFG) enlarge the Java
+  evaluation to 186 tasks from three independent sources; a per-language
+  significance analysis with sign-flip tests and bootstrap confidence
+  intervals finds all eight model comparisons significant.
+
+- Comparison with larger, recent models (Table 3). Zero- and few-shot
+  pass@1 of MiMo-7B, Qwen3-14B, and Qwen3-30B-A3B on all four benchmarks,
+  alongside our fine-tuned 2B models.
+
+- Comparison with state-of-the-art techniques (Table 5). Rejection
+  sampling, SynCode, Repilot, and iterative compiler repair on MBJP,
+  under a shared protocol with stated computational budgets.
+
+- Scalability and system cost (RQ2). Measured pruning strength of each
+  component, beam-exhaustion behavior, and per-step and per-task runtime
+  of the constrained decoder.
+
+- Discussion (Sec. 6.3). A new Limitations subsection covers the
+  encoder-decoder dependence, extension to dynamically typed languages,
+  and type-system expressiveness; Secs. 2-4 add the requested
+  clarifications on completeness, the type-system scope, and the example
+  language.
+
+Files provided with this submission:
+
+1. manuscript.pdf - the revised manuscript (clean version, 45 pages).
+
+2. manuscript_marked.pdf - the same revised manuscript with all changes
+   marked: additions shown in blue, deletions struck through in red.
+
+3. revision_response_letter.pdf - the response letter: each reviewer
+   comment quoted in full, followed by our detailed response, a summary
+   of the changes made, and the corresponding passages quoted from the
+   revised manuscript.
